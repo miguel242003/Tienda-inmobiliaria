@@ -1,0 +1,9 @@
+Carpeta para las imágenes del carrusel.
+
+Las imágenes deben ser:
+- interior-1.jpg (primera imagen del carrusel)
+- interior-2.jpg (segunda imagen del carrusel)
+
+Formato recomendado: JPG, JPEG o PNG
+Resolución recomendada: 1920x1080 o similar (16:9)
+Tamaño recomendado: menos de 2MB cada una

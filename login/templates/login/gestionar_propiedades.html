@@ -1,0 +1,284 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Gestionar Propiedades - Dashboard{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-primary text-white py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="fw-bold mb-0">
+                    <i class="fas fa-home me-2"></i>Gestionar Propiedades
+                </h1>
+                <p class="lead mb-0">Administra todas las propiedades del catálogo</p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <a href="{% url 'login:dashboard' %}" class="btn btn-outline-light me-2">
+                    <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                </a>
+                <a href="{% url 'propiedades:crear' %}" class="btn btn-light">
+                    <i class="fas fa-plus"></i> Nueva Propiedad
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Content -->
+<section class="py-5">
+    <div class="container">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Properties Table -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list text-primary me-2"></i>
+                            Lista de Propiedades ({{ propiedades.count }})
+                        </h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar propiedades...">
+                            <button class="btn btn-outline-secondary" type="button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="propertiesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Imagen</th>
+                                <th>Título</th>
+                                <th>Tipo</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
+                                <th>Ubicación</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for propiedad in propiedades %}
+                            <tr data-propiedad-id="{{ propiedad.id }}">
+                                <td>
+                                    {% if propiedad.imagen_principal %}
+                                        <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.titulo }}" 
+                                             class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center" 
+                                             style="width: 60px; height: 60px;">
+                                            <i class="fas fa-home text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ propiedad.titulo }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ propiedad.metros_cuadrados }} m²</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ propiedad.get_tipo_display }}</span>
+                                </td>
+                                <td>
+                                    <strong class="text-success">{{ propiedad.get_precio_formateado }}</strong>
+                                </td>
+                                <td>
+                                    {% if propiedad.estado == 'disponible' %}
+                                        <span class="badge bg-success">{{ propiedad.get_estado_display }}</span>
+                                    {% elif propiedad.estado == 'vendida' %}
+                                        <span class="badge bg-danger">{{ propiedad.get_estado_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">{{ propiedad.get_estado_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>{{ propiedad.ubicacion }}</small>
+                                </td>
+                                <td>
+                                    <small>{{ propiedad.fecha_creacion|date:"d/m/Y" }}</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'propiedades:detalle' propiedad.id %}" 
+                                           class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'login:editar_propiedad' propiedad.id %}" 
+                                           class="btn btn-sm btn-outline-warning" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmarEliminar({{ propiedad.id }}, '{{ propiedad.titulo }}')" 
+                                                title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <div class="text-muted">
+                                        <i class="fas fa-home fa-3x mb-3"></i>
+                                        <h5>No hay propiedades registradas</h5>
+                                        <p>Comienza agregando tu primera propiedad al catálogo.</p>
+                                        <a href="{% url 'propiedades:crear' %}" class="btn btn-primary">
+                                            <i class="fas fa-plus"></i> Agregar Primera Propiedad
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que quieres eliminar la propiedad <strong id="propiedadTitulo"></strong>?</p>
+                <p class="text-muted small">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let propiedadAEliminar = null;
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const table = document.getElementById('propertiesTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for (let row of rows) {
+        const title = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        const location = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || location.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+});
+
+// Delete confirmation
+function confirmarEliminar(propiedadId, titulo) {
+    propiedadAEliminar = propiedadId;
+    document.getElementById('propiedadTitulo').textContent = titulo;
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    modal.show();
+}
+
+// Execute delete
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    if (propiedadAEliminar) {
+        eliminarPropiedad(propiedadAEliminar);
+    }
+});
+
+function eliminarPropiedad(propiedadId) {
+    fetch(`/login/eliminar-propiedad-ajax/${propiedadId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove row from table
+            const row = document.querySelector(`tr[data-propiedad-id="${propiedadId}"]`);
+            if (row) {
+                row.remove();
+            }
+            
+            // Show success message
+            mostrarMensaje(data.message, 'success');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+            modal.hide();
+            
+            // Update count
+            actualizarContador();
+        } else {
+            mostrarMensaje(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarMensaje('Error al eliminar la propiedad', 'danger');
+    });
+}
+
+function mostrarMensaje(mensaje, tipo) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+function actualizarContador() {
+    const filasVisibles = document.querySelectorAll('#propertiesTable tbody tr:not([style*="display: none"])').length;
+    const contador = document.querySelector('.card-header h5');
+    contador.innerHTML = `<i class="fas fa-list text-primary me-2"></i>Lista de Propiedades (${filasVisibles})`;
+}
+</script>
+
+<!-- CSRF Token -->
+{% csrf_token %}
+{% endblock %}

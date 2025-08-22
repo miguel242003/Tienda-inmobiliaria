@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Administrativo - Tienda Inmobiliaria</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <!-- Header/Hero Dashboard -->
+    <header class="relative bg-gradient-to-br from-blue-600 to-cyan-500 text-white overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-600/90 to-cyan-500/90"></div>
+        
+        <!-- Content -->
+        <div class="relative z-10 container mx-auto px-4 py-8">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <!-- Title and Greeting -->
+                <div class="mb-6 lg:mb-0">
+                    <h1 class="text-4xl lg:text-5xl font-bold mb-2">Dashboard Administrativo</h1>
+                    <p class="text-xl text-blue-100">Bienvenido, {{ user.username|default:"Administrador" }}. Gestiona tu sitio web desde aquí.</p>
+                </div>
+                
+                <!-- Logout Button -->
+                <a href="{% url 'login:logout' %}" 
+                   class="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-blue-600"
+                   aria-label="Cerrar sesión">
+                    <i data-lucide="log-out" class="w-5 h-5 mr-2"></i>
+                    Cerrar Sesión
+                </a>
+            </div>
+        </div>
+        
+        <!-- Rounded Bottom Corners -->
+        <div class="absolute bottom-0 left-0 right-0 h-8 bg-gray-50 rounded-t-3xl"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- Stats Cards -->
+        <section class="mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- Usuarios Totales -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                            <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" id="totalUsers">{{ total_users|default:"0" }}</div>
+                            <div class="text-sm text-gray-600">Usuarios Totales</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Administradores -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                            <i data-lucide="shield" class="w-8 h-8 text-green-600"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" id="totalAdmins">{{ staff_users|default:"0" }}</div>
+                            <div class="text-sm text-gray-600">Administradores</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Propiedades -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                            <i data-lucide="home" class="w-8 h-8 text-purple-600"></i>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" id="totalProperties">{{ total_propiedades|default:"0" }}</div>
+                            <div class="text-sm text-gray-600">Propiedades</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Acciones Rápidas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Nueva Propiedad -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="plus-circle" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Nueva Propiedad</h3>
+                        <p class="text-sm text-gray-600 mb-4">Agregar una nueva propiedad al catálogo</p>
+                        <a href="{% url 'propiedades:crear' %}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                           aria-label="Agregar nueva propiedad">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                            Agregar
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Gestionar Propiedades -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="list" class="w-8 h-8 text-green-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Gestionar Propiedades</h3>
+                        <p class="text-sm text-gray-600 mb-4">Ver, editar y eliminar propiedades</p>
+                        <a href="{% url 'login:gestionar_propiedades' %}" 
+                           class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                           aria-label="Gestionar propiedades">
+                            <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
+                            Gestionar
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Nuevo Usuario -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="user-plus" class="w-8 h-8 text-purple-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Nuevo Usuario</h3>
+                        <p class="text-sm text-gray-600 mb-4">Crear una nueva cuenta de usuario</p>
+                        <a href="{% url 'admin:auth_user_add' %}" 
+                           class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                           aria-label="Crear nuevo usuario">
+                            <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
+                            Crear
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Configuración -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="settings" class="w-8 h-8 text-orange-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Configuración</h3>
+                        <p class="text-sm text-gray-600 mb-4">Configurar el sitio web</p>
+                        <a href="{% url 'admin:index' %}" 
+                           class="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                           aria-label="Configurar sitio web">
+                            <i data-lucide="settings" class="w-4 h-4 mr-2"></i>
+                            Configurar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                        <i data-lucide="activity" class="w-5 h-5 text-blue-600 mr-2"></i>
+                        Actividad Reciente
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Últimas Propiedades -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-600 mb-4 flex items-center">
+                                <i data-lucide="home" class="w-5 h-5 mr-2"></i>
+                                Últimas Propiedades
+                            </h3>
+                            <div class="space-y-3">
+                                {% for propiedad in propiedades_recientes %}
+                                <div class="flex items-center py-2">
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                        <i data-lucide="home" class="w-4 h-4 text-green-600"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">{{ propiedad.titulo }}</p>
+                                        <p class="text-xs text-gray-500">{{ propiedad.get_precio_formateado }}</p>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="flex items-center py-2">
+                                    <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                                        <i data-lucide="info" class="w-4 h-4 text-gray-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm text-gray-500">No hay propiedades registradas</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Acciones del Sistema -->
+                        <div>
+                            <h3 class="text-lg font-semibold text-blue-600 mb-4 flex items-center">
+                                <i data-lucide="zap" class="w-5 h-5 mr-2"></i>
+                                Acciones del Sistema
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center py-2">
+                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                        <i data-lucide="user-plus" class="w-4 h-4 text-green-600"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">Nuevo usuario registrado</p>
+                                        <p class="text-xs text-gray-500">hace 2 horas</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center py-2">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i data-lucide="edit" class="w-4 h-4 text-blue-600"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">Propiedad actualizada</p>
+                                        <p class="text-xs text-gray-500">hace 4 horas</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center py-2">
+                                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                        <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">Propiedad eliminada</p>
+                                        <p class="text-xs text-gray-500">hace 1 día</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        // Initialize all Lucide icons
+        lucide.createIcons();
+        
+        // Counter Animation Script
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate counters when they come into view
+            const counters = document.querySelectorAll('[id^="total"]');
+            
+            const animateCounter = (element, target) => {
+                let current = 0;
+                const increment = target / 50; // 50 steps for smooth animation
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        element.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        element.textContent = Math.floor(current);
+                    }
+                }, 30);
+            };
+            
+            // Animate each counter
+            counters.forEach(counter => {
+                const target = parseInt(counter.textContent) || 0;
+                if (target > 0) {
+                    counter.textContent = '0';
+                    animateCounter(counter, target);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

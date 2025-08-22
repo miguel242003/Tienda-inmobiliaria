@@ -1,0 +1,249 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ titulo_pagina }} - Dashboard{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<section class="bg-warning text-dark py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="fw-bold mb-0">
+                    <i class="fas fa-edit me-2"></i>{{ titulo_pagina }}
+                </h1>
+                <p class="lead mb-0">Modifica los datos de la propiedad</p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <a href="{% url 'login:gestionar_propiedades' %}" class="btn btn-outline-dark me-2">
+                    <i class="fas fa-arrow-left"></i> Volver a Gestionar
+                </a>
+                <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-dark">
+                    <i class="fas fa-eye"></i> Ver Propiedad
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Property Info Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle text-info me-2"></i>
+                            Información de la Propiedad
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Título:</strong> {{ propiedad.titulo }}</p>
+                                <p><strong>Tipo:</strong> {{ propiedad.get_tipo_display }}</p>
+                                <p><strong>Estado:</strong> 
+                                    {% if propiedad.estado == 'disponible' %}
+                                        <span class="badge bg-success">{{ propiedad.get_estado_display }}</span>
+                                    {% elif propiedad.estado == 'vendida' %}
+                                        <span class="badge bg-danger">{{ propiedad.get_estado_display }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">{{ propiedad.get_estado_display }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Precio:</strong> {{ propiedad.get_precio_formateado }}</p>
+                                <p><strong>Ubicación:</strong> {{ propiedad.ubicacion }}</p>
+                                <p><strong>Fecha de creación:</strong> {{ propiedad.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if propiedad.imagen_principal %}
+                        <div class="text-center mt-3">
+                            <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.titulo }}" 
+                                 class="img-thumbnail" style="max-width: 200px;">
+                            <p class="text-muted small mt-2">Imagen actual</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-edit text-warning me-2"></i>
+                            Formulario de Edición
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            <!-- Messages -->
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <!-- Form Fields -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.titulo.id_for_label }}" class="form-label">
+                                        <strong>{{ form.titulo.label }}</strong>
+                                    </label>
+                                    {{ form.titulo }}
+                                    {% if form.titulo.errors %}
+                                        <div class="text-danger small">{{ form.titulo.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.tipo.id_for_label }}" class="form-label">
+                                        <strong>{{ form.tipo.label }}</strong>
+                                    </label>
+                                    {{ form.tipo }}
+                                    {% if form.tipo.errors %}
+                                        <div class="text-danger small">{{ form.tipo.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.precio.id_for_label }}" class="form-label">
+                                        <strong>{{ form.precio.label }}</strong>
+                                    </label>
+                                    {{ form.precio }}
+                                    {% if form.precio.errors %}
+                                        <div class="text-danger small">{{ form.precio.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.estado.id_for_label }}" class="form-label">
+                                        <strong>{{ form.estado.label }}</strong>
+                                    </label>
+                                    {{ form.estado }}
+                                    {% if form.estado.errors %}
+                                        <div class="text-danger small">{{ form.estado.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.metros_cuadrados.id_for_label }}" class="form-label">
+                                        <strong>{{ form.metros_cuadrados.label }}</strong>
+                                    </label>
+                                    {{ form.metros_cuadrados }}
+                                    {% if form.metros_cuadrados.errors %}
+                                        <div class="text-danger small">{{ form.metros_cuadrados.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.habitaciones.id_for_label }}" class="form-label">
+                                        <strong>{{ form.habitaciones.label }}</strong>
+                                    </label>
+                                    {{ form.habitaciones }}
+                                    {% if form.habitaciones.errors %}
+                                        <div class="text-danger small">{{ form.habitaciones.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.banos.id_for_label }}" class="form-label">
+                                        <strong>{{ form.banos.label }}</strong>
+                                    </label>
+                                    {{ form.banos }}
+                                    {% if form.banos.errors %}
+                                        <div class="text-danger small">{{ form.banos.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.ubicacion.id_for_label }}" class="form-label">
+                                        <strong>{{ form.ubicacion.label }}</strong>
+                                    </label>
+                                    {{ form.ubicacion }}
+                                    {% if form.ubicacion.errors %}
+                                        <div class="text-danger small">{{ form.ubicacion.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                                    <strong>{{ form.descripcion.label }}</strong>
+                                </label>
+                                {{ form.descripcion }}
+                                {% if form.descripcion.errors %}
+                                    <div class="text-danger small">{{ form.descripcion.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.imagen_principal.id_for_label }}" class="form-label">
+                                    <strong>{{ form.imagen_principal.label }}</strong>
+                                </label>
+                                {{ form.imagen_principal }}
+                                {% if form.imagen_principal.errors %}
+                                    <div class="text-danger small">{{ form.imagen_principal.errors.0 }}</div>
+                                {% endif %}
+                                <div class="form-text">Deja vacío para mantener la imagen actual</div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'login:gestionar_propiedades' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-save"></i> Guardar Cambios
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add Bootstrap classes to form fields
+document.addEventListener('DOMContentLoaded', function() {
+    const formFields = document.querySelectorAll('input, select, textarea');
+    formFields.forEach(field => {
+        if (!field.classList.contains('btn')) {
+            field.classList.add('form-control');
+        }
+    });
+    
+    // Add specific classes for select fields
+    const selectFields = document.querySelectorAll('select');
+    selectFields.forEach(select => {
+        select.classList.add('form-select');
+    });
+    
+    // Add specific classes for textarea fields
+    const textareaFields = document.querySelectorAll('textarea');
+    textareaFields.forEach(textarea => {
+        textarea.classList.add('form-control');
+        textarea.style.minHeight = '100px';
+    });
+});
+</script>
+{% endblock %}

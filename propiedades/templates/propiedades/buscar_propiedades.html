@@ -1,0 +1,260 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Buscar Propiedades - Tienda Inmobiliaria{% endblock %}
+
+{% block content %}
+<!-- Search Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="fw-bold">Buscar Propiedades</h1>
+                <p class="lead">Encuentra la propiedad perfecta con nuestros filtros avanzados</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Advanced Search Filters -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-filter"></i> Filtros de Búsqueda</h4>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="q" class="form-label">Palabras Clave</label>
+                        <input type="text" class="form-control" id="q" name="q" placeholder="Título, ubicación o descripción" value="{{ query }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="tipo" class="form-label">Tipo de Propiedad</label>
+                        <select class="form-select" id="tipo" name="tipo">
+                            <option value="">Todos los tipos</option>
+                            <option value="casa" {% if tipo == 'casa' %}selected{% endif %}>Casa</option>
+                            <option value="apartamento" {% if tipo == 'apartamento' %}selected{% endif %}>Apartamento</option>
+                            <option value="terreno" {% if tipo == 'terreno' %}selected{% endif %}>Terreno</option>
+                            <option value="local" {% if tipo == 'local' %}selected{% endif %}>Local Comercial</option>
+                            <option value="oficina" {% if tipo == 'oficina' %}selected{% endif %}>Oficina</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="precio_min" class="form-label">Precio Mínimo</label>
+                        <input type="number" class="form-control" id="precio_min" name="precio_min" placeholder="0" value="{{ precio_min }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="precio_max" class="form-label">Precio Máximo</label>
+                        <input type="number" class="form-control" id="precio_max" name="precio_max" placeholder="999999" value="{{ precio_max }}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <div class="d-grid gap-2 w-100">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                            <a href="{% url 'propiedades:buscar' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Limpiar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Results -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <h2>Resultados de Búsqueda</h2>
+                {% if query or tipo or precio_min or precio_max %}
+                <p class="text-muted">
+                    {% if query %}<strong>Búsqueda:</strong> "{{ query }}"{% endif %}
+                    {% if tipo %}<strong>Tipo:</strong> {{ tipo|title }}{% endif %}
+                    {% if precio_min or precio_max %}<strong>Precio:</strong> 
+                        {% if precio_min %}${{ precio_min }}{% endif %}
+                        {% if precio_min and precio_max %} - {% endif %}
+                        {% if precio_max %}${{ precio_max }}{% endif %}
+                    {% endif %}
+                </p>
+                {% endif %}
+                <p class="text-muted">{{ total_resultados }} propiedades encontradas</p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary active" onclick="changeView('grid')">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="changeView('list')">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        {% if page_obj %}
+        <div class="row" id="search-results">
+            {% for propiedad in page_obj %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100 shadow-sm property-card">
+                    {% if propiedad.imagen_principal %}
+                    <img src="{{ propiedad.imagen_principal.url }}" class="card-img-top" alt="{{ propiedad.titulo }}" style="height: 250px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                        <i class="fas fa-home fa-4x text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
+                            <span class="badge bg-success">{{ propiedad.get_estado_display }}</span>
+                        </div>
+                        <h5 class="card-title">{{ propiedad.titulo }}</h5>
+                        <p class="card-text text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ propiedad.ubicacion }}
+                        </p>
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <small class="text-muted">Área</small>
+                                <div><strong>{{ propiedad.metros_cuadrados }} m²</strong></div>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Habitaciones</small>
+                                <div><strong>{{ propiedad.habitaciones }}</strong></div>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Baños</small>
+                                <div><strong>{{ propiedad.banos }}</strong></div>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ propiedad.descripcion|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="text-primary mb-0">{{ propiedad.get_precio_formateado }}</h4>
+                            <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-outline-primary">
+                                Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Navegación de páginas">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if precio_min %}&precio_min={{ precio_min }}{% endif %}{% if precio_max %}&precio_max={{ precio_max }}{% endif %}">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if precio_min %}&precio_min={{ precio_min }}{% endif %}{% if precio_max %}&precio_max={{ precio_max }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if precio_min %}&precio_min={{ precio_min }}{% endif %}{% if precio_max %}&precio_max={{ precio_max }}{% endif %}">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No se encontraron propiedades</h4>
+            <p class="text-muted">Intenta ajustar los filtros de búsqueda o revisar la ortografía.</p>
+            <div class="mt-4">
+                <a href="{% url 'propiedades:lista' %}" class="btn btn-primary me-2">
+                    Ver Todas las Propiedades
+                </a>
+                <a href="{% url 'propiedades:buscar' %}" class="btn btn-outline-primary">
+                    Nueva Búsqueda
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Search Tips -->
+{% if not page_obj %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3>Consejos de Búsqueda</h3>
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <i class="fas fa-lightbulb fa-2x text-primary mb-3"></i>
+                        <h5>Usa Palabras Clave</h5>
+                        <p class="text-muted">Busca por ubicación, tipo de propiedad o características específicas.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-sliders-h fa-2x text-primary mb-3"></i>
+                        <h5>Ajusta los Filtros</h5>
+                        <p class="text-muted">Utiliza los filtros de precio y tipo para refinar tu búsqueda.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <i class="fas fa-expand-arrows-alt fa-2x text-primary mb-3"></i>
+                        <h5>Amplía el Rango</h5>
+                        <p class="text-muted">Considera ampliar tu rango de precios o ubicación.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function changeView(view) {
+    const results = document.getElementById('search-results');
+    const buttons = document.querySelectorAll('.btn-group .btn');
+    
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    if (view === 'list') {
+        results.classList.add('list-view');
+    } else {
+        results.classList.remove('list-view');
+    }
+}
+
+// Auto-submit form when filters change
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('select, input[type="number"]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value !== '') {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

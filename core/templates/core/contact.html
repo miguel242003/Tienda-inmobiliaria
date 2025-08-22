@@ -1,0 +1,262 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Contacto - Tienda Inmobiliaria{% endblock %}
+
+{% block content %}
+<!-- Contact Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="fw-bold">Contáctanos</h1>
+                <p class="lead">Estamos aquí para ayudarte a encontrar la propiedad perfecta</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Information and Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Contact Information -->
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h3 class="card-title mb-4">Información de Contacto</h3>
+                        
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Dirección</h5>
+                                <p class="text-muted mb-0">Calle Principal 123<br>Ciudad, Estado 12345</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-phone fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Teléfono</h5>
+                                <p class="text-muted mb-0">+1 234 567 890<br>+1 234 567 891</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-envelope fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Email</h5>
+                                <p class="text-muted mb-0">info@inmobiliaria.com<br>ventas@inmobiliaria.com</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock fa-2x text-primary"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5>Horarios</h5>
+                                <p class="text-muted mb-0">Lunes - Viernes: 9:00 - 18:00<br>Sábado: 9:00 - 14:00<br>Domingo: Cerrado</p>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h5 class="mb-3">Síguenos</h5>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Form -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h3 class="card-title mb-4">Envíanos un Mensaje</h3>
+                        
+                        <form id="contactForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombre" class="form-label">Nombre Completo *</label>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="telefono" class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-control" id="telefono" name="telefono">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="asunto" class="form-label">Asunto *</label>
+                                    <select class="form-select" id="asunto" name="asunto" required>
+                                        <option value="">Selecciona un asunto</option>
+                                        <option value="consulta">Consulta General</option>
+                                        <option value="compra">Compra de Propiedad</option>
+                                        <option value="venta">Venta de Propiedad</option>
+                                        <option value="alquiler">Alquiler</option>
+                                        <option value="visita">Agendar Visita</option>
+                                        <option value="otro">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="mensaje" class="form-label">Mensaje *</label>
+                                <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required placeholder="Cuéntanos cómo podemos ayudarte..."></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
+                                    <label class="form-check-label" for="newsletter">
+                                        Suscribirme al boletín de noticias
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3 class="mb-4">Nuestra Ubicación</h3>
+                <div class="bg-white rounded shadow-sm p-4">
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
+                        <div class="text-center">
+                            <i class="fas fa-map fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">Mapa interactivo próximamente disponible</p>
+                            <p class="text-muted">Calle Principal 123, Ciudad, Estado 12345</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h3 class="text-center mb-5">Preguntas Frecuentes</h3>
+                
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                ¿Cómo puedo agendar una visita a una propiedad?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Puedes contactarnos por teléfono, email o completando el formulario de contacto. Nuestro equipo te ayudará a coordinar una visita en el horario que mejor te convenga.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                ¿Qué documentos necesito para comprar una propiedad?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Los documentos básicos incluyen identificación oficial, comprobante de ingresos, historial crediticio y en algunos casos, un pre-aprobación de crédito hipotecario.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                ¿Ofrecen financiamiento hipotecario?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Sí, trabajamos con varias instituciones financieras para ofrecerte las mejores opciones de financiamiento. Nuestros asesores te ayudarán a encontrar la opción más conveniente.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Aquí iría la lógica para enviar el formulario
+    alert('¡Gracias por tu mensaje! Te contactaremos pronto.');
+    
+    // Limpiar el formulario
+    this.reset();
+});
+
+// Validación en tiempo real
+document.getElementById('email').addEventListener('blur', function() {
+    const email = this.value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (email && !emailRegex.test(email)) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+    }
+});
+
+document.getElementById('telefono').addEventListener('blur', function() {
+    const telefono = this.value;
+    const telefonoRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+    
+    if (telefono && !telefonoRegex.test(telefono)) {
+        this.classList.add('is-invalid');
+    } else {
+        this.classList.remove('is-invalid');
+    }
+});
+</script>
+{% endblock %}
