@@ -12,23 +12,23 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Construye rutas dentro del proyecto como BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# Configuración de inicio rápido para desarrollo - no apta para producción
+# Ver https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# ADVERTENCIA DE SEGURIDAD: mantén la clave secreta usada en producción en secreto!
 SECRET_KEY = 'django-insecure--ya4&kz0qjq@q%(nd8^&e8$&-m7kjjpug7wsvwotd@u!5^twk-'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# ADVERTENCIA DE SEGURIDAD: ¡no ejecutes con debug activado en producción!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
 
-# Application definition
+# Definición de aplicaciones
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -72,7 +72,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 
 
-# Database
+# Base de datos
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
@@ -91,7 +91,7 @@ DATABASES = {
 }
 
 
-# Password validation
+# Validación de contraseñas
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -110,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
+# Internacionalización
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
@@ -122,7 +122,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Archivos estáticos (CSS, JavaScript, Imágenes)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
@@ -131,11 +131,11 @@ STATICFILES_DIRS = [
     BASE_DIR.parent / 'static',
 ]
 
-# Media files
+# Archivos multimedia
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR.parent / 'media'
 
-# Default primary key field type
+# Tipo de campo de clave primaria por defecto
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

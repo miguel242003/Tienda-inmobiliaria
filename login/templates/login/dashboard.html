@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Administrativo - Tienda Inmobiliaria</title>
     
-    <!-- TailwindCSS CDN -->
+    <!-- CDN de TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Lucide Icons CDN -->
+    <!-- CDN de Iconos Lucide -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     
-    <!-- Tailwind Config -->
+    <!-- Configuración de Tailwind -->
     <script>
         tailwind.config = {
             theme: {
@@ -32,21 +32,21 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     
-    <!-- Header/Hero Dashboard -->
+    <!-- Encabezado/Hero del Dashboard -->
     <header class="relative bg-gradient-to-br from-blue-600 to-cyan-500 text-white overflow-hidden">
-        <!-- Background Pattern -->
+        <!-- Patrón de Fondo -->
         <div class="absolute inset-0 bg-gradient-to-br from-blue-600/90 to-cyan-500/90"></div>
         
-        <!-- Content -->
+        <!-- Contenido -->
         <div class="relative z-10 container mx-auto px-4 py-8">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                <!-- Title and Greeting -->
+                <!-- Título y Saludo -->
                 <div class="mb-6 lg:mb-0">
                     <h1 class="text-4xl lg:text-5xl font-bold mb-2">Dashboard Administrativo</h1>
                     <p class="text-xl text-blue-100">Bienvenido, {{ user.username|default:"Administrador" }}. Gestiona tu sitio web desde aquí.</p>
                 </div>
                 
-                <!-- Logout Button -->
+                <!-- Botón de Cerrar Sesión -->
                 <a href="{% url 'login:logout' %}" 
                    class="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-blue-600"
                    aria-label="Cerrar sesión">
@@ -56,14 +56,14 @@
             </div>
         </div>
         
-        <!-- Rounded Bottom Corners -->
+        <!-- Esquinas Inferiores Redondeadas -->
         <div class="absolute bottom-0 left-0 right-0 h-8 bg-gray-50 rounded-t-3xl"></div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Contenido Principal -->
     <main class="container mx-auto px-4 py-8">
         
-        <!-- Stats Cards -->
+        <!-- Tarjetas de Estadísticas -->
         <section class="mb-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
@@ -108,7 +108,7 @@
             </div>
         </section>
 
-        <!-- Quick Actions -->
+        <!-- Acciones Rápidas -->
         <section class="mb-12">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Acciones Rápidas</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -183,7 +183,7 @@
             </div>
         </section>
 
-        <!-- Recent Activity -->
+        <!-- Actividad Reciente -->
         <section>
             <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                 <div class="px-6 py-4 border-b border-gray-100">
@@ -271,19 +271,19 @@
         
     </main>
 
-    <!-- Initialize Lucide Icons -->
+    <!-- Inicializar Iconos de Lucide -->
     <script>
-        // Initialize all Lucide icons
+        // Inicializar todos los iconos de Lucide
         lucide.createIcons();
         
-        // Counter Animation Script
+        // Script de Animación de Contadores
         document.addEventListener('DOMContentLoaded', function() {
-            // Animate counters when they come into view
+            // Animar contadores cuando entran en vista
             const counters = document.querySelectorAll('[id^="total"]');
             
             const animateCounter = (element, target) => {
                 let current = 0;
-                const increment = target / 50; // 50 steps for smooth animation
+                const increment = target / 50; // 50 pasos para animación suave
                 
                 const timer = setInterval(() => {
                     current += increment;
@@ -296,7 +296,7 @@
                 }, 30);
             };
             
-            // Animate each counter
+            // Animar cada contador
             counters.forEach(counter => {
                 const target = parseInt(counter.textContent) || 0;
                 if (target > 0) {

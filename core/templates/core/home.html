@@ -4,10 +4,10 @@
 {% block title %}Inicio - Tienda Inmobiliaria{% endblock %}
 
 {% block content %}
-<!-- Hero Carousel Section -->
+<!-- Sección del Carrusel Hero -->
 <section class="hero-carousel-section">
     <div class="carousel-container" id="heroCarousel">
-        <!-- Carousel Items -->
+        <!-- Elementos del Carrusel -->
         <div class="carousel-item active">
             <img src="{% static 'images/carousel/interior-1.jpg' %}" alt="Interior moderno elegante" class="carousel-image">
             <div class="carousel-overlay">
@@ -44,7 +44,7 @@
             </div>
         </div>
         
-        <!-- Carousel Indicators -->
+        <!-- Indicadores del Carrusel -->
         <div class="carousel-indicators">
             <span class="indicator active" data-slide="0"></span>
             <span class="indicator" data-slide="1"></span>
@@ -52,10 +52,10 @@
     </div>
 </section>
 
-        <!-- Featured Properties - Luxury Catalog Style -->
+        <!-- Propiedades Destacadas - Estilo de Catálogo de Lujo -->
         <section class="prop-hero">
             <div class="prop-container">
-                <!-- Error Message -->
+                <!-- Mensaje de Error -->
                 {% if error_message %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-triangle me-2"></i>
@@ -64,12 +64,12 @@
                 </div>
                 {% endif %}
                 
-                <!-- Header Section -->
+                <!-- Sección de Encabezado -->
                 <h2 class="prop-title-sec">Propiedades Destacadas</h2>
                 <p class="prop-sub">Descubre nuestras mejores ofertas inmobiliarias de lujo</p>
         
         {% if hay_propiedades %}
-        <!-- Luxury Properties Catalog -->
+        <!-- Catálogo de Propiedades de Lujo -->
         {% for propiedad in propiedades_destacadas %}
         <article class="prop-row">
             <div class="prop-media">
@@ -97,7 +97,7 @@
         </article>
         {% endfor %}
         
-        <!-- View All Properties Button -->
+        <!-- Botón Ver Todas las Propiedades -->
         <div class="text-center mt-5">
             <a href="{% url 'propiedades:lista' %}" class="btn btn-outline-primary btn-lg px-5 py-3 fw-semibold">
                 <i class="fas fa-list me-2"></i>Ver Todas las Propiedades
@@ -105,7 +105,7 @@
         </div>
         
         {% else %}
-        <!-- Empty State -->
+        <!-- Estado Vacío -->
         <div class="text-center py-5">
             <div class="empty-state">
                 <i class="fas fa-home fa-4x text-muted mb-3"></i>
@@ -134,7 +134,7 @@
             </div>
         </section>
 
-<!-- Stats Section -->
+<!-- Sección de Estadísticas -->
 <section class="stats-section py-4">
     <div class="container">
         <div class="row text-center mb-5">
@@ -178,7 +178,7 @@
     </div>
 </section>
 
-<!-- Property Types Section -->
+<!-- Sección de Tipos de Propiedades -->
 {% if tipos_disponibles %}
 <section class="py-5 bg-light">
     <div class="container">
@@ -226,7 +226,7 @@
 </section>
 {% endif %}
 
-<!-- Services Section -->
+<!-- Sección de Servicios -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row text-center mb-5">
@@ -262,7 +262,7 @@
     </div>
 </section>
 
-<!-- Admin Login Section -->
+<!-- Sección de Login de Administrador -->
 <section class="py-5 admin-login-section">
     <div class="container">
         <div class="row justify-content-center">

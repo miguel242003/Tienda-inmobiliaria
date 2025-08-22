@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Propiedad
 from .forms import PropiedadForm
 
-# Create your views here.
+# Crea tus vistas aquí.
 
 def lista_propiedades(request):
     """Vista para listar todas las propiedades"""

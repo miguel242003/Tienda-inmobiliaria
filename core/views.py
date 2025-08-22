@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from propiedades.models import Propiedad
 
-# Create your views here.
+# Crea tus vistas aquí.
 
 def home(request):
     """Vista principal del home"""

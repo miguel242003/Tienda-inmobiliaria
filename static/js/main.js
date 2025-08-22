@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Iniciar rotación automática
         function startCarousel() {
-            carouselInterval = setInterval(nextSlide, 8000); // 4 segundos
+            carouselInterval = setInterval(nextSlide, 8000); // 8 segundos
         }
         
         // Detener rotación automática
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
             indicator.addEventListener('click', () => {
                 showSlide(index);
                 stopCarousel();
-                startCarousel(); // Reiniciar el timer después del click
+                startCarousel(); // Reiniciar el temporizador después del clic
             });
         });
         
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                    // Una vez que se animan, desconectar el observer
+                    // Una vez que se animan, desconectar el observador
                     observer.disconnect();
                 }
             });
@@ -216,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Scroll suave para enlaces ancla
+    // Desplazamiento suave para enlaces ancla
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
