@@ -7,7 +7,7 @@ class PropiedadForm(forms.ModelForm):
     class Meta:
         model = Propiedad
         fields = [
-            'titulo', 'descripcion', 'precio', 'tipo', 'estado',
+            'titulo', 'descripcion', 'precio', 'tipo', 'operacion', 'estado',
             'ubicacion', 'metros_cuadrados', 'habitaciones', 'banos',
             'imagen_principal'
         ]
@@ -23,11 +23,14 @@ class PropiedadForm(forms.ModelForm):
             }),
             'precio': forms.NumberInput(attrs={
                 'class': 'form-control form-control-lg',
-                'placeholder': '0.00',
+                'placeholder': '$ 0',
                 'min': '0',
-                'step': '0.01'
+                'step': '1'
             }),
             'tipo': forms.Select(attrs={
+                'class': 'form-select form-select-lg'
+            }),
+            'operacion': forms.Select(attrs={
                 'class': 'form-select form-select-lg'
             }),
             'estado': forms.Select(attrs={
@@ -60,8 +63,9 @@ class PropiedadForm(forms.ModelForm):
         labels = {
             'titulo': 'Título de la Propiedad',
             'descripcion': 'Descripción',
-            'precio': 'Precio (MXN)',
+            'precio': 'Precio (ARS)',
             'tipo': 'Tipo de Propiedad',
+            'operacion': 'Tipo de Operación',
             'estado': 'Estado',
             'ubicacion': 'Ubicación',
             'metros_cuadrados': 'Metros Cuadrados',
@@ -72,7 +76,8 @@ class PropiedadForm(forms.ModelForm):
         help_texts = {
             'titulo': 'Un título descriptivo y atractivo para la propiedad',
             'descripcion': 'Describe las características, amenidades y detalles importantes',
-            'precio': 'Precio en pesos mexicanos',
+            'precio': 'Precio en pesos argentinos',
+            'operacion': 'Selecciona si la propiedad es para venta, alquiler o alquiler temporal',
             'imagen_principal': 'Imagen principal de la propiedad (formato: JPG, PNG)'
         }
     

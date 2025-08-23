@@ -65,7 +65,7 @@
                 {% endif %}
                 
                 <!-- Sección de Encabezado -->
-                <h2 class="prop-title-sec">Propiedades Destacadas</h2>
+                <h2 class="prop-title-sec">Propiedades En Venta</h2>
                 <p class="prop-sub">Descubre nuestras mejores ofertas inmobiliarias de lujo</p>
         
         {% if hay_propiedades %}
@@ -81,6 +81,12 @@
 
                          <div class="prop-info">
                  <h3 class="prop-name">{{ propiedad.titulo|upper }}</h3>
+                 
+                 <!-- Badge de operación -->
+                 <div class="prop-badges mb-2">
+                     <span class="badge bg-info me-2">{{ propiedad.get_operacion_display }}</span>
+                     <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
+                 </div>
 
                  <div class="prop-brief">
                      <strong>{{ propiedad.habitaciones }} recámaras</strong>
@@ -134,6 +140,164 @@
             </div>
         </section>
 
+        <!-- Propiedades en Alquiler - Nueva Sección -->
+        <section class="py-5 bg-white">
+            <div class="container">
+                <!-- Sección de Encabezado -->
+                <h2 class="prop-title-sec">NUEVAS PROPIEDADES EN RENTA</h2>
+                <p class="prop-sub">Descubre nuestras mejores opciones de alquiler y alquiler temporal</p>
+                
+                <!-- Botón Dividido para Alternar entre Alquiler y Alquiler Temporal -->
+                <div class="text-center mb-4">
+                    <div class="btn-group-toggle" role="group" aria-label="Tipo de alquiler">
+                        <input type="radio" class="btn-check" name="tipo-alquiler" id="btn-alquiler" value="alquiler" checked>
+                        <label class="btn btn-outline-primary" for="btn-alquiler">
+                            <i class="fas fa-home me-2"></i>Alquiler
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="tipo-alquiler" id="btn-alquiler-temporal" value="alquiler_temporal">
+                        <label class="btn btn-outline-primary" for="btn-alquiler-temporal">
+                            <i class="fas fa-calendar-alt me-2"></i>Alquiler Temporal
+                        </label>
+                    </div>
+                </div>
+        
+        {% if hay_propiedades_alquiler %}
+        <!-- Catálogo de Propiedades en Alquiler -->
+        <div class="row" id="propiedades-alquiler-container">
+            <!-- Propiedades de Alquiler -->
+            <div id="propiedades-alquiler" class="row w-100">
+                {% for propiedad in propiedades_alquiler %}
+                    {% if propiedad.operacion == 'alquiler' %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm property-card">
+                            {% if propiedad.imagen_principal %}
+                            <img src="{{ propiedad.imagen_principal.url }}" class="card-img-top" alt="{{ propiedad.titulo }}" style="height: 250px; object-fit: cover;">
+                            {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <i class="fas fa-home fa-4x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
+                                    <span class="badge bg-info">{{ propiedad.get_operacion_display }}</span>
+                                </div>
+                                
+                                <h5 class="card-title fw-bold">{{ propiedad.habitaciones }} recámaras</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ propiedad.titulo|upper }}</h6>
+                                
+                                <hr class="my-3">
+                                
+                                <p class="card-text text-muted">
+                                    {{ propiedad.descripcion|truncatechars:120|default:"Propiedad de lujo con acabados premium, ubicación privilegiada y diseño contemporáneo." }}
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <h4 class="text-primary mb-0 fw-bold">{{ propiedad.get_precio_formateado }}</h4>
+                                    <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-outline-primary btn-sm">
+                                        Ver detalles
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                
+                <!-- Estado Vacío para Alquiler si no hay propiedades -->
+                {% if propiedades_alquiler_count == 0 %}
+                <div class="col-12 text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-home fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay propiedades de alquiler disponibles</h4>
+                        <p class="text-muted mb-4">
+                            Actualmente no tenemos propiedades de alquiler. Pronto tendremos nuevas ofertas disponibles.
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Propiedades de Alquiler Temporal -->
+            <div id="propiedades-alquiler-temporal" class="row w-100" style="display: none;">
+                {% for propiedad in propiedades_alquiler %}
+                    {% if propiedad.operacion == 'alquiler_temporal' %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm property-card">
+                            {% if propiedad.imagen_principal %}
+                            <img src="{{ propiedad.imagen_principal.url }}" class="card-img-top" alt="{{ propiedad.titulo }}" style="height: 250px; object-fit: cover;">
+                            {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <i class="fas fa-home fa-4x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
+                                    <span class="badge bg-warning">{{ propiedad.get_operacion_display }}</span>
+                                </div>
+                                
+                                <h5 class="card-title fw-bold">{{ propiedad.habitaciones }} recámaras</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ propiedad.titulo|upper }}</h6>
+                                
+                                <hr class="my-3">
+                                
+                                <p class="card-text text-muted">
+                                    {{ propiedad.descripcion|truncatechars:120|default:"Propiedad de lujo con acabados premium, ubicación privilegiada y diseño contemporáneo." }}
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <h4 class="text-primary mb-0 fw-bold">{{ propiedad.get_precio_formateado }}</h4>
+                                    <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-outline-primary btn-sm">
+                                        Ver detalles
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                
+                <!-- Estado Vacío para Alquiler Temporal si no hay propiedades -->
+                {% if propiedades_alquiler_temporal_count == 0 %}
+                <div class="col-12 text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-alt fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay propiedades de alquiler temporal disponibles</h4>
+                        <p class="text-muted mb-4">
+                            Actualmente no tenemos propiedades de alquiler temporal. Pronto tendremos nuevas ofertas disponibles.
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Botón Ver Todas las Propiedades en Alquiler -->
+        <div class="text-center mt-5">
+            <a href="{% url 'propiedades:lista' %}?operacion=alquiler" class="btn btn-outline-success btn-lg px-5 py-3 fw-semibold">
+                <i class="fas fa-key me-2"></i>Ver Todas las Propiedades en Alquiler
+            </a>
+        </div>
+        
+        {% else %}
+        <!-- Estado Vacío para Alquiler -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-key fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No hay propiedades en alquiler disponibles</h4>
+                <p class="text-muted mb-4">
+                    Actualmente no tenemos propiedades en alquiler. Pronto tendremos nuevas ofertas disponibles.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+            </div>
+        </section>
+
 <!-- Sección de Estadísticas -->
 <section class="stats-section py-4">
     <div class="container">
@@ -171,60 +335,63 @@
                     <i class="fas fa-star"></i>
                 </div>
                 <div class="stat-number" data-target="98">0</div>
-                <div class="stat-label">% de Satisfacción</div>
-                <div class="stat-description">98 de cada 100 clientes nos recomiendan</div>
+                <div class="stat-label">% Satisfacción</div>
+                <div class="stat-description">Clientes satisfechos con nuestro servicio</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Sección de Tipos de Propiedades -->
-{% if tipos_disponibles %}
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col-lg-8 mx-auto">
-                <h2 class="fw-bold">Tipos de Propiedades Disponibles</h2>
-                <p class="text-muted">Encuentra el tipo de propiedad que mejor se adapte a tus necesidades</p>
-            </div>
-        </div>
+<!-- JavaScript para alternar entre tipos de alquiler -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener referencias a los botones y contenedores
+    const btnAlquiler = document.getElementById('btn-alquiler');
+    const btnAlquilerTemporal = document.getElementById('btn-alquiler-temporal');
+    const contenedorAlquiler = document.getElementById('propiedades-alquiler');
+    const contenedorAlquilerTemporal = document.getElementById('propiedades-alquiler-temporal');
+    
+    // Función para mostrar propiedades de alquiler
+    function mostrarAlquiler() {
+        contenedorAlquiler.style.display = 'flex';
+        contenedorAlquilerTemporal.style.display = 'none';
         
-        <div class="row">
-            {% for tipo in tipos_disponibles %}
-            <div class="col-lg-2 col-md-4 col-6 mb-4">
-                <div class="text-center">
-                    <div class="property-type-icon mb-3">
-                        {% if tipo == 'casa' %}
-                            <i class="fas fa-home fa-3x text-primary"></i>
-                        {% elif tipo == 'apartamento' %}
-                            <i class="fas fa-building fa-3x text-primary"></i>
-                        {% elif tipo == 'terreno' %}
-                            <i class="fas fa-map fa-3x text-primary"></i>
-                        {% elif tipo == 'local' %}
-                            <i class="fas fa-store fa-3x text-primary"></i>
-                        {% elif tipo == 'oficina' %}
-                            <i class="fas fa-briefcase fa-3x text-primary"></i>
-                        {% else %}
-                            <i class="fas fa-home fa-3x text-primary"></i>
-                        {% endif %}
-                    </div>
-                    <h5 class="fw-bold">{{ tipo|title }}</h5>
-                    <small class="text-muted">
-                        {{ propiedades_disponibles|default:0 }} disponibles
-                    </small>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+        // Actualizar estilos de los botones
+        btnAlquiler.classList.remove('btn-outline-primary');
+        btnAlquiler.classList.add('btn-primary');
+        btnAlquilerTemporal.classList.remove('btn-primary');
+        btnAlquilerTemporal.classList.add('btn-outline-primary');
+    }
+    
+    // Función para mostrar propiedades de alquiler temporal
+    function mostrarAlquilerTemporal() {
+        contenedorAlquiler.style.display = 'none';
+        contenedorAlquilerTemporal.style.display = 'flex';
         
-        <div class="text-center mt-4">
-            <a href="{% url 'propiedades:buscar' %}" class="btn btn-outline-primary">
-                <i class="fas fa-search me-2"></i>Buscar por Tipo
-            </a>
-        </div>
-    </div>
-</section>
-{% endif %}
+        // Actualizar estilos de los botones
+        btnAlquilerTemporal.classList.remove('btn-outline-primary');
+        btnAlquilerTemporal.classList.add('btn-primary');
+        btnAlquiler.classList.remove('btn-primary');
+        btnAlquiler.classList.add('btn-outline-primary');
+    }
+    
+    // Event listeners para los botones
+    btnAlquiler.addEventListener('change', function() {
+        if (this.checked) {
+            mostrarAlquiler();
+        }
+    });
+    
+    btnAlquilerTemporal.addEventListener('change', function() {
+        if (this.checked) {
+            mostrarAlquilerTemporal();
+        }
+    });
+    
+    // Mostrar alquiler por defecto al cargar la página
+    mostrarAlquiler();
+});
+</script>
 
 <!-- Sección de Servicios -->
 <section class="py-5 bg-light">
@@ -256,31 +423,6 @@
                     <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
                     <h4>Seguridad Garantizada</h4>
                     <p class="text-muted">Todas nuestras propiedades están verificadas y certificadas.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Sección de Login de Administrador -->
-<section class="py-5 admin-login-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 text-center">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-5">
-                        <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
-                        <h3 class="fw-bold mb-3">Acceso Administrativo</h3>
-                        <p class="text-muted mb-4">Accede al panel de administración para gestionar propiedades y contenido del sitio.</p>
-                        <a href="{% url 'login:admin_login' %}" class="btn btn-primary btn-lg">
-                            <i class="fas fa-sign-in-alt"></i> Login Administrador
-                        </a>
-                        <div class="mt-3">
-                            <small class="text-muted">
-                                <i class="fas fa-info-circle"></i> Solo personal autorizado
-                            </small>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

@@ -41,6 +41,15 @@
                         </select>
                     </div>
                     <div class="col-md-2">
+                        <label for="operacion" class="form-label">Tipo de Operación</label>
+                        <select class="form-select" id="operacion" name="operacion">
+                            <option value="">Todas las operaciones</option>
+                            <option value="venta" {% if operacion == 'venta' %}selected{% endif %}>Venta</option>
+                            <option value="alquiler" {% if operacion == 'alquiler' %}selected{% endif %}>Alquiler</option>
+                            <option value="alquiler_temporal" {% if operacion == 'alquiler_temporal' %}selected{% endif %}>Alquiler Temporal</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <label for="precio_min" class="form-label">Precio Mínimo</label>
                         <input type="number" class="form-control" id="precio_min" name="precio_min" placeholder="0" value="{{ precio_min }}">
                     </div>

@@ -44,6 +44,7 @@ def buscar_propiedades(request):
     """Vista para buscar propiedades"""
     query = request.GET.get('q', '')
     tipo = request.GET.get('tipo', '')
+    operacion = request.GET.get('operacion', '')
     precio_min = request.GET.get('precio_min', '')
     precio_max = request.GET.get('precio_max', '')
     
@@ -54,6 +55,9 @@ def buscar_propiedades(request):
     
     if tipo:
         propiedades = propiedades.filter(tipo=tipo)
+    
+    if operacion:
+        propiedades = propiedades.filter(operacion=operacion)
     
     if precio_min:
         propiedades = propiedades.filter(precio__gte=precio_min)
@@ -72,6 +76,7 @@ def buscar_propiedades(request):
         'page_obj': page_obj,
         'query': query,
         'tipo': tipo,
+        'operacion': operacion,
         'precio_min': precio_min,
         'precio_max': precio_max,
         'total_resultados': propiedades.count(),
@@ -90,6 +95,27 @@ def crear_propiedad(request):
         form = PropiedadForm(request.POST, request.FILES)
         if form.is_valid():
             propiedad = form.save(commit=False)
+            
+            # Asignar automáticamente el administrador actual
+            try:
+                from login.models import AdminCredentials
+                admin_creds = AdminCredentials.objects.filter(email=request.user.email, activo=True).first()
+                if admin_creds:
+                    propiedad.administrador = admin_creds
+                else:
+                    # Si no encuentra credenciales, crear una por defecto
+                    admin_creds = AdminCredentials.objects.create(
+                        nombre=request.user.first_name or 'Administrador',
+                        apellido=request.user.last_name or 'Sistema',
+                        email=request.user.email,
+                        telefono='+52-1-33-00000000',
+                        password='temp_password_123'
+                    )
+                    propiedad.administrador = admin_creds
+            except Exception as e:
+                # En caso de error, continuar sin administrador
+                pass
+            
             propiedad.save()
             messages.success(request, f'Propiedad "{propiedad.titulo}" creada exitosamente.')
             return redirect('propiedades:detalle', propiedad_id=propiedad.id)

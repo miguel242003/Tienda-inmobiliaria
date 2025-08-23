@@ -11,12 +11,40 @@ class AdminCredentialsForm(forms.ModelForm):
     
     class Meta:
         model = AdminCredentials
-        fields = ['email', 'password', 'confirmar_password']
+        fields = ['nombre', 'apellido', 'email', 'telefono', 'foto_perfil', 'password', 'confirmar_password']
         widgets = {
-            'password': forms.PasswordInput(),
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingresa tu nombre'
+            }),
+            'apellido': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingresa tu apellido'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'tu@email.com'
+            }),
+            'telefono': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '+52-1-33-12345678'
+            }),
+            'foto_perfil': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*',
+                'id': 'foto_perfil_input'
+            }),
+            'password': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Mínimo 8 caracteres'
+            }),
         }
         help_texts = {
+            'nombre': 'Tu nombre completo para mostrar en las propiedades',
+            'apellido': 'Tu apellido completo para mostrar en las propiedades',
             'email': 'Este será el correo para acceder al panel administrativo',
+            'telefono': 'Tu número de teléfono para que los clientes te contacten',
+            'foto_perfil': 'Tu foto de perfil para mostrar en las propiedades (opcional)',
             'password': 'Elige una contraseña segura (mínimo 8 caracteres)',
         }
     

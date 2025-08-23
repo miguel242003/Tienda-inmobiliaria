@@ -1334,11 +1334,26 @@ footer .text-muted a:hover {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-weight: 600;
     font-size: 18px;
+    display: flex;
+    align-items: center;
 }
 
 .nav-brand i {
     color: #007bff;
     margin-right: 8px;
+}
+
+/* Estilos para el logo de imagen */
+.nav-logo {
+    height:70px;
+    width: auto;
+    max-width: 100px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.nav-logo:hover {
+    transform: scale(1.05);
 }
 
 /* Menú de Escritorio */
@@ -1533,6 +1548,12 @@ footer .text-muted a:hover {
     
     .responsive-nav {
         padding: 10px 0;
+    }
+    
+    /* Logo responsivo para móviles */
+    .nav-logo {
+        height: 55px;
+        max-width: 80px;
     }
 }
 
@@ -2210,3 +2231,592 @@ body {
 }
 
 /* ===== FIN DE PROPIEDADES DESTACADAS DE LUJO ===== */
+
+/* ===== ESTILOS PARA PROPIEDADES EN ALQUILER ===== */
+.property-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.property-card .card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.property-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.property-card .card-body {
+    padding: 1.5rem;
+}
+
+.property-card .badge {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.property-card .card-title {
+    color: #2c3e50;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.property-card .card-subtitle {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.property-card hr {
+    border-color: #ecf0f1;
+    margin: 1rem 0;
+}
+
+.property-card .card-text {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.property-card .text-primary {
+    color: #3498db !important;
+    font-weight: 700;
+}
+
+.property-card .btn-outline-primary {
+    border-color: #3498db;
+    color: #3498db;
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.property-card .btn-outline-primary:hover {
+    background-color: #3498db;
+    border-color: #3498db;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Responsive para tarjetas de alquiler */
+@media (max-width: 768px) {
+    .property-card .card-body {
+        padding: 1rem;
+    }
+    
+    .property-card .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .property-card .text-primary {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .property-card {
+        margin-bottom: 1rem;
+    }
+    
+    .property-card .card-body {
+        padding: 0.75rem;
+    }
+}
+/* ===== FIN DE ESTILOS PARA PROPIEDADES EN ALQUILER ===== */
+
+/* ===== ESTILOS PARA BOTÓN DIVIDIDO DE ALQUILER ===== */
+.btn-group-toggle {
+    display: inline-flex;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-group-toggle .btn {
+    border-radius: 0;
+    border: 2px solid #3498db;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    min-width: 160px;
+}
+
+.btn-group-toggle .btn:first-child {
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+}
+
+.btn-group-toggle .btn:last-child {
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+}
+
+.btn-group-toggle .btn-outline-primary {
+    background-color: white;
+    color: #3498db;
+    border-color: #3498db;
+}
+
+.btn-group-toggle .btn-outline-primary:hover {
+    background-color: #3498db;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-group-toggle .btn-primary {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.btn-group-toggle .btn i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* Responsive para botón dividido */
+@media (max-width: 576px) {
+    .btn-group-toggle {
+        flex-direction: column;
+        border-radius: 15px;
+    }
+    
+    .btn-group-toggle .btn {
+        border-radius: 0;
+        min-width: 200px;
+    }
+    
+    .btn-group-toggle .btn:first-child {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    
+    .btn-group-toggle .btn:last-child {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+    }
+}
+/* ===== FIN DE ESTILOS PARA BOTÓN DIVIDIDO DE ALQUILER ===== */
+
+/* ===== ESTILOS PARA BOTÓN ADMIN DEL FOOTER ===== */
+footer .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+footer .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+footer .btn-outline-light:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+footer .btn-outline-light i {
+    font-size: 1rem;
+}
+/* ===== FIN DE ESTILOS PARA BOTÓN ADMIN DEL FOOTER ===== */
+
+/* ===== ESTILOS PARA SECCIÓN DE PROPIEDADES EN RENTA ===== */
+.bg-white .prop-title-sec {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.bg-white .prop-sub {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    font-weight: 400;
+}
+
+.bg-white .empty-state {
+    padding: 3rem 1rem;
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    border: 2px dashed #dee2e6;
+}
+
+.bg-white .empty-state i {
+    color: #adb5bd;
+}
+
+.bg-white .empty-state h4 {
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.bg-white .empty-state p {
+    color: #6c757d;
+    max-width: 500px;
+    margin: 0 auto;
+}
+/* ===== FIN DE ESTILOS PARA SECCIÓN DE PROPIEDADES EN RENTA ===== */
+
+/* ===== ESTILOS PARA CAMPO DE PRECIO EN FORMULARIO ===== */
+.form-control[placeholder*="$"] {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.form-control[placeholder*="$"]::placeholder {
+    color: #95a5a6;
+    font-style: italic;
+}
+
+.form-control[placeholder*="$"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Estilo para el label del precio */
+label[for*="precio"] {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Estilo para el help text del precio */
+.help-text {
+    color: #7f8c8d;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+/* ===== FIN DE ESTILOS PARA CAMPO DE PRECIO EN FORMULARIO ===== */
+
+/* ===== ESTILOS HOVER PARA NAVEGACIÓN ===== */
+.nav-item {
+    position: relative;
+    transition: all 0.3s ease;
+    padding: 8px 16px;
+    border-radius: 20px;
+}
+
+.nav-item:hover {
+    background-color: rgba(43, 85, 162, 0.1);
+    color: #2B55A2 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(43, 85, 162, 0.2);
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #2B55A2, #3498db);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-item:hover::before {
+    width: 80%;
+}
+
+/* Efecto especial para el enlace activo */
+.nav-item.active {
+    background-color: rgba(43, 85, 162, 0.15);
+    color: #2B55A2 !important;
+    font-weight: 600;
+}
+
+.nav-item.active::before {
+    width: 80%;
+}
+
+/* Responsive para navegación */
+@media (max-width: 768px) {
+    .nav-item:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .nav-item::before {
+        display: none;
+    }
+}
+/* ===== FIN DE ESTILOS HOVER PARA NAVEGACIÓN ===== */
+
+/* ===== ESTILOS PARA PÁGINA DE DETALLES DE PROPIEDAD ===== */
+.property-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.property-address {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    line-height: 1.2;
+}
+
+.property-price {
+    font-size: 2rem;
+    color: #e74c3c;
+}
+
+.operation-badge {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.property-main-image img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.description-title {
+    color: #2c3e50;
+    font-size: 2rem;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 10px;
+}
+
+.description-content {
+    color: #34495e;
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.features-title {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 10px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.feature-icon {
+    font-size: 2rem;
+    color: #3498db;
+    margin-bottom: 15px;
+}
+
+.feature-label {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.feature-value {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Columna del Agente */
+.agent-section {
+    background: #8ab5e0;
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid #e9ecef;
+    position: sticky;
+    top: 20px;
+}
+
+.agent-name {
+    color: #2c3e50;
+    font-size: 1.8rem;
+}
+
+.agent-id {
+    color: #95a5a6;
+    font-size: 0.9rem;
+}
+
+.agent-photo-placeholder {
+    width: 180px;
+    height: 180px;
+    background: #ecf0f1;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: none;
+}
+
+.agent-photo-real {
+    width: 180px;
+    height: 180px;
+    border-radius: 0;
+    object-fit: cover;
+    border: none;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    transition: all 0.3s ease;
+    margin: 0 auto;
+    display: block;
+}
+
+.agent-photo-real:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    border-color: #2980b9;
+}
+
+.contact-item {
+    text-align: center;
+}
+
+.contact-label {
+    color: #7f8c8d;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+.contact-value {
+    color: #2c3e50;
+    font-size: 1rem;
+}
+
+.contact-form-title {
+    color: #2c3e50;
+    font-size: 1.3rem;
+    text-align: center;
+    border-bottom: 2px solid #ecf0f1;
+    padding-bottom: 10px;
+}
+
+.contact-form .form-control {
+    border: none;
+    border-bottom: 2px solid #ecf0f1;
+    border-radius: 0;
+    padding: 8px 0;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.contact-form .form-control:focus {
+    border-bottom-color: #e74c3c;
+    box-shadow: none;
+    background: transparent;
+}
+
+.contact-form .btn-danger {
+    background: #e74c3c;
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.contact-form .btn-danger:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .property-address {
+        font-size: 2rem;
+    }
+    
+    .property-price {
+        font-size: 1.5rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .agent-section {
+        margin-top: 30px;
+        position: static;
+    }
+}
+
+@media (max-width: 576px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .property-address {
+        font-size: 1.8rem;
+    }
+    
+    .operation-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+}
+/* ===== FIN DE ESTILOS PARA PÁGINA DE DETALLES DE PROPIEDAD ===== */
+
+.agent-photo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+

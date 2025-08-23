@@ -18,7 +18,7 @@ def configurar_admin(request):
         return redirect('login:admin_login')
     
     if request.method == 'POST':
-        form = AdminCredentialsForm(request.POST)
+        form = AdminCredentialsForm(request.POST, request.FILES)
         if form.is_valid():
             # Guardar credenciales
             credenciales = form.save()

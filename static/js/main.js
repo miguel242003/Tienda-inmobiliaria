@@ -229,4 +229,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // ===== DETECCIÓN DE PÁGINA ACTIVA =====
+    function setActiveNavItem() {
+        const currentPath = window.location.pathname;
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        navItems.forEach(item => {
+            // Remover clase active de todos los elementos
+            item.classList.remove('active');
+            
+            // Obtener la URL del enlace
+            const href = item.getAttribute('href');
+            
+            // Verificar si es la página actual
+            if (href === currentPath) {
+                item.classList.add('active');
+            }
+            
+            // Caso especial para la página de inicio
+            if (currentPath === '/' && href.includes('home')) {
+                item.classList.add('active');
+            }
+            
+            // Caso especial para propiedades
+            if (currentPath.includes('/propiedades/') && href.includes('propiedades')) {
+                item.classList.add('active');
+            }
+        });
+        
+        console.log('Navegación activa configurada para:', currentPath);
+    }
+    
+    // Configurar navegación activa al cargar la página
+    setActiveNavItem();
+    // ===== FIN DE DETECCIÓN DE PÁGINA ACTIVA =====
 });

@@ -95,7 +95,7 @@
 
                             <!-- Form Fields -->
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="{{ form.titulo.id_for_label }}" class="form-label">
                                         <strong>{{ form.titulo.label }}</strong>
                                     </label>
@@ -105,13 +105,23 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <label for="{{ form.tipo.id_for_label }}" class="form-label">
                                         <strong>{{ form.tipo.label }}</strong>
                                     </label>
                                     {{ form.tipo }}
                                     {% if form.tipo.errors %}
                                         <div class="text-danger small">{{ form.tipo.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.operacion.id_for_label }}" class="form-label">
+                                        <strong>{{ form.operacion.label }}</strong>
+                                    </label>
+                                    {{ form.operacion }}
+                                    {% if form.operacion.errors %}
+                                        <div class="text-danger small">{{ form.operacion.errors.0 }}</div>
                                     {% endif %}
                                 </div>
                             </div>
