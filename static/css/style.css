@@ -741,7 +741,7 @@
         height: 220px;
     }
 }
-
+ 
 @media (max-width: 991px) {
     .properties-featured {
         padding: 1rem;
@@ -940,7 +940,7 @@
     box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
 }
 
-/* Tarjetas -->
+/* Tarjetas */
 .card {
     border-radius: 1rem;
     overflow: hidden;
@@ -951,7 +951,7 @@
     border-bottom: 1px solid #dee2e6;
 }
 
-/* Formularios -->
+/* Formularios */
 .form-control, .form-select {
     border-radius: 0.5rem;
     border: 2px solid #e9ecef;
@@ -967,7 +967,7 @@
     border-color: #dc3545;
 }
 
-/* Paginación -->
+/* Paginación */
 .pagination .page-link {
     border-radius: 0.5rem;
     margin: 0 0.25rem;
@@ -987,7 +987,7 @@
     border-color: #0d6efd;
 }
 
-/* Pie de Página -->
+/* Pie de Página */
 footer {
     background: linear-gradient(135deg, #212529 0%, #343a40 100%);
 }
@@ -1000,7 +1000,7 @@ footer a:hover {
     color: #0d6efd !important;
 }
 
-/* Iconos -->
+/* Iconos -*/
 .fa-3x, .fa-4x, .fa-5x {
     transition: transform 0.3s ease;
 }
@@ -1011,7 +1011,7 @@ footer a:hover {
     transform: scale(1.1);
 }
 
-/* Resultados de Búsqueda -->
+/* Resultados de Búsqueda -*/
 .list-view .col-lg-4 {
     flex: 0 0 100%;
     max-width: 100%;
@@ -1031,7 +1031,7 @@ footer a:hover {
     flex: 1;
 }
 
-/* Diseño Responsivo -->
+/* Diseño Responsivo */
 @media (max-width: 768px) {
     .hero-section h1 {
         font-size: 2rem;
@@ -1055,7 +1055,7 @@ footer a:hover {
     }
 }
 
-/* Animación de Carga -->
+/* Animación de Carga -*/
 .loading {
     display: inline-block;
     width: 20px;
@@ -1070,12 +1070,12 @@ footer a:hover {
     to { transform: rotate(360deg); }
 }
 
-/* Desplazamiento Suave -->
+/* Desplazamiento Suave -*/
 html {
     scroll-behavior: smooth;
 }
 
-/* Barra de Desplazamiento Personalizada -->
+/* Barra de Desplazamiento Personalizada --*/
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -1093,12 +1093,12 @@ html {
     background: #0b5ed7;
 }
 
-/* Migas de Pan -->
+/* Migas de Pan */
 .breadcrumb-item + .breadcrumb-item::before {
     color: rgba(255,255,255,0.7);
 }
 
-/* Acordeón -->
+/* Acordeón */
 .accordion-button:not(.collapsed) {
     background-color: #e7f1ff;
     color: #0d6efd;
@@ -1108,18 +1108,18 @@ html {
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-/* Botones de Redes Sociales -->
+/* Botones de Redes Sociales */
 .btn-outline-primary:hover {
     background-color: #0d6efd;
     border-color: #0d6efd;
 }
 
-/* Visualización de Precio -->
+/* Visualización de Precio */
 .text-primary {
     color: #0d6efd !important;
 }
 
-/* Características de Propiedades -->
+/* Características de Propiedades */
 .property-features {
     display: flex;
     flex-wrap: wrap;
@@ -1135,7 +1135,7 @@ html {
     color: #6c757d;
 }
 
-/* Formulario de Contacto -->
+/* Formulario de Contacto */
 .contact-info-item {
     display: flex;
     align-items: center;
@@ -1154,7 +1154,7 @@ html {
     margin-right: 1rem;
 }
 
-/* Marcador de Posición del Mapa -->
+/* Marcador de Posición del Mapa */
 .map-placeholder {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 1rem;
@@ -1164,7 +1164,7 @@ html {
     min-height: 300px;
 }
 
-/* Sección de Preguntas Frecuentes -->
+/* Sección de Preguntas Frecuentes */
 .accordion-item {
     border: none;
     margin-bottom: 1rem;
@@ -1184,21 +1184,21 @@ html {
     color: #0d6efd;
 }
 
-/* Mensajes de Éxito -->
+/* Mensajes de Éxito */
 .alert-success {
     background: linear-gradient(135deg, #d1e7dd 0%, #badbcc 100%);
     border: none;
     border-radius: 0.5rem;
 }
 
-/* Mensajes de Error -->
+/* Mensajes de Error */
 .alert-danger {
     background: linear-gradient(135deg, #f8d7da 0%, #f5c2c7 100%);
     border: none;
     border-radius: 0.5rem;
 }
 
-/* Sección de Login de Administrador -->
+/* Sección de Login de Administrador */
 .admin-login-section {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
@@ -1234,13 +1234,13 @@ html {
     box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
 }
 
-/* Enlace de Administrador en el Pie de Página -->
+/* Enlace de Administrador en el Pie de Página */
 footer .text-muted a:hover {
     color: #0d6efd !important;
     text-decoration: underline !important;
 }
 
-/* Página de Login de Administrador -->
+/* Página de Login de Administrador */
 .admin-login-page .card {
     border-radius: 1.5rem;
     overflow: hidden;
@@ -1299,7 +1299,7 @@ footer .text-muted a:hover {
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-/* Sección de Información de Seguridad -->
+/* Sección de Información de Seguridad */
 .security-info .fas {
     transition: transform 0.3s ease;
 }
@@ -1327,7 +1327,7 @@ footer .text-muted a:hover {
     align-items: center;
 }
 
-/* Logo/Marca -->
+/* Logo/Marca */
 .nav-brand a {
     text-decoration: none;
     color: #333;
@@ -1341,7 +1341,7 @@ footer .text-muted a:hover {
     margin-right: 8px;
 }
 
-/* Menú de Escritorio -->
+/* Menú de Escritorio */
 .desktop-menu {
     display: flex;
     align-items: center;
@@ -1373,7 +1373,7 @@ footer .text-muted a:hover {
     padding: 0 5px;
 }
 
-/* Botón del Menú Móvil -->
+/* Botón del Menú Móvil */
 .mobile-menu-btn {
     display: none;
     flex-direction: column;
@@ -1406,7 +1406,7 @@ footer .text-muted a:hover {
     transform: rotate(-45deg) translate(7px, -6px);
 }
 
-/* Panel del Menú Móvil -->
+/* Panel del Menú Móvil */
 .mobile-menu-panel {
     position: fixed;
     top: 0;
@@ -1468,7 +1468,7 @@ footer .text-muted a:hover {
     transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-/* Elementos del Menú Móvil -->
+/* Elementos del Menú Móvil */
 .mobile-menu-items {
     padding: 20px 0;
 }
@@ -1498,7 +1498,7 @@ footer .text-muted a:hover {
     border-top: 1px solid #eee;
 }
 
-/* Superposición Móvil -->
+/* Superposición Móvil */
 .mobile-overlay {
     position: fixed;
     top: 0;
@@ -1517,7 +1517,7 @@ footer .text-muted a:hover {
     visibility: visible;
 }
 
-/* Diseño Responsivo -->
+/* Diseño Responsivo -->*/
 @media (max-width: 768px) {
     .desktop-menu {
         display: none;
@@ -1627,7 +1627,7 @@ footer .text-muted a:hover {
     animation: slideInUp 1s ease-out 0.4s both;
 }
 
-/* Indicadores del Carrusel -->
+/* Indicadores del Carrusel */
 .carousel-indicators {
     position: absolute;
     bottom: 30px;
@@ -1659,7 +1659,7 @@ footer .text-muted a:hover {
     transform: scale(1.1);
 }
 
-/* Animaciones -->
+/* Animaciones */
 @keyframes slideInUp {
     from {
         transform: translateY(30px);
@@ -1680,7 +1680,7 @@ footer .text-muted a:hover {
     }
 }
 
-/* Diseño Responsivo para el Carrusel -->
+/* Diseño Responsivo para el Carrusel -->*/
 @media (max-width: 768px) {
     .hero-carousel-section {
         height: 400px;
@@ -1831,7 +1831,7 @@ footer .text-muted a:hover {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
-/* Íconos de estadísticas -->
+/* Íconos de estadísticas */
 .stat-icon {
     width: 70px;
     height: 70px;
@@ -1880,7 +1880,7 @@ footer .text-muted a:hover {
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
-/* Números de estadísticas -->
+/* Números de estadísticas */
 .stat-number {
     font-size: 3rem;
     font-weight: 800;
@@ -1912,7 +1912,7 @@ footer .text-muted a:hover {
     opacity: 1;
 }
 
-/* Etiquetas y descripciones -->
+/* Etiquetas y descripciones */
 .stat-label {
     font-size: 1.1rem;
     font-weight: 600;
@@ -1932,7 +1932,7 @@ footer .text-muted a:hover {
     margin: 0 auto;
 }
 
-/* Diseño Responsivo -->
+/* Diseño Responsivo */
 @media (max-width: 1200px) {
     .stats-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -2022,13 +2022,13 @@ footer .text-muted a:hover {
     --accent: #6A8ED0; /* precio */
 }
 
-/* Tipografías globales -->
+/* Tipografías globales */
 body {
     font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
     color: var(--ink);
 }
 
-/* Sección y encabezado -->
+/* Sección y encabezado */
 .prop-hero {
     background: var(--bg);
     padding: 56px clamp(16px, 4vw, 64px);
@@ -2055,7 +2055,7 @@ body {
     margin: 0 0 36px;
 }
 
-/* CONTENEDOR de cada propiedad -->
+/* CONTENEDOR de cada propiedad */
 .prop-row {
     display: flex;
     gap: 48px;
@@ -2125,13 +2125,13 @@ body {
     line-height: 1.6;
 }
 
-/* PRECIO azul -->
+/* PRECIO azul */
 .prop-price {
     font: 700 clamp(20px, 3vw, 28px)/1 Oswald, sans-serif;
     color: var(--accent);
 }
 
-/* Botón (opcional). En el modelo no aparece, lo dejo sutil -->
+/* Botón (opcional). En el modelo no aparece, lo dejo sutil */
 .prop-btn {
     margin-top: 14px;
     background: #2B55A2;
@@ -2151,7 +2151,7 @@ body {
     text-decoration: none;
 }
 
-/* Diseño Responsivo -->
+/* Diseño Responsivo -->*/
 @media (max-width: 920px) {
     .prop-row {
         flex-direction: column !important; /* fuerza columna en móvil */
