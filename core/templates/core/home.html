@@ -52,94 +52,6 @@
     </div>
 </section>
 
-        <!-- Propiedades Destacadas - Estilo de Catálogo de Lujo -->
-        <section class="prop-hero">
-            <div class="prop-container">
-                <!-- Mensaje de Error -->
-                {% if error_message %}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    {{ error_message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                {% endif %}
-                
-                <!-- Sección de Encabezado -->
-                <h2 class="prop-title-sec">Propiedades En Venta</h2>
-                <p class="prop-sub">Descubre nuestras mejores ofertas inmobiliarias de lujo</p>
-        
-        {% if hay_propiedades %}
-        <!-- Catálogo de Propiedades de Lujo -->
-        {% for propiedad in propiedades_destacadas %}
-        <article class="prop-row">
-            <div class="prop-media">
-                {% if propiedad.imagen_principal %}
-                <img src="{{ propiedad.imagen_principal.url }}" 
-                     alt="{{ propiedad.titulo }}">
-                {% endif %}
-            </div>
-
-                         <div class="prop-info">
-                 <h3 class="prop-name">{{ propiedad.titulo|upper }}</h3>
-                 
-                 <!-- Badge de operación -->
-                 <div class="prop-badges mb-2">
-                     <span class="badge bg-info me-2">{{ propiedad.get_operacion_display }}</span>
-                     <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
-                 </div>
-
-                 <div class="prop-brief">
-                     <strong>{{ propiedad.habitaciones }} recámaras</strong>
-                     <p>{{ propiedad.descripcion|truncatechars:150|default:"Propiedad de lujo con acabados premium, ubicación privilegiada y diseño contemporáneo que combina elegancia y funcionalidad." }}</p>
-                 </div>
-
-                 <div class="prop-price">{{ propiedad.get_precio_formateado }}</div>
-
-                 <!-- Botón opcional -->
-                 <a href="{% url 'propiedades:detalle' propiedad.id %}" class="prop-btn">
-                     Ver detalles
-                 </a>
-             </div>
-        </article>
-        {% endfor %}
-        
-        <!-- Botón Ver Todas las Propiedades -->
-        <div class="text-center mt-5">
-            <a href="{% url 'propiedades:lista' %}" class="btn btn-outline-primary btn-lg px-5 py-3 fw-semibold">
-                <i class="fas fa-list me-2"></i>Ver Todas las Propiedades
-            </a>
-        </div>
-        
-        {% else %}
-        <!-- Estado Vacío -->
-        <div class="text-center py-5">
-            <div class="empty-state">
-                <i class="fas fa-home fa-4x text-muted mb-3"></i>
-                <h4 class="text-muted">
-                    {% if propiedades_disponibles == 0 and total_propiedades > 0 %}
-                        No hay propiedades disponibles actualmente
-                    {% else %}
-                        No hay propiedades registradas
-                    {% endif %}
-                </h4>
-                <p class="text-muted mb-4">
-                    {% if propiedades_disponibles == 0 and total_propiedades > 0 %}
-                        Todas las propiedades están vendidas o reservadas. Pronto tendremos nuevas ofertas.
-                    {% else %}
-                        Comienza agregando tu primera propiedad al catálogo.
-                    {% endif %}
-                </p>
-                {% if user.is_authenticated and user.is_staff %}
-                <a href="{% url 'propiedades:crear' %}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Agregar Nueva Propiedad
-                </a>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-            </div>
-        </section>
-
         <!-- Propiedades en Alquiler - Nueva Sección -->
         <section class="py-5 bg-white">
             <div class="container">
@@ -150,14 +62,14 @@
                 <!-- Botón Dividido para Alternar entre Alquiler y Alquiler Temporal -->
                 <div class="text-center mb-4">
                     <div class="btn-group-toggle" role="group" aria-label="Tipo de alquiler">
-                        <input type="radio" class="btn-check" name="tipo-alquiler" id="btn-alquiler" value="alquiler" checked>
-                        <label class="btn btn-outline-primary" for="btn-alquiler">
-                            <i class="fas fa-home me-2"></i>Alquiler
-                        </label>
-                        
-                        <input type="radio" class="btn-check" name="tipo-alquiler" id="btn-alquiler-temporal" value="alquiler_temporal">
+                        <input type="radio" class="btn-check" name="tipo-alquiler" id="btn-alquiler-temporal" value="alquiler_temporal" checked>
                         <label class="btn btn-outline-primary" for="btn-alquiler-temporal">
                             <i class="fas fa-calendar-alt me-2"></i>Alquiler Temporal
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="tipo-alquiler" id="btn-alquiler" value="alquiler">
+                        <label class="btn btn-outline-primary" for="btn-alquiler">
+                            <i class="fas fa-home me-2"></i>Alquiler
                         </label>
                     </div>
                 </div>
@@ -298,49 +210,878 @@
             </div>
         </section>
 
-<!-- Sección de Estadísticas -->
-<section class="stats-section py-4">
-    <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col-lg-8 mx-auto">
-                <h2 class="section-title">Nuestros Números Hablan</h2>
-                <p class="section-subtitle">Experiencia y confianza respaldadas por resultados</p>
-            </div>
-        </div>
-        
-        <div class="stats-grid">
-            <!-- Propiedades Disponibles - Lo que más importa al cliente -->
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-home"></i>
+        <!-- 
+        ================================================
+        SECCIÓN DE PROPIEDADES EN VENTA - COMPLETAMENTE OCULTA
+        ================================================
+        Esta sección está comentada para futuras actualizaciones.
+        No se renderiza ni se muestra al usuario.
+        ================================================
+        -->
+        <!--
+        {% comment %}
+        <section class="prop-hero">
+            <div class="prop-container">
+                <!-- Mensaje de Error -->
+                {% if error_message %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ error_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-                <div class="stat-number" data-target="{{ propiedades_disponibles|default:25 }}">0</div>
-                <div class="stat-label">Propiedades Disponibles</div>
-                <div class="stat-description">Casas y apartamentos listos para ti hoy mismo</div>
-            </div>
-            
-            <!-- Tiempo de Respuesta - Confianza y servicio -->
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
+                {% endif %}
+                
+                <!-- Sección de Encabezado -->
+                <h2 class="prop-title-sec">Propiedades En Venta</h2>
+                <p class="prop-sub">Descubre nuestras mejores ofertas inmobiliarias de lujo</p>
+
+                {% if hay_propiedades %}
+                <!-- Catálogo de Propiedades de Lujo -->
+                {% for propiedad in propiedades_destacadas %}
+                <article class="prop-row">
+                    <div class="prop-media">
+                        {% if propiedad.imagen_principal %}
+                        <img src="{{ propiedad.imagen_principal.url }}" 
+                            alt="{{ propiedad.titulo }}">
+                        {% endif %}
+                    </div>
+
+                    <div class="prop-info">
+                        <h3 class="prop-name">{{ propiedad.titulo|upper }}</h3>
+                        
+                        <!-- Badge de operación -->
+                        <div class="prop-badges mb-2">
+                            <span class="badge bg-info me-2">{{ propiedad.get_operacion_display }}</span>
+                            <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
+                        </div>
+
+                        <div class="prop-brief">
+                            <strong>{{ propiedad.habitaciones }} recámaras</strong>
+                            <p>{{ propiedad.descripcion|truncatechars:150|default:"Propiedad de lujo con acabados premium, ubicación privilegiada y diseño contemporáneo que combina elegancia y funcionalidad." }}</p>
+                        </div>
+
+                        <div class="prop-price">{{ propiedad.get_precio_formateado }}</div>
+
+                        <!-- Botón opcional -->
+                        <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-outline-primary btn-lg px-5 py-3 fw-semibold">
+                            Ver detalles
+                        </a>
+                    </div>
+                </article>
+                {% endfor %}
+                
+                <!-- Botón Ver Todas las Propiedades -->
+                <div class="text-center mt-5">
+                    <a href="{% url 'propiedades:lista' %}" class="btn btn-outline-primary btn-lg px-5 py-3 fw-semibold">
+                        <i class="fas fa-list me-2"></i>Ver Todas las Propiedades
+                    </a>
                 </div>
-                <div class="stat-number" data-target="2">0</div>
-                <div class="stat-label">Horas de Respuesta</div>
-                <div class="stat-description">Te respondemos en máximo 2 horas, no te hacemos esperar</div>
-            </div>
-            
-            <!-- Satisfacción del Cliente - Credibilidad -->
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-star"></i>
+                
+                {% else %}
+                <!-- Estado Vacío -->
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-home fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">
+                            {% if propiedades_disponibles == 0 and total_propiedades > 0 %}
+                                No hay propiedades disponibles actualmente
+                            {% else %}
+                                No hay propiedades registradas
+                            {% endif %}
+                        </h4>
+                        <p class="text-muted mb-4">
+                            {% if propiedades_disponibles == 0 and total_propiedades > 0 %}
+                                Todas las propiedades están vendidas o reservadas. Pronto tendremos nuevas ofertas.
+                            {% else %}
+                                Comienza agregando tu primera propiedad al catálogo.
+                            {% endif %}
+                        </p>
+                        {% if user.is_authenticated and user.is_staff %}
+                        <a href="{% url 'propiedades:crear' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Agregar Nueva Propiedad
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="stat-number" data-target="98">0</div>
-                <div class="stat-label">% Satisfacción</div>
-                <div class="stat-description">Clientes satisfechos con nuestro servicio</div>
+                {% endif %}
             </div>
-        </div>
-    </div>
-</section>
+        </section>
+        {% endcomment %}
+        <!-- Sección de Consorcios -->
+        <section class="consortium-section py-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <div class="consortium-content">
+                            <h2 class="consortium-title">GESTIÓN PROFESIONAL DE CONSORCIOS</h2>
+                            <p class="consortium-description">
+                                Ofrecemos servicios integrales de administración de consorcios residenciales y comerciales. 
+                                Nuestro equipo experto garantiza la gestión eficiente de tu propiedad en comunidad.
+                            </p>
+                            
+                            <div class="consortium-features">
+                                <div class="feature-item">
+                                    <i class="fas fa-shield-alt text-primary"></i>
+                                    <span>Administración transparente y profesional</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-chart-line text-primary"></i>
+                                    <span>Control financiero y presupuestario</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-tools text-primary"></i>
+                                    <span>Mantenimiento preventivo y correctivo</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-users text-primary"></i>
+                                    <span>Comunicación efectiva con propietarios</span>
+                                </div>
+                            </div>
+                            
+                            <div class="consortium-cta mt-4">
+                                <a href="{% url 'core:consorcio' %}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-building me-2"></i>Conocer Nuestros Servicios
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="consortium-image">
+                            <div class="image-placeholder">
+                                <i class="fas fa-building fa-5x text-muted"></i>
+                                <p class="text-muted mt-3">Imagen de Consorcio</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de Testimonios de Clientes -->
+        <section class="testimonials-section">
+          <div class="container py-5">
+            <div class="row text-center mb-5">
+              <div class="col-lg-8 mx-auto">
+                <h2 class="text-white fw-bold testimonials-title">NUESTROS CLIENTES OPINAN</h2>
+              </div>
+            </div>
+
+            <div class="testimonials-carousel">
+              <div class="testimonials-wrapper">
+                <div class="testimonials-track" id="testimonialsTrack">
+                  <!-- Primer testimonio -->
+                  <div class="testimonial-item">
+                <div class="testimonial-card text-center">
+                  <div class="quote-mark mb-3">
+                        <i class="fas fa-quote-left testimonial-icon text-warning"></i>
+                  </div>
+                  <p class="testimonial-text text-white mb-3">
+                    "Excelente servicio y atención personalizada. Encontraron exactamente lo que estábamos buscando en tiempo récord. Altamente recomendados para cualquier transacción inmobiliaria."
+                  </p>
+                  <div class="client-name text-white fw-bold">- Marta & Jorge Rosales</div>
+                </div>
+              </div>
+
+                  <!-- Segundo testimonio -->
+                  <div class="testimonial-item">
+                <div class="testimonial-card text-center">
+                  <div class="quote-mark mb-3">
+                        <i class="fas fa-quote-left testimonial-icon text-warning"></i>
+                  </div>
+                  <p class="testimonial-text text-white mb-3">
+                    "Profesionales muy serios y comprometidos. El proceso de alquiler fue transparente y sin complicaciones. Definitivamente volveré a confiar en ellos para futuras necesidades."
+                  </p>
+                  <div class="client-name text-white fw-bold">- María Rocha</div>
+                </div>
+              </div>
+
+                  <!-- Tercer testimonio -->
+                  <div class="testimonial-item">
+                <div class="testimonial-card text-center">
+                  <div class="quote-mark mb-3">
+                        <i class="fas fa-quote-left testimonial-icon text-warning"></i>
+                  </div>
+                  <p class="testimonial-text text-white mb-3">
+                    "Increíble experiencia desde el primer contacto. Su conocimiento del mercado y atención al detalle nos ayudó a tomar la mejor decisión para nuestra inversión inmobiliaria."
+                  </p>
+                  <div class="client-name text-white fw-bold">- Pablo & Susana Naúm</div>
+                </div>
+              </div>
+
+                  <!-- Cuarto testimonio -->
+                  <div class="testimonial-item">
+                    <div class="testimonial-card text-center">
+                      <div class="quote-mark mb-3">
+                        <i class="fas fa-quote-left testimonial-icon text-warning"></i>
+                      </div>
+                      <p class="testimonial-text text-white mb-3">
+                        "La mejor experiencia inmobiliaria que hemos tenido. Su equipo es profesional, honesto y muy eficiente. Recomendamos ampliamente sus servicios."
+                      </p>
+                      <div class="client-name text-white fw-bold">- Carlos & Ana Martínez</div>
+                    </div>
+                  </div>
+
+                  <!-- Quinto testimonio -->
+                  <div class="testimonial-item">
+                    <div class="testimonial-card text-center">
+                      <div class="quote-mark mb-3">
+                        <i class="fas fa-quote-left testimonial-icon text-warning"></i>
+                      </div>
+                      <p class="testimonial-text text-white mb-3">
+                        "Excelente asesoría en la compra de nuestra primera casa. Nos guiaron paso a paso y encontramos exactamente lo que necesitábamos."
+                      </p>
+                      <div class="client-name text-white fw-bold">- Roberto & Lucía González</div>
+                    </div>
+                  </div>
+
+                  <!-- Sexto testimonio -->
+                  <div class="testimonial-item">
+                    <div class="testimonial-card text-center">
+                      <div class="quote-mark mb-3">
+                        <i class="fas fa-quote-left testimonial-icon text-warning"></i>
+                      </div>
+                      <p class="testimonial-text text-white mb-3">
+                        "Servicio de primera calidad. Su conocimiento del mercado local nos ayudó a vender nuestra propiedad en tiempo récord y al mejor precio."
+                      </p>
+                      <div class="client-name text-white fw-bold">- Fernando & Patricia Silva</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botones de navegación -->
+              <div class="testimonials-navigation text-center mt-4">
+                <button class="btn btn-outline-warning btn-lg me-3" id="prevBtn" onclick="moveTestimonials('left')">
+                  <i class="fas fa-chevron-left me-2"></i>
+                </button>
+                <button class="btn btn-outline-warning btn-lg" id="nextBtn" onclick="moveTestimonials('right')">
+                  <i class="fas fa-chevron-right me-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+<style>
+/* Estilos responsivos para la sección de testimonios */
+.testimonials-section {
+  position: relative;
+  min-height: 60vh;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.4), rgba(27, 49, 172, 0.4)),
+    url("/static/images/imagen_convertida.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+}
+
+/* Título principal responsivo */
+.testimonials-title {
+  font-size: 2.5rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  margin-bottom: 2rem;
+}
+
+/* Contenedor de testimonios */
+.testimonials-container {
+  margin: 0 auto;
+}
+
+/* Carrusel de testimonios horizontal */
+.testimonials-carousel {
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonials-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.testimonials-track {
+  display: flex;
+  transition: transform 0.5s ease;
+  gap: 2rem;
+}
+
+.testimonial-item {
+  flex: 0 0 calc(33.333% - 1.33rem);
+  min-width: 300px;
+  transition: all 0.3s ease;
+}
+
+/* Botones de navegación */
+.testimonials-navigation {
+  margin-top: 2rem;
+}
+
+.testimonials-navigation .btn {
+  border-width: 2px;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.testimonials-navigation .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.testimonials-navigation .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Tarjetas de testimonios */
+.testimonial-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 2rem 1.5rem;
+  height: 100%;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Icono de comillas */
+.testimonial-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+/* Texto del testimonio */
+.testimonial-text {
+  line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Nombre del cliente */
+.client-name {
+  opacity: 0.95;
+  font-size: 1.1rem;
+}
+
+/* Responsive para tablets */
+@media (max-width: 991px) {
+  .testimonials-title {
+    font-size: 2rem;
+  }
+  
+  .testimonial-card {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .testimonial-icon {
+    font-size: 2.5rem;
+  }
+  
+  .testimonial-text {
+    font-size: 0.95rem;
+  }
+}
+
+/* Responsive para móviles */
+@media (max-width: 767px) {
+  .testimonials-section {
+    min-height: 50vh;
+    padding: 2rem 0;
+  }
+  
+  .testimonials-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .testimonials-container {
+    margin: 0 0.5rem;
+  }
+  
+  /* En móviles, los 2 testimonios se ven lado a lado */
+  .testimonials-container .col-sm-6 {
+    padding: 0 0.5rem;
+  }
+  
+  .testimonial-card {
+    padding: 1.25rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    height: auto;
+    min-height: 280px;
+  }
+  
+  .testimonial-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .testimonial-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+  
+  .client-name {
+    font-size: 1rem;
+  }
+  
+  /* Ajustar espaciado en móviles */
+  .testimonials-section .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Responsive para móviles pequeños */
+@media (max-width: 575px) {
+  .testimonials-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* En móviles pequeños, los testimonios se ven uno debajo del otro */
+  .testimonials-container .col-sm-6 {
+    width: 100%;
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+  
+  .testimonial-card {
+    padding: 1rem 0.75rem;
+    margin-bottom: 0.75rem;
+    min-height: auto;
+  }
+  
+  .testimonial-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .testimonial-text {
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .client-name {
+    font-size: 0.9rem;
+  }
+}
+
+/* Responsive para móviles muy pequeños */
+@media (max-width: 400px) {
+  .testimonials-title {
+    font-size: 1.3rem;
+  }
+  
+  .testimonial-card {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .testimonial-icon {
+    font-size: 1.5rem;
+  }
+  
+  .testimonial-text {
+    font-size: 0.8rem;
+  }
+  
+  .client-name {
+    font-size: 0.85rem;
+  }
+}
+
+/* Deshabilitar parallax en dispositivos móviles para mejor rendimiento */
+@media (max-width: 767px) {
+  .testimonials-section {
+    background-attachment: scroll;
+  }
+}
+
+/* Estilos para la sección de servicios destacados */
+.services-highlight-section {
+  background-color: #f8f9fa;
+  padding: 4rem 0;
+}
+
+.services-grid {
+  margin: 0;
+}
+
+/* Bloques de servicios */
+.service-block {
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.service-block:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Bloques grises */
+.service-block-grey {
+  background-color: #e9ecef;
+}
+
+/* Bloques blancos */
+.service-block-white {
+  background-color: #ffffff;
+}
+
+.service-content {
+  padding: 2.5rem 2rem;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.service-icon {
+  margin-bottom: 1.5rem;
+}
+
+.service-icon i {
+  font-size: 3rem;
+  color: #3498db;
+  opacity: 1;
+  filter: drop-shadow(0 2px 4px rgba(52, 152, 219, 0.3));
+}
+
+.service-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #2c3e50;
+  margin-bottom: 1.2rem;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.service-separator {
+  width: 80px;
+  height: 3px;
+  background-color: #3498db;
+  margin: 0 auto 1.2rem;
+  border-radius: 2px;
+}
+
+.service-text {
+  color: #34495e;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 400;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Responsive para tablets */
+@media (max-width: 991px) {
+  .service-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .service-title {
+    font-size: 1.25rem;
+    letter-spacing: 0.6px;
+  }
+  
+  .service-icon i {
+    font-size: 2.5rem;
+  }
+  
+  .service-text {
+    font-size: 0.95rem;
+  }
+  
+  .testimonial-item {
+    flex: 0 0 calc(50% - 1rem);
+    min-width: 280px;
+  }
+}
+
+/* Responsive para móviles */
+@media (max-width: 767px) {
+  .services-highlight-section {
+    padding: 3rem 0;
+  }
+  
+  .service-content {
+    padding: 1.5rem 1rem;
+  }
+  
+  .service-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.4px;
+  }
+  
+  .service-icon i {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .service-separator {
+    width: 60px;
+    height: 2px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .service-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .testimonial-item {
+    flex: 0 0 100%;
+    min-width: 100%;
+    margin: 0 0.5rem;
+  }
+  
+  .testimonials-track {
+    gap: 1rem;
+  }
+  
+  .testimonials-navigation .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Responsive para móviles pequeños */
+@media (max-width: 575px) {
+  .service-content {
+    padding: 1.25rem 0.75rem;
+  }
+  
+  .service-title {
+    font-size: 1rem;
+    letter-spacing: 0.3px;
+  }
+  
+  .service-icon i {
+    font-size: 1.75rem;
+  }
+  
+  .service-text {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  
+  .testimonial-item {
+    flex: 0 0 100%;
+    min-width: 100%;
+    margin: 0 0.25rem;
+  }
+  
+  .testimonials-track {
+    gap: 0.5rem;
+  }
+  
+  .testimonials-navigation .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Estilos para la sección de consorcios */
+.consortium-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  position: relative;
+}
+
+.consortium-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="consortium-pattern" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(0,0,0,0.03)"/></pattern></defs><rect width="100" height="100" fill="url(%23consortium-pattern)"/></svg>');
+  opacity: 0.5;
+}
+
+.consortium-content {
+  position: relative;
+  z-index: 2;
+}
+
+.consortium-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.consortium-description {
+  font-size: 1.1rem;
+  color: #5a6c7d;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  font-weight: 400;
+}
+
+.consortium-features {
+  margin-bottom: 2rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(5px);
+}
+
+.feature-item i {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  width: 30px;
+  text-align: center;
+}
+
+.feature-item span {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #34495e;
+}
+
+.consortium-cta .btn {
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.consortium-cta .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
+}
+
+.consortium-image {
+  position: relative;
+  z-index: 2;
+}
+
+.image-placeholder {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.image-placeholder:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.image-placeholder i {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+/* Responsive para consorcios */
+@media (max-width: 991px) {
+  .consortium-title {
+    font-size: 2rem;
+  }
+  
+  .consortium-description {
+    font-size: 1rem;
+  }
+  
+  .feature-item {
+    padding: 0.5rem;
+  }
+  
+  .feature-item i {
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .consortium-title {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .consortium-description {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .consortium-features {
+    margin-bottom: 1.5rem;
+  }
+  
+  .feature-item {
+    margin-bottom: 0.75rem;
+  }
+  
+  .consortium-cta .btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .image-placeholder {
+    padding: 2rem;
+  }
+  
+  .image-placeholder i {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 575px) {
+  .consortium-title {
+    font-size: 1.5rem;
+  }
+  
+  .consortium-description {
+    font-size: 0.9rem;
+  }
+  
+  .feature-item span {
+    font-size: 0.9rem;
+  }
+  
+  .consortium-cta .btn {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+</style>
 
 <!-- JavaScript para alternar entre tipos de alquiler -->
 <script>
@@ -388,41 +1129,156 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Mostrar alquiler por defecto al cargar la página
-    mostrarAlquiler();
+    // Mostrar alquiler temporal por defecto al cargar la página
+    mostrarAlquilerTemporal();
 });
 </script>
 
-<!-- Sección de Servicios -->
-<section class="py-5 bg-light">
+<!-- JavaScript para el carrusel de testimonios -->
+<script>
+let currentPosition = 0;
+let testimonialsPerView = 3; // Por defecto 3 en desktop
+let totalTestimonials = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    totalTestimonials = document.querySelectorAll('.testimonial-item').length;
+    updateTestimonialsPerView();
+    updateNavigationButtons();
+});
+
+// Función para detectar el tamaño de pantalla y ajustar testimonios por vista
+function updateTestimonialsPerView() {
+    const width = window.innerWidth;
+    
+    if (width <= 575) {
+        // Móviles pequeños: 1 testimonio
+        testimonialsPerView = 1;
+    } else if (width <= 991) {
+        // Tablets: 2 testimonios
+        testimonialsPerView = 2;
+    } else {
+        // Desktop: 3 testimonios
+        testimonialsPerView = 3;
+    }
+    
+    // Resetear posición si es necesario
+    if (currentPosition > totalTestimonials - testimonialsPerView) {
+        currentPosition = Math.max(0, totalTestimonials - testimonialsPerView);
+        updateTestimonialsDisplay();
+    }
+    
+    updateNavigationButtons();
+}
+
+function moveTestimonials(direction) {
+    const track = document.getElementById('testimonialsTrack');
+    const itemWidth = document.querySelector('.testimonial-item').offsetWidth;
+    const gap = window.innerWidth <= 767 ? 16 : 32; // Gap más pequeño en móviles
+    const totalItemWidth = itemWidth + gap;
+    
+    if (direction === 'right' && currentPosition < totalTestimonials - testimonialsPerView) {
+        currentPosition++;
+    } else if (direction === 'left' && currentPosition > 0) {
+        currentPosition--;
+    }
+    
+    const translateX = -currentPosition * totalItemWidth;
+    track.style.transform = `translateX(${translateX}px)`;
+    
+    updateNavigationButtons();
+}
+
+function updateTestimonialsDisplay() {
+    const track = document.getElementById('testimonialsTrack');
+    const itemWidth = document.querySelector('.testimonial-item').offsetWidth;
+    const gap = window.innerWidth <= 767 ? 16 : 32;
+    const totalItemWidth = itemWidth + gap;
+    
+    const translateX = -currentPosition * totalItemWidth;
+    track.style.transform = `translateX(${translateX}px)`;
+}
+
+function updateNavigationButtons() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    // Botón anterior
+    if (currentPosition === 0) {
+        prevBtn.disabled = true;
+        prevBtn.style.opacity = '0.5';
+    } else {
+        prevBtn.disabled = false;
+        prevBtn.style.opacity = '1';
+    }
+    
+    // Botón siguiente
+    if (currentPosition >= totalTestimonials - testimonialsPerView) {
+        nextBtn.disabled = true;
+        nextBtn.style.opacity = '0.5';
+    } else {
+        nextBtn.disabled = false;
+        nextBtn.style.opacity = '1';
+    }
+}
+
+// Escuchar cambios de tamaño de ventana
+window.addEventListener('resize', function() {
+    updateTestimonialsPerView();
+});
+</script>
+
+        <!-- Sección de Servicios Destacados -->
+        <section class="services-highlight-section py-5">
     <div class="container">
-        <div class="row text-center mb-5">
-            <div class="col-lg-8 mx-auto">
-                <h2 class="fw-bold">Nuestros Servicios</h2>
-                <p class="text-muted">Ofrecemos una amplia gama de servicios inmobiliarios</p>
+                <div class="row services-grid">
+                    <!-- Bloque 1: Votado el Mejor Corredor (Gris) -->
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                        <div class="service-block service-block-grey">
+                            <div class="service-content">
+                                <h3 class="service-title">VOTADO EL MEJOR CORREDOR DE LA BAHÍA</h3>
+                            </div>
             </div>
         </div>
         
-        <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="text-center">
-                    <i class="fas fa-search fa-3x text-primary mb-3"></i>
-                    <h4>Búsqueda Personalizada</h4>
-                    <p class="text-muted">Encontramos la propiedad perfecta según tus necesidades y presupuesto.</p>
+                    <!-- Bloque 2: Registro Gratis (Blanco) -->
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                        <div class="service-block service-block-white">
+                            <div class="service-content">
+                                <div class="service-icon">
+                                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                                <h3 class="service-title">REGISTRO GRATIS SIN CUOTAS OCULTAS</h3>
+                                <div class="service-separator"></div>
+                                <p class="service-text">Regístrate gratis y accede a nuestro catálogo completo de propiedades sin costos ocultos ni compromisos.</p>
+            </div>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="text-center">
-                    <i class="fas fa-handshake fa-3x text-primary mb-3"></i>
-                    <h4>Asesoría Experta</h4>
-                    <p class="text-muted">Nuestro equipo de expertos te guía en todo el proceso de compra.</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="text-center">
-                    <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
-                    <h4>Seguridad Garantizada</h4>
-                    <p class="text-muted">Todas nuestras propiedades están verificadas y certificadas.</p>
+
+                    <!-- Bloque 3: Avalúo Gratuito (Gris) -->
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                        <div class="service-block service-block-grey">
+                            <div class="service-content">
+                                <div class="service-icon">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <h3 class="service-title">AVALÚO GRATUITO DE PROPIEDAD</h3>
+                                <div class="service-separator"></div>
+                                <p class="service-text">Obtén una valoración profesional y precisa de tu propiedad sin costo alguno. Nuestros expertos te asesoran.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloque 4: Oficinas en 4 Ubicaciones (Blanco) -->
+                    <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                        <div class="service-block service-block-white">
+                            <div class="service-content">
+                                <div class="service-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <h3 class="service-title">OFICINAS EN 4 UBICACIONES</h3>
+                                <div class="service-separator"></div>
+                                <p class="service-text">Estamos presentes en las mejores zonas de la bahía para brindarte atención personalizada cerca de ti.</p>
+                            </div>
                 </div>
             </div>
         </div>

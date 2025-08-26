@@ -28,3 +28,7 @@ Esta carpeta contiene las imágenes de las propiedades inmobiliarias destacadas.
 
 Para usar estas imágenes en las propiedades, subirlas a través del panel de administración de Django en el campo "Imagen Principal" de cada propiedad.
 
+
+
+
+
