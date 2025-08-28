@@ -1,43 +1,58 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.core.paginator import Paginator
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views import View
 from .models import Propiedad
 from .forms import PropiedadForm
+import json
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 # Crea tus vistas aquí.
 
 def lista_propiedades(request):
     """Vista para listar todas las propiedades"""
-    propiedades = Propiedad.objects.filter(estado='disponible').order_by('-fecha_creacion')
+    # Obtener todas las propiedades disponibles
+    propiedades_list = Propiedad.objects.filter(estado='disponible').order_by('-fecha_creacion')
     
     # Paginación
-    paginator = Paginator(propiedades, 9)  # 9 propiedades por página
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    paginator = Paginator(propiedades_list, 9)  # 9 propiedades por página
+    page = request.GET.get('page')
+    
+    try:
+        propiedades = paginator.page(page)
+    except PageNotAnInteger:
+        # Si la página no es un número, mostrar la primera página
+        propiedades = paginator.page(1)
+    except EmptyPage:
+        # Si la página está fuera del rango, mostrar la última página
+        propiedades = paginator.page(paginator.num_pages)
     
     context = {
-        'page_obj': page_obj,
-        'total_propiedades': propiedades.count(),
+        'propiedades': propiedades,
+        'page_obj': propiedades,  # Para compatibilidad con la plantilla
+        'titulo_pagina': 'Todas las Propiedades',
+        'total_propiedades': propiedades_list.count()
     }
-    
     return render(request, 'propiedades/lista_propiedades.html', context)
 
 def detalle_propiedad(request, propiedad_id):
     """Vista para mostrar el detalle de una propiedad"""
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     
-    # Propiedades relacionadas (mismo tipo)
+    # Obtener propiedades relacionadas
     propiedades_relacionadas = Propiedad.objects.filter(
         tipo=propiedad.tipo,
-        estado='disponible'
+        operacion=propiedad.operacion
     ).exclude(id=propiedad.id)[:3]
     
     context = {
         'propiedad': propiedad,
         'propiedades_relacionadas': propiedades_relacionadas,
+        'titulo_pagina': propiedad.titulo
     }
-    
     return render(request, 'propiedades/detalle_propiedad.html', context)
 
 def buscar_propiedades(request):
@@ -68,9 +83,17 @@ def buscar_propiedades(request):
     propiedades = propiedades.order_by('-fecha_creacion')
     
     # Paginación
-    paginator = Paginator(propiedades, 9)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    paginator = Paginator(propiedades, 9)  # 9 propiedades por página
+    page = request.GET.get('page')
+    
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        # Si la página no es un número, mostrar la primera página
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # Si la página está fuera del rango, mostrar la última página
+        page_obj = paginator.page(paginator.num_pages)
     
     context = {
         'page_obj': page_obj,
@@ -84,41 +107,90 @@ def buscar_propiedades(request):
     
     return render(request, 'propiedades/buscar_propiedades.html', context)
 
-@login_required
+@csrf_exempt
+def upload_fotos_adicionales(request):
+    """Vista para subir fotos adicionales via AJAX"""
+    if request.method == 'POST':
+        try:
+            propiedad_id = request.POST.get('propiedad_id')
+            fotos = request.FILES.getlist('fotos')
+            
+            if not propiedad_id or not fotos:
+                return JsonResponse({'success': False, 'error': 'Datos incompletos'})
+            
+            propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+            
+            # Guardar cada foto
+            fotos_guardadas = []
+            for i, foto in enumerate(fotos):
+                from .models import FotoPropiedad
+                foto_obj = FotoPropiedad.objects.create(
+                    propiedad=propiedad,
+                    imagen=foto,
+                    orden=i + 1,
+                    descripcion=f"Foto adicional {i + 1}"
+                )
+                fotos_guardadas.append({
+                    'id': foto_obj.id,
+                    'url': foto_obj.imagen.url,
+                    'nombre': foto_obj.imagen.name
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'fotos': fotos_guardadas,
+                'mensaje': f'{len(fotos)} fotos subidas exitosamente'
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
 def crear_propiedad(request):
     """Vista para crear una nueva propiedad"""
-    if not request.user.is_staff:
-        messages.error(request, 'No tienes permisos para crear propiedades.')
-        return redirect('core:home')
-    
     if request.method == 'POST':
         form = PropiedadForm(request.POST, request.FILES)
         if form.is_valid():
             propiedad = form.save(commit=False)
             
-            # Asignar automáticamente el administrador actual
-            try:
+            # Asignar el administrador actual a la propiedad
+            if hasattr(request, 'user') and request.user.is_authenticated:
+                # Buscar el AdminCredentials correspondiente al usuario
                 from login.models import AdminCredentials
-                admin_creds = AdminCredentials.objects.filter(email=request.user.email, activo=True).first()
-                if admin_creds:
+                try:
+                    admin_creds = AdminCredentials.objects.get(email=request.user.email)
                     propiedad.administrador = admin_creds
-                else:
-                    # Si no encuentra credenciales, crear una por defecto
+                except AdminCredentials.DoesNotExist:
+                    # Si no existe AdminCredentials, crear uno básico
                     admin_creds = AdminCredentials.objects.create(
                         nombre=request.user.first_name or 'Administrador',
-                        apellido=request.user.last_name or 'Sistema',
+                        apellido=request.user.last_name or 'del Sistema',
                         email=request.user.email,
                         telefono='+52-1-33-00000000',
-                        password='temp_password_123'
+                        password='temp_password_123'  # Contraseña temporal
                     )
                     propiedad.administrador = admin_creds
-            except Exception as e:
-                # En caso de error, continuar sin administrador
-                pass
             
             propiedad.save()
-            messages.success(request, f'Propiedad "{propiedad.titulo}" creada exitosamente.')
-            return redirect('propiedades:detalle', propiedad_id=propiedad.id)
+            
+            # Guardar las amenidades (relación many-to-many)
+            form.save_m2m()
+            
+            # Manejar fotos adicionales si existen
+            fotos_adicionales = request.FILES.getlist('fotos_adicionales')
+            if fotos_adicionales:
+                from .models import FotoPropiedad
+                for i, foto in enumerate(fotos_adicionales):
+                    FotoPropiedad.objects.create(
+                        propiedad=propiedad,
+                        imagen=foto,
+                        orden=i + 1,
+                        descripcion=f"Foto {i + 1} de {propiedad.titulo}"
+                    )
+            
+            messages.success(request, 'Propiedad creada exitosamente.')
+            return redirect('propiedades:detalle', propiedad.id)
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
@@ -126,8 +198,6 @@ def crear_propiedad(request):
     
     context = {
         'form': form,
-        'tipos_propiedad': Propiedad.TIPO_CHOICES,
-        'estados_propiedad': Propiedad.ESTADO_CHOICES,
+        'titulo_pagina': 'Crear Nueva Propiedad'
     }
-    
     return render(request, 'propiedades/crear_propiedad.html', context)

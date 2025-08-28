@@ -1,5 +1,18 @@
 from django.contrib import admin
-from .models import Propiedad
+from .models import Propiedad, FotoPropiedad, Amenidad
+
+@admin.register(Amenidad)
+class AmenidadAdmin(admin.ModelAdmin):
+    list_display = ['nombre', 'icono', 'descripcion']
+    search_fields = ['nombre']
+    list_filter = ['nombre']
+
+class FotoPropiedadInline(admin.TabularInline):
+    """Inline para mostrar y editar fotos de la propiedad"""
+    model = FotoPropiedad
+    extra = 1
+    fields = ('imagen', 'descripcion', 'orden')
+    readonly_fields = ('fecha_subida',)
 
 @admin.register(Propiedad)
 class PropiedadAdmin(admin.ModelAdmin):
@@ -8,6 +21,7 @@ class PropiedadAdmin(admin.ModelAdmin):
     search_fields = ('titulo', 'descripcion', 'ubicacion', 'administrador__nombre', 'administrador__apellido')
     list_editable = ('precio', 'estado', 'operacion')
     readonly_fields = ('fecha_creacion', 'fecha_actualizacion')
+    inlines = [FotoPropiedadInline]
     
     fieldsets = (
         ('Información Básica', {
@@ -20,8 +34,13 @@ class PropiedadAdmin(admin.ModelAdmin):
         ('Características', {
             'fields': ('metros_cuadrados', 'habitaciones', 'banos')
         }),
-        ('Imagen', {
-            'fields': ('imagen_principal',)
+        ('Imágenes', {
+            'fields': ('imagen_principal', 'imagen_secundaria'),
+            'description': 'Imagen principal para el home, imagen secundaria para el detalle'
+        }),
+        ('Amenidades', {
+            'fields': ('amenidades',),
+            'classes': ('collapse',)
         }),
         ('Administración', {
             'fields': ('administrador',),
@@ -53,3 +72,21 @@ class PropiedadAdmin(admin.ModelAdmin):
             'all': ('admin/css/propiedad_admin.css',)
         }
         js = ('admin/js/propiedad_admin.js',)
+
+@admin.register(FotoPropiedad)
+class FotoPropiedadAdmin(admin.ModelAdmin):
+    list_display = ('propiedad', 'orden', 'descripcion', 'fecha_subida')
+    list_filter = ('propiedad__tipo', 'propiedad__operacion', 'fecha_subida')
+    search_fields = ('propiedad__titulo', 'descripcion')
+    list_editable = ('orden', 'descripcion')
+    readonly_fields = ('fecha_subida',)
+    
+    fieldsets = (
+        ('Información de la Foto', {
+            'fields': ('propiedad', 'imagen', 'descripcion', 'orden')
+        }),
+        ('Metadatos', {
+            'fields': ('fecha_subida',),
+            'classes': ('collapse',)
+        }),
+    )
