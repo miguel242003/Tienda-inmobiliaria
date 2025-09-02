@@ -1,62 +1,764 @@
-{% extends 'core/base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración A&G - Consorcio</title>
+    
+    <!-- CSS de Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <style>
+        /* CSS de navegación optimizado para velocidad */
+        body .responsive-nav {
+            transition: none !important;
+            background-color: white !important;
+            padding: 15px 0 !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1000 !important;
+        }
+        
+        body .nav-item {
+            text-decoration: none !important;
+            color: #333 !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            font-weight: 300 !important;
+            font-size: 14px !important;
+            letter-spacing: 2px !important;
+            text-transform: uppercase !important;
+            padding: 10px 20px !important;
+            transition: all 0.05s ease-out !important;
+            position: relative !important;
+            border-radius: 20px !important;
+        }
+        
+        body .nav-item:hover {
+            color: #2B55A2 !important;
+            background-color: rgba(43, 85, 162, 0.1) !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 2px 8px rgba(43, 85, 162, 0.15) !important;
+        }
+        
+        body .nav-item::before {
+            content: '' !important;
+            position: absolute !important;
+            bottom: -2px !important;
+            left: 50% !important;
+            width: 0 !important;
+            height: 2px !important;
+            background: linear-gradient(90deg, #2B55A2, #3498db) !important;
+            transition: width 0.05s ease-out !important;
+            transform: translateX(-50%) !important;
+        }
+        
+        body .nav-item:hover::before {
+            width: 80% !important;
+        }
+        
+        body .nav-item.active {
+            background-color: rgba(43, 85, 162, 0.15) !important;
+            color: #2B55A2 !important;
+            font-weight: 600 !important;
+            transition: none !important;
+        }
+        
+        body .nav-item.active::before {
+            width: 80% !important;
+            transition: none !important;
+        }
+        
+        /* Prevenir transiciones en el enlace activo */
+        body .nav-item.active:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            transition: none !important;
+        }
+        
+        body {
+            scroll-behavior: smooth !important;
+        }
+        
+        /* Estilos para el botón de asesor */
+        .btn-primary:hover {
+            background: #1e3a8a !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(43, 85, 162, 0.4) !important;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .consorcio-title {
+                font-size: 3rem !important;
+            }
+            .consorcio-subtitle {
+                font-size: 1.8rem !important;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .consorcio-title {
+                font-size: 2.5rem !important;
+            }
+            .consorcio-subtitle {
+                font-size: 1.5rem !important;
+            }
+            .consorcio-highlight-text {
+                font-size: 1.2rem !important;
+            }
+            .consorcio-main-content {
+                padding: 30px !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .consorcio-title {
+                font-size: 2rem !important;
+            }
+            .consorcio-subtitle {
+                font-size: 1.3rem !important;
+            }
+            .consorcio-highlight-text {
+                font-size: 1.1rem !important;
+            }
+            .consorcio-main-content {
+                padding: 20px !important;
+            }
+            .consorcio-description h4 {
+                font-size: 1.1rem !important;
+            }
+            .consorcio-benefits h4 {
+                font-size: 1.1rem !important;
+            }
+            .consorcio-benefits div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+            .btn-primary {
+                padding: 12px 25px !important;
+                font-size: 1rem !important;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .consorcio-title {
+                font-size: 1.8rem !important;
+            }
+            .consorcio-subtitle {
+                font-size: 1.2rem !important;
+            }
+            .consorcio-highlight-text {
+                font-size: 1rem !important;
+            }
+            .consorcio-main-content {
+                padding: 15px !important;
+            }
+            .consorcio-description p {
+                font-size: 0.9rem !important;
+            }
+            .consorcio-description h4 {
+                font-size: 1rem !important;
+            }
+            .consorcio-benefits h4 {
+                font-size: 1rem !important;
+            }
+            .btn-primary {
+                padding: 10px 20px !important;
+                font-size: 0.9rem !important;
+            }
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        
 
-{% block title %}Consorcio - Tienda Inmobiliaria{% endblock %}
+        
+        .consorcio-hero-section {
+            position: relative;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .consorcio-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .consorcio-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        
+                 /* Redes sociales en la mejor ubicación */
+         .consorcio-social-optimal {
+             position: absolute;
+             top: 20px;
+             right: 20px;
+             z-index: 150;
+         }
+         
+         .social-icons-container {
+             display: flex;
+             flex-direction: column;
+             gap: 12px;
+             align-items: center;
+         }
+         
+         .social-icon-optimal {
+             color: rgba(255, 255, 255, 0.9);
+             font-size: 1.3rem;
+             text-decoration: none;
+             transition: all 0.3s ease;
+             background: rgba(0, 0, 0, 0.4);
+             padding: 10px;
+             border-radius: 50%;
+             width: 45px;
+             height: 45px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             backdrop-filter: blur(10px);
+             border: 1px solid rgba(255, 255, 255, 0.2);
+         }
+         
+         .social-icon-optimal:hover {
+             color: white;
+             background: rgba(0, 0, 0, 0.6);
+             transform: scale(1.1);
+             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+         }
+         
+         /* Responsive para redes sociales */
+         @media (max-width: 1200px) {
+             .consorcio-social-optimal {
+                 top: 15px;
+                 right: 15px;
+             }
+             
+             .social-icon-optimal {
+                 width: 40px;
+                 height: 40px;
+                 font-size: 1.2rem;
+             }
+         }
+         
+         @media (max-width: 992px) {
+             .consorcio-social-optimal {
+                 position: relative;
+                 top: auto;
+                 right: auto;
+                 margin: 20px 0;
+                 order: -1;
+             }
+             
+             .social-icons-container {
+                 flex-direction: row;
+                 justify-content: center;
+                 gap: 20px;
+             }
+         }
+        
+        .consorcio-content {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 30px 0;
+            min-height: 600px;
+        }
+        
 
-{% block content %}
-<!-- Header -->
-<section class="bg-primary text-white py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h1 class="display-4 fw-bold mb-3">
-                    <i class="fas fa-building me-3"></i>Consorcio
-                </h1>
-                <p class="lead">Descubre nuestras opciones de consorcio inmobiliario</p>
-            </div>
+        
+        .consorcio-title {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: #1a252f;
+            margin-bottom: 15px;
+            line-height: 1.1;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: -0.5px;
+        }
+        
+        .consorcio-subtitle {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2B55A2;
+            margin-bottom: 25px;
+            line-height: 1.3;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .consorcio-highlight-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #34495e;
+            line-height: 1.4;
+            margin: 0 0 25px 0;
+            background: linear-gradient(135deg, #2B55A2, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .consorcio-description {
+            color: #34495e;
+            line-height: 1.7;
+        }
+        
+        .consorcio-description p {
+            margin-bottom: 18px;
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: #2c3e50;
+        }
+        
+        .consorcio-description h4 {
+            color: #1a252f !important;
+            font-weight: 700 !important;
+            margin-bottom: 12px !important;
+            font-size: 1.25rem !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+
+        
+        /* Wrapper principal para evitar superposición */
+        .consorcio-main-wrapper {
+            margin-right: 320px !important;
+            margin-left: 0 !important;
+        }
+        
+        @media (max-width: 1200px) {
+            .consorcio-main-wrapper {
+                margin-right: 10px !important;
+                margin-left: 0 !important;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .consorcio-main-wrapper {
+                margin-right: 0 !important;
+                margin-left: 0 !important;
+            }
+        }
+        
+        /* Cuadrado de presupuesto alineado con el cuadrado principal */
+        .consorcio-budget-container {
+            position: absolute;
+            top: 18%;
+            right: 400px;
+            transform: translateY(-50%);
+            z-index: 100;
+            width: 300px;
+        }
+        
+        .consorcio-budget-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .consorcio-budget-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a252f;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .consorcio-budget-text {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        
+        .consorcio-budget-btn {
+            background: linear-gradient(135deg, #2B55A2, #3498db) !important;
+            border: none !important;
+            padding: 12px 25px !important;
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            border-radius: 10px !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 15px rgba(43, 85, 162, 0.3) !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            letter-spacing: 0.3px !important;
+            width: 100% !important;
+        }
+        
+        .consorcio-budget-btn:hover {
+            background: linear-gradient(135deg, #1e3a8a, #2980b9) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(43, 85, 162, 0.4) !important;
+        }
+        
+        /* Responsive para el cuadrado de presupuesto */
+        @media (max-width: 1200px) {
+            .consorcio-budget-container {
+                width: 280px;
+                right: 15px;
+                top: 15px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .consorcio-budget-container {
+                position: relative;
+                top: auto;
+                right: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 20px;
+                order: -1;
+            }
+            
+            .consorcio-budget-box {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .consorcio-budget-container {
+                margin-bottom: 15px;
+            }
+            
+            .consorcio-budget-box {
+                padding: 18px;
+            }
+            
+            .consorcio-budget-title {
+                font-size: 1.2rem;
+            }
+            
+            .consorcio-budget-text {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Asegurar que el footer sea visible */
+        footer {
+            position: relative !important;
+            z-index: 1000 !important;
+            background-color: #212529 !important;
+            color: white !important;
+            width: 100% !important;
+            display: block !important;
+        }
+        
+
+        
+
+        
+
+    </style>
+</head>
+<body>
+<!-- Navegación -->
+<nav class="responsive-nav">
+    <div class="nav-container">
+        <!-- Logo/Marca -->
+        <div class="nav-brand">
+            <a href="{% url 'core:home' %}">
+                <img src="{% static 'images/logo/logo-gisa.jpeg' %}" alt="GISA NQN Gestión de Consorcios" class="nav-logo">
+            </a>
+        </div>
+        
+                 <!-- Menú de Escritorio -->
+         <div class="nav-menu desktop-menu">
+             <a href="{% url 'core:home' %}" class="nav-item">INICIO</a>
+             <span class="nav-separator">|</span>
+             <a href="{% url 'core:consorcio' %}" class="nav-item active">CONSORCIO</a>
+             <span class="nav-separator">|</span>
+             <a href="{% url 'propiedades:lista' %}" class="nav-item">PROPIEDADES</a>
+             <span class="nav-separator">|</span>
+             <a href="{% url 'core:contact' %}" class="nav-item">CONTACTO</a>
+             <span class="nav-separator">|</span>
+             <a href="{% url 'core:about' %}" class="nav-item">SOBRE NOSOTROS</a>
+         </div>
+        
+        <!-- Botón del Menú Móvil -->
+        <div class="mobile-menu-btn" id="mobileMenuBtn">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
         </div>
     </div>
-</section>
+    
+    <!-- Panel del Menú Móvil -->
+    <div class="mobile-menu-panel" id="mobileMenuPanel">
+        <div class="mobile-menu-header">
+            <h3>Menú</h3>
+            <button class="close-btn" id="closeMenuBtn">
+                <span class="close-line"></span>
+                <span class="close-line"></span>
+            </button>
+        </div>
+                 <div class="mobile-menu-items">
+             <a href="{% url 'core:home' %}" class="mobile-nav-item">INICIO</a>
+             <hr class="mobile-separator">
+             <a href="{% url 'core:consorcio' %}" class="mobile-nav-item">CONSORCIO</a>
+             <hr class="mobile-separator">
+             <a href="{% url 'propiedades:lista' %}" class="mobile-nav-item">PROPIEDADES</a>
+             <hr class="mobile-separator">
+             <a href="{% url 'core:contact' %}" class="mobile-nav-item">CONTACTO</a>
+             <hr class="mobile-separator">
+             <a href="{% url 'core:about' %}" class="mobile-nav-item">SOBRE NOSOTROS</a>
+            </div>
+    </div>
+    
+    <!-- Superposición para el menú móvil -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+</nav>
 
-<!-- Content -->
-<section class="py-5">
+<!-- Fondo con imagen y overlay -->
+<div class="consorcio-hero-section">
+    <div class="consorcio-background" style="background: url('/static/images/Fondo Consorcio 1.jpg') center/cover no-repeat; min-height: 600px;"></div>
+    <div class="consorcio-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.4) 100%); z-index: 1;"></div>
+    
+         <!-- Redes sociales en esquina superior derecha -->
+     <div class="consorcio-social-optimal">
+         <div class="social-icons-container">
+             <a href="#" class="social-icon-optimal"><i class="fab fa-whatsapp"></i></a>
+             <a href="#" class="social-icon-optimal"><i class="fab fa-instagram"></i></a>
+             <a href="#" class="social-icon-optimal"><i class="fab fa-facebook"></i></a>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="consorcio-content">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-5">
-                        <h3 class="fw-bold mb-4">Consorcio Inmobiliario</h3>
-                        <p class="text-muted">
-                            Nuestro consorcio ofrece oportunidades únicas para inversores que buscan 
-                            participar en proyectos inmobiliarios de alta calidad.
-                        </p>
+            <!-- Cuadrado de presupuesto en esquina superior derecha -->
+            <div class="consorcio-budget-container">
+                <div class="consorcio-budget-box">
+                    <h3 class="consorcio-budget-title">Presupuesto</h3>
+                    <p class="consorcio-budget-text">Solicite su presupuesto y responderemos inmediatamente a sus necesidades.</p>
+                    <a href="{% url 'core:contact' %}" class="btn btn-primary consorcio-budget-btn">
+                        <i class="fas fa-phone me-2"></i>Hablar con un asesor
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Columna principal -->
+            <div class="col-lg-10 col-xl-8 consorcio-main-wrapper">
+                <div class="consorcio-main-container" style="background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); margin-bottom: 20px; min-height: 500px; backdrop-filter: blur(10px);">
+                    <div class="consorcio-main-content" style="padding: 20px;">
+                        <!-- 1. Encabezado claro -->
+                        <h1 class="consorcio-title">Consorcio Inmobiliario</h1>
+                        <h2 class="consorcio-subtitle">Financiamiento en Consorcio</h2>
                         
-                        <div class="row mt-5">
-                            <div class="col-md-6 mb-4">
-                                <div class="text-center">
-                                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
-                                    <h5>Inversión Segura</h5>
-                                    <p class="text-muted">Proyectos verificados y respaldados por expertos</p>
+                        <div class="consorcio-highlight">
+                            <h3 class="consorcio-highlight-text">Invierte junto a otros y accede a tu propiedad sin necesidad de crédito hipotecario.</h3>
+                        </div>
+                        
+                        <!-- 2. Explicación sencilla -->
+                        <div class="consorcio-description">
+                            <h4 style="color: #2c3e50; font-size: 1.3rem; font-weight: 600; margin-bottom: 15px;">¿Qué es un Consorcio Inmobiliario?</h4>
+                            <p>Un consorcio inmobiliario es la unión de personas que se organizan para comprar una propiedad de forma compartida. Cada participante aporta una cuota mensual hasta completar el valor total de la propiedad, y al finalizar el período, uno de los participantes se adjudica la propiedad.</p>
+                            
+                            <!-- Sección de dos columnas: Cómo funciona y Beneficios -->
+                            <div class="row g-4">
+                                <!-- Columna izquierda: Cómo funciona -->
+                                <div class="col-md-6">
+                                    <h4 style="color: #2c3e50; font-size: 1.3rem; font-weight: 600; margin: 25px 0 15px 0;">¿Cómo funciona?</h4>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div style="display: flex; align-items: center; margin-bottom: 5px; padding: 4px 0;">
+                                                <div style="background: linear-gradient(135deg, #2B55A2, #3498db); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3); font-size: 0.9rem;">1</div>
+                                                <span style="font-weight: 500; color: #2c3e50; font-size: 1rem;">Te inscribes en el consorcio y comienzas a pagar cuotas mensuales</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div style="display: flex; align-items: center; margin-bottom: 8px; padding: 4px 0;">
+                                                <div style="background: linear-gradient(135deg, #2B55A2, #3498db); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3); font-size: 0.9rem;">2</div>
+                                                <span style="font-weight: 500; color: #2c3e50; font-size: 1rem;">Participas en sorteos mensuales para la adjudicación</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div style="display: flex; align-items: center; margin-bottom: 8px; padding: 4px 0;">
+                                                <div style="background: linear-gradient(135deg, #2B55A2, #3498db); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3); font-size: 0.9rem;">3</div>
+                                                <span style="font-weight: 500; color: #2c3e50; font-size: 1rem;">Si ganas el sorteo, te adjudicas la propiedad</span>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-4">
-                                <div class="text-center">
-                                    <i class="fas fa-users fa-3x text-primary mb-3"></i>
-                                    <h5>Participación Colectiva</h5>
-                                    <p class="text-muted">Únete a otros inversores para maximizar beneficios</p>
+                                        <div class="col-12">
+                                            <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 4px 0;">
+                                                <div style="background: linear-gradient(135deg, #2B55A2, #3498db); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3); font-size: 0.9rem;">4</div>
+                                                <span style="font-weight: 500; color: #2c3e50; font-size: 1rem;">Si no ganas, continúas hasta el próximo sorteo</span>
+                                            </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="text-center mt-4">
-                            <a href="{% url 'core:contact' %}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-envelope me-2"></i>Contactar para más información
-                            </a>
+                                <!-- Columna derecha: Beneficios destacados -->
+                                <div class="col-md-6">
+                                    <h4 style="color: #1a252f !important; font-size: 1.3rem !important; font-weight: 700 !important; margin: 25px 0 15px 0 !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">Beneficios Destacados</h4>
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <div style="display: flex; align-items: center; padding: 18px; background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12)); border-radius: 12px; height: 100%; border: 1px solid rgba(43, 85, 162, 0.15); box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1); transition: all 0.3s ease;">
+                                                <i class="fas fa-home" style="color: #2B55A2; font-size: 1.6rem; margin-right: 15px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);"></i>
+                                                <span style="font-weight: 600; color: #1a252f; font-size: 1.05rem; line-height: 1.3;">Sin necesidad de hipotecario</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div style="display: flex; align-items: center; padding: 18px; background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12)); border-radius: 12px; height: 100%; border: 1px solid rgba(43, 85, 162, 0.15); box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1); transition: all 0.3s ease;">
+                                                <i class="fas fa-coins" style="color: #2B55A2; font-size: 1.6rem; margin-right: 15px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);"></i>
+                                                <span style="font-weight: 600; color: #1a252f; font-size: 1.05rem; line-height: 1.3;">Inversión en cuotas accesibles</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div style="display: flex; align-items: center; padding: 18px; background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12)); border-radius: 12px; height: 100%; border: 1px solid rgba(43, 85, 162, 0.15); box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1); transition: all 0.3s ease;">
+                                                <i class="fas fa-trophy" style="color: #2B55A2; font-size: 1.6rem; margin-right: 15px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);"></i>
+                                                <span style="font-weight: 600; color: #1a252f; font-size: 1.05rem; line-height: 1.3;">Posibilidad de adjudicación anticipada</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div style="display: flex; align-items: center; padding: 18px; background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12)); border-radius: 12px; height: 100%; border: 1px solid rgba(43, 85, 162, 0.15); box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1); transition: all 0.3s ease;">
+                                                <i class="fas fa-shield-alt" style="color: #2B55A2; font-size: 1.6rem; margin-right: 15px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);"></i>
+                                                <span style="font-weight: 600; color: #1a252f; font-size: 1.05rem; line-height: 1.3;">Seguridad y respaldo de la inmobiliaria</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
-{% endblock %}
+                        
+
+                    </div>
+                </div>
+                        </div>
+                        
+            
+        </div>
+    </div>
+</div>
+
+<!-- Pie de Página -->
+<footer class="bg-dark text-light py-4" style="margin-top: 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Inmobiliaria</h5>
+                <p>Tu socio de confianza en bienes raíces.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Enlaces Rápidos</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'core:home' %}" class="text-light">Inicio</a></li>
+                    <li><a href="{% url 'propiedades:lista' %}" class="text-light">Propiedades</a></li>
+                    <li><a href="{% url 'core:contact' %}" class="text-light">Contacto</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>Contacto</h5>
+                <p>
+                    <i class="fas fa-phone"></i> +1 234 567 890<br>
+                    <i class="fas fa-envelope"></i> info@inmobiliaria.com<br>
+                    <i class="fas fa-map-marker-alt"></i> Calle Principal 123
+                </p>
+            </div>
+        </div>
+        <hr>
+        <div class="text-center">
+            <p>&copy; 2024 Inmobiliaria. Todos los derechos reservados.</p>
+            <div class="mt-3">
+                <a href="{% url 'login:admin_login' %}" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-user-shield me-2"></i>Admin
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- JavaScript de Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JavaScript Personalizado -->
+<script src="{% static 'js/main.js' %}"></script>
+
+<script>
+// Navegación ultra optimizada para velocidad máxima
+document.addEventListener('DOMContentLoaded', function() {
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+        // Efecto de click instantáneo
+        item.addEventListener('click', function(e) {
+            // Si es el enlace activo (CONSORCIO), hacer scroll instantáneo
+            if (this.classList.contains('active')) {
+                e.preventDefault();
+                
+                // Scroll instantáneo sin animación para máxima velocidad
+                const consorcioContent = document.querySelector('.consorcio-content');
+                if (consorcioContent) {
+                    const navHeight = 60;
+                    const extraOffset = -60;
+                    const targetPosition = consorcioContent.offsetTop - navHeight - extraOffset;
+                    
+                    // Scroll instantáneo sin 'smooth' para velocidad máxima
+                    window.scrollTo(0, targetPosition);
+                }
+                return false;
+            }
+            
+            // Efectos visuales mínimos para enlaces no activos
+            this.style.transition = 'all 0.05s ease-out';
+            this.style.transform = 'translateY(-1px)';
+            this.style.backgroundColor = 'rgba(43, 85, 162, 0.15)';
+            
+            // Restaurar instantáneamente
+            setTimeout(() => {
+                this.style.transform = '';
+                this.style.backgroundColor = '';
+            }, 50);
+        });
+        
+        // Prevenir hover en enlace activo
+        if (item.classList.contains('active')) {
+            item.addEventListener('mouseenter', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        }
+    });
+    
+    // Scroll instantáneo para carga directa
+    if (window.location.pathname.includes('consorcio')) {
+        // Sin delay para máxima velocidad
+        const consorcioContent = document.querySelector('.consorcio-content');
+        if (consorcioContent) {
+            const navHeight = 60;
+            const extraOffset = -60;
+            const targetPosition = consorcioContent.offsetTop - navHeight - extraOffset;
+            
+            // Scroll instantáneo al cargar
+            window.scrollTo(0, targetPosition);
+        }
+    }
+});
+</script>
+</body>
+</html>

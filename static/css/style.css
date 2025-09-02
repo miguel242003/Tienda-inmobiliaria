@@ -2819,4 +2819,316 @@ label[for*="precio"] {
     margin-bottom: 2rem;
 }
 
+/* ===== ESTILOS PARA PÁGINA DE CONSORCIO ===== */
+.consorcio-hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.consorcio-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    z-index: 1;
+}
+
+.consorcio-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.4) 100%);
+    z-index: 1;
+}
+
+.consorcio-social-top {
+    position: relative;
+    z-index: 10;
+    padding: 15px 0;
+}
+
+.social-icon {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.2rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.social-icon:hover {
+    color: white;
+}
+
+.consorcio-content {
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 60px 0;
+}
+
+.consorcio-main-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 3px solid red; /* Debug temporal */
+    margin-bottom: 20px;
+    min-height: 400px; /* Debug temporal */
+}
+
+.consorcio-main-content {
+    padding: 40px;
+}
+
+.consorcio-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    line-height: 1.1;
+}
+
+.consorcio-subtitle {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    line-height: 1.2;
+}
+
+.consorcio-highlight {
+    margin-bottom: 30px;
+}
+
+.consorcio-highlight-text {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.consorcio-description {
+    color: #2c3e50;
+    line-height: 1.6;
+}
+
+.consorcio-description p {
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.consorcio-sidebar-container {
+    background: rgba(248, 249, 250, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 3px solid blue; /* Debug temporal */
+    height: fit-content;
+    margin-bottom: 20px;
+    min-height: 300px; /* Debug temporal */
+}
+
+.consorcio-sidebar {
+    padding: 30px;
+}
+
+.sidebar-section {
+    margin-bottom: 30px;
+}
+
+.sidebar-section:last-child {
+    margin-bottom: 0;
+}
+
+.sidebar-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.sidebar-description {
+    color: #6c757d;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.btn-contact {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-contact:hover {
+    background: #5a6268;
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.news-items {
+    margin-bottom: 20px;
+}
+
+.news-item {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.news-item p {
+    color: #2c3e50;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.news-link {
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.news-link:hover {
+    color: #c82333;
+    text-decoration: underline;
+}
+
+.consorcio-footer {
+    position: relative;
+    z-index: 10;
+    padding: 20px 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.footer-copyright {
+    color: white;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.footer-social {
+    color: white;
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-social:hover {
+    color: #3498db;
+}
+
+/* Responsive para consorcio */
+@media (max-width: 992px) {
+    .consorcio-main-container {
+        margin-bottom: 30px;
+    }
+    
+    .consorcio-main-content {
+        padding: 30px;
+    }
+    
+    .consorcio-sidebar-container {
+        margin-bottom: 30px;
+    }
+    
+    .consorcio-title {
+        font-size: 2.5rem;
+    }
+    
+    .consorcio-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .consorcio-highlight-text {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .consorcio-content {
+        padding: 40px 0;
+    }
+    
+    .consorcio-main-content {
+        padding: 25px;
+    }
+    
+    .consorcio-sidebar {
+        padding: 25px;
+    }
+    
+    .consorcio-title {
+        font-size: 2rem;
+    }
+    
+    .consorcio-subtitle {
+        font-size: 1.3rem;
+    }
+    
+    .consorcio-highlight-text {
+        font-size: 1.1rem;
+    }
+    
+    .consorcio-footer .col-6 {
+        text-align: center !important;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .consorcio-main-content {
+        padding: 20px;
+    }
+    
+    .consorcio-sidebar {
+        padding: 20px;
+    }
+    
+    .consorcio-title {
+        font-size: 1.8rem;
+    }
+    
+    .consorcio-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .sidebar-title {
+        font-size: 1.1rem;
+    }
+    
+    .btn-contact {
+        width: 100%;
+        text-align: center;
+    }
+}
+/* ===== FIN DE ESTILOS PARA PÁGINA DE CONSORCIO ===== */
+
 
