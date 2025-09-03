@@ -73,4 +73,8 @@ def consorcio(request):
     """Vista para la página de Consorcio"""
     return render(request, 'core/consorcio.html')
 
+def cv(request):
+    """Vista para envío de currículum"""
+    return render(request, 'core/cv.html')
+
 

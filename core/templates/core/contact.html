@@ -4,147 +4,180 @@
 {% block title %}Contacto - Tienda Inmobiliaria{% endblock %}
 
 {% block content %}
-<!-- Contact Header -->
-<section class="bg-primary text-white py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <h1 class="fw-bold">Contáctanos</h1>
-                <p class="lead">Estamos aquí para ayudarte a encontrar la propiedad perfecta</p>
+<!-- Contact Section -->
+<section class="contact-unified-section position-relative">
+    <div class="container-fluid position-relative" style="max-width: 1280px; z-index: 2; padding: 0 15px;">
+        <!-- Hero Title -->
+        <div class="row justify-content-center text-center py-3">
+            <div class="col-lg-4">
+                <div class="hero-text-container">
+                    <h1 class="hero-title mb-2">Contáctanos</h1>
+                    <div class="yellow-underline"></div>
+                </div>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- Contact Information and Form -->
-<section class="py-5">
-    <div class="container">
-        <div class="row">
+        
+        <!-- Contact Content -->
+        <div class="row g-2 pb-3">
             <!-- Contact Information -->
-            <div class="col-lg-4 mb-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <h3 class="card-title mb-4">Información de Contacto</h3>
-                        
-                        <div class="d-flex mb-4">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-map-marker-alt fa-2x text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5>Dirección</h5>
-                                <p class="text-muted mb-0">Calle Principal 123<br>Ciudad, Estado 12345</p>
-                            </div>
+            <div class="col-lg-4 order-2 order-lg-2">
+                <div class="contact-info-card">
+                    <h3 class="info-title mb-2">Información de Contacto</h3>
+                    <div class="yellow-underline-info"></div>
+                    
+                    <div class="info-item mt-4">
+                        <div class="info-icon">
+                            <i class="fas fa-map-marker-alt"></i>
                         </div>
-                        
-                        <div class="d-flex mb-4">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-phone fa-2x text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5>Teléfono</h5>
-                                <p class="text-muted mb-0">+1 234 567 890<br>+1 234 567 891</p>
-                            </div>
+                        <div class="info-content">
+                            <h4 class="info-label">DIRECCIÓN</h4>
+                            <p class="info-text">Calle Principal 123<br>Ciudad, Estado 12345</p>
                         </div>
-                        
-                        <div class="d-flex mb-4">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-envelope fa-2x text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5>Email</h5>
-                                <p class="text-muted mb-0">info@inmobiliaria.com<br>ventas@inmobiliaria.com</p>
-                            </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
                         </div>
-                        
-                        <div class="d-flex mb-4">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-clock fa-2x text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h5>Horarios</h5>
-                                <p class="text-muted mb-0">Lunes - Viernes: 9:00 - 18:00<br>Sábado: 9:00 - 14:00<br>Domingo: Cerrado</p>
-                            </div>
+                        <div class="info-content">
+                            <h4 class="info-label">TELÉFONO</h4>
+                            <p class="info-text">+1 234 567 890<br>+1 234 567 891</p>
                         </div>
-                        
-                        <hr>
-                        
-                        <h5 class="mb-3">Síguenos</h5>
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-outline-primary">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="btn btn-outline-primary">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="#" class="btn btn-outline-primary">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            <a href="#" class="btn btn-outline-primary">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
                         </div>
+                        <div class="info-content">
+                            <h4 class="info-label">EMAIL</h4>
+                            <p class="info-text">info@inmobiliaria.com<br>ventas@inmobiliaria.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4 class="info-label">HORARIOS</h4>
+                            <p class="info-text">Lunes - Viernes: 9:00 - 18:00<br>Sábado: 9:00 - 14:00<br>Domingo: Cerrado</p>
+                        </div>
+                    </div>
+                    
+                    <hr class="info-divider">
+                    
+                    <h4 class="info-label mb-3">SÍGUENOS</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
                     </div>
                 </div>
             </div>
             
             <!-- Contact Form -->
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <h3 class="card-title mb-4">Envíanos un Mensaje</h3>
+            <div class="col-lg-8 order-1 order-lg-1">
+                <div class="contact-form-card">
+                    <h3 class="form-title mb-2">Envíanos un Mensaje</h3>
+                    <div class="yellow-underline-form"></div>
+                    
+                    <form id="contactForm" novalidate class="mt-4">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label">
+                                    Nombre Completo <span class="required">*</span>
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="nombre" 
+                                       name="nombre" 
+                                       required 
+                                       aria-required="true"
+                                       placeholder="Tu nombre completo">
+                                <div class="invalid-feedback" role="alert"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">
+                                    Email <span class="required">*</span>
+                                </label>
+                                <input type="email" 
+                                       class="form-control" 
+                                       id="email" 
+                                       name="email" 
+                                       required 
+                                       aria-required="true"
+                                       placeholder="tu@email.com">
+                                <div class="invalid-feedback" role="alert"></div>
+                            </div>
+                        </div>
                         
-                        <form id="contactForm">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="nombre" class="form-label">Nombre Completo *</label>
-                                    <input type="text" class="form-control" id="nombre" name="nombre" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="email" class="form-label">Email *</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                </div>
+                        <div class="row g-2 mt-2">
+                            <div class="col-md-6">
+                                <label for="telefono" class="form-label">Teléfono</label>
+                                <input type="tel" 
+                                       class="form-control" 
+                                       id="telefono" 
+                                       name="telefono"
+                                       placeholder="+1 234 567 890">
+                                <div class="invalid-feedback" role="alert"></div>
                             </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="telefono" class="form-label">Teléfono</label>
-                                    <input type="tel" class="form-control" id="telefono" name="telefono">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="asunto" class="form-label">Asunto *</label>
-                                    <select class="form-select" id="asunto" name="asunto" required>
-                                        <option value="">Selecciona un asunto</option>
-                                        <option value="consulta">Consulta General</option>
-                                        <option value="compra">Compra de Propiedad</option>
-                                        <option value="venta">Venta de Propiedad</option>
-                                        <option value="alquiler">Alquiler</option>
-                                        <option value="visita">Agendar Visita</option>
-                                        <option value="otro">Otro</option>
-                                    </select>
-                                </div>
+                            <div class="col-md-6">
+                                <label for="asunto" class="form-label">
+                                    Asunto <span class="required">*</span>
+                                </label>
+                                <select class="form-select" 
+                                        id="asunto" 
+                                        name="asunto" 
+                                        required 
+                                        aria-required="true">
+                                    <option value="">Selecciona un asunto</option>
+                                    <option value="consulta">Consulta General</option>
+                                    <option value="consorcio">Consorcio Inmobiliario</option>
+                                    <option value="compra">Compra de Propiedad</option>
+                                    <option value="venta">Venta de Propiedad</option>
+                                    <option value="alquiler">Alquiler</option>
+                                    <option value="visita">Agendar Visita</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                                <div class="invalid-feedback" role="alert"></div>
                             </div>
-                            
-                            <div class="mb-3">
-                                <label for="mensaje" class="form-label">Mensaje *</label>
-                                <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required placeholder="Cuéntanos cómo podemos ayudarte..."></textarea>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
-                                    <label class="form-check-label" for="newsletter">
-                                        Suscribirme al boletín de noticias
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-paper-plane"></i> Enviar Mensaje
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label for="mensaje" class="form-label">
+                                Mensaje <span class="required">*</span>
+                            </label>
+                            <textarea class="form-control" 
+                                      id="mensaje" 
+                                      name="mensaje" 
+                                      rows="5" 
+                                      required 
+                                      aria-required="true"
+                                      placeholder="Cuéntanos cómo podemos ayudarte..."></textarea>
+                            <div class="invalid-feedback" role="alert"></div>
+                        </div>
+                        
+
+                        
+                        <div class="mt-4">
+                            <button type="submit" 
+                                    class="btn-cta w-100"
+                                    aria-label="Enviar mensaje de contacto">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Enviar Mensaje
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -156,7 +189,8 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h3 class="mb-4">Nuestra Ubicación</h3>
+                <h3 class="location-title mb-2">Nuestra Ubicación</h3>
+                <div class="yellow-underline"></div>
                 <div class="bg-white rounded shadow-sm p-4">
                     <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
                         <div class="text-center">
@@ -176,7 +210,10 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto">
-                <h3 class="text-center mb-5">Preguntas Frecuentes</h3>
+                <div class="text-center mb-5">
+                    <h3 class="faq-title mb-2">Preguntas Frecuentes</h3>
+                    <div class="yellow-underline"></div>
+                </div>
                 
                 <div class="accordion" id="faqAccordion">
                     <div class="accordion-item">
@@ -225,38 +262,827 @@
 {% endblock %}
 
 {% block extra_js %}
+<style>
+:root {
+    --brand-600: #1D4ED8;
+    --brand-700: #1E40AF;
+    --brand-800: #1E3A8A;
+    --text-900: #0F172A;
+    --text-700: #334155;
+    --muted: #9CA3AF;
+    --card: #FFFFFF;
+    --card-alt: #F9FAFB;
+    --border: #E5E7EB;
+}
+
+/* Unified Contact Section */
+.contact-unified-section {
+    background-image: url('{% static 'images/Fondodecontacto.jpg' %}');
+    background-size: 120%;
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding: 1rem 0;
+}
+
+.hero-text-container {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.hero-title {
+    font: 700 36px/1.1 Oswald, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #2C3240;
+    margin: 0 0 8px;
+    text-shadow: none;
+}
+
+.hero-subtitle {
+    text-align: center;
+    color: #2C3240;
+    margin: 0 0 36px;
+    font-size: 1.1rem;
+    font-weight: 400;
+    text-shadow: none;
+}
+
+.yellow-underline {
+    width: 40%;
+    height: 4px;
+    background-color: #FFD700;
+    margin: 0.5rem auto;
+    border-radius: 2px;
+}
+
+.yellow-underline-left {
+    width: 35%;
+    height: 4px;
+    background-color: #FFD700;
+    margin: 0.5rem 0;
+    border-radius: 2px;
+}
+
+/* Ajustar ancho en pantallas grandes */
+@media (min-width: 992px) {
+    .yellow-underline-left {
+        width: 50%;
+    }
+}
+
+.yellow-underline-form {
+    width: 30%;
+    height: 4px;
+    background-color: #FFD700;
+    margin: 0.5rem 0;
+    border-radius: 2px;
+}
+
+/* Ajustar ancho en pantallas grandes para que coincida con el texto */
+@media (min-width: 992px) {
+    .yellow-underline-form {
+        width: 35%;
+    }
+}
+
+.yellow-underline-info {
+    width: 30%;
+    height: 4px;
+    background-color: #FFD700;
+    margin: 0.5rem 0;
+    border-radius: 2px;
+}
+
+/* Ajustar ancho en pantallas grandes para que coincida con el texto */
+@media (min-width: 992px) {
+    .yellow-underline-info {
+        width: 35%;
+    }
+}
+
+.location-title {
+    font: 700 36px/1.1 Oswald, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #2C3240;
+    margin: 0 0 8px;
+}
+
+.faq-title {
+    font: 700 36px/1.1 Oswald, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #2C3240;
+    margin: 0 0 8px;
+}
+
+/* Contact Cards */
+.contact-info-card {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.contact-form-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Info Items */
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.info-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--brand-600);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.info-content {
+    flex: 1;
+}
+
+.info-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.info-text {
+    color: var(--text-900);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.info-divider {
+    border-color: var(--border);
+    margin: 24px 0;
+}
+
+/* Social Links */
+.social-links {
+    display: flex;
+    gap: 12px;
+}
+
+.social-link {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-700);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.social-link:hover {
+    background: var(--brand-600);
+    color: white;
+    border-color: var(--brand-600);
+    transform: scale(1.03);
+}
+
+/* Form Styles */
+.form-title {
+    color: var(--text-900);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.info-title {
+    color: var(--text-900);
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-900);
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #DC2626;
+}
+
+.form-control, .form-select {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--brand-600);
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+    outline: none;
+}
+
+.form-control:focus-visible, .form-select:focus-visible {
+    outline: 2px solid var(--brand-600);
+    outline-offset: 2px;
+}
+
+.form-control::placeholder {
+    color: var(--muted);
+}
+
+/* CTA Button */
+.btn-cta {
+    background: linear-gradient(135deg, var(--brand-600), var(--brand-700));
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: white;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.3);
+}
+
+.btn-cta:hover {
+    background: linear-gradient(135deg, var(--brand-700), var(--brand-800));
+    transform: translateY(-1px);
+    box-shadow: 0 8px 15px -3px rgba(29, 78, 216, 0.4);
+}
+
+.btn-cta:focus {
+    outline: 2px solid var(--brand-600);
+    outline-offset: 2px;
+}
+
+/* Validation */
+.invalid-feedback {
+    display: none;
+    color: #DC2626;
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+
+.form-control.is-invalid, .form-select.is-invalid {
+    border-color: #DC2626;
+}
+
+.form-control.is-invalid + .invalid-feedback,
+.form-select.is-invalid + .invalid-feedback {
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .contact-unified-section {
+        background-size: 150%;
+        padding: 0.5rem 0;
+    }
+    
+    .hero-title {
+        font-size: 2.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .contact-unified-section {
+        background-size: 180%;
+        min-height: 80vh;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .contact-info-card,
+    .contact-form-card {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .info-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+        margin-right: 10px;
+    }
+    
+    .social-link {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contact-unified-section {
+        background-size: 200%;
+        background-position: center center;
+        min-height: 70vh;
+        padding: 0.5rem 0;
+    }
+    
+    .hero-text-container {
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+    }
+    
+    .hero-title {
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    
+    .yellow-underline {
+        width: 50%;
+        height: 3px;
+        margin: 0.3rem auto;
+    }
+    
+    .contact-info-card,
+    .contact-form-card {
+        padding: 16px;
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+    
+    .info-item {
+        margin-bottom: 10px;
+    }
+    
+    .info-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
+        margin-right: 8px;
+    }
+    
+    .info-label {
+        font-size: 0.8rem;
+    }
+    
+    .info-text {
+        font-size: 0.9rem;
+    }
+    
+    .form-title,
+    .info-title {
+        font-size: 1.3rem;
+    }
+    
+    .form-label {
+        font-size: 0.9rem;
+    }
+    
+    .form-control, .form-select {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+    
+    .btn-cta {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 1rem;
+    }
+    
+    .social-link {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+    
+    .social-links {
+        gap: 8px;
+    }
+    
+    .location-title,
+    .faq-title {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .contact-unified-section {
+        background-size: 250%;
+        min-height: 60vh;
+    }
+    
+    .hero-text-container {
+        padding: 0.6rem 1rem;
+        border-radius: 10px;
+    }
+    
+    .hero-title {
+        font-size: 1.8rem;
+        line-height: 1.2;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .yellow-underline {
+        width: 40%;
+        height: 2px;
+    }
+    
+    .contact-info-card,
+    .contact-form-card {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 10px;
+    }
+    
+    .info-item {
+        margin-bottom: 8px;
+    }
+    
+    .info-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+        margin-right: 6px;
+    }
+    
+    .info-label {
+        font-size: 0.75rem;
+    }
+    
+    .info-text {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .form-title,
+    .info-title {
+        font-size: 1.2rem;
+    }
+    
+    .form-label {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+    
+    .form-control, .form-select {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+    }
+    
+    .btn-cta {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .social-link {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    .location-title,
+    .faq-title {
+        font-size: 1.8rem;
+    }
+    
+    .accordion-button {
+        font-size: 0.9rem;
+        padding: 12px 16px;
+    }
+    
+    .accordion-body {
+        font-size: 0.85rem;
+        padding: 12px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-unified-section {
+        background-size: 300%;
+        min-height: 50vh;
+    }
+    
+    .hero-text-container {
+        padding: 0.5rem 0.8rem;
+        border-radius: 8px;
+    }
+    
+    .hero-title {
+        font-size: 1.6rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .contact-info-card,
+    .contact-form-card {
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .info-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 9px;
+    }
+    
+    .form-control, .form-select {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .btn-cta {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+    
+    .location-title,
+    .faq-title {
+        font-size: 1.6rem;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .form-control, .form-select {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .btn-cta {
+        min-height: 48px;
+        font-size: 16px;
+    }
+    
+    .social-link {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .info-icon {
+        min-width: 36px;
+        min-height: 36px;
+    }
+}
+
+/* Landscape orientation for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .contact-unified-section {
+        min-height: 100vh;
+        background-size: 150%;
+    }
+    
+    .hero-title {
+        font-size: 1.8rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.9rem;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .hero-title {
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .contact-unified-section {
+        background-attachment: scroll;
+    }
+    
+    .social-link,
+    .btn-cta,
+    .form-control,
+    .form-select {
+        transition: none;
+    }
+    
+    .social-link:hover,
+    .btn-cta:hover {
+        transform: none;
+    }
+}
+</style>
+
 <script>
+// Efecto Parallax desactivado - imagen fija
+function initParallax() {
+    // Parallax desactivado para mantener la imagen fija
+    return;
+}
+
+// Validación del formulario
+function validateForm() {
+    const form = document.getElementById('contactForm');
+    const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
+    let isValid = true;
+    
+    inputs.forEach(input => {
+        const value = input.value.trim();
+        const feedback = input.parentNode.querySelector('.invalid-feedback');
+        
+        // Limpiar validaciones anteriores
+        input.classList.remove('is-invalid');
+        if (feedback) feedback.textContent = '';
+        
+        // Validar campos requeridos
+        if (!value) {
+            input.classList.add('is-invalid');
+            if (feedback) feedback.textContent = 'Este campo es obligatorio';
+            isValid = false;
+            return;
+        }
+        
+        // Validación específica por tipo
+        if (input.type === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                input.classList.add('is-invalid');
+                if (feedback) feedback.textContent = 'Por favor ingresa un email válido';
+                isValid = false;
+            }
+        }
+        
+        if (input.type === 'tel' && value) {
+            const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+            if (!phoneRegex.test(value)) {
+                input.classList.add('is-invalid');
+                if (feedback) feedback.textContent = 'Por favor ingresa un teléfono válido';
+                isValid = false;
+            }
+        }
+    });
+    
+    return isValid;
+}
+
+// Validación en tiempo real
+function setupRealTimeValidation() {
+    const form = document.getElementById('contactForm');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            const value = this.value.trim();
+            const feedback = this.parentNode.querySelector('.invalid-feedback');
+            
+            // Limpiar validación anterior
+            this.classList.remove('is-invalid');
+            if (feedback) feedback.textContent = '';
+            
+            // Validar solo si hay valor
+            if (value) {
+                if (this.type === 'email') {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(value)) {
+                        this.classList.add('is-invalid');
+                        if (feedback) feedback.textContent = 'Por favor ingresa un email válido';
+                    }
+                }
+                
+                if (this.type === 'tel') {
+                    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+                    if (!phoneRegex.test(value)) {
+                        this.classList.add('is-invalid');
+                        if (feedback) feedback.textContent = 'Por favor ingresa un teléfono válido';
+                    }
+                }
+            }
+        });
+    });
+}
+
+// Manejo del envío del formulario
 document.getElementById('contactForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    // Aquí iría la lógica para enviar el formulario
-    alert('¡Gracias por tu mensaje! Te contactaremos pronto.');
-    
-    // Limpiar el formulario
-    this.reset();
-});
-
-// Validación en tiempo real
-document.getElementById('email').addEventListener('blur', function() {
-    const email = this.value;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (email && !emailRegex.test(email)) {
-        this.classList.add('is-invalid');
-    } else {
-        this.classList.remove('is-invalid');
+    if (validateForm()) {
+        // Simular envío
+        const submitBtn = this.querySelector('.btn-cta');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+        submitBtn.disabled = true;
+        
+        setTimeout(() => {
+            alert('¡Gracias por tu mensaje! Te contactaremos pronto.');
+            this.reset();
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 2000);
     }
 });
 
-document.getElementById('telefono').addEventListener('blur', function() {
-    const telefono = this.value;
-    const telefonoRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+// Preseleccionar asunto desde URL
+function preselectAsunto() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const asunto = urlParams.get('asunto');
     
-    if (telefono && !telefonoRegex.test(telefono)) {
-        this.classList.add('is-invalid');
-    } else {
-        this.classList.remove('is-invalid');
+    if (asunto) {
+        const asuntoSelect = document.getElementById('asunto');
+        if (asuntoSelect) {
+            asuntoSelect.value = asunto;
+        }
     }
+}
+
+// Función para ajustar el ancho de las líneas amarillas al texto
+function ajustarLineasAmarillas() {
+    // Función auxiliar para medir el ancho del texto
+    function medirAnchoTexto(elemento, texto) {
+        const canvas = document.createElement('canvas');
+        const contexto = canvas.getContext('2d');
+        
+        // Obtener los estilos del elemento
+        const estilos = window.getComputedStyle(elemento);
+        contexto.font = `${estilos.fontWeight} ${estilos.fontSize} ${estilos.fontFamily}`;
+        
+        return contexto.measureText(texto).width;
+    }
+    
+    // Ajustar línea amarilla del formulario
+    const tituloFormulario = document.querySelector('.form-title');
+    const lineaFormulario = document.querySelector('.yellow-underline-form');
+    
+    if (tituloFormulario && lineaFormulario) {
+        const anchoTexto = medirAnchoTexto(tituloFormulario, tituloFormulario.textContent);
+        const anchoContenedor = tituloFormulario.offsetWidth;
+        const porcentaje = (anchoTexto / anchoContenedor) * 100;
+        
+        // Limitar el porcentaje entre 20% y 60%
+        const porcentajeFinal = Math.max(20, Math.min(60, porcentaje));
+        lineaFormulario.style.width = porcentajeFinal + '%';
+    }
+    
+    // Ajustar línea amarilla de información de contacto
+    const tituloInfo = document.querySelector('.info-title');
+    const lineaInfo = document.querySelector('.yellow-underline-info');
+    
+    if (tituloInfo && lineaInfo) {
+        const anchoTexto = medirAnchoTexto(tituloInfo, tituloInfo.textContent);
+        const anchoContenedor = tituloInfo.offsetWidth;
+        const porcentaje = (anchoTexto / anchoContenedor) * 100;
+        
+        // Limitar el porcentaje entre 20% y 60%
+        const porcentajeFinal = Math.max(20, Math.min(60, porcentaje));
+        lineaInfo.style.width = porcentajeFinal + '%';
+    }
+}
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    initParallax();
+    setupRealTimeValidation();
+    preselectAsunto();
+    ajustarLineasAmarillas();
+});
+
+// Ajustar líneas amarillas cuando se redimensione la ventana
+window.addEventListener('resize', function() {
+    // Debounce para evitar demasiadas llamadas
+    clearTimeout(window.resizeTimeout);
+    window.resizeTimeout = setTimeout(ajustarLineasAmarillas, 100);
 });
 </script>
 {% endblock %}
