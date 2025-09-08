@@ -5,21 +5,25 @@
 
 {% block content %}
 <!-- CV Section -->
-<section class="cv-section py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Hero Title -->
-                <div class="text-center mb-5">
-                    <h1 class="cv-title mb-2">Envíanos tu CV</h1>
-                    <div class="yellow-underline"></div>
-                    <p class="cv-subtitle mt-3">Únete a nuestro equipo y forma parte de una empresa líder en el sector inmobiliario</p>
-                </div>
-                
-                <!-- CV Form -->
-                <div class="cv-form-card">
+<section style="background: linear-gradient(135deg, #e8e9ea 0%, #d1d3d4 100%); padding: 0; width: 1400px; height: 750px; margin: 60px auto; position: relative; overflow: hidden;">
+    <div class="container-fluid h-100" style="padding: 0; height: 100%;">
+        <div class="row h-100" style="height: 100%; margin: 0;">
+            <!-- Imagen a la izquierda -->
+            <div class="col-lg-4 p-0" style="height: 100%; overflow: hidden;">
+                <div style="background-image: url('{% static "images/CV2.webp" %}'); background-size: contain; background-position: left center; background-repeat: no-repeat; height: 100%; width: 100%;"></div>
+            </div>
+            
+            <!-- Formulario a la derecha -->
+            <div class="col-lg-8 d-flex align-items-center" style="padding: 40px; height: 100%;">
+                <div style="width: 100%;">
+                    <h1 style="font-family: 'Times New Roman', serif; color: #2c3e50; font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; display: block; visibility: visible;">Envíanos tu CV</h1>
+                    <h3 class="mb-2" style="color: #e67e22; font-style: italic; font-family: 'Times New Roman', serif; font-size: 1rem;">Únete a nuestro equipo</h3>
+                    <p class="mb-3" style="color: #34495e; line-height: 1.4; font-size: 0.9rem;">Forma parte de una empresa líder en el sector inmobiliario. Completa el formulario y te contactaremos pronto.</p>
+                    
+                    <!-- CV Form -->
+                    <div class="cv-form-card" style="background: #ffffff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                     <form id="cvForm" novalidate>
-                        <div class="row g-3">
+                        <div class="row g-1">
                             <div class="col-md-6">
                                 <label for="nombre" class="form-label">
                                     Nombre Completo <span class="required">*</span>
@@ -48,7 +52,7 @@
                             </div>
                         </div>
                         
-                        <div class="row g-3 mt-2">
+                        <div class="row g-1 mt-1">
                             <div class="col-md-6">
                                 <label for="telefono" class="form-label">Teléfono</label>
                                 <input type="tel" 
@@ -81,7 +85,7 @@
                             </div>
                         </div>
                         
-                        <div class="row g-3 mt-2">
+                        <div class="row g-1 mt-1">
                             <div class="col-md-6">
                                 <label for="experiencia" class="form-label">Años de Experiencia</label>
                                 <select class="form-select" id="experiencia" name="experiencia">
@@ -105,7 +109,7 @@
                             </div>
                         </div>
                         
-                        <div class="mt-3">
+                        <div class="mt-1">
                             <label for="cv_file" class="form-label">
                                 Archivo CV <span class="required">*</span>
                             </label>
@@ -120,16 +124,16 @@
                             <div class="invalid-feedback" role="alert"></div>
                         </div>
                         
-                        <div class="mt-3">
+                        <div class="mt-1">
                             <label for="carta_presentacion" class="form-label">Carta de Presentación</label>
                             <textarea class="form-control" 
                                       id="carta_presentacion" 
                                       name="carta_presentacion" 
-                                      rows="4" 
+                                      rows="2" 
                                       placeholder="Cuéntanos por qué te interesa trabajar con nosotros..."></textarea>
                         </div>
                         
-                        <div class="mt-4">
+                        <div class="mt-2">
                             <button type="submit" 
                                     class="btn-cta w-100"
                                     aria-label="Enviar currículum">
@@ -138,54 +142,61 @@
                             </button>
                         </div>
                     </form>
+                    </div>
                 </div>
-                
-                <!-- Benefits Section -->
-                <div class="benefits-section mt-5">
-                    <h3 class="benefits-title mb-4">¿Por qué trabajar con nosotros?</h3>
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-chart-line"></i>
-                                </div>
-                                <div class="benefit-content">
-                                    <h5>Crecimiento Profesional</h5>
-                                    <p>Oportunidades de desarrollo y capacitación continua</p>
-                                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section py-5" style="background: url('{% static "images/cv6.jpg" %}'); background-size: cover; background-position: center; background-repeat: no-repeat; width: 100%; min-height: 600px;">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 text-center">
+                <h3 class="benefits-title mb-4">¿Por qué trabajar con nosotros?</h3>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="benefit-item text-center">
+                            <div class="benefit-icon mx-auto">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Crecimiento Profesional</h5>
+                                <p>Oportunidades de desarrollo y capacitación continua</p>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div class="benefit-content">
-                                    <h5>Ambiente de Trabajo</h5>
-                                    <p>Equipo colaborativo y ambiente laboral positivo</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="benefit-item text-center">
+                            <div class="benefit-icon mx-auto">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Competencia Salarial</h5>
+                                <p>Remuneración competitiva y beneficios adicionales</p>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-dollar-sign"></i>
-                                </div>
-                                <div class="benefit-content">
-                                    <h5>Competencia Salarial</h5>
-                                    <p>Remuneración competitiva y beneficios adicionales</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="benefit-item text-center">
+                            <div class="benefit-icon mx-auto">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Ambiente de Trabajo</h5>
+                                <p>Equipo colaborativo y ambiente laboral positivo</p>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-handshake"></i>
-                                </div>
-                                <div class="benefit-content">
-                                    <h5>Estabilidad</h5>
-                                    <p>Empresa consolidada con proyección a futuro</p>
-                                </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="benefit-item text-center">
+                            <div class="benefit-icon mx-auto">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <div class="benefit-content">
+                                <h5>Estabilidad</h5>
+                                <p>Empresa consolidada con proyección a futuro</p>
                             </div>
                         </div>
                     </div>
@@ -210,10 +221,39 @@
     --border: #E5E7EB;
 }
 
-/* CV Section */
-.cv-section {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    min-height: 100vh;
+/* CV Section - Estilo igual a Sobre Nosotros */
+
+
+/* Formulario más grande */
+.cv-form-card .form-control, 
+.cv-form-card .form-select {
+    padding: 10px 14px;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    height: auto;
+    min-height: 44px;
+}
+
+.cv-form-card .form-label {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.cv-form-card .form-text {
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.cv-form-card .btn-cta {
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    min-height: 48px;
+}
+
+.cv-form-card .invalid-feedback {
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
 }
 
 .cv-title {
@@ -244,10 +284,10 @@
 /* CV Form Card */
 .cv-form-card {
     background: var(--card);
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 2rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
 }
 
 /* Form Styles */
@@ -334,104 +374,205 @@
 /* Benefits Section */
 .benefits-section {
     background: var(--card);
-    border-radius: 20px;
+    border-radius: 0px;
     padding: 2rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .benefits-title {
-    font: 700 28px/1.1 Oswald, sans-serif;
-    letter-spacing: 0.06em;
+    font: 700 32px/1.2 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
     text-align: center;
-    color: #2C3240;
-    margin-bottom: 2rem;
+    color: #FFFFFF;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    margin-bottom: 3rem;
+    font-weight: 700;
 }
 
 .benefit-item {
     display: flex;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+    transform: translateY(-4px);
 }
 
 .benefit-icon {
-    width: 48px;
-    height: 48px;
-    background: var(--brand-600);
-    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    background: #4A90E2;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 18px;
-    margin-right: 16px;
+    color: #FFFFFF;
+    font-size: 20px;
+    margin-bottom: 20px;
     flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.benefit-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .benefit-content h5 {
-    color: var(--text-900);
-    font-weight: 600;
-    margin-bottom: 8px;
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: 0.01em;
 }
 
 .benefit-content p {
-    color: var(--text-700);
+    color: #D9D9D9;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.6;
+    font-size: 14px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    max-width: 280px;
+    text-align: center;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .cv-title {
-        font-size: 2.2rem;
-    }
-    
-    .cv-subtitle {
-        font-size: 1rem;
-    }
-    
-    .cv-form-card,
-    .benefits-section {
-        padding: 1.5rem;
-        border-radius: 16px;
-    }
-    
-    .benefits-title {
-        font-size: 2rem;
-    }
-    
-    .benefit-item {
-        margin-bottom: 1rem;
-    }
-    
-    .benefit-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-        margin-right: 12px;
+/* ========================================
+   RESPONSIVE DESIGN - CV v2.0
+   Mantiene diseño desktop exacto (≥1200px)
+   ======================================== */
+
+/* Desktop (≥1200px) - SIN CAMBIOS */
+@media screen and (min-width: 1200px) {
+    /* Mantener diseño original exacto */
+    section[style*="width: 1400px"] {
+        width: 1400px !important;
+        height: 750px !important;
+        margin: 60px auto !important;
     }
 }
 
-@media (max-width: 576px) {
-    .cv-title {
-        font-size: 1.8rem;
+/* Tablet (768px - 1199px) */
+@media screen and (max-width: 1199px) and (min-width: 768px) {
+    /* Contenedor principal */
+    section[style*="width: 1400px"] {
+        width: 100% !important;
+        max-width: 1320px !important;
+        margin: 60px auto !important;
+        padding: 0 32px !important;
+        height: auto !important;
+        min-height: 600px !important;
     }
     
-    .cv-form-card,
-    .benefits-section {
-        padding: 1rem;
-        border-radius: 12px;
+    /* Tipografía tablet */
+    h1 {
+        font-size: 32px !important; /* 2rem */
     }
     
-    .benefits-title {
-        font-size: 1.6rem;
+    /* Layout 2 columnas 55/45 */
+    .col-lg-6:first-child {
+        flex: 0 0 55% !important;
+        max-width: 55% !important;
     }
     
-    .benefit-icon {
-        width: 36px;
-        height: 36px;
-        font-size: 14px;
-        margin-right: 10px;
+    .col-lg-6:last-child {
+        flex: 0 0 45% !important;
+        max-width: 45% !important;
+    }
+    
+    /* Gap reducido */
+    .row {
+        gap: 24px !important;
+    }
+}
+
+/* Mobile (≤767px) */
+@media screen and (max-width: 767px) {
+    /* Contenedor principal */
+    section[style*="width: 1400px"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 40px auto !important;
+        padding: 0 16px !important;
+        height: auto !important;
+        min-height: auto !important;
+    }
+    
+    /* Tipografía mobile */
+    h1 {
+        font-size: 28px !important; /* 1.75rem */
+    }
+    
+    p {
+        line-height: 1.6 !important;
+    }
+    
+    /* Stack vertical - imagen arriba */
+    .row {
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+    
+    .col-lg-6 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+    }
+    
+    .col-lg-6:first-child {
+        order: -1 !important; /* Imagen arriba */
+        height: 300px !important;
+    }
+    
+    /* Imagen responsiva */
+    .col-lg-6:first-child div {
+        width: 100% !important;
+        height: 100% !important;
+        background-size: cover !important;
+        background-position: center !important;
+        aspect-ratio: 16/9 !important;
+    }
+}
+
+/* Padding lateral fluido */
+@media screen and (max-width: 575px) {
+    section[style*="width: 1400px"] {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}
+
+@media screen and (min-width: 576px) and (max-width: 991px) {
+    section[style*="width: 1400px"] {
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+    }
+}
+
+@media screen and (min-width: 992px) {
+    section[style*="width: 1400px"] {
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+    }
+}
+
+/* Asegurar que no hay scroll horizontal */
+@media screen and (max-width: 767px) {
+    body {
+        overflow-x: hidden !important;
+    }
+    
+    * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 
