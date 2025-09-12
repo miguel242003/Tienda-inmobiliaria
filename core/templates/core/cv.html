@@ -150,55 +150,45 @@
 </section>
 
 <!-- Benefits Section -->
-<section class="benefits-section py-5" style="background: url('{% static "images/cv6.jpg" %}'); background-size: cover; background-position: center; background-repeat: no-repeat; width: 100%; min-height: 600px;">
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-lg-12 text-center">
-                <h3 class="benefits-title mb-4">¿Por qué trabajar con nosotros?</h3>
-                <div class="row g-2">
-                    <div class="col-md-6">
-                        <div class="benefit-item text-center">
-                            <div class="benefit-icon mx-auto">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div class="benefit-content">
-                                <h5>Crecimiento Profesional</h5>
-                                <p>Oportunidades de desarrollo y capacitación continua</p>
-                            </div>
-                        </div>
+<section class="benefits-section">
+    <div class="benefits-container">
+        <div class="benefits-content">
+            <h3 class="benefits-title">¿Por qué trabajar con nosotros?</h3>
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-line"></i>
                     </div>
-                    <div class="col-md-6">
-                        <div class="benefit-item text-center">
-                            <div class="benefit-icon mx-auto">
-                                <i class="fas fa-dollar-sign"></i>
-                            </div>
-                            <div class="benefit-content">
-                                <h5>Competencia Salarial</h5>
-                                <p>Remuneración competitiva y beneficios adicionales</p>
-                            </div>
-                        </div>
+                    <div class="benefit-content">
+                        <h5>Crecimiento Profesional</h5>
+                        <p>Oportunidades de desarrollo y capacitación continua</p>
                     </div>
-                    <div class="col-md-6">
-                        <div class="benefit-item text-center">
-                            <div class="benefit-icon mx-auto">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="benefit-content">
-                                <h5>Ambiente de Trabajo</h5>
-                                <p>Equipo colaborativo y ambiente laboral positivo</p>
-                            </div>
-                        </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
-                    <div class="col-md-6">
-                        <div class="benefit-item text-center">
-                            <div class="benefit-icon mx-auto">
-                                <i class="fas fa-handshake"></i>
-                            </div>
-                            <div class="benefit-content">
-                                <h5>Estabilidad</h5>
-                                <p>Empresa consolidada con proyección a futuro</p>
-                            </div>
-                        </div>
+                    <div class="benefit-content">
+                        <h5>Competencia Salarial</h5>
+                        <p>Remuneración competitiva y beneficios adicionales</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h5>Ambiente de Trabajo</h5>
+                        <p>Equipo colaborativo y ambiente laboral positivo</p>
+                    </div>
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <div class="benefit-content">
+                        <h5>Estabilidad</h5>
+                        <p>Empresa consolidada con proyección a futuro</p>
                     </div>
                 </div>
             </div>
@@ -209,6 +199,9 @@
 
 {% block extra_js %}
 <style>
+/* ========================================
+   CSS VARIABLES
+   ======================================== */
 :root {
     --brand-600: #1D4ED8;
     --brand-700: #1E40AF;
@@ -219,10 +212,98 @@
     --card: #FFFFFF;
     --card-alt: #F9FAFB;
     --border: #E5E7EB;
+    --error: #DC2626;
+    --success: #059669;
+    --warning: #D97706;
 }
 
-/* CV Section - Estilo igual a Sobre Nosotros */
+/* ========================================
+   CV APPLICATION SECTION
+   ======================================== */
+.cv-application-section {
+    background: linear-gradient(135deg, #e8e9ea 0%, #d1d3d4 100%);
+    padding: 0;
+    width: 1400px;
+    height: 750px;
+    margin: 60px auto;
+    position: relative;
+    overflow: hidden;
+}
 
+.cv-container {
+    height: 100%;
+    padding: 0;
+}
+
+.cv-layout {
+    display: flex;
+    height: 100%;
+    margin: 0;
+}
+
+/* Image Section */
+.cv-image-section {
+    flex: 0 0 33.333333%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.cv-image {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-position: left center;
+    background-repeat: no-repeat;
+}
+
+/* Form Section */
+.cv-form-section {
+    flex: 0 0 66.666667%;
+    display: flex;
+    align-items: center;
+    padding: 40px;
+    height: 100%;
+}
+
+.cv-header {
+    width: 100%;
+}
+
+.cv-title {
+    font-family: 'Times New Roman', serif;
+    color: #2c3e50;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    display: block;
+    visibility: visible;
+}
+
+.cv-subtitle {
+    color: #e67e22;
+    font-style: italic;
+    font-family: 'Times New Roman', serif;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.cv-description {
+    color: #34495e;
+    line-height: 1.4;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ========================================
+   FORM STYLES
+   ======================================== */
+.cv-form-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+}
 
 /* Formulario más grande */
 .cv-form-card .form-control, 
@@ -256,41 +337,6 @@
     margin-top: 0.25rem;
 }
 
-.cv-title {
-    font: 700 36px/1.1 Oswald, sans-serif;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-align: center;
-    color: #2C3240;
-    margin: 0 0 8px;
-}
-
-.cv-subtitle {
-    color: var(--text-700);
-    font-size: 1.1rem;
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.yellow-underline {
-    width: 50%;
-    height: 4px;
-    background-color: #FFD700;
-    margin: 0.5rem auto;
-    border-radius: 2px;
-}
-
-/* CV Form Card */
-.cv-form-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--border);
-}
-
-/* Form Styles */
 .form-label {
     font-weight: 600;
     color: var(--text-900);
@@ -298,7 +344,7 @@
 }
 
 .required {
-    color: #DC2626;
+    color: var(--error);
 }
 
 .form-control, .form-select {
@@ -341,6 +387,7 @@
     color: white;
     transition: all 0.2s ease;
     box-shadow: 0 4px 6px -1px rgba(29, 78, 216, 0.3);
+    min-height: 48px;
 }
 
 .btn-cta:hover {
@@ -357,13 +404,14 @@
 /* Validation */
 .invalid-feedback {
     display: none;
-    color: #DC2626;
+    color: var(--error);
     font-size: 0.875rem;
-    margin-top: 4px;
+    margin-top: 0.25rem;
 }
 
-.form-control.is-invalid, .form-select.is-invalid {
-    border-color: #DC2626;
+.form-control.is-invalid, 
+.form-select.is-invalid {
+    border-color: var(--error);
 }
 
 .form-control.is-invalid + .invalid-feedback,
@@ -371,12 +419,29 @@
     display: block;
 }
 
-/* Benefits Section */
+/* ========================================
+   BENEFITS SECTION
+   ======================================== */
 .benefits-section {
-    background: var(--card);
-    border-radius: 0px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background: url('{% static "images/grupo-de-personas.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
+    min-height: 600px;
+    padding: 4rem 0;
+}
+
+.benefits-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.benefits-content {
+    text-align: center;
 }
 
 .benefits-title {
@@ -385,38 +450,60 @@
     text-transform: uppercase;
     text-align: center;
     color: #FFFFFF;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.5);
     margin-bottom: 3rem;
     font-weight: 700;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: inline-block;
+}
+
+/* Benefits Grid */
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px 100px;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 .benefit-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2rem;
-    padding: 20px;
+    padding: 15px;
     transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .benefit-item:hover {
     transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .benefit-icon {
     width: 56px;
     height: 56px;
-    background: #4A90E2;
-    border-radius: 8px;
+    background: linear-gradient(135deg, #4A90E2, #357ABD);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #FFFFFF;
     font-size: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
     flex-shrink: 0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), 0 0 20px rgba(74, 144, 226, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .benefit-icon:hover {
@@ -427,22 +514,22 @@
 .benefit-content h5 {
     color: #FFFFFF;
     font-weight: 700;
-    font-size: 18px;
-    margin-bottom: 12px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+    font-size: 16px;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     letter-spacing: 0.01em;
 }
 
 .benefit-content p {
-    color: #D9D9D9;
+    color: #FFFFFF;
     margin: 0;
-    line-height: 1.6;
-    font-size: 14px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    line-height: 1.4;
+    font-size: 13px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    max-width: 280px;
     text-align: center;
+    font-weight: 500;
 }
 
 /* ========================================
@@ -457,6 +544,50 @@
         width: 1400px !important;
         height: 750px !important;
         margin: 60px auto !important;
+    }
+    
+    /* Asegurar que benefits section y footer ocupen todo el ancho */
+    .benefits-section {
+        width: 100vw !important;
+        margin-left: calc(-50vw + 50%) !important;
+        margin-right: calc(-50vw + 50%) !important;
+    }
+}
+
+/* Asegurar ancho completo en todos los rangos */
+@media screen and (min-width: 1200px) {
+    /* Benefits section con ancho completo */
+    .benefits-section {
+        width: 100vw !important;
+        margin-left: calc(-50vw + 50%) !important;
+        margin-right: calc(-50vw + 50%) !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        position: relative !important;
+        left: 50% !important;
+        right: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+    }
+    
+    .benefits-container {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        padding: 0 2rem !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
+    /* Footer también debe ocupar todo el ancho */
+    footer, .footer {
+        width: 100vw !important;
+        margin-left: calc(-50vw + 50%) !important;
+        margin-right: calc(-50vw + 50%) !important;
+        position: relative !important;
+        left: 50% !important;
+        right: 50% !important;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
     }
 }
 
@@ -477,20 +608,27 @@
         font-size: 32px !important; /* 2rem */
     }
     
-    /* Layout 2 columnas 55/45 */
-    .col-lg-6:first-child {
-        flex: 0 0 55% !important;
-        max-width: 55% !important;
+    /* Ocultar imagen en tablet */
+    .col-lg-4 {
+        display: none !important;
     }
     
-    .col-lg-6:last-child {
-        flex: 0 0 45% !important;
-        max-width: 45% !important;
+    /* Formulario ocupa todo el espacio */
+    .col-lg-8 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+        width: 100% !important;
     }
     
-    /* Gap reducido */
+    /* Sin gap ya que solo hay una columna */
     .row {
-        gap: 24px !important;
+        gap: 0 !important;
+    }
+    
+    /* Benefits responsive */
+    .benefits-grid {
+        gap: 18px;
+        max-width: 700px;
     }
 }
 
@@ -521,24 +659,63 @@
         gap: 0 !important;
     }
     
-    .col-lg-6 {
+    .col-lg-4, .col-lg-8 {
         width: 100% !important;
         max-width: 100% !important;
         flex: none !important;
     }
     
-    .col-lg-6:first-child {
+    .col-lg-4 {
         order: -1 !important; /* Imagen arriba */
         height: 300px !important;
     }
     
     /* Imagen responsiva */
-    .col-lg-6:first-child div {
+    .col-lg-4 div {
         width: 100% !important;
         height: 100% !important;
-        background-size: cover !important;
-        background-position: center !important;
+        background-size: contain !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
         aspect-ratio: 16/9 !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Formulario responsivo */
+    .col-lg-8 {
+        padding: 20px !important;
+    }
+    
+    /* Campos del formulario en mobile */
+    .row.g-1 {
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+    
+    .col-md-6 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+    }
+    
+    /* Benefits responsive */
+    .benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        max-width: 400px;
+        padding: 0 15px;
+    }
+    
+    .benefit-item {
+        padding: 12px;
+    }
+    
+    .benefit-content h5 {
+        font-size: 15px;
+    }
+    
+    .benefit-content p {
+        font-size: 12px;
     }
 }
 
@@ -574,6 +751,25 @@
         max-width: 100% !important;
         box-sizing: border-box !important;
     }
+    
+    /* Benefits section en mobile también debe ocupar todo el ancho */
+    .benefits-section {
+        width: 100vw !important;
+        margin-left: calc(-50vw + 50%) !important;
+        margin-right: calc(-50vw + 50%) !important;
+    }
+}
+
+/* Regla adicional para asegurar ancho completo en todos los casos */
+.benefits-section {
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
+    position: relative !important;
+    left: 50% !important;
+    right: 50% !important;
+    margin-left: -50vw !important;
+    margin-right: -50vw !important;
 }
 
 /* Touch-friendly improvements */
@@ -588,10 +784,107 @@
         font-size: 16px;
     }
 }
+
+/* Mejoras adicionales para formulario en mobile */
+@media screen and (max-width: 767px) {
+    .cv-form-card {
+        padding: 1rem !important;
+        margin: 0 10px !important;
+    }
+    
+    .form-control, .form-select {
+        font-size: 16px !important; /* Previene zoom en iOS */
+        padding: 12px 14px !important;
+    }
+    
+    .btn-cta {
+        padding: 14px 20px !important;
+        font-size: 16px !important;
+    }
+    
+    .form-label {
+        font-size: 14px !important;
+        margin-bottom: 6px !important;
+    }
+    
+    .form-text {
+        font-size: 12px !important;
+    }
+}
+
+/* Mejoras adicionales para tablet */
+@media screen and (min-width: 768px) and (max-width: 1199px) {
+    .cv-form-card {
+        padding: 1.25rem !important;
+    }
+    
+    .form-control, .form-select {
+        padding: 10px 12px !important;
+    }
+    
+    .btn-cta {
+        padding: 12px 18px !important;
+    }
+}
+
+/* Mejoras específicas para imagen en mobile */
+@media screen and (max-width: 767px) {
+    .col-lg-4 {
+        height: 250px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .col-lg-4 div {
+        background-size: contain !important;
+        background-position: center center !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+}
+
+/* Imagen en mobile muy pequeño */
+@media screen and (max-width: 480px) {
+    .col-lg-4 {
+        height: 200px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .col-lg-4 div {
+        border-radius: 8px !important;
+    }
+}
+
+/* Imagen en mobile extra pequeño */
+@media screen and (max-width: 360px) {
+    .col-lg-4 {
+        height: 180px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .col-lg-4 div {
+        border-radius: 6px !important;
+    }
+}
+
+/* Imagen en mobile ultra pequeño */
+@media screen and (max-width: 320px) {
+    .col-lg-4 {
+        height: 160px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .col-lg-4 div {
+        border-radius: 4px !important;
+    }
+}
 </style>
 
 <script>
-// Validación del formulario
+// ========================================
+// CV FORM VALIDATION & HANDLING
+// ========================================
+
+// Form validation function
 function validateForm() {
     const form = document.getElementById('cvForm');
     const inputs = form.querySelectorAll('input[required], select[required]');
@@ -601,11 +894,11 @@ function validateForm() {
         const value = input.value.trim();
         const feedback = input.parentNode.querySelector('.invalid-feedback');
         
-        // Limpiar validaciones anteriores
+        // Clear previous validations
         input.classList.remove('is-invalid');
         if (feedback) feedback.textContent = '';
         
-        // Validar campos requeridos
+        // Validate required fields
         if (!value) {
             input.classList.add('is-invalid');
             if (feedback) feedback.textContent = 'Este campo es obligatorio';
@@ -613,7 +906,7 @@ function validateForm() {
             return;
         }
         
-        // Validación específica por tipo
+        // Type-specific validation
         if (input.type === 'email') {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(value)) {
@@ -639,16 +932,20 @@ function validateForm() {
                 if (feedback) feedback.textContent = 'Por favor selecciona un archivo';
                 isValid = false;
             } else {
-                // Validar tamaño del archivo (5MB)
-                const maxSize = 5 * 1024 * 1024; // 5MB
+                // Validate file size (5MB)
+                const maxSize = 5 * 1024 * 1024;
                 if (file.size > maxSize) {
                     input.classList.add('is-invalid');
                     if (feedback) feedback.textContent = 'El archivo no puede ser mayor a 5MB';
                     isValid = false;
                 }
                 
-                // Validar tipo de archivo
-                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                // Validate file type
+                const allowedTypes = [
+                    'application/pdf', 
+                    'application/msword', 
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ];
                 if (!allowedTypes.includes(file.type)) {
                     input.classList.add('is-invalid');
                     if (feedback) feedback.textContent = 'Solo se permiten archivos PDF, DOC o DOCX';
@@ -661,7 +958,7 @@ function validateForm() {
     return isValid;
 }
 
-// Validación en tiempo real
+// Real-time validation setup
 function setupRealTimeValidation() {
     const form = document.getElementById('cvForm');
     const inputs = form.querySelectorAll('input, select, textarea');
@@ -671,11 +968,11 @@ function setupRealTimeValidation() {
             const value = this.value.trim();
             const feedback = this.parentNode.querySelector('.invalid-feedback');
             
-            // Limpiar validación anterior
+            // Clear previous validation
             this.classList.remove('is-invalid');
             if (feedback) feedback.textContent = '';
             
-            // Validar solo si hay valor
+            // Validate only if there's a value
             if (value) {
                 if (this.type === 'email') {
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -695,7 +992,7 @@ function setupRealTimeValidation() {
             }
         });
         
-        // Validación especial para archivos
+        // Special validation for file inputs
         if (input.type === 'file') {
             input.addEventListener('change', function() {
                 const feedback = this.parentNode.querySelector('.invalid-feedback');
@@ -704,15 +1001,19 @@ function setupRealTimeValidation() {
                 
                 const file = this.files[0];
                 if (file) {
-                    // Validar tamaño del archivo (5MB)
-                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    // Validate file size (5MB)
+                    const maxSize = 5 * 1024 * 1024;
                     if (file.size > maxSize) {
                         this.classList.add('is-invalid');
                         if (feedback) feedback.textContent = 'El archivo no puede ser mayor a 5MB';
                     }
                     
-                    // Validar tipo de archivo
-                    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                    // Validate file type
+                    const allowedTypes = [
+                        'application/pdf', 
+                        'application/msword', 
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                    ];
                     if (!allowedTypes.includes(file.type)) {
                         this.classList.add('is-invalid');
                         if (feedback) feedback.textContent = 'Solo se permiten archivos PDF, DOC o DOCX';
@@ -723,30 +1024,36 @@ function setupRealTimeValidation() {
     });
 }
 
-// Manejo del envío del formulario
-document.getElementById('cvForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+// Form submission handling
+function handleFormSubmission() {
+    const form = document.getElementById('cvForm');
     
-    if (validateForm()) {
-        // Simular envío
-        const submitBtn = this.querySelector('.btn-cta');
-        const originalText = submitBtn.innerHTML;
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
-        submitBtn.disabled = true;
-        
-        setTimeout(() => {
-            alert('¡Gracias por enviar tu CV! Te contactaremos pronto si tu perfil coincide con nuestras necesidades.');
-            this.reset();
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }, 2000);
-    }
-});
+        if (validateForm()) {
+            const submitBtn = this.querySelector('.btn-cta');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+            submitBtn.disabled = true;
+            
+            // Simulate form submission
+            setTimeout(() => {
+                alert('¡Gracias por enviar tu CV! Te contactaremos pronto si tu perfil coincide con nuestras necesidades.');
+                this.reset();
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 2000);
+        }
+    });
+}
 
-// Inicialización
+// Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     setupRealTimeValidation();
+    handleFormSubmission();
 });
 </script>
 {% endblock %}

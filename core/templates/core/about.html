@@ -3,486 +3,715 @@
 
 {% block title %}Sobre Nosotros - Tienda Inmobiliaria{% endblock %}
 
+{% block extra_css %}
+<style>
+/* ===== DISEÑO PROFESIONAL "SOBRE NOSOTROS" ===== */
+
+/* Sección principal */
+.about-main-section {
+  background: white !important;
+  padding: 60px 0 !important;
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+.about-container {
+  padding: 0 20px !important;
+}
+
+.about-content {
+  max-width: 800px !important;
+  margin: 0 auto !important;
+}
+
+.about-title {
+  font-family: 'Times New Roman', serif !important;
+  color: #2c3e50 !important;
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+  margin-bottom: 1rem !important;
+  text-align: left !important;
+}
+
+.about-subtitle {
+  color: #e67e22 !important;
+  font-style: italic !important;
+  font-family: 'Times New Roman', serif !important;
+  font-size: 1.2rem !important;
+  margin-bottom: 1rem !important;
+  text-align: left !important;
+}
+
+.about-description {
+  color: #34495e !important;
+  line-height: 1.6 !important;
+  font-size: 1rem !important;
+  margin-bottom: 2rem !important;
+  text-align: left !important;
+}
+
+.about-item {
+  margin-bottom: 2rem !important;
+}
+
+.about-item-content {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 1rem !important;
+}
+
+.about-item-icon {
+  color: #2c3e50 !important;
+  font-size: 1.5rem !important;
+  margin-top: 0.2rem !important;
+  flex-shrink: 0 !important;
+  width: 24px !important;
+}
+
+.about-item-text {
+  flex: 1 !important;
+}
+
+.about-item-title {
+  color: #2c3e50 !important;
+  font-weight: bold !important;
+  font-size: 1.2rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.about-item-description {
+  color: #34495e !important;
+  line-height: 1.6 !important;
+  font-size: 1rem !important;
+  margin: 0 !important;
+}
+
+/* ===== DISEÑO RESPONSIVO COMPLETO ===== */
+
+/* MOBILE FIRST - Base para móviles */
+.about-main-section {
+  background: white !important;
+  padding: 20px 0 !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.about-container {
+  padding: 0 16px !important;
+}
+
+.about-content {
+  background: #f5f5f5 !important;
+  padding: 20px !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.about-title {
+  font-family: 'Times New Roman', serif !important;
+  color: #2c3e50 !important;
+  font-size: 1.8rem !important;
+  font-weight: bold !important;
+  margin-bottom: 0.8rem !important;
+  text-align: left !important;
+  line-height: 1.2 !important;
+}
+
+.about-subtitle {
+  color: #e67e22 !important;
+  font-style: italic !important;
+  font-family: 'Times New Roman', serif !important;
+  font-size: 1rem !important;
+  margin-bottom: 0.8rem !important;
+  text-align: left !important;
+}
+
+.about-description {
+  color: #34495e !important;
+  line-height: 1.5 !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 1.5rem !important;
+  text-align: left !important;
+}
+
+.about-item {
+  margin-bottom: 1.5rem !important;
+}
+
+.about-item-content {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.8rem !important;
+}
+
+.about-item-icon {
+  color: #2c3e50 !important;
+  font-size: 1.2rem !important;
+  margin-top: 0.1rem !important;
+  flex-shrink: 0 !important;
+  width: 20px !important;
+}
+
+.about-item-text {
+  flex: 1 !important;
+}
+
+.about-item-title {
+  color: #2c3e50 !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  margin-bottom: 0.4rem !important;
+}
+
+.about-item-description {
+  color: #34495e !important;
+  line-height: 1.5 !important;
+  font-size: 0.85rem !important;
+  margin: 0 !important;
+}
+
+/* Imagen móvil */
+.about-main-section::after {
+  content: '' !important;
+  background-image: url('{% static "images/imgsobrenostros2.jpg" %}') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  width: 100% !important;
+  height: 200px !important;
+  object-fit: cover !important;
+  margin-top: 0 !important;
+}
+
+/* TABLET - 576px a 767px */
+@media screen and (min-width: 576px) and (max-width: 767px) {
+  .about-main-section {
+    padding: 30px 0 !important;
+  }
+  
+  .about-container {
+    padding: 0 24px !important;
+  }
+  
+  .about-content {
+    padding: 30px !important;
+  }
+  
+  .about-title {
+    font-size: 2.2rem !important;
+  }
+  
+  .about-subtitle {
+    font-size: 1.1rem !important;
+  }
+  
+  .about-description {
+    font-size: 1rem !important;
+  }
+  
+  .about-item-icon {
+    font-size: 1.4rem !important;
+    width: 22px !important;
+  }
+  
+  .about-item-title {
+    font-size: 1.1rem !important;
+  }
+  
+  .about-item-description {
+    font-size: 0.9rem !important;
+  }
+  
+  .about-main-section::after {
+    height: 250px !important;
+  }
+}
+
+/* TABLET LARGE - 768px a 991px */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .about-main-section {
+    padding: 40px 0 !important;
+  }
+  
+  .about-container {
+    padding: 0 32px !important;
+  }
+  
+  .about-content {
+    padding: 40px !important;
+  }
+  
+  .about-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .about-subtitle {
+    font-size: 1.2rem !important;
+  }
+  
+  .about-description {
+    font-size: 1.1rem !important;
+  }
+  
+  .about-item-icon {
+    font-size: 1.5rem !important;
+    width: 24px !important;
+  }
+  
+  .about-item-title {
+    font-size: 1.2rem !important;
+  }
+  
+  .about-item-description {
+    font-size: 1rem !important;
+  }
+  
+  .about-main-section::after {
+    height: 300px !important;
+  }
+}
+
+/* DESKTOP SMALL - 992px a 1199px */
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .about-main-section {
+    padding: 50px 0 !important;
+  }
+  
+  .about-container {
+    padding: 0 40px !important;
+  }
+  
+  .about-content {
+    padding: 50px !important;
+  }
+  
+  .about-title {
+    font-size: 2.8rem !important;
+  }
+  
+  .about-subtitle {
+    font-size: 1.3rem !important;
+  }
+  
+  .about-description {
+    font-size: 1.1rem !important;
+  }
+  
+  .about-item-icon {
+    font-size: 1.6rem !important;
+    width: 24px !important;
+  }
+  
+  .about-item-title {
+    font-size: 1.3rem !important;
+  }
+  
+  .about-item-description {
+    font-size: 1.05rem !important;
+  }
+  
+  .about-main-section::after {
+    height: 350px !important;
+  }
+}
+
+/* DESKTOP LARGE - 1200px y más */
+@media screen and (min-width: 1200px) {
+  .about-main-section {
+    background: white !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 1400px !important;
+    margin: 60px auto !important;
+    display: grid !important;
+    grid-template-columns: 50% 50% !important;
+    gap: 0 !important;
+    height: 600px !important;
+  }
+  
+  .about-container {
+    padding: 0 !important;
+    height: 100% !important;
+    display: contents !important;
+  }
+  
+  .about-content {
+    background: #f5f5f5 !important;
+    padding: 48px !important;
+    max-width: none !important;
+    margin: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+  
+  .about-title {
+    font-size: 48px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .about-subtitle {
+    font-size: 18px !important;
+    margin-bottom: 16px !important;
+  }
+  
+  .about-description {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    margin-bottom: 32px !important;
+  }
+  
+  .about-item {
+    margin-bottom: 20px !important;
+  }
+  
+  .about-item-content {
+    gap: 16px !important;
+  }
+  
+  .about-item-icon {
+    font-size: 24px !important;
+    width: 24px !important;
+    margin-top: 0 !important;
+  }
+  
+  .about-item-title {
+    font-size: 18px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .about-item-description {
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+  }
+  
+  /* Imagen derecha */
+  .about-main-section::after {
+    content: '' !important;
+    background-image: url('{% static "images/imgsobrenostros2.jpg" %}') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+}
+
+/* ===== SECCIÓN NUESTROS VALORES - NUEVO DISEÑO ===== */
+
+/* Título de la sección */
+.values-title-section {
+  background: #2c3e50 !important;
+  padding: 20px 0 !important;
+  text-align: center !important;
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 170px auto 0 !important;
+}
+
+.values-title-section h2 {
+  color: white !important;
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+  margin: 0 !important;
+  font-family: 'Times New Roman', serif !important;
+}
+
+/* Sección hero con imagen de fondo */
+.values-hero-section {
+  position: relative !important;
+  background: url('{% static "images/imgtrabajadores.jpg" %}') center 70%/cover no-repeat !important;
+  min-height: 450px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  overflow: visible !important;
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+}
+
+/* Degradado sutil abajo para legibilidad */
+.values-degradado {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,.15) 90%) !important;
+  pointer-events: none !important;
+}
+
+/* Contenedor de tarjetas */
+.values-cards-container {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 48px 20px !important;
+  display: flex !important;
+  gap: 24px !important;
+  justify-content: center !important;
+  align-items: flex-end !important;
+}
+
+/* Tarjetas individuales */
+.value-card-alt {
+  background: #ffffff !important;
+  border-radius: 0px !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,.12) !important;
+  padding: 28px 22px !important;
+  text-align: center !important;
+  width: 250px !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Alturas diferentes para las tarjetas */
+.value-card-alt:nth-child(1) {
+  transform: translateY(160px) !important;
+}
+
+.value-card-alt:nth-child(2) {
+  transform: translateY(110px) !important;
+}
+
+.value-card-alt:nth-child(3) {
+  transform: translateY(160px) !important;
+}
+
+.value-card-alt:nth-child(4) {
+  transform: translateY(110px) !important;
+}
+
+.value-card-alt:hover {
+  transform: translateY(calc(var(--original-y, 0px) - 10px)) !important;
+  box-shadow: 0 16px 35px rgba(0,0,0,.15) !important;
+}
+
+/* Ícono circular */
+.value-icon-alt {
+  width: 72px !important;
+  height: 72px !important;
+  margin: 0 auto 14px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #d9e8f6 !important;
+}
+
+.value-icon-alt i {
+  font-size: 34px !important;
+  color: #333 !important;
+}
+
+/* Título de la tarjeta */
+.value-title-alt {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  margin: 8px 0 8px !important;
+  color: #1f2937 !important;
+}
+
+/* Descripción de la tarjeta */
+.value-desc-alt {
+  color: #5b6573 !important;
+  font-size: 15px !important;
+  margin: 0 0 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* ===== DISEÑO RESPONSIVO ===== */
+
+/* Tablet (768px - 1199px) */
+@media screen and (max-width: 1199px) and (min-width: 768px) {
+  .values-title-section h2 {
+    font-size: 2rem !important;
+  }
+  
+  .values-hero-section {
+    min-height: 400px !important;
+  }
+  
+  .values-cards-container {
+    padding: 40px 20px !important;
+    gap: 20px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+  
+  .value-card-alt {
+    width: 220px !important;
+  }
+  
+  .value-card-alt:nth-child(1),
+  .value-card-alt:nth-child(3) {
+    transform: translateY(120px) !important;
+  }
+  
+  .value-card-alt:nth-child(2),
+  .value-card-alt:nth-child(4) {
+    transform: translateY(80px) !important;
+  }
+  
+  .value-icon-alt {
+    width: 65px !important;
+    height: 65px !important;
+  }
+  
+  .value-icon-alt i {
+    font-size: 30px !important;
+  }
+  
+  .value-title-alt {
+    font-size: 20px !important;
+  }
+  
+  .value-desc-alt {
+    font-size: 14px !important;
+  }
+}
+
+/* Mobile (<768px) */
+@media screen and (max-width: 767px) {
+  .values-title-section {
+    margin: 100px auto 0 !important;
+  }
+  
+  .values-title-section h2 {
+    font-size: 1.8rem !important;
+  }
+  
+  .values-hero-section {
+    min-height: 350px !important;
+  }
+  
+  .values-cards-container {
+    padding: 30px 15px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 20px !important;
+  }
+  
+  .value-card-alt {
+    width: 100% !important;
+    max-width: 300px !important;
+    transform: translateY(0) !important;
+  }
+  
+  .value-card-alt:hover {
+    transform: translateY(-5px) !important;
+  }
+  
+  .value-icon-alt {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .value-icon-alt i {
+    font-size: 28px !important;
+  }
+  
+  .value-title-alt {
+    font-size: 18px !important;
+  }
+  
+  .value-desc-alt {
+    font-size: 14px !important;
+  }
+}
+
+/* ===== FIN SECCIÓN NUESTROS VALORES ===== */
+</style>
+{% endblock %}
+
 {% block content %}
 
 <!-- Company Story -->
-<section style="background: linear-gradient(135deg, #e8e9ea 0%, #d1d3d4 100%); padding: 0; width: 1400px; height: 750px; margin: 60px auto; position: relative; overflow: hidden;">
-    <div class="container-fluid h-100" style="padding: 0; height: 100%;">
-        <div class="row h-100" style="height: 100%; margin: 0;">
-            <div class="col-lg-6 d-flex align-items-center" style="padding: 40px; height: 100%;">
-                <div>
-                    <h1 class="display-5 fw-bold mb-3" style="font-family: 'Times New Roman', serif; color: #2c3e50; font-size: 2.5rem;">Sobre nosotros</h1>
-                    <h3 class="mb-3" style="color: #e67e22; font-style: italic; font-family: 'Times New Roman', serif; font-size: 1.2rem;">Nuestra misión y metas</h3>
-                    <p class="lead mb-3" style="color: #34495e; line-height: 1.6; font-size: 1rem;">Fundada en 2009, nuestra empresa ha sido líder en el sector inmobiliario, ayudando a miles de familias a encontrar su hogar ideal. Nuestro compromiso con la excelencia y la satisfacción del cliente nos ha convertido en una de las inmobiliarias más confiables del mercado.</p>
-                    
-                    <div class="mb-3">
-                        <div class="d-flex align-items-start mb-2">
-                            <i class="fas fa-flag fa-lg me-3" style="color: #688391; margin-top: 3px;"></i>
-                            <div>
-                                <h4 class="mb-2" style="color: #2c3e50; font-style: italic; font-size: 1.1rem;">Misión</h4>
-                                <p style="color: #34495e; line-height: 1.6; font-size: 0.9rem;">Facilitar el proceso de compra, venta y alquiler de propiedades, brindando un servicio personalizado y profesional que satisfaga las necesidades de nuestros clientes, garantizando transparencia y confianza en cada transacción.</p>
+<section class="about-main-section">
+    <div class="about-container">
+        <div class="about-content">
+            <h1 class="about-title">Sobre nosotros</h1>
+            <h3 class="about-subtitle">Nuestra misión y metas</h3>
+            <p class="about-description">Fundada en 2009, nuestra empresa ha sido líder en el sector inmobiliario, ayudando a miles de familias a encontrar su hogar ideal. Nuestro compromiso con la excelencia y la satisfacción del cliente nos ha convertido en una de las inmobiliarias más confiables del mercado.</p>
+            
+            <div class="about-item">
+                <div class="about-item-content">
+                    <i class="fas fa-flag about-item-icon"></i>
+                    <div class="about-item-text">
+                        <h4 class="about-item-title">Misión</h4>
+                        <p class="about-item-description">Facilitar el proceso de compra, venta y alquiler de propiedades, brindando un servicio personalizado y profesional que satisfaga las necesidades de nuestros clientes, garantizando transparencia y confianza en cada transacción.</p>
+                            </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <div class="d-flex align-items-start mb-2">
-                            <i class="fas fa-eye fa-lg me-3" style="color: #688391; margin-top: 3px;"></i>
-                            <div>
-                                <h4 class="mb-2" style="color: #2c3e50; font-style: italic; font-size: 1.1rem;">Visión</h4>
-                                <p style="color: #34495e; line-height: 1.6; font-size: 0.9rem;">Ser la inmobiliaria líder en el mercado, reconocida por la excelencia en el servicio, la innovación tecnológica y el compromiso con la satisfacción total del cliente, contribuyendo al desarrollo de comunidades prósperas.</p>
+                        
+            <div class="about-item">
+                <div class="about-item-content">
+                    <i class="fas fa-eye about-item-icon"></i>
+                    <div class="about-item-text">
+                        <h4 class="about-item-title">Visión</h4>
+                        <p class="about-item-description">Ser la inmobiliaria líder en el mercado, reconocida por la excelencia en el servicio, la innovación tecnológica y el compromiso con la satisfacción total del cliente, contribuyendo al desarrollo de comunidades prósperas.</p>
+                            </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div>
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-scroll fa-lg me-3" style="color: #688391; margin-top: 3px;"></i>
-                            <div>
-                                <h4 class="mb-2" style="color: #2c3e50; font-style: italic; font-size: 1.1rem;">Historia</h4>
-                                <p style="color: #34495e; line-height: 1.6; font-size: 0.9rem;">Contamos con un equipo de profesionales altamente capacitados que conocen el mercado local y están comprometidos con brindar el mejor servicio a nuestros clientes. Más de 15 años de experiencia nos respaldan.</p>
+                        
+            <div class="about-item">
+                <div class="about-item-content">
+                    <i class="fas fa-file-alt about-item-icon"></i>
+                    <div class="about-item-text">
+                        <h4 class="about-item-title">Historia</h4>
+                        <p class="about-item-description">Contamos con un equipo de profesionales altamente capacitados que conocen el mercado local y están comprometidos con brindar el mejor servicio a nuestros clientes. Más de 15 años de experiencia nos respaldan.</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 p-0" style="height: 100%;">
-                <div style="background-image: url('{% static 'images/imgsobrenostros2.jpg' %}'); background-size: cover; background-position: center; height: 100%; width: 100%;"></div>
+                            </div>
             </div>
         </div>
     </div>
 </section>
 
-
-<!-- Título de la sección -->
-<div style="background: #2c3e50; padding: 20px 0; text-align: center; width: 100%; max-width: 1400px; margin: 0 auto;">
-    <h2 style="color: white; font-size: 2.5rem; font-weight: bold; margin: 0; font-family: 'Times New Roman', serif;">Nuestros Valores</h2>
+<!-- Nuestros Valores -->
+<div class="values-title-section">
+    <h2>Nuestros Valores</h2>
 </div>
 
-<!-- Values -->
-<section class="hero" style="position: relative; background: url('{% static 'images/imgtrabajadores.jpg' %}') center 70%/cover no-repeat; min-height: 450px; display: flex; align-items: flex-end; overflow: visible; width: 100%; max-width: 1400px; margin: 0 auto;">
-    <!-- Degradado sutil abajo para legibilidad -->
-    <div style="content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,.15) 90%); pointer-events: none;"></div>
+<section class="values-hero-section">
+    <div class="values-degradado"></div>
     
-    <!-- Contenedor de tarjetas -->
-    <div class="cards" style="position: relative; width: 100%; max-width: 1200px; margin: 0 auto; padding: 48px 20px; display: flex; gap: 24px; justify-content: center; align-items: flex-end;">
-        
-        <!-- Tarjeta 1 -->
-        <article class="card" style="background: #ffffff; border-radius: 0px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 28px 22px; text-align: center; width: 250px; transform: translateY(160px);">
-            <div class="icon" style="width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 50%; display: grid; place-items: center; background: #d9e8f6;">
-                <i class="fas fa-chess-knight" style="font-size: 34px; color: #333;"></i>
+    <div class="values-cards-container">
+        <!-- Tarjeta 1: Confianza -->
+        <article class="value-card-alt">
+            <div class="value-icon-alt">
+                <i class="fas fa-chess-knight"></i>
             </div>
-            <h4 class="title" style="font-size: 22px; font-weight: 700; margin: 8px 0 8px; color: #1f2937;">Confianza</h4>
-            <p class="desc" style="color: #5b6573; font-size: 15px; margin: 0 0 14px; line-height: 1.5;">Brindamos un servicio transparente y seguro, generando tranquilidad en cada decisión inmobiliaria.</p>
+            <h4 class="value-title-alt">Confianza</h4>
+            <p class="value-desc-alt">Brindamos un servicio transparente y seguro, generando tranquilidad en cada decisión inmobiliaria.</p>
         </article>
 
-        <!-- Tarjeta 2 -->
-        <article class="card" style="background: #ffffff; border-radius: 0px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 28px 22px; text-align: center; width: 250px; transform: translateY(110px);">
-            <div class="icon" style="width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 50%; display: grid; place-items: center; background: #d9e8f6;">
-                <i class="fas fa-bullhorn" style="font-size: 34px; color: #333;"></i>
+        <!-- Tarjeta 2: Compromiso -->
+        <article class="value-card-alt">
+            <div class="value-icon-alt">
+                <i class="fas fa-bullhorn"></i>
             </div>
-            <h4 class="title" style="font-size: 22px; font-weight: 700; margin: 8px 0 8px; color: #1f2937;">Compromiso</h4>
-            <p class="desc" style="color: #5b6573; font-size: 15px; margin: 0 0 14px; line-height: 1.5;">Acompañamos a nuestros clientes en todo el proceso, asegurando un trato cercano y responsable.</p>
+            <h4 class="value-title-alt">Compromiso</h4>
+            <p class="value-desc-alt">Acompañamos a nuestros clientes en todo el proceso, asegurando un trato cercano y responsable.</p>
         </article>
 
-        <!-- Tarjeta 3 -->
-        <article class="card" style="background: #ffffff; border-radius: 0px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 28px 22px; text-align: center; width: 250px; transform: translateY(160px);">
-            <div class="icon" style="width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 50%; display: grid; place-items: center; background: #d9e8f6;">
-                <i class="fas fa-gem" style="font-size: 34px; color: #333;"></i>
+        <!-- Tarjeta 3: Experiencia -->
+        <article class="value-card-alt">
+            <div class="value-icon-alt">
+                <i class="fas fa-gem"></i>
             </div>
-            <h4 class="title" style="font-size: 22px; font-weight: 700; margin: 8px 0 8px; color: #1f2937;">Experiencia</h4>
-            <p class="desc" style="color: #5b6573; font-size: 15px; margin: 0 0 14px; line-height: 1.5;">Contamos con un equipo profesional y años de trayectoria en el mercado inmobiliario.</p>
+            <h4 class="value-title-alt">Experiencia</h4>
+            <p class="value-desc-alt">Contamos con un equipo profesional y años de trayectoria en el mercado inmobiliario.</p>
         </article>
 
-        <!-- Tarjeta 4 -->
-        <article class="card" style="background: #ffffff; border-radius: 0px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 28px 22px; text-align: center; width: 250px; transform: translateY(110px);">
-            <div class="icon" style="width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 50%; display: grid; place-items: center; background: #d9e8f6;">
-                <i class="fas fa-user" style="font-size: 34px; color: #333;"></i>
+        <!-- Tarjeta 4: Innovación -->
+        <article class="value-card-alt">
+            <div class="value-icon-alt">
+                <i class="fas fa-user"></i>
             </div>
-            <h4 class="title" style="font-size: 22px; font-weight: 700; margin: 8px 0 8px; color: #1f2937;">Innovación</h4>
-            <p class="desc" style="color: #5b6573; font-size: 15px; margin: 0 0 14px; line-height: 1.5;">Incorporamos tecnología y soluciones modernas para hacer más simple y eficiente cada gestión.</p>
+            <h4 class="value-title-alt">Innovación</h4>
+            <p class="value-desc-alt">Incorporamos tecnología y soluciones modernas para hacer más simple y eficiente cada gestión.</p>
         </article>
-
     </div>
 </section>
 
 {% endblock %}
-
-<style>
-/* ========================================
-   RESPONSIVE DESIGN - SOBRE NOSOTROS v2.0
-   Mantiene diseño desktop exacto (≥1200px)
-   ======================================== */
-
-/* 1. CONTENEDOR Y TIPOGRAFÍA FLUIDA */
-
-/* Desktop (≥1200px) - SIN CAMBIOS */
-@media screen and (min-width: 1200px) {
-    /* Mantener diseño original exacto */
-    section[style*="width: 1400px"] {
-        width: 1400px !important;
-        height: 750px !important;
-        margin: 60px auto !important;
-    }
-}
-
-/* Tablet (768px - 1199px) */
-@media screen and (max-width: 1199px) and (min-width: 768px) {
-    /* Contenedor principal */
-    section[style*="width: 1400px"] {
-        width: 100% !important;
-        max-width: 1320px !important;
-        margin: 60px auto !important;
-        padding: 0 32px !important;
-        height: auto !important;
-        min-height: 600px !important;
-    }
-    
-    /* Título de valores */
-    div[style*="background: #2c3e50"] {
-        width: 100% !important;
-        max-width: 1320px !important;
-        margin: 0 auto !important;
-        padding: 20px 32px !important;
-    }
-    
-    /* Sección de valores */
-    section.hero {
-        width: 100% !important;
-        max-width: 1320px !important;
-        margin: 0 auto !important;
-    }
-    
-    /* Tipografía tablet */
-    h1 {
-        font-size: 32px !important; /* 2rem */
-    }
-    
-    /* Layout 2 columnas 55/45 */
-    .col-lg-6:first-child {
-        flex: 0 0 55% !important;
-        max-width: 55% !important;
-    }
-    
-    .col-lg-6:last-child {
-        flex: 0 0 45% !important;
-        max-width: 45% !important;
-    }
-    
-    /* Gap reducido */
-    .row {
-        gap: 24px !important;
-    }
-    
-    /* Tarjetas 2x2 */
-    .cards {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 24px !important;
-        padding: 48px 32px !important;
-    }
-    
-    .card {
-        width: 100% !important;
-        transform: translateY(0) !important;
-        min-height: 200px !important;
-    }
-}
-
-/* Mobile (≤767px) */
-@media screen and (max-width: 767px) {
-    /* Contenedor principal */
-    section[style*="width: 1400px"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 40px auto !important;
-        padding: 0 16px !important;
-        height: auto !important;
-        min-height: auto !important;
-    }
-    
-    /* Título de valores */
-    div[style*="background: #2c3e50"] {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 20px 16px !important;
-    }
-    
-    /* Sección de valores */
-    section.hero {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-    }
-    
-    /* Tipografía mobile */
-    h1 {
-        font-size: 28px !important; /* 1.75rem */
-    }
-    
-    h2 {
-        font-size: 28px !important;
-    }
-    
-    p {
-        line-height: 1.6 !important;
-    }
-    
-    /* Stack vertical - imagen arriba */
-    .row {
-        flex-direction: column !important;
-        gap: 0 !important;
-    }
-    
-    .col-lg-6 {
-        width: 100% !important;
-        max-width: 100% !important;
-        flex: none !important;
-    }
-    
-    .col-lg-6:last-child {
-        order: -1 !important; /* Imagen arriba */
-        height: 300px !important;
-    }
-    
-    /* Imagen responsiva */
-    .col-lg-6:last-child div {
-        width: 100% !important;
-        height: 100% !important;
-        background-size: cover !important;
-        background-position: center !important;
-        aspect-ratio: 16/9 !important;
-    }
-    
-    /* Tarjetas 1 columna */
-    .cards {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 16px !important;
-        padding: 32px 16px !important;
-    }
-    
-    .card {
-        width: 100% !important;
-        max-width: 520px !important;
-        transform: translateY(0) !important;
-        min-height: 180px !important;
-        padding: 24px !important;
-    }
-}
-
-/* 2. LISTA MISIÓN/VISIÓN/HISTORIA */
-
-/* Mobile - icono + texto en línea */
-@media screen and (max-width: 767px) {
-    .d-flex.align-items-start {
-        display: flex !important;
-        align-items: flex-start !important;
-        gap: 12px !important;
-        margin-bottom: 16px !important;
-    }
-    
-    .d-flex.align-items-start i {
-        flex-shrink: 0 !important;
-        width: 24px !important;
-        margin-top: 3px !important;
-        margin-right: 0 !important;
-    }
-    
-    .d-flex.align-items-start > div {
-        flex: 1 !important;
-    }
-    
-    /* Márgenes más compactos */
-    .mb-3 {
-        margin-bottom: 1rem !important; /* ~20% reducción */
-    }
-}
-
-/* 3. PADDING LATERAL FLUIDO */
-
-/* ≤575px */
-@media screen and (max-width: 575px) {
-    section[style*="width: 1400px"],
-    div[style*="background: #2c3e50"],
-    .cards {
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-    }
-}
-
-/* 576px - 991px */
-@media screen and (min-width: 576px) and (max-width: 991px) {
-    section[style*="width: 1400px"],
-    div[style*="background: #2c3e50"],
-    .cards {
-        padding-left: 24px !important;
-        padding-right: 24px !important;
-    }
-}
-
-/* ≥992px */
-@media screen and (min-width: 992px) {
-    section[style*="width: 1400px"],
-    div[style*="background: #2c3e50"],
-    .cards {
-        padding-left: 32px !important;
-        padding-right: 32px !important;
-    }
-}
-
-/* 4. OPTIMIZACIONES DE RENDIMIENTO */
-
-/* Imágenes lazy loading */
-.col-lg-6:last-child div {
-    background-attachment: scroll !important;
-}
-
-/* 5. ACCESIBILIDAD - CONTRASTE MANTENIDO */
-/* No se modifican colores, solo layout */
-
-/* 6. UTILIDADES ADICIONALES */
-
-/* Asegurar que no hay scroll horizontal */
-@media screen and (max-width: 767px) {
-    body {
-        overflow-x: hidden !important;
-    }
-    
-    * {
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-    }
-}
-
-/* Altura igual para tarjetas */
-@media screen and (max-width: 1199px) {
-    .card {
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: space-between !important;
-    }
-}
-
-/* 7. VERIFICACIÓN DE CRITERIOS */
-
-/* Desktop idéntico ✓ */
-/* Tablet 2 columnas legibles ✓ */
-/* Mobile stack correcto ✓ */
-/* Tarjetas 4→2→1 columnas ✓ */
-/* Sin scroll horizontal ✓ */
-/* Sin desbordes ✓ */
-
-/* ========================================
-   SECCIÓN "NUESTROS VALORES" RESPONSIVA
-   Mantiene diseño desktop exacto (≥1200px)
-   ======================================== */
-
-/* Desktop (≥1200px) - SIN CAMBIOS */
-@media screen and (min-width: 1200px) {
-    /* Mantener diseño original exacto */
-}
-
-/* ========================================
-   SECCIÓN "NUESTROS VALORES" RESPONSIVA
-   ✅ FUNCIONANDO CORRECTAMENTE
-   ======================================== */
-
-/* PRUEBA VISIBLE - ELIMINAR DESPUÉS */
-section.hero .cards {
-    border: 5px solid red !important;
-    background: yellow !important;
-}
-
-/* Tablet (768px - 1199px) */
-@media screen and (max-width: 1199px) and (min-width: 768px) {
-    /* Contenedor de tarjetas - Grid 2x2 */
-    section.hero .cards {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 24px !important;
-        padding: 48px 24px !important;
-        align-items: stretch !important;
-        justify-content: center !important;
-    }
-    
-    /* Tarjetas - Sin transformaciones */
-    section.hero .cards .card {
-        transform: none !important;
-        width: 100% !important;
-        min-height: auto !important;
-        padding: 24px !important;
-        writing-mode: initial !important;
-        text-orientation: initial !important;
-        white-space: normal !important;
-    }
-    
-    /* Imagen de fondo - Mantener cover */
-    section.hero {
-        background-size: cover !important;
-        background-position: center !important;
-        overflow-x: hidden !important;
-    }
-}
-
-/* Mobile (≤767px) */
-@media screen and (max-width: 767px) {
-    /* Contenedor de tarjetas - Grid 1 columna */
-    section.hero .cards {
-        display: grid !important;
-        grid-template-columns: 1fr !important;
-        gap: 16px !important;
-        padding: 32px 16px !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    
-    /* Tarjetas - 1 por fila, centradas */
-    section.hero .cards .card {
-        transform: none !important;
-        width: 100% !important;
-        max-width: 520px !important;
-        min-height: auto !important;
-        padding: 28px !important;
-        margin: 0 auto !important;
-        writing-mode: initial !important;
-        text-orientation: initial !important;
-        white-space: normal !important;
-    }
-    
-    /* Imagen de fondo - Mantener cover */
-    section.hero {
-        background-size: cover !important;
-        background-position: center !important;
-        overflow-x: hidden !important;
-        min-height: 400px !important;
-    }
-}
-
-/* Padding lateral fluido */
-@media screen and (max-width: 575px) {
-    section.hero .cards {
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-    }
-}
-
-@media screen and (min-width: 576px) and (max-width: 991px) {
-    section.hero .cards {
-        padding-left: 24px !important;
-        padding-right: 24px !important;
-    }
-}
-
-@media screen and (min-width: 992px) {
-    section.hero .cards {
-        padding-left: 32px !important;
-        padding-right: 32px !important;
-    }
-}
-
-
-</style>
-

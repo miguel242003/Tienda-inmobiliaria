@@ -67,15 +67,15 @@
         <section class="mb-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
-                <!-- Usuarios Totales -->
+                <!-- Reseñas Totales -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
                     <div class="flex items-center">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                            <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                            <i data-lucide="star" class="w-8 h-8 text-yellow-600"></i>
                         </div>
                         <div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1" id="totalUsers">{{ total_users|default:"0" }}</div>
-                            <div class="text-sm text-gray-600">Usuarios Totales</div>
+                            <div class="text-3xl font-bold text-gray-900 mb-1" id="totalReviews">{{ total_resenas|default:"0" }}</div>
+                            <div class="text-sm text-gray-600">Reseñas Totales</div>
                         </div>
                     </div>
                 </div>
@@ -164,19 +164,19 @@
                     </div>
                 </div>
                 
-                <!-- Configuración -->
+                <!-- Reseñas -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
                     <div class="text-center">
-                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="settings" class="w-8 h-8 text-orange-600"></i>
+                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="star" class="w-8 h-8 text-yellow-600"></i>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Configuración</h3>
-                        <p class="text-sm text-gray-600 mb-4">Configurar el sitio web</p>
-                        <a href="{% url 'admin:index' %}" 
-                           class="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
-                           aria-label="Configurar sitio web">
-                            <i data-lucide="settings" class="w-4 h-4 mr-2"></i>
-                            Configurar
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Reseñas</h3>
+                        <p class="text-sm text-gray-600 mb-4">Gestionar reseñas de clientes</p>
+                        <a href="#" 
+                           class="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+                           aria-label="Gestionar reseñas">
+                            <i data-lucide="star" class="w-4 h-4 mr-2"></i>
+                            Ver Reseñas
                         </a>
                     </div>
                 </div>

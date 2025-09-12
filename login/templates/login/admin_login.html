@@ -4,8 +4,9 @@
 {% block title %}Login Administrador - Tienda Inmobiliaria{% endblock %}
 
 {% block content %}
+<div class="login-background">
 <!-- Admin Login Header -->
-<section class="bg-primary text-white py-5">
+<section class="text-white py-3">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
@@ -17,11 +18,11 @@
 </section>
 
 <!-- Login Form -->
-<section class="py-5 admin-login-page">
+<section class="py-3 admin-login-page" style="margin-top: -30px;">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-6 col-md-8">
-                <div class="card border-0 shadow-lg">
+                <div class="card border-0 shadow-lg" style="transform: translateY(-30px);">
                     <div class="card-body p-5">
 
                         
@@ -113,32 +114,74 @@
 </section>
 
 <!-- Security Info -->
-<section class="py-5 bg-light security-info">
+<section class="py-3 security-info" style="margin-top: -50px;">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
+            <div class="col-lg-8 mx-auto text-center text-white">
                 <h4 class="fw-bold mb-4">Seguridad Garantizada</h4>
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <i class="fas fa-lock fa-2x text-primary mb-2"></i>
-                        <h6>Acceso Encriptado</h6>
-                        <small class="text-muted">Todas las comunicaciones están protegidas</small>
+                        <i class="fas fa-lock fa-2x text-white mb-2"></i>
+                        <h6 class="text-white">Acceso Encriptado</h6>
+                        <small class="text-light">Todas las comunicaciones están protegidas</small>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <i class="fas fa-user-check fa-2x text-primary mb-2"></i>
-                        <h6>Verificación de Usuario</h6>
-                        <small class="text-muted">Solo usuarios autorizados pueden acceder</small>
+                        <i class="fas fa-user-check fa-2x text-white mb-2"></i>
+                        <h6 class="text-white">Verificación de Usuario</h6>
+                        <small class="text-light">Solo usuarios autorizados pueden acceder</small>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <i class="fas fa-history fa-2x text-primary mb-2"></i>
-                        <h6>Registro de Actividad</h6>
-                        <small class="text-muted">Todas las acciones quedan registradas</small>
+                        <i class="fas fa-history fa-2x text-white mb-2"></i>
+                        <h6 class="text-white">Registro de Actividad</h6>
+                        <small class="text-light">Todas las acciones quedan registradas</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('{% static 'images/FondoLogin.jpg' %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+    
+    #main-footer {
+        margin-top: 0 !important;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .login-background {
+        background: transparent;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    main {
+        background: transparent;
+        flex: 1;
+    }
+    
+    .admin-login-page {
+        padding: 2rem 0 !important;
+    }
+    
+    .security-info {
+        padding: 1rem 0 !important;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}

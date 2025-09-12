@@ -75,20 +75,37 @@ WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 # Base de datos
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Configuración de base de datos
+# Para desarrollo: SQLite (actual)
+# Para producción: MySQL (comentado abajo)
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Configuración para PRODUCCIÓN con MySQL
+# Descomenta y configura estas líneas cuando estés listo para producción:
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tienda_inmobiliaria',
-        'USER': 'root',
-        'PASSWORD': 'Mas242003',
-        'HOST': 'localhost',
+        'NAME': 'tienda_inmobiliaria_prod',
+        'USER': 'tu_usuario_mysql',
+        'PASSWORD': 'tu_contraseña_segura',
+        'HOST': 'localhost',  # o la IP de tu servidor
         'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        }
+            'sql_mode': 'traditional',
+        },
+        'CONN_MAX_AGE': 600,  # Reutilizar conexiones
     }
 }
+"""
 
 
 # Validación de contraseñas
