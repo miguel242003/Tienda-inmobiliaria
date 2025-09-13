@@ -13,30 +13,57 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 # Crea tus vistas aquí.
 
 def lista_propiedades(request):
-    """Vista para listar todas las propiedades"""
-    # Obtener todas las propiedades disponibles
-    propiedades_list = Propiedad.objects.filter(estado='disponible').order_by('-fecha_creacion')
+    """Vista para listar todas las propiedades - ahora usa la funcionalidad de búsqueda"""
+    # Usar la misma lógica que buscar_propiedades pero sin filtros por defecto
+    query = request.GET.get('q', '')
+    tipo = request.GET.get('tipo', '')
+    operacion = request.GET.get('operacion', '')
+    precio_min = request.GET.get('precio_min', '')
+    precio_max = request.GET.get('precio_max', '')
+    
+    propiedades = Propiedad.objects.filter(estado='disponible')
+    
+    if query:
+        propiedades = propiedades.filter(titulo__icontains=query)
+    
+    if tipo:
+        propiedades = propiedades.filter(tipo=tipo)
+    
+    if operacion:
+        propiedades = propiedades.filter(operacion=operacion)
+    
+    if precio_min:
+        propiedades = propiedades.filter(precio__gte=precio_min)
+    
+    if precio_max:
+        propiedades = propiedades.filter(precio__lte=precio_max)
+    
+    propiedades = propiedades.order_by('-fecha_creacion')
     
     # Paginación
-    paginator = Paginator(propiedades_list, 9)  # 9 propiedades por página
+    paginator = Paginator(propiedades, 9)  # 9 propiedades por página
     page = request.GET.get('page')
     
     try:
-        propiedades = paginator.page(page)
+        page_obj = paginator.page(page)
     except PageNotAnInteger:
         # Si la página no es un número, mostrar la primera página
-        propiedades = paginator.page(1)
+        page_obj = paginator.page(1)
     except EmptyPage:
         # Si la página está fuera del rango, mostrar la última página
-        propiedades = paginator.page(paginator.num_pages)
+        page_obj = paginator.page(paginator.num_pages)
     
     context = {
-        'propiedades': propiedades,
-        'page_obj': propiedades,  # Para compatibilidad con la plantilla
-        'titulo_pagina': 'Todas las Propiedades',
-        'total_propiedades': propiedades_list.count()
+        'page_obj': page_obj,
+        'query': query,
+        'tipo': tipo,
+        'operacion': operacion,
+        'precio_min': precio_min,
+        'precio_max': precio_max,
+        'total_resultados': propiedades.count(),
     }
-    return render(request, 'propiedades/lista_propiedades.html', context)
+    
+    return render(request, 'propiedades/buscar_propiedades.html', context)
 
 def detalle_propiedad(request, propiedad_id):
     """Vista para mostrar el detalle de una propiedad"""

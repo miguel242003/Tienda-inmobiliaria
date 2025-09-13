@@ -3,27 +3,53 @@
 
 {% block title %}Buscar Propiedades - Tienda Inmobiliaria{% endblock %}
 
+{% block extra_css %}
+<style>
+body {
+    background-color: #e9ecef !important;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Search Header -->
-<section class="bg-primary text-white py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <h1 class="fw-bold">Buscar Propiedades</h1>
-                <p class="lead">Encuentra la propiedad perfecta con nuestros filtros avanzados</p>
+<!-- Search Header con Carrusel -->
+<section class="position-relative text-white" style="height: 700px; overflow: hidden;">
+    <!-- Carrusel de imágenes de fondo -->
+    <div id="backgroundCarousel" class="position-absolute top-0 start-0 w-100 h-100" style="background-size: cover; background-position: center; background-repeat: no-repeat; background-image: url('{% static 'images/filtropropiedad.jpg' %}'); transition: background-image 1s ease-in-out;"></div>
+    
+    <!-- Overlay con negro sutil -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%); z-index: 1;"></div>
+    
+    <!-- Contenido -->
+    <div class="container position-relative d-flex align-items-center justify-content-center" style="z-index: 2; height: 100%;">
+        <!-- Título -->
+        <div class="row w-100 text-center">
+            <div class="col-12">
+                <h1 class="display-3 fw-bold mb-4" style="font-size: 3.5rem; letter-spacing: 1px;">Buscar Propiedades</h1>
+                <p class="lead fs-4 mb-0" style="font-weight: 300;">Encuentra la propiedad perfecta con nuestros filtros avanzados</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Advanced Search Filters -->
-<section class="py-4 bg-light">
+<!-- Filtros de Búsqueda - Ajustable sobre la imagen -->
+<!-- 
+OPCIONES PARA BAJAR EL FILTRO:
+- margin-top: -150px (menos sobreposición, filtro más abajo)
+- margin-top: -100px (poco sobreposición, filtro más abajo)
+- margin-top: -50px (mínima sobreposición, filtro más abajo)
+- margin-top: 0px (sin sobreposición, filtro completamente abajo)
+- margin-top: 50px (espacio entre imagen y filtro)
+-->
+<section class="position-relative" style="margin-top: -120px; z-index: 10;">
     <div class="container">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0"><i class="fas fa-filter"></i> Filtros de Búsqueda</h4>
-            </div>
-            <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-lg" style="background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <div class="card-header" style="background: rgba(255, 255, 255, 0.95); border-bottom: 1px solid rgba(0, 0, 0, 0.1);">
+                        <h4 class="mb-0 text-dark"><i class="fas fa-filter"></i> Filtros de Búsqueda</h4>
+                    </div>
+                    <div class="card-body" style="background: rgba(255, 255, 255, 0.9);">
                 <form method="get" class="row g-3">
                     <div class="col-md-4">
                         <label for="q" class="form-label">Palabras Clave</label>
@@ -51,11 +77,11 @@
                     </div>
                     <div class="col-md-2">
                         <label for="precio_min" class="form-label">Precio Mínimo</label>
-                        <input type="number" class="form-control" id="precio_min" name="precio_min" placeholder="0" value="{{ precio_min }}">
+                        <input type="number" class="form-control" id="precio_min" name="precio_min" placeholder="0" value="{{ precio_min }}" min="0">
                     </div>
                     <div class="col-md-2">
                         <label for="precio_max" class="form-label">Precio Máximo</label>
-                        <input type="number" class="form-control" id="precio_max" name="precio_max" placeholder="999999" value="{{ precio_max }}">
+                        <input type="number" class="form-control" id="precio_max" name="precio_max" placeholder="999999" value="{{ precio_max }}" min="0">
                     </div>
                     <div class="col-md-2 d-flex align-items-end">
                         <div class="d-grid gap-2 w-100">
@@ -68,29 +94,35 @@
                         </div>
                     </div>
                 </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Search Results -->
-<section class="py-5">
+<section class="py-5" style="padding-top: 120px; background-color: #e9ecef;">
     <div class="container">
         <div class="row mb-4">
             <div class="col-lg-8">
-                <h2>Resultados de Búsqueda</h2>
-                {% if query or tipo or precio_min or precio_max %}
-                <p class="text-muted">
-                    {% if query %}<strong>Búsqueda:</strong> "{{ query }}"{% endif %}
-                    {% if tipo %}<strong>Tipo:</strong> {{ tipo|title }}{% endif %}
-                    {% if precio_min or precio_max %}<strong>Precio:</strong> 
-                        {% if precio_min %}${{ precio_min }}{% endif %}
-                        {% if precio_min and precio_max %} - {% endif %}
-                        {% if precio_max %}${{ precio_max }}{% endif %}
-                    {% endif %}
-                </p>
+                {% if query or tipo or operacion or precio_min or precio_max %}
+                    <h2>Resultados de Búsqueda</h2>
+                    <p class="text-muted">
+                        {% if query %}<strong>Búsqueda:</strong> "{{ query }}"{% endif %}
+                        {% if tipo %}<strong>Tipo:</strong> {{ tipo|title }}{% endif %}
+                        {% if operacion %}<strong>Operación:</strong> {{ operacion|title }}{% endif %}
+                        {% if precio_min or precio_max %}<strong>Precio:</strong> 
+                            {% if precio_min %}${{ precio_min }}{% endif %}
+                            {% if precio_min and precio_max %} - {% endif %}
+                            {% if precio_max %}${{ precio_max }}{% endif %}
+                        {% endif %}
+                    </p>
+                    <p class="text-muted">{{ total_resultados }} propiedades encontradas</p>
+                {% else %}
+                    <h2>Propiedades Destacadas</h2>
+                    <p class="text-muted">{{ total_resultados }} propiedades disponibles</p>
                 {% endif %}
-                <p class="text-muted">{{ total_resultados }} propiedades encontradas</p>
             </div>
             <div class="col-lg-4 text-end">
                 <div class="btn-group" role="group">
@@ -121,7 +153,7 @@
                             <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
                             <span class="badge bg-success">{{ propiedad.get_estado_display }}</span>
                         </div>
-                        <h5 class="card-title">{{ propiedad.titulo }}</h5>
+                        <h5 class="card-title text-uppercase fw-bold" style="font-family: 'Oswald', sans-serif; font-size: 2rem; letter-spacing: 0.5px;">{{ propiedad.titulo }}</h5>
                         <p class="card-text text-muted">
                             <i class="fas fa-map-marker-alt"></i> {{ propiedad.ubicacion }}
                         </p>
@@ -141,7 +173,14 @@
                         </div>
                         <p class="card-text">{{ propiedad.descripcion|truncatewords:15 }}</p>
                         <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="text-primary mb-0">{{ propiedad.get_precio_formateado }}</h4>
+                            {% if propiedad.operacion == 'alquiler_temporal' %}
+                                <div class="text-center">
+                                    <h4 class="text-primary mb-0">{{ propiedad.get_precio_formateado }}</h4>
+                                    <small class="text-muted">por día</small>
+                                </div>
+                            {% else %}
+                                <h4 class="text-primary mb-0">{{ propiedad.get_precio_formateado }}</h4>
+                            {% endif %}
                             <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-outline-primary">
                                 Ver Detalles
                             </a>
@@ -207,7 +246,7 @@
 
 <!-- Search Tips -->
 {% if not page_obj %}
-<section class="py-5 bg-light">
+<section class="py-5" style="background-color: #dee2e6;">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
@@ -238,6 +277,25 @@
 
 {% block extra_js %}
 <script>
+// Carrusel de imágenes de fondo
+document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.getElementById('backgroundCarousel');
+    const images = [
+        "{% static 'images/filtropropiedad.jpg' %}",
+        "{% static 'images/filtropropiedad2.jpg' %}"
+    ];
+    
+    let currentImageIndex = 0;
+    
+    function changeBackgroundImage() {
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        carousel.style.backgroundImage = `url('${images[currentImageIndex]}')`;
+    }
+    
+    // Cambiar imagen cada 5 segundos
+    setInterval(changeBackgroundImage, 5000);
+});
+
 function changeView(view) {
     const results = document.getElementById('search-results');
     const buttons = document.querySelectorAll('.btn-group .btn');
@@ -252,17 +310,34 @@ function changeView(view) {
     }
 }
 
-// Auto-submit form when filters change
+// Validación de precios para evitar valores negativos
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const inputs = form.querySelectorAll('select, input[type="number"]');
+    const precioMin = document.getElementById('precio_min');
+    const precioMax = document.getElementById('precio_max');
     
-    inputs.forEach(input => {
-        input.addEventListener('change', function() {
-            if (this.value !== '') {
-                form.submit();
-            }
-        });
+    // Validar precio mínimo
+    precioMin.addEventListener('input', function() {
+        if (this.value < 0) {
+            this.value = 0;
+        }
+    });
+    
+    // Validar precio máximo
+    precioMax.addEventListener('input', function() {
+        if (this.value < 0) {
+            this.value = 0;
+        }
+    });
+    
+    // Validar al enviar el formulario
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (precioMin.value < 0) {
+            precioMin.value = 0;
+        }
+        if (precioMax.value < 0) {
+            precioMax.value = 0;
+        }
     });
 });
 </script>
