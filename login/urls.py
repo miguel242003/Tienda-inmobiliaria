@@ -12,4 +12,7 @@ urlpatterns = [
     path('editar-propiedad/<int:propiedad_id>/', views.editar_propiedad, name='editar_propiedad'),
     path('eliminar-propiedad/<int:propiedad_id>/', views.eliminar_propiedad, name='eliminar_propiedad'),
     path('eliminar-propiedad-ajax/<int:propiedad_id>/', views.eliminar_propiedad_ajax, name='eliminar_propiedad_ajax'),
+    path('actualizar-perfil/', views.actualizar_perfil, name='actualizar_perfil'),
+    path('crear-nuevo-usuario-admin/', views.crear_nuevo_usuario_admin, name='crear_nuevo_usuario_admin'),
+    path('contar-usuarios-admin/', views.contar_usuarios_admin, name='contar_usuarios_admin'),
 ]

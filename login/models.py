@@ -9,6 +9,7 @@ class AdminCredentials(models.Model):
     apellido = models.CharField(max_length=100, verbose_name="Apellido del Administrador", blank=True, null=True)
     email = models.EmailField(unique=True, verbose_name="Correo del Administrador")
     telefono = models.CharField(max_length=20, verbose_name="Teléfono del Administrador", blank=True, null=True)
+    fecha_nacimiento = models.DateField(verbose_name="Fecha de Nacimiento", blank=True, null=True, help_text="Fecha de nacimiento del administrador (opcional)")
     foto_perfil = models.ImageField(
         upload_to='admin_profiles/',
         blank=True,

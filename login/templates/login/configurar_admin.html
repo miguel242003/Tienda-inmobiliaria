@@ -42,8 +42,96 @@
                             {% endfor %}
                         {% endif %}
 
-                        <form method="post" class="needs-validation" novalidate>
+                        <form method="post" class="needs-validation" novalidate enctype="multipart/form-data">
                             {% csrf_token %}
+                            
+                            <!-- Información Personal -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-user me-2"></i>Información Personal
+                                </h5>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                                            <strong>{{ form.nombre.label }}</strong>
+                                        </label>
+                                        {{ form.nombre }}
+                                        {% if form.nombre.errors %}
+                                            <div class="text-danger small">{{ form.nombre.errors.0 }}</div>
+                                        {% endif %}
+                                        {% if form.nombre.help_text %}
+                                            <div class="form-text">{{ form.nombre.help_text }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.apellido.id_for_label }}" class="form-label">
+                                            <strong>{{ form.apellido.label }}</strong>
+                                        </label>
+                                        {{ form.apellido }}
+                                        {% if form.apellido.errors %}
+                                            <div class="text-danger small">{{ form.apellido.errors.0 }}</div>
+                                        {% endif %}
+                                        {% if form.apellido.help_text %}
+                                            <div class="form-text">{{ form.apellido.help_text }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                                            <strong>{{ form.telefono.label }}</strong>
+                                        </label>
+                                        {{ form.telefono }}
+                                        {% if form.telefono.errors %}
+                                            <div class="text-danger small">{{ form.telefono.errors.0 }}</div>
+                                        {% endif %}
+                                        {% if form.telefono.help_text %}
+                                            <div class="form-text">{{ form.telefono.help_text }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.fecha_nacimiento.id_for_label }}" class="form-label">
+                                            <strong>{{ form.fecha_nacimiento.label }}</strong>
+                                        </label>
+                                        {{ form.fecha_nacimiento }}
+                                        {% if form.fecha_nacimiento.errors %}
+                                            <div class="text-danger small">{{ form.fecha_nacimiento.errors.0 }}</div>
+                                        {% endif %}
+                                        {% if form.fecha_nacimiento.help_text %}
+                                            <div class="form-text">{{ form.fecha_nacimiento.help_text }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="{{ form.foto_perfil.id_for_label }}" class="form-label">
+                                        <strong>{{ form.foto_perfil.label }}</strong>
+                                    </label>
+                                    
+                                    <!-- Preview de la foto -->
+                                    <div class="text-center mb-3">
+                                        <div id="foto-preview" class="d-none">
+                                            <img id="foto-preview-img" src="" alt="Preview" class="rounded-circle border border-3 border-primary" style="width: 120px; height: 120px; object-fit: cover;">
+                                            <p class="text-muted small mt-2">Vista previa de tu foto de perfil</p>
+                                        </div>
+                                        <div id="foto-placeholder" class="border border-2 border-dashed border-secondary rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 120px; height: 120px;">
+                                            <i class="fas fa-camera text-muted fa-2x"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    {{ form.foto_perfil }}
+                                    {% if form.foto_perfil.errors %}
+                                        <div class="text-danger small">{{ form.foto_perfil.errors.0 }}</div>
+                                    {% endif %}
+                                    {% if form.foto_perfil.help_text %}
+                                        <div class="form-text">{{ form.foto_perfil.help_text }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
                             
                             <!-- Información de Acceso -->
                             <div class="mb-4">
@@ -122,7 +210,7 @@
 
 {% block extra_js %}
 <script>
-// Add Bootstrap classes to form fields
+// Add Bootstrap classes to form fields and handle photo preview
 document.addEventListener('DOMContentLoaded', function() {
     const formFields = document.querySelectorAll('input, select, textarea');
     formFields.forEach(field => {
@@ -130,6 +218,46 @@ document.addEventListener('DOMContentLoaded', function() {
             field.classList.add('form-control');
         }
     });
+    
+    // Handle photo preview
+    const fotoInput = document.getElementById('foto_perfil_input');
+    const fotoPreview = document.getElementById('foto-preview');
+    const fotoPreviewImg = document.getElementById('foto-preview-img');
+    const fotoPlaceholder = document.getElementById('foto-placeholder');
+    
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validar que sea una imagen
+                if (!file.type.startsWith('image/')) {
+                    alert('Por favor selecciona solo archivos de imagen.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validar tamaño (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('La imagen debe ser menor a 5MB.');
+                    this.value = '';
+                    return;
+                }
+                
+                // Mostrar preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fotoPreviewImg.src = e.target.result;
+                    fotoPreview.classList.remove('d-none');
+                    fotoPlaceholder.classList.add('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Ocultar preview si no hay archivo
+                fotoPreview.classList.add('d-none');
+                fotoPlaceholder.classList.remove('d-none');
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

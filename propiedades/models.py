@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 class Amenidad(models.Model):
     """Modelo para las amenidades de las propiedades"""
@@ -112,6 +113,52 @@ class Propiedad(models.Model):
         elif posicion == 3 and self.fotos.count() >= 3:
             return self.fotos.all()[2]
         return None
+    
+    def get_total_clicks(self):
+        """Retorna el total de clics en esta propiedad"""
+        return self.clicks.count()
+    
+    def get_clicks_este_mes(self):
+        """Retorna los clics de este mes"""
+        from django.utils import timezone
+        from datetime import datetime
+        
+        now = timezone.now()
+        inicio_mes = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        return self.clicks.filter(fecha_click__gte=inicio_mes).count()
+    
+    def get_clicks_por_mes(self, meses=12):
+        """Retorna los clics por mes para los últimos N meses"""
+        from django.utils import timezone
+        from datetime import datetime, timedelta
+        from django.db.models import Count
+        from django.db.models.functions import TruncMonth
+        
+        now = timezone.now()
+        inicio_periodo = now - timedelta(days=meses * 30)
+        
+        clicks_por_mes = self.clicks.filter(
+            fecha_click__gte=inicio_periodo
+        ).annotate(
+            mes=TruncMonth('fecha_click')
+        ).values('mes').annotate(
+            total=Count('id')
+        ).order_by('mes')
+        
+        # Crear un diccionario con todos los meses
+        resultado = {}
+        for i in range(meses):
+            fecha = now - timedelta(days=i * 30)
+            mes_key = fecha.strftime('%Y-%m')
+            resultado[mes_key] = 0
+        
+        # Llenar con datos reales
+        for click in clicks_por_mes:
+            mes_key = click['mes'].strftime('%Y-%m')
+            if mes_key in resultado:
+                resultado[mes_key] = click['total']
+        
+        return resultado
 
 class FotoPropiedad(models.Model):
     """Modelo para almacenar múltiples fotos de una propiedad"""
@@ -147,3 +194,45 @@ class FotoPropiedad(models.Model):
     
     def __str__(self):
         return f"Foto {self.orden} de {self.propiedad.titulo}"
+
+class ClickPropiedad(models.Model):
+    """Modelo para rastrear clics en botones 'Ver Detalle' de propiedades"""
+    propiedad = models.ForeignKey(
+        Propiedad,
+        on_delete=models.CASCADE,
+        related_name='clicks',
+        verbose_name="Propiedad"
+    )
+    fecha_click = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Fecha del Click"
+    )
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        verbose_name="Dirección IP"
+    )
+    user_agent = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="User Agent"
+    )
+    pagina_origen = models.CharField(
+        max_length=100,
+        choices=[
+            ('home', 'Página de Inicio'),
+            ('buscar', 'Página de Búsqueda'),
+            ('detalle', 'Página de Detalle'),
+            ('otra', 'Otra Página'),
+        ],
+        default='home',
+        verbose_name="Página de Origen"
+    )
+    
+    class Meta:
+        verbose_name = "Click en Propiedad"
+        verbose_name_plural = "Clicks en Propiedades"
+        ordering = ['-fecha_click']
+    
+    def __str__(self):
+        return f"Click en {self.propiedad.titulo} - {self.fecha_click.strftime('%d/%m/%Y %H:%M')}"

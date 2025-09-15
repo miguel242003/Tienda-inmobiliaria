@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#3b82f6">
     <title>Dashboard Administrativo - Tienda Inmobiliaria</title>
     
     <!-- CDN de TailwindCSS -->
@@ -23,202 +24,555 @@
                             500: '#3b82f6',
                             600: '#2563eb',
                             700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
                         }
                     }
                 }
             }
         }
     </script>
-</head>
-<body class="bg-gradient-to-br from-slate-100 to-blue-50 min-h-screen">
     
-    <!-- Encabezado/Hero del Dashboard -->
-    <header class="relative bg-gradient-to-br from-blue-600 to-cyan-500 text-white overflow-hidden">
-        <!-- Patrón de Fondo -->
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-600/90 to-cyan-500/90"></div>
+    <!-- Estilos personalizados -->
+    <style>
+        /* Variables CSS para colores del gráfico */
+        :root {
+            --color-bajo: #22C55E;
+            --color-medio: #F59E0B;
+            --color-alto: #EF4444;
+            --color-fondo: #e9ecef;
+        }
         
-        <!-- Contenido -->
-        <div class="relative z-10 container mx-auto px-4 py-8">
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                <!-- Título y Saludo -->
-                <div class="mb-6 lg:mb-0">
-                    <h1 class="text-4xl lg:text-5xl font-bold mb-2">Dashboard Administrativo</h1>
-                    <p class="text-xl text-blue-100">Bienvenido, {{ user.username|default:"Administrador" }}. Gestiona tu sitio web desde aquí.</p>
+        /* Estilos para las barras del gráfico */
+        .bar-chart {
+            transition: all 0.3s ease;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        
+        /* Animaciones suaves */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Estilos para contadores animados */
+        .counter-animation {
+            transition: all 0.3s ease;
+        }
+        
+        /* Estilos responsivos mejorados */
+        .widget-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .widget-container {
+                flex-direction: row;
+            }
+        }
+        
+        /* Estilos para el modal de Nueva Propiedad */
+        /* Estilos para el área de upload */
+        .upload-area.dragover {
+            border-color: #10b981 !important;
+            background-color: #d1fae5 !important;
+            transform: scale(1.02);
+        }
+
+        .upload-content {
+            pointer-events: none;
+        }
+
+        .upload-content button {
+            pointer-events: all;
+        }
+
+        /* Estilos para las amenidades */
+        .amenidad-checkbox input[type="checkbox"]:checked + label {
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        .amenidad-checkbox input[type="checkbox"]:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .amenidad-checkbox input[type="checkbox"]:checked ~ label {
+            color: #2563eb;
+            font-weight: 600;
+        }
+
+        /* Estilos para el preview de fotos adicionales */
+        .foto-preview-item {
+            position: relative;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .foto-preview-item:hover {
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .foto-preview-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .foto-preview-info {
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .foto-preview-info small {
+            font-size: 0.75rem;
+            line-height: 1.2;
+            color: #6b7280;
+        }
+
+        .foto-preview-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .foto-preview-remove:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+
+        /* Animación de entrada */
+        .foto-preview-item {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estilos para campos del formulario Django */
+        #crearPropiedadForm input[type="text"],
+        #crearPropiedadForm input[type="number"],
+        #crearPropiedadForm input[type="file"],
+        #crearPropiedadForm select,
+        #crearPropiedadForm textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            color: #111827;
+            background-color: #ffffff;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        #crearPropiedadForm input[type="text"]:focus,
+        #crearPropiedadForm input[type="number"]:focus,
+        #crearPropiedadForm input[type="file"]:focus,
+        #crearPropiedadForm select:focus,
+        #crearPropiedadForm textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        #crearPropiedadForm input[type="text"]:hover,
+        #crearPropiedadForm input[type="number"]:hover,
+        #crearPropiedadForm select:hover,
+        #crearPropiedadForm textarea:hover {
+            border-color: #9ca3af;
+        }
+
+        /* Estilos para checkboxes de amenidades */
+        #crearPropiedadForm input[type="checkbox"] {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            background-color: #ffffff;
+        }
+
+        #crearPropiedadForm input[type="checkbox"]:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        /* Estilos para el campo de precio con símbolo $ */
+        #crearPropiedadForm input[type="number"][id*="precio"] {
+            padding-left: 2rem;
+        }
+
+        /* Estilos para el campo de metros cuadrados con m² */
+        #crearPropiedadForm input[type="number"][id*="metros"] {
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+    
+<body class="bg-gray-50 min-h-screen">
+    <!-- Layout Principal -->
+    <div class="flex h-screen">
+        
+        <!-- Overlay para móvil -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+        
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed lg:relative inset-y-0 left-0 z-50 w-64 sm:w-72 bg-white shadow-lg border-r border-gray-200 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+            
+            <!-- Logo/Header del Sidebar -->
+            <header class="p-4 sm:p-6 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="home" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h2 class="text-base sm:text-lg font-semibold text-gray-900">Inmobiliaria</h2>
+                        <p class="text-xs sm:text-sm text-gray-500">Admin Panel</p>
+                    </div>
                 </div>
+            </header>
+            
+            <!-- Navegación -->
+            <nav class="flex-1 px-3 sm:px-4 py-4 sm:py-6 space-y-1 sm:space-y-2">
+                <button id="btn-inicio" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-blue-600 bg-blue-50 rounded-lg border-r-4 border-blue-600">
+                    <i data-lucide="home" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                    <span class="font-medium text-sm sm:text-base">Inicio</span>
+                </button>
                 
-                <!-- Botón de Cerrar Sesión -->
+                <button id="btn-nueva-propiedad" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                    <i data-lucide="plus-circle" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                    <span class="font-medium text-sm sm:text-base">Nueva Propiedad</span>
+                </button>
+                
+                <button id="btn-gestionar-propiedades" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                    <i data-lucide="list" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                    <span class="font-medium text-sm sm:text-base">Gestionar Propiedades</span>
+                </button>
+                
+                <button id="btn-nuevo-usuario" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                    <i data-lucide="user-plus" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                    <span class="font-medium text-sm sm:text-base">Nuevo Usuario</span>
+                </button>
+                
+                <a href="#" class="flex items-center px-3 sm:px-4 py-2 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                    <i data-lucide="star" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                    <span class="font-medium text-sm sm:text-base">Reseñas</span>
+                </a>
+                
+                <button id="btn-configuraciones" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                    <i data-lucide="settings" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                    <span class="font-medium text-sm sm:text-base">Configuraciones</span>
+                </button>
+            </nav>
+            
+            <!-- Usuario y Logout -->
+            <footer class="p-3 sm:p-4 border-t border-gray-200">
+                <div class="flex items-center mb-2 sm:mb-3">
+                    <div class="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 rounded-full flex items-center justify-center overflow-hidden">
+                        {% if user.admincredentials.foto_perfil %}
+                            <img src="{{ user.admincredentials.foto_perfil.url }}" alt="Foto de perfil" class="w-full h-full object-cover">
+                        {% else %}
+                        <i data-lucide="user" class="w-3 h-3 sm:w-4 sm:h-4 text-white"></i>
+                        {% endif %}
+                    </div>
+                    <div class="ml-2 sm:ml-3">
+                        <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ user.admincredentials.get_nombre_completo|default:user.username|default:"Administrador" }}</p>
+                        <p class="text-xs text-gray-500">Administrador</p>
+                    </div>
+                </div>
                 <a href="{% url 'login:logout' %}" 
-                   class="inline-flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-blue-600"
-                   aria-label="Cerrar sesión">
-                    <i data-lucide="log-out" class="w-5 h-5 mr-2"></i>
+                   class="flex items-center w-full px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200">
+                    <i data-lucide="log-out" class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2"></i>
                     Cerrar Sesión
                 </a>
-            </div>
-        </div>
-        
-        <!-- Esquinas Inferiores Redondeadas -->
-        <div class="absolute bottom-0 left-0 right-0 h-8 bg-gray-50 rounded-t-3xl"></div>
-    </header>
+            </footer>
+        </aside>
 
     <!-- Contenido Principal -->
-    <main class="container mx-auto px-4 py-8">
-        
-        <!-- Tarjetas de Estadísticas -->
-        <section class="mb-12">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                <!-- Reseñas Totales -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                    <div class="flex items-center">
-                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-                            <i data-lucide="star" class="w-8 h-8 text-yellow-600"></i>
+        <main class="flex-1 flex flex-col overflow-hidden">
+            
+            <!-- Header Principal -->
+            <header class="bg-blue-600 shadow-sm border-b border-blue-700 px-4 sm:px-6 py-9 sm:py-12">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center min-w-0 flex-1">
+                        <!-- Botón de menú para móvil -->
+                        <button id="sidebar-toggle" class="lg:hidden mr-3 sm:mr-4 p-2 rounded-lg text-white hover:text-blue-100 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            <i data-lucide="menu" class="w-5 h-5"></i>
+                        </button>
+                        <div class="min-w-0 flex-1">
+                            <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-white truncate">Dashboard Administrativo</h1>
+                            <p class="text-xs sm:text-sm text-white mt-1 truncate">Bienvenido, {{ user.admincredentials.get_nombre_completo|default:user.username|default:"Administrador" }}</p>
                         </div>
-                        <div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1" id="totalReviews">{{ total_resenas|default:"0" }}</div>
-                            <div class="text-sm text-gray-600">Reseñas Totales</div>
+                    </div>
+                    <div class="flex items-center space-x-2 sm:space-x-4 ml-2">
+                        <div class="text-xs sm:text-sm text-white hidden md:block">
+                            <i data-lucide="calendar" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1"></i>
+                            <span id="currentDate" class="hidden lg:inline"></span>
+                            <span id="currentDateShort" class="lg:hidden"></span>
                         </div>
                     </div>
                 </div>
+            </header>
+
+            <!-- Contenido Principal -->
+            <div class="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6" style="background-color: var(--color-fondo);">
                 
-                <!-- Administradores -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                    <div class="flex items-center">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                            <i data-lucide="shield" class="w-8 h-8 text-green-600"></i>
+                <!-- Contenido del Dashboard (por defecto) -->
+                <div id="dashboard-content">
+                    <!-- Widgets principales en fila -->
+                <section class="mb-6 sm:mb-8">
+                        <div class="widget-container">
+                            
+                            <!-- Widget de Clics en Ver Detalle (60%) -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-fade-in" style="flex: 0 0 60%;">
+                        <!-- Header del Widget -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                            <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-0">
+                                Clics en Ver Detalle por Mes
+                            </h2>
+                            
+                            <!-- Selector de Propiedad -->
+                            <div class="flex items-center space-x-2">
+                                <label for="propiedad-select" class="text-sm font-medium text-gray-700">Propiedad:</label>
+                                <select id="propiedad-select" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                    <option value="todas">Todas las Propiedades</option>
+                                    {% for propiedad in todas_propiedades %}
+                                    <option value="{{ propiedad.id }}">{{ propiedad.titulo }}</option>
+                                    {% endfor %}
+                                </select>
                         </div>
-                        <div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1" id="totalAdmins">{{ staff_users|default:"0" }}</div>
-                            <div class="text-sm text-gray-600">Administradores</div>
                         </div>
+                        
+                        <!-- Gráfico de Barras -->
+                        <div class="relative">
+                            <!-- Título del Gráfico -->
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-sm font-medium text-gray-600">Clics Mensuales</h3>
+                                <div class="text-right">
+                                        <div class="text-2xl font-bold text-blue-600 counter-animation" id="total-clicks">{{ total_clicks|default:"0" }}</div>
+                                    <div class="text-xs text-gray-500">Total este año</div>
                     </div>
                 </div>
                 
-                <!-- Propiedades -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                    <div class="flex items-center">
-                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-                            <i data-lucide="home" class="w-8 h-8 text-purple-600"></i>
+                            <!-- Gráfico de Barras Verticales -->
+                            <div class="h-64 flex items-end justify-between space-x-1 sm:space-x-2 px-2" id="grafico-barras">
+                                {% for mes_data in clicks_por_mes %}
+                                <div class="flex flex-col items-center flex-1">
+                                    <div class="w-full bg-gray-200 rounded-t-lg relative overflow-hidden mb-2" style="height: 120px;">
+                                            <div class="bar-chart w-full absolute bottom-0" 
+                                                 style="height: 0%;" 
+                                                 data-value="{{ mes_data.clicks }}"></div>
+                                        <div class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-white">{{ mes_data.clicks }}</div>
+                                    </div>
+                                    <div class="text-xs text-gray-600 font-medium">{{ mes_data.mes }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Leyenda -->
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-gray-500 space-y-2 sm:space-y-0">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex items-center space-x-2">
+                                                <div class="w-3 h-3 rounded-full" style="background: linear-gradient(to right, var(--color-bajo), var(--color-medio), var(--color-alto));"></div>
+                                            <span>Escala de Calor</span>
+                                        </div>
+                                        <div class="flex items-center space-x-1">
+                                                <span class="text-green-600 font-medium">0-60</span>
+                                            <span>→</span>
+                                                <span class="text-yellow-600 font-medium">61-150</span>
+                                            <span>→</span>
+                                                <span class="text-red-600 font-medium">151+</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span id="leyenda-maximo">Máximo: 170 clics (Junio)</span>
                         </div>
-                        <div>
-                            <div class="text-3xl font-bold text-gray-900 mb-1" id="totalProperties">{{ total_propiedades|default:"0" }}</div>
-                            <div class="text-sm text-gray-600">Propiedades</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- Acciones Rápidas -->
-        <section class="mb-12">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Acciones Rápidas</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                
-                <!-- Nueva Propiedad -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="plus-circle" class="w-8 h-8 text-blue-600"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Nueva Propiedad</h3>
-                        <p class="text-sm text-gray-600 mb-4">Agregar una nueva propiedad al catálogo</p>
-                        <a href="{% url 'propiedades:crear' %}" 
-                           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                           aria-label="Agregar nueva propiedad">
-                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
-                            Agregar
-                        </a>
+            
+                        <!-- Tarjeta de Formularios de Contacto (40%) -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 animate-fade-in" style="flex: 0 0 40%;">
+                <!-- Header de la Tarjeta -->
+                <div class="text-center mb-6">
+                    <!-- Icono Principal -->
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i data-lucide="mail" class="w-8 h-8 text-white"></i>
                     </div>
-                </div>
-                
-                <!-- Gestionar Propiedades -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="list" class="w-8 h-8 text-green-600"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Gestionar Propiedades</h3>
-                        <p class="text-sm text-gray-600 mb-4">Ver, editar y eliminar propiedades</p>
-                        <a href="{% url 'login:gestionar_propiedades' %}" 
-                           class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                           aria-label="Gestionar propiedades">
-                            <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
-                            Gestionar
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Nuevo Usuario -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="user-plus" class="w-8 h-8 text-purple-600"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Nuevo Usuario</h3>
-                        <p class="text-sm text-gray-600 mb-4">Crear una nueva cuenta de usuario</p>
-                        <a href="{% url 'admin:auth_user_add' %}" 
-                           class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-                           aria-label="Crear nuevo usuario">
-                            <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
-                            Crear
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Reseñas -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i data-lucide="star" class="w-8 h-8 text-yellow-600"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Reseñas</h3>
-                        <p class="text-sm text-gray-600 mb-4">Gestionar reseñas de clientes</p>
-                        <a href="#" 
-                           class="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-                           aria-label="Gestionar reseñas">
-                            <i data-lucide="star" class="w-4 h-4 mr-2"></i>
-                            Ver Reseñas
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Actividad Reciente -->
-        <section>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h2 class="text-xl font-semibold text-gray-900 flex items-center">
-                        <i data-lucide="activity" class="w-5 h-5 text-blue-600 mr-2"></i>
-                        Actividad Reciente
+                    
+                    <!-- Título -->
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+                        Formularios Recibidos
                     </h2>
+                    <p class="text-sm text-gray-600">Contactos e interés en propiedades</p>
                 </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Contador Principal -->
+                <div class="text-center mb-6">
+                                <div class="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-2 counter-animation" id="total-formularios">
+                        1,247
+                        </div>
+                    <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-green-500"></i>
+                        <span>+18% este mes</span>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas Detalladas -->
+                <div class="space-y-3 mb-6">
+                    <!-- Formularios de Contacto -->
+                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <i data-lucide="user-plus" class="w-4 h-4 text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Contacto General</p>
+                                <p class="text-xs text-gray-600">Formularios de contacto</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-blue-600">892</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Interés en Propiedades -->
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <i data-lucide="heart" class="w-4 h-4 text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Interés en Propiedades</p>
+                                <p class="text-xs text-gray-600">Solicitudes específicas</p>
+                    </div>
+                </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-green-600">355</div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+                <!-- Tarjetas de Estadísticas -->
+                <section class="mb-6 sm:mb-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        
+                        <!-- Total Propiedades -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all duration-200 animate-fade-in">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4">
+                                    <i data-lucide="home" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 counter-animation" id="totalProperties">{{ total_propiedades|default:"0" }}</div>
+                                    <div class="text-xs sm:text-sm text-gray-600">Total Propiedades</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Usuarios -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all duration-200 animate-fade-in">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4">
+                                    <i data-lucide="users" class="w-5 h-5 sm:w-6 sm:h-6 text-green-600"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 counter-animation" id="totalUsers">{{ staff_users|default:"0" }}</div>
+                                    <div class="text-xs sm:text-sm text-gray-600">Total Usuarios</div>
+                                </div>
+                            </div>
+                </div>
+                        
+                        <!-- Total Reseñas -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-all duration-200 animate-fade-in sm:col-span-2 lg:col-span-1">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4">
+                                    <i data-lucide="star" class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 counter-animation" id="totalReviews">{{ total_resenas|default:"0" }}</div>
+                                    <div class="text-xs sm:text-sm text-gray-600">Total Reseñas</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Actividades Recientes -->
+                <section>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 animate-fade-in">
+                        <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                            <h2 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                                <i data-lucide="activity" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2"></i>
+                                Actividades Recientes
+                            </h2>
+                        </div>
+                        <div class="p-4 sm:p-6">
+                            <div class="space-y-4">
                         
                         <!-- Últimas Propiedades -->
-                        <div>
-                            <h3 class="text-lg font-semibold text-blue-600 mb-4 flex items-center">
-                                <i data-lucide="home" class="w-5 h-5 mr-2"></i>
+                                <div class="mb-4 sm:mb-6">
+                                    <h3 class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center">
+                                        <i data-lucide="home" class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-blue-600"></i>
                                 Últimas Propiedades
                             </h3>
-                            <div class="space-y-3">
+                                    <div class="space-y-2 sm:space-y-3">
                                 {% for propiedad in propiedades_recientes %}
-                                <div class="flex items-center py-2">
-                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                        <i data-lucide="home" class="w-4 h-4 text-green-600"></i>
+                                        <div class="flex items-center py-2 px-2 sm:px-3 bg-gray-50 rounded-lg">
+                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                                <i data-lucide="home" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ propiedad.titulo }}</p>
+                                                <p class="text-xs text-gray-500 truncate">{{ propiedad.get_precio_formateado }}</p>
                                     </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">{{ propiedad.titulo }}</p>
-                                        <p class="text-xs text-gray-500">{{ propiedad.get_precio_formateado }}</p>
+                                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">
+                                                {{ propiedad.fecha_creacion|date:"d/m/Y" }}
                                     </div>
                                 </div>
                                 {% empty %}
-                                <div class="flex items-center py-2">
-                                    <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
-                                        <i data-lucide="info" class="w-4 h-4 text-gray-500"></i>
+                                        <div class="flex items-center py-3 sm:py-4 px-2 sm:px-3 bg-gray-50 rounded-lg">
+                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                                <i data-lucide="info" class="w-3 h-3 sm:w-4 sm:h-4 text-gray-500"></i>
                                     </div>
                                     <div class="flex-1">
-                                        <p class="text-sm text-gray-500">No hay propiedades registradas</p>
+                                                <p class="text-xs sm:text-sm text-gray-500">No hay propiedades registradas</p>
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -227,63 +581,883 @@
                         
                         <!-- Acciones del Sistema -->
                         <div>
-                            <h3 class="text-lg font-semibold text-blue-600 mb-4 flex items-center">
-                                <i data-lucide="zap" class="w-5 h-5 mr-2"></i>
+                                    <h3 class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center">
+                                        <i data-lucide="zap" class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-green-600"></i>
                                 Acciones del Sistema
                             </h3>
-                            <div class="space-y-3">
-                                <div class="flex items-center py-2">
-                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                                        <i data-lucide="user-plus" class="w-4 h-4 text-green-600"></i>
+                                    <div class="space-y-2 sm:space-y-3">
+                                        <div class="flex items-center py-2 px-2 sm:px-3 bg-gray-50 rounded-lg">
+                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                                <i data-lucide="user-plus" class="w-3 h-3 sm:w-4 sm:h-4 text-green-600"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">Nuevo usuario registrado</p>
+                                                <p class="text-xs text-gray-500 truncate">Sistema de autenticación</p>
+                                            </div>
+                                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">hace 2h</div>
+                                        </div>
+                                        
+                                        <div class="flex items-center py-2 px-2 sm:px-3 bg-gray-50 rounded-lg">
+                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                                <i data-lucide="edit" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600"></i>
                                     </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">Nuevo usuario registrado</p>
-                                        <p class="text-xs text-gray-500">hace 2 horas</p>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">Propiedad actualizada</p>
+                                                <p class="text-xs text-gray-500 truncate">Información modificada</p>
                                     </div>
+                                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">hace 4h</div>
                                 </div>
                                 
-                                <div class="flex items-center py-2">
-                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                        <i data-lucide="edit" class="w-4 h-4 text-blue-600"></i>
+                                        <div class="flex items-center py-2 px-2 sm:px-3 bg-gray-50 rounded-lg">
+                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                                <i data-lucide="star" class="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">Nueva reseña recibida</p>
+                                                <p class="text-xs text-gray-500 truncate">Evaluación de cliente</p>
+                                            </div>
+                                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">hace 1d</div>
                                     </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">Propiedad actualizada</p>
-                                        <p class="text-xs text-gray-500">hace 4 horas</p>
                                     </div>
                                 </div>
-                                
-                                <div class="flex items-center py-2">
-                                    <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                                        <i data-lucide="trash-2" class="w-4 h-4 text-red-600"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                        <p class="text-sm font-medium text-gray-900">Propiedad eliminada</p>
-                                        <p class="text-xs text-gray-500">hace 1 día</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+                </div>
+                
+                <!-- Contenido de Gestión de Propiedades (oculto por defecto) -->
+                <div id="gestion-propiedades-content" class="hidden">
+                    <!-- Header de Gestión -->
+                    <div class="mb-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                                    Gestionar Propiedades
+                                </h1>
+                                <p class="text-gray-600">Administra todas las propiedades del catálogo</p>
+                            </div>
+                            <div class="mt-4 sm:mt-0">
+                                <button id="btn-volver-dashboard" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors mr-2">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                                    Volver al Dashboard
+                                </button>
+                                <button id="btn-nueva-propiedad-gestion" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                                    Nueva Propiedad
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Propiedades -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                        <i data-lucide="list" class="w-5 h-5 mr-2 text-blue-600"></i>
+                                        Lista de Propiedades (<span id="propiedades-count">{{ total_propiedades|default:"0" }}</span>)
+                                    </h3>
+                                </div>
+                                <div class="mt-4 sm:mt-0">
+                                    <div class="relative">
+                                        <input type="text" id="searchInput" placeholder="Buscar propiedades..." 
+                                               class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-gray-400"></i>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
+                        <div class="overflow-x-auto">
+                            <table class="w-full" id="propertiesTable">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ubicación</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="propertiesTableBody">
+                                    {% for propiedad in propiedades_recientes %}
+                                    <tr data-propiedad-id="{{ propiedad.id }}" class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            {% if propiedad.imagen_principal %}
+                                                <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.titulo }}" 
+                                                     class="w-12 h-12 rounded-lg object-cover">
+                                            {% else %}
+                                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                    <i data-lucide="home" class="w-5 h-5 text-gray-400"></i>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">{{ propiedad.titulo }}</div>
+                                                <div class="text-sm text-gray-500">{{ propiedad.metros_cuadrados }} m²</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                {{ propiedad.get_tipo_display }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-green-600">{{ propiedad.get_precio_formateado }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            {% if propiedad.estado == 'disponible' %}
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                                    {{ propiedad.get_estado_display }}
+                                                </span>
+                                            {% elif propiedad.estado == 'vendida' %}
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                                    {{ propiedad.get_estado_display }}
+                                                </span>
+                                            {% else %}
+                                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    {{ propiedad.get_estado_display }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ propiedad.ubicacion }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ propiedad.fecha_creacion|date:"d/m/Y" }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2">
+                                                <a href="{% url 'propiedades:detalle' propiedad.id %}" 
+                                                   class="text-blue-600 hover:text-blue-900" title="Ver detalles">
+                                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                                </a>
+                                                <a href="{% url 'login:editar_propiedad' propiedad.id %}" 
+                                                   class="text-yellow-600 hover:text-yellow-900" title="Editar">
+                                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                                </a>
+                                                <button type="button" class="text-red-600 hover:text-red-900" 
+                                                        onclick="confirmarEliminar({{ propiedad.id }}, '{{ propiedad.titulo }}')" 
+                                                        title="Eliminar">
+                                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="px-6 py-12 text-center">
+                                            <div class="text-gray-500">
+                                                <i data-lucide="home" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                                                <h3 class="text-lg font-medium text-gray-900 mb-2">No hay propiedades registradas</h3>
+                                                <p class="text-gray-500 mb-4">Comienza agregando tu primera propiedad al catálogo.</p>
+                                                <button id="btn-agregar-primera-propiedad" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                                                    Agregar Primera Propiedad
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contenido de Configuraciones (oculto por defecto) -->
+                <div id="configuraciones-content" class="hidden">
+                    <!-- Header de Configuraciones -->
+                    <div class="mb-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                                    Configuraciones
+                                </h1>
+                                <p class="text-gray-600">Gestiona tu perfil y configuraciones de cuenta</p>
+                            </div>
+                            <div class="mt-4 sm:mt-0">
+                                <button id="btn-volver-dashboard-config" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                                    Volver al Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Configuración de Perfil -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i data-lucide="user" class="w-5 h-5 mr-2 text-blue-600"></i>
+                                Configuración de Perfil
+                            </h3>
+                        </div>
+                        
+                        <div class="p-6">
+                            <form id="configuracion-perfil-form" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                
+                                <!-- Foto de Perfil -->
+                                <div class="mb-8">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-4">
+                                        <i data-lucide="camera" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                        Foto de Perfil
+                                    </label>
+                                    
+                                    <div class="flex items-center space-x-6">
+                                        <!-- Preview de la foto actual -->
+                                        <div class="relative">
+                                            <div id="foto-perfil-preview" class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
+                                                {% if user.admincredentials.foto_perfil %}
+                                                    <img src="{{ user.admincredentials.foto_perfil.url }}" alt="Foto de perfil" class="w-full h-full object-cover">
+                                                {% else %}
+                                                    <i data-lucide="user" class="w-8 h-8 text-gray-400"></i>
+                                                {% endif %}
+                                            </div>
+                                            <button type="button" id="btn-cambiar-foto" class="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                                                <i data-lucide="camera" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="flex-1">
+                                            <input type="file" id="foto-perfil-input" name="foto_perfil" accept="image/*" class="hidden">
+                                            <div class="text-sm text-gray-600">
+                                                <p class="font-medium">Cambiar foto de perfil</p>
+                                                <p class="text-gray-500">JPG, PNG o GIF. Máximo 5MB</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Información Personal -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <label for="nombre" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Nombre
+                                        </label>
+                                        <input type="text" id="nombre" name="nombre" 
+                                               value="{{ user.admincredentials.nombre|default:user.first_name }}" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="apellido" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Apellido
+                                        </label>
+                                        <input type="text" id="apellido" name="apellido" 
+                                               value="{{ user.admincredentials.apellido|default:user.last_name }}" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+
+                                <!-- Email (solo lectura) -->
+                                <div class="mb-6">
+                                    <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i data-lucide="mail" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                        Correo Electrónico
+                                    </label>
+                                    <input type="email" id="email" name="email" 
+                                           value="{{ user.email }}" 
+                                           readonly
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                                    <p class="text-xs text-gray-500 mt-1">El correo electrónico no se puede modificar</p>
+                                </div>
+
+                                <!-- Información Adicional -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <label for="telefono" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i data-lucide="phone" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                            Teléfono
+                                        </label>
+                                        <input type="tel" id="telefono" name="telefono" 
+                                               value="{{ user.admincredentials.telefono|default:'' }}" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="fecha_nacimiento" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i data-lucide="calendar" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                            Fecha de Nacimiento
+                                        </label>
+                                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" 
+                                               value="{{ user.admincredentials.fecha_nacimiento|default:'' }}" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+
+                                <!-- Botones de Acción -->
+                                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                    <button type="button" id="cancelar-config" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                        <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                        <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                                        Guardar Cambios
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
-        
     </main>
+                                </div>
+                                
 
-    <!-- Inicializar Iconos de Lucide -->
-    <script>
-        // Inicializar todos los iconos de Lucide
-        lucide.createIcons();
+    <!-- Modal Nueva Propiedad -->
+    <div id="modal-nueva-propiedad" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+                <!-- Header del Modal -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-blue-600 text-white">
+                    <div>
+                        <h2 class="text-xl font-bold">Crear Nueva Propiedad</h2>
+                        <p class="text-blue-100">Agrega una nueva propiedad al catálogo inmobiliario</p>
+                    </div>
+                    <button id="cerrar-modal" class="text-white hover:text-blue-200 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+        </div>
         
-        // Script de Animación de Contadores
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animar contadores cuando entran en vista
-            const counters = document.querySelectorAll('[id^="total"]');
+                <!-- Contenido del Modal -->
+                <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
+                    <div class="p-6">
+                        <!-- Messages -->
+                        <div id="modal-messages" class="hidden"></div>
+
+                        <form method="post" enctype="multipart/form-data" id="crearPropiedadForm" action="{% url 'propiedades:crear' %}">
+                            {% csrf_token %}
+                            
+                            <!-- Título y Descripción -->
+                            <div class="grid grid-cols-1 gap-6 mb-6">
+                                <div>
+                                    <label for="{{ form.titulo.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.titulo.label }}
+                                    </label>
+                                    {{ form.titulo }}
+                                    {% if form.titulo.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.titulo.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+    </div>
+
+                                <div>
+                                    <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.descripcion.label }}
+                                    </label>
+                                    {{ form.descripcion }}
+                                    {% if form.descripcion.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.descripcion.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Precio, Tipo y Operación -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                <div>
+                                    <label for="{{ form.precio.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.precio.label }}
+                                    </label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 sm:text-sm">$</span>
+                                        </div>
+                                        {{ form.precio }}
+                                    </div>
+                                    {% if form.precio.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.precio.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="{{ form.tipo.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.tipo.label }}
+                                    </label>
+                                    {{ form.tipo }}
+                                    {% if form.tipo.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.tipo.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="{{ form.operacion.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.operacion.label }}
+                                    </label>
+                                    {{ form.operacion }}
+                                    {% if form.operacion.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.operacion.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Estado y Ubicación -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label for="{{ form.estado.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.estado.label }}
+                                    </label>
+                                    {{ form.estado }}
+                                    {% if form.estado.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.estado.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="{{ form.ubicacion.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.ubicacion.label }}
+                                    </label>
+                                    {{ form.ubicacion }}
+                                    {% if form.ubicacion.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.ubicacion.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Características -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                <div>
+                                    <label for="{{ form.metros_cuadrados.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.metros_cuadrados.label }}
+                                    </label>
+                                    <div class="relative">
+                                        {{ form.metros_cuadrados }}
+                                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 sm:text-sm">m²</span>
+                                        </div>
+                                    </div>
+                                    {% if form.metros_cuadrados.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.metros_cuadrados.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="{{ form.habitaciones.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.habitaciones.label }}
+                                    </label>
+                                    {{ form.habitaciones }}
+                                    {% if form.habitaciones.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.habitaciones.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="{{ form.banos.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.banos.label }}
+                                    </label>
+                                    {{ form.banos }}
+                                    {% if form.banos.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.banos.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Imágenes -->
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i data-lucide="image" class="w-5 h-5 mr-2 text-blue-600"></i>
+                                    Imágenes de la Propiedad
+                                </h3>
+                                
+                                <!-- Imagen Principal -->
+                                <div class="mb-4">
+                                    <label for="{{ form.imagen_principal.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.imagen_principal.label }}
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    {{ form.imagen_principal }}
+                                    {% if form.imagen_principal.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.imagen_principal.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Imagen Secundaria -->
+                                <div class="mb-4">
+                                    <label for="{{ form.imagen_secundaria.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.imagen_secundaria.label }}
+                                    </label>
+                                    {{ form.imagen_secundaria }}
+                                    {% if form.imagen_secundaria.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.imagen_secundaria.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Campo oculto para fotos adicionales -->
+                                {{ form.fotos_adicionales }}
+                                
+                                <!-- Fotos Adicionales -->
+                                <div class="mb-4">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i data-lucide="images" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                        Fotos Adicionales
+                                    </label>
+                                    <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer" id="uploadArea">
+                                        <div class="upload-content">
+                                            <i data-lucide="upload" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                                            <h6 class="text-gray-600 mb-2">Arrastra y suelta fotos aquí o haz clic para seleccionar</h6>
+                                            <p class="text-gray-500 text-sm mb-4">Máximo 10 fotos de 5MB cada una (JPG, PNG)</p>
+                                            <input type="file" id="fotosInput" multiple accept="image/*" class="hidden">
+                                            <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors" onclick="document.getElementById('fotosInput').click()">
+                                                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                                                Seleccionar Fotos
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Preview de fotos seleccionadas -->
+                                    <div id="fotos-preview" class="mt-4 hidden">
+                                        <h6 class="text-sm font-semibold text-gray-700 mb-2">
+                                            <i data-lucide="images" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                            Fotos seleccionadas:
+                                        </h6>
+                                        <div id="fotos-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex items-start">
+                                        <i data-lucide="info" class="w-5 h-5 text-blue-600 mr-3 mt-0.5"></i>
+                                        <div>
+                                            <p class="text-sm text-blue-800">
+                                                <strong>Consejo:</strong> La imagen principal se mostrará en el home, la secundaria en el detalle, y las adicionales estarán disponibles en la galería completa.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Amenidades -->
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i data-lucide="check-circle" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                    Amenidades Incluidas
+                                </label>
+                                <p class="text-gray-600 text-sm mb-4">Selecciona las amenidades que incluye esta propiedad:</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {% for amenidad in form.amenidades %}
+                                    <div class="amenidad-checkbox bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-blue-50 hover:border-blue-300 transition-all cursor-pointer">
+                                        {{ amenidad }}
+                                        <label class="form-check-label cursor-pointer ml-3" for="{{ amenidad.id_for_label }}">
+                                            <i class="fas {{ amenidad.data.attrs.icono|default:'fa-check' }} mr-2 text-blue-600"></i>
+                                            {{ amenidad.choice_label }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if form.amenidades.errors %}
+                                    <div class="text-red-600 text-sm mt-2">
+                                        {% for error in form.amenidades.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                <button type="button" id="cancelar-modal" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                                    Crear Propiedad
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Usuario Administrativo -->
+    <div id="modal-nuevo-usuario" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                <!-- Header del Modal -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-green-600 text-white">
+                    <div>
+                        <h2 class="text-xl font-bold">Crear Nuevo Usuario Administrativo</h2>
+                        <p class="text-green-100">Agrega un nuevo administrador al sistema</p>
+                    </div>
+                    <button id="cerrar-modal-usuario" class="text-white hover:text-green-200 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                
+                <!-- Contenido del Modal -->
+                <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
+                    <div class="p-6">
+                        <!-- Messages -->
+                        <div id="modal-messages-usuario" class="hidden"></div>
+
+                        <form method="post" enctype="multipart/form-data" id="crearUsuarioForm" action="{% url 'login:crear_nuevo_usuario_admin' %}">
+                            {% csrf_token %}
+                            
+                            <!-- Información Personal -->
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i data-lucide="user" class="w-5 h-5 mr-2 text-green-600"></i>
+                                    Información Personal
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="nombre_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Nombre
+                                        </label>
+                                        <input type="text" id="nombre_usuario" name="nombre" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                               placeholder="Ingresa el nombre" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="apellido_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Apellido
+                                        </label>
+                                        <input type="text" id="apellido_usuario" name="apellido" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                               placeholder="Ingresa el apellido" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                    <div>
+                                        <label for="telefono_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Teléfono
+                                        </label>
+                                        <input type="tel" id="telefono_usuario" name="telefono" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                               placeholder="+52-1-33-12345678">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="fecha_nacimiento_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Fecha de Nacimiento
+                                        </label>
+                                        <input type="date" id="fecha_nacimiento_usuario" name="fecha_nacimiento" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <label for="foto_perfil_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Foto de Perfil
+                                    </label>
+                                    
+                                    <!-- Preview de la foto -->
+                                    <div class="text-center mb-3">
+                                        <div id="foto-preview-usuario" class="hidden">
+                                            <img id="foto-preview-img-usuario" src="" alt="Preview" class="rounded-full border-4 border-green-500 mx-auto" style="width: 120px; height: 120px; object-fit: cover;">
+                                            <p class="text-gray-600 text-sm mt-2">Vista previa de la foto de perfil</p>
+                                        </div>
+                                        <div id="foto-placeholder-usuario" class="border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mx-auto" style="width: 120px; height: 120px;">
+                                            <i data-lucide="camera" class="w-8 h-8 text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="file" id="foto_perfil_usuario" name="foto_perfil" accept="image/*" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                </div>
+                            </div>
+                            
+                            <!-- Información de Acceso -->
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i data-lucide="lock" class="w-5 h-5 mr-2 text-green-600"></i>
+                                    Información de Acceso
+                                </h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="email_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Correo Electrónico
+                                        </label>
+                                        <input type="email" id="email_usuario" name="email" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                               placeholder="usuario@email.com" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="password_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Contraseña
+                                        </label>
+                                        <input type="password" id="password_usuario" name="password" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                               placeholder="Mínimo 8 caracteres" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <label for="confirmar_password_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Confirmar Contraseña
+                                    </label>
+                                    <input type="password" id="confirmar_password_usuario" name="confirmar_password" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                           placeholder="Repite la contraseña" required>
+                                </div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                <button type="button" id="cancelar-modal-usuario" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
+                                    Crear Usuario
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Eliminación -->
+    <div id="modal-eliminar-propiedad" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                            <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Confirmar Eliminación</h3>
+                            <p class="text-sm text-gray-500">Esta acción no se puede deshacer</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <p class="text-gray-700">
+                            ¿Estás seguro de que quieres eliminar la propiedad 
+                            <strong id="propiedad-titulo-eliminar" class="text-gray-900"></strong>?
+                        </p>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button id="cancelar-eliminar" class="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+                            Cancelar
+                        </button>
+                        <button id="confirmar-eliminar" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                            Sí, Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript organizado en módulos -->
+    <script>
+        // ========================================
+        // MÓDULO: CONFIGURACIÓN Y UTILIDADES
+        // ========================================
+        const DashboardConfig = {
+            // Colores del gráfico
+            colors: {
+                bajo: '#22C55E',    // Verde: 0-60
+                medio: '#F59E0B',   // Amarillo: 61-150
+                alto: '#EF4444'     // Rojo: 151+
+            },
             
-            const animateCounter = (element, target) => {
+            // Configuración de animaciones
+            animation: {
+                duration: 300,
+                steps: 50
+            }
+        };
+
+        // ========================================
+        // MÓDULO: FUNCIONES DE UTILIDAD
+        // ========================================
+        const Utils = {
+            // Obtener color según escala de calor
+            getHeatColor(value) {
+                console.log(`Evaluando color para valor: ${value}`);
+                if (value <= 60) {
+                    console.log(`Valor ${value} -> Verde (bajo)`);
+                    return DashboardConfig.colors.bajo;
+                }
+                if (value <= 150) {
+                    console.log(`Valor ${value} -> Amarillo (medio)`);
+                    return DashboardConfig.colors.medio;
+                }
+                console.log(`Valor ${value} -> Rojo (alto)`);
+                return DashboardConfig.colors.alto;
+            },
+
+            // Formatear fecha
+            formatDate(date, options) {
+                return date.toLocaleDateString('es-ES', options);
+            },
+
+            // Animar contador
+            animateCounter(element, target) {
                 let current = 0;
-                const increment = target / 50; // 50 pasos para animación suave
+                const increment = target / DashboardConfig.animation.steps;
                 
                 const timer = setInterval(() => {
                     current += increment;
@@ -293,18 +1467,1205 @@
                     } else {
                         element.textContent = Math.floor(current);
                     }
-                }, 30);
+                }, DashboardConfig.animation.duration / DashboardConfig.animation.steps);
+            }
+        };
+
+        // ========================================
+        // MÓDULO: GESTIÓN DEL SIDEBAR
+        // ========================================
+        const SidebarManager = {
+            init() {
+                this.sidebar = document.getElementById('sidebar');
+                this.sidebarToggle = document.getElementById('sidebar-toggle');
+                this.sidebarOverlay = document.getElementById('sidebar-overlay');
+                
+                this.bindEvents();
+            },
+
+            bindEvents() {
+            // Toggle sidebar
+                this.sidebarToggle.addEventListener('click', () => {
+                    this.sidebar.classList.toggle('-translate-x-full');
+                    this.sidebarOverlay.classList.toggle('hidden');
+            });
+            
+            // Cerrar sidebar al hacer clic en overlay
+                this.sidebarOverlay.addEventListener('click', () => {
+                    this.sidebar.classList.add('-translate-x-full');
+                    this.sidebarOverlay.classList.add('hidden');
+            });
+            
+            // Cerrar sidebar al redimensionar a desktop
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024) {
+                        this.sidebar.classList.remove('-translate-x-full');
+                        this.sidebarOverlay.classList.add('hidden');
+                    }
+                });
+            }
+        };
+
+        // ========================================
+        // MÓDULO: GESTIÓN DEL GRÁFICO
+        // ========================================
+        const ChartManager = {
+            init() {
+                this.propiedadSelect = document.getElementById('propiedad-select');
+                this.totalClicksElement = document.getElementById('total-clicks');
+                this.leyendaMaximo = document.getElementById('leyenda-maximo');
+                
+                // Datos desde Django
+                this.datosPropiedades = {
+                'todas': { 
+                    total: {{ total_clicks|default:"0" }}, 
+                    datos: [{% for mes_data in clicks_por_mes %}{{ mes_data.clicks }}{% if not forloop.last %},{% endif %}{% endfor %}] 
+                }
             };
             
-            // Animar cada contador
-            counters.forEach(counter => {
-                const target = parseInt(counter.textContent) || 0;
-                if (target > 0) {
-                    counter.textContent = '0';
-                    animateCounter(counter, target);
+                // Agregar datos de propiedades individuales usando JSON seguro
+                try {
+                    const datosPropiedadesRaw = {{ clicks_por_propiedad|safe }};
+                    console.log('=== DATOS RAW DE PROPIEDADES ===');
+                    console.log('Datos raw completos:', datosPropiedadesRaw);
+                    console.log('Tipo de datos:', typeof datosPropiedadesRaw);
+                    console.log('Claves disponibles:', Object.keys(datosPropiedadesRaw));
+                    
+            {% for propiedad in todas_propiedades %}
+                    const datosPropiedad_{{ propiedad.id }} = datosPropiedadesRaw && datosPropiedadesRaw['{{ propiedad.id }}'] ? datosPropiedadesRaw['{{ propiedad.id }}'] : null;
+                    console.log(`Datos raw para propiedad {{ propiedad.id }} ({{ propiedad.titulo }}):`, datosPropiedad_{{ propiedad.id }});
+                    if (datosPropiedad_{{ propiedad.id }}) {
+                        console.log(`  - Total: ${datosPropiedad_{{ propiedad.id }}.clicks_totales}`);
+                        console.log(`  - Por mes: ${JSON.stringify(datosPropiedad_{{ propiedad.id }}.clicks_por_mes)}`);
+                    }
+                    
+                    this.datosPropiedades['{{ propiedad.id }}'] = {
+                        total: datosPropiedad_{{ propiedad.id }} ? datosPropiedad_{{ propiedad.id }}.clicks_totales : 0,
+                        datos: datosPropiedad_{{ propiedad.id }} ? datosPropiedad_{{ propiedad.id }}.clicks_por_mes : [0,0,0,0,0,0,0,0,0,0,0,0]
+                    };
+                    console.log(`Datos finales para propiedad {{ propiedad.id }} ({{ propiedad.titulo }}):`, this.datosPropiedades['{{ propiedad.id }}']);
+                    console.log(`  - Total final: ${this.datosPropiedades['{{ propiedad.id }}'].total}`);
+                    console.log(`  - Datos finales: ${JSON.stringify(this.datosPropiedades['{{ propiedad.id }}'].datos)}`);
+            {% endfor %}
+                } catch (error) {
+                    console.error('Error al cargar datos de propiedades:', error);
+                    // Fallback: datos por defecto
+                    {% for propiedad in todas_propiedades %}
+                    this.datosPropiedades['{{ propiedad.id }}'] = {
+                        total: 0,
+                        datos: [0,0,0,0,0,0,0,0,0,0,0,0]
+                    };
+                    {% endfor %}
                 }
-            });
+                
+                // Log final de todos los datos cargados
+                console.log('=== DATOS FINALES CARGADOS ===');
+                console.log('Todos los datos de propiedades:', this.datosPropiedades);
+                
+                // Verificar específicamente los datos de "casa arleth"
+                console.log('=== VERIFICACIÓN ESPECÍFICA CASA ARLETH ===');
+                Object.keys(this.datosPropiedades).forEach(key => {
+                    if (key !== 'todas') {
+                        console.log(`Propiedad ${key}:`, this.datosPropiedades[key]);
+                        console.log(`  - Total: ${this.datosPropiedades[key].total}`);
+                        console.log(`  - Datos: ${JSON.stringify(this.datosPropiedades[key].datos)}`);
+                        console.log(`  - Datos por mes detallado:`, this.datosPropiedades[key].datos.map((valor, index) => `Mes ${index + 1}: ${valor}`));
+                    }
+                });
+                
+                // Verificar que los datos son diferentes entre propiedades
+                console.log('=== COMPARACIÓN DE DATOS ===');
+                const claves = Object.keys(this.datosPropiedades);
+                for (let i = 0; i < claves.length; i++) {
+                    for (let j = i + 1; j < claves.length; j++) {
+                        const clave1 = claves[i];
+                        const clave2 = claves[j];
+                        const datos1 = this.datosPropiedades[clave1];
+                        const datos2 = this.datosPropiedades[clave2];
+                        
+                        const sonIguales = JSON.stringify(datos1.datos) === JSON.stringify(datos2.datos);
+                        console.log(`${clave1} vs ${clave2}: ${sonIguales ? 'IGUALES' : 'DIFERENTES'}`);
+                        if (sonIguales) {
+                            console.log(`  - Ambos tienen: ${JSON.stringify(datos1.datos)}`);
+                        }
+                    }
+                }
+            
+                this.bindEvents();
+                
+                // Ejecutar inmediatamente y con delay para asegurar que funcione
+                this.updateChart('todas');
+                setTimeout(() => {
+                    this.updateChart('todas');
+                }, 100);
+            },
+
+            bindEvents() {
+                this.propiedadSelect.addEventListener('change', (e) => {
+                    console.log('=== CAMBIO DE PROPIEDAD ===');
+                    console.log('Nueva propiedad seleccionada:', e.target.value);
+                    console.log('Datos disponibles para esta propiedad:', this.datosPropiedades[e.target.value]);
+                    this.updateChart(e.target.value);
+                });
+            },
+
+            updateChart(propiedad) {
+                try {
+                    console.log('=== INICIANDO ACTUALIZACIÓN DE GRÁFICO ===');
+                    console.log('Propiedad solicitada:', propiedad);
+                    console.log('Datos disponibles:', Object.keys(this.datosPropiedades));
+                    
+                    const datos = this.datosPropiedades[propiedad];
+                    if (!datos || !datos.datos || !Array.isArray(datos.datos)) {
+                        console.log('No hay datos válidos para la propiedad:', propiedad);
+                        console.log('Datos encontrados:', datos);
+                        return;
+                    }
+                    
+                    console.log('=== ACTUALIZANDO GRÁFICO ===');
+                    console.log('Propiedad seleccionada:', propiedad);
+                    console.log('Datos encontrados:', datos);
+                    console.log('Total de clics:', datos.total);
+                    console.log('Datos por mes:', datos.datos);
+                    console.log('Datos por mes (detallado):', datos.datos.map((valor, index) => `Mes ${index + 1}: ${valor}`));
+                    
+                    // Verificar si los datos son diferentes a "todas"
+                    if (propiedad !== 'todas') {
+                        const datosTodas = this.datosPropiedades['todas'];
+                        const sonIguales = JSON.stringify(datos.datos) === JSON.stringify(datosTodas.datos);
+                        console.log(`¿Los datos de ${propiedad} son iguales a "todas"? ${sonIguales ? 'SÍ' : 'NO'}`);
+                        if (sonIguales) {
+                            console.log('PROBLEMA: Los datos son idénticos a "todas las propiedades"');
+                        }
+                    }
+                
+                // Actualizar total
+                this.totalClicksElement.textContent = datos.total.toLocaleString();
+                console.log('Total actualizado en el DOM:', datos.total.toLocaleString());
+                
+                // Actualizar barras - usar selector más específico
+                const barras = document.querySelectorAll('#grafico-barras .bar-chart');
+                const numeros = document.querySelectorAll('#grafico-barras .absolute.inset-0.flex.items-center.justify-center.text-xs.font-semibold.text-white');
+                
+                console.log('=== ACTUALIZANDO BARRAS ===');
+                console.log('Barras encontradas:', barras.length);
+                console.log('Números encontrados:', numeros.length);
+                
+                const maxValor = Math.max(...datos.datos);
+                console.log('Valor máximo para calcular porcentajes:', maxValor);
+                
+                barras.forEach((barra, index) => {
+                    if (index < datos.datos.length) {
+                        const valor = datos.datos[index];
+                        const porcentaje = maxValor > 0 ? (valor / maxValor) * 100 : 0;
+                        
+                        console.log(`Procesando barra ${index}: valor=${valor}, porcentaje=${porcentaje}%`);
+                        
+                        // Aplicar color y altura - FORZAR el color
+                        const color = Utils.getHeatColor(valor);
+                        
+                        // NO limpiar completamente, solo actualizar estilos necesarios
+                        // Aplicar estilos directamente con !important
+                        barra.style.setProperty('width', '100%', 'important');
+                        barra.style.setProperty('border-radius', '0.5rem 0.5rem 0 0', 'important');
+                        barra.style.setProperty('position', 'absolute', 'important');
+                        barra.style.setProperty('bottom', '0', 'important');
+                        barra.style.setProperty('height', `${porcentaje}%`, 'important');
+                        barra.style.setProperty('transition', 'all 0.3s ease', 'important');
+                        barra.style.setProperty('background-color', color, 'important');
+                        
+                        console.log(`Barra ${index} actualizada: valor=${valor}, color=${color}, altura=${porcentaje}%`);
+                        console.log(`Estilos aplicados a barra ${index}:`, {
+                            height: barra.style.height,
+                            backgroundColor: barra.style.backgroundColor,
+                            width: barra.style.width
+                        });
+                        
+                        // Actualizar el atributo data-value
+                        barra.setAttribute('data-value', valor);
+                        
+                        // Actualizar número
+                        if (numeros[index]) {
+                            numeros[index].textContent = valor;
+                            console.log(`Número ${index} actualizado a: ${valor}`);
+                        }
+                    }
+                });
+                
+                // Verificar que las barras se actualizaron correctamente
+                console.log('=== VERIFICACIÓN FINAL DE BARRAS ===');
+                barras.forEach((barra, index) => {
+                    console.log(`Barra ${index} final:`, {
+                        height: barra.style.height,
+                        backgroundColor: barra.style.backgroundColor,
+                        dataValue: barra.getAttribute('data-value'),
+                        textContent: numeros[index] ? numeros[index].textContent : 'N/A'
+                    });
+                });
+                
+                // Verificar que las barras se actualizaron correctamente
+                console.log('=== VERIFICACIÓN POST-ACTUALIZACIÓN ===');
+                const barrasVerificacion = document.querySelectorAll('#grafico-barras .bar-chart');
+                console.log('Barras después de actualización:', barrasVerificacion.length);
+                
+                // Actualizar máximo en la leyenda
+                const maxIndex = datos.datos.indexOf(maxValor);
+                const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                              'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                this.leyendaMaximo.textContent = `Máximo: ${maxValor} clics (${meses[maxIndex]})`;
+                
+                } catch (error) {
+                    console.error('Error al actualizar el gráfico:', error);
+                }
+            }
+        };
+
+
+        // ========================================
+        // MÓDULO: GESTIÓN DE PROPIEDADES
+        // ========================================
+        const PropertyManager = {
+            init() {
+                this.dashboardContent = document.getElementById('dashboard-content');
+                this.gestionContent = document.getElementById('gestion-propiedades-content');
+                this.btnInicio = document.getElementById('btn-inicio');
+                this.btnGestionar = document.getElementById('btn-gestionar-propiedades');
+                this.btnVolver = document.getElementById('btn-volver-dashboard');
+                this.btnNuevaGestion = document.getElementById('btn-nueva-propiedad-gestion');
+                this.btnAgregarPrimera = document.getElementById('btn-agregar-primera-propiedad');
+                
+                this.bindEvents();
+            },
+
+            bindEvents() {
+                // Botón de inicio
+                this.btnInicio.addEventListener('click', () => {
+                    this.showDashboard();
+                });
+                
+                // Mostrar gestión de propiedades
+                this.btnGestionar.addEventListener('click', () => {
+                    this.showGestionPropiedades();
+                });
+                
+                // Volver al dashboard
+                this.btnVolver.addEventListener('click', () => {
+                    this.showDashboard();
+                });
+                
+                // Nueva propiedad desde gestión
+                this.btnNuevaGestion.addEventListener('click', () => {
+                    PropertyModalManager.openModal();
+                });
+                
+                // Agregar primera propiedad
+                if (this.btnAgregarPrimera) {
+                    this.btnAgregarPrimera.addEventListener('click', () => {
+                        PropertyModalManager.openModal();
+                    });
+                }
+            },
+
+            showGestionPropiedades() {
+                this.dashboardContent.classList.add('hidden');
+                this.gestionContent.classList.remove('hidden');
+                
+                // Actualizar estado del sidebar
+                this.updateSidebarState('gestion');
+                
+                // Recrear iconos
+                lucide.createIcons();
+            },
+
+            showDashboard() {
+                this.gestionContent.classList.add('hidden');
+                this.dashboardContent.classList.remove('hidden');
+                
+                // Actualizar estado del sidebar
+                this.updateSidebarState('dashboard');
+                
+                // Recrear iconos
+                lucide.createIcons();
+            },
+
+            updateSidebarState(activeSection) {
+                // Remover estado activo de todos los botones
+                document.querySelectorAll('#sidebar button, #sidebar a').forEach(btn => {
+                    btn.classList.remove('text-blue-600', 'bg-blue-50', 'border-r-4', 'border-blue-600');
+                    btn.classList.add('text-gray-700', 'hover:text-blue-600', 'hover:bg-blue-50');
+                });
+                
+                // Agregar estado activo al botón correspondiente
+                if (activeSection === 'gestion') {
+                    this.btnGestionar.classList.remove('text-gray-700', 'hover:text-blue-600', 'hover:bg-blue-50');
+                    this.btnGestionar.classList.add('text-blue-600', 'bg-blue-50', 'border-r-4', 'border-blue-600');
+                } else {
+                    this.btnInicio.classList.remove('text-gray-700', 'hover:text-blue-600', 'hover:bg-blue-50');
+                    this.btnInicio.classList.add('text-blue-600', 'bg-blue-50', 'border-r-4', 'border-blue-600');
+                }
+            }
+        };
+
+        // ========================================
+        // MÓDULO: GESTIÓN DE CONFIGURACIONES
+        // ========================================
+        const ConfigManager = {
+            init() {
+                this.configContent = document.getElementById('configuraciones-content');
+                this.btnConfiguraciones = document.getElementById('btn-configuraciones');
+                this.btnVolverConfig = document.getElementById('btn-volver-dashboard-config');
+                this.form = document.getElementById('configuracion-perfil-form');
+                this.fotoInput = document.getElementById('foto-perfil-input');
+                this.btnCambiarFoto = document.getElementById('btn-cambiar-foto');
+                this.fotoPreview = document.getElementById('foto-perfil-preview');
+                
+                this.bindEvents();
+            },
+
+            bindEvents() {
+                // Mostrar configuraciones
+                this.btnConfiguraciones.addEventListener('click', () => {
+                    this.showConfiguraciones();
+                });
+                
+                // Volver al dashboard
+                this.btnVolverConfig.addEventListener('click', () => {
+                    this.showDashboard();
+                });
+                
+                // Cambiar foto de perfil
+                this.btnCambiarFoto.addEventListener('click', () => {
+                    this.fotoInput.click();
+                });
+                
+                // Preview de foto
+                this.fotoInput.addEventListener('change', (e) => {
+                    this.handleFotoChange(e);
+                });
+                
+                // Envío del formulario
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleFormSubmit();
+                });
+            },
+
+            showConfiguraciones() {
+                // Ocultar otros contenidos
+                document.getElementById('dashboard-content').classList.add('hidden');
+                document.getElementById('gestion-propiedades-content').classList.add('hidden');
+                
+                // Mostrar configuraciones
+                this.configContent.classList.remove('hidden');
+                
+                // Actualizar estado del sidebar
+                this.updateSidebarState('config');
+                
+                // Recrear iconos
+                lucide.createIcons();
+            },
+
+            showDashboard() {
+                // Ocultar configuraciones
+                this.configContent.classList.add('hidden');
+                
+                // Mostrar dashboard
+                document.getElementById('dashboard-content').classList.remove('hidden');
+                
+                // Actualizar estado del sidebar
+                this.updateSidebarState('dashboard');
+                
+                // Recrear iconos
+                lucide.createIcons();
+            },
+
+            updateSidebarState(activeSection) {
+                // Remover estado activo de todos los botones
+                document.querySelectorAll('#sidebar button, #sidebar a').forEach(btn => {
+                    btn.classList.remove('text-blue-600', 'bg-blue-50', 'border-r-4', 'border-blue-600');
+                    btn.classList.add('text-gray-700', 'hover:text-blue-600', 'hover:bg-blue-50');
+                });
+                
+                // Agregar estado activo al botón correspondiente
+                if (activeSection === 'config') {
+                    this.btnConfiguraciones.classList.remove('text-gray-700', 'hover:text-blue-600', 'hover:bg-blue-50');
+                    this.btnConfiguraciones.classList.add('text-blue-600', 'bg-blue-50', 'border-r-4', 'border-blue-600');
+                } else if (activeSection === 'dashboard') {
+                    document.getElementById('btn-inicio').classList.remove('text-gray-700', 'hover:text-blue-600', 'hover:bg-blue-50');
+                    document.getElementById('btn-inicio').classList.add('text-blue-600', 'bg-blue-50', 'border-r-4', 'border-blue-600');
+                }
+            },
+
+            handleFotoChange(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validar tipo de archivo
+                    if (!file.type.startsWith('image/')) {
+                        mostrarMensaje('Por favor selecciona solo archivos de imagen.', 'danger');
+                        return;
+                    }
+                    
+                    // Validar tamaño (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        mostrarMensaje('La imagen debe ser menor a 5MB.', 'danger');
+                        return;
+                    }
+                    
+                    // Mostrar preview
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.fotoPreview.innerHTML = `<img src="${e.target.result}" alt="Foto de perfil" class="w-full h-full object-cover">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            },
+
+            async handleFormSubmit() {
+                const formData = new FormData(this.form);
+                
+                try {
+                    const response = await fetch('/login/actualizar-perfil/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        mostrarMensaje('Perfil actualizado exitosamente.', 'success');
+                        // Actualizar la foto en el sidebar si cambió
+                        if (result.foto_url) {
+                            this.updateSidebarFoto(result.foto_url);
+                        }
+                    } else {
+                        mostrarMensaje(result.message || 'Error al actualizar el perfil.', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarMensaje('Error al actualizar el perfil.', 'danger');
+                }
+            },
+
+            updateSidebarFoto(fotoUrl) {
+                const sidebarFoto = document.querySelector('#sidebar footer .w-7');
+                if (sidebarFoto && fotoUrl) {
+                    sidebarFoto.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" class="w-full h-full object-cover rounded-full">`;
+                }
+            }
+        };
+
+        // ========================================
+        // MÓDULO: GESTIÓN DEL MODAL DE NUEVO USUARIO
+        // ========================================
+        const UsuarioModalManager = {
+            init() {
+                this.modal = document.getElementById('modal-nuevo-usuario');
+                this.btnAbrir = document.getElementById('btn-nuevo-usuario');
+                this.btnCerrar = document.getElementById('cerrar-modal-usuario');
+                this.btnCancelar = document.getElementById('cancelar-modal-usuario');
+                this.form = document.getElementById('crearUsuarioForm');
+                this.messagesContainer = document.getElementById('modal-messages-usuario');
+                
+                this.bindEvents();
+                this.initFormHandlers();
+            },
+
+            bindEvents() {
+                // Abrir modal
+                this.btnAbrir.addEventListener('click', () => {
+                    this.openModal();
+                });
+                
+                // Cerrar modal
+                this.btnCerrar.addEventListener('click', () => {
+                    this.closeModal();
+                });
+                
+                this.btnCancelar.addEventListener('click', () => {
+                    this.closeModal();
+                });
+                
+                // Cerrar al hacer clic fuera del modal
+                this.modal.addEventListener('click', (e) => {
+                    if (e.target === this.modal) {
+                        this.closeModal();
+                    }
+                });
+                
+                // Cerrar con tecla Escape
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !this.modal.classList.contains('hidden')) {
+                        this.closeModal();
+                    }
+                });
+            },
+
+            openModal() {
+                this.modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                // Recrear iconos de Lucide para el modal
+                lucide.createIcons();
+            },
+
+            closeModal() {
+                this.modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                this.resetForm();
+            },
+
+            resetForm() {
+                this.form.reset();
+                this.clearMessages();
+                // Limpiar preview de foto
+                const fotoPreview = document.getElementById('foto-preview-usuario');
+                const fotoPlaceholder = document.getElementById('foto-placeholder-usuario');
+                if (fotoPreview) fotoPreview.classList.add('hidden');
+                if (fotoPlaceholder) fotoPlaceholder.classList.remove('hidden');
+            },
+
+            showMessage(message, type = 'success') {
+                const bgColor = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800';
+                const iconColor = type === 'success' ? 'text-green-600' : 'text-red-600';
+                const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+                
+                this.messagesContainer.innerHTML = `
+                    <div class="border rounded-lg p-4 ${bgColor} flex items-start">
+                        <i data-lucide="${icon}" class="w-5 h-5 ${iconColor} mr-3 mt-0.5"></i>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium">${message}</p>
+                        </div>
+                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                this.messagesContainer.classList.remove('hidden');
+                // Recrear iconos de Lucide
+                lucide.createIcons();
+            },
+
+            clearMessages() {
+                this.messagesContainer.innerHTML = '';
+                this.messagesContainer.classList.add('hidden');
+            },
+
+            initFormHandlers() {
+                // Preview de foto de perfil
+                const fotoInput = document.getElementById('foto_perfil_usuario');
+                const fotoPreview = document.getElementById('foto-preview-usuario');
+                const fotoPreviewImg = document.getElementById('foto-preview-img-usuario');
+                const fotoPlaceholder = document.getElementById('foto-placeholder-usuario');
+                
+                if (fotoInput) {
+                    fotoInput.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            // Validar que sea una imagen
+                            if (!file.type.startsWith('image/')) {
+                                alert('Por favor selecciona solo archivos de imagen.');
+                                this.resetForm();
+                                return;
+                            }
+                            
+                            // Validar tamaño (5MB)
+                            if (file.size > 5 * 1024 * 1024) {
+                                alert('La imagen debe ser menor a 5MB.');
+                                this.resetForm();
+                                return;
+                            }
+                            
+                            // Mostrar preview
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                fotoPreviewImg.src = e.target.result;
+                                fotoPreview.classList.remove('hidden');
+                                fotoPlaceholder.classList.add('hidden');
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            // Ocultar preview si no hay archivo
+                            fotoPreview.classList.add('hidden');
+                            fotoPlaceholder.classList.remove('hidden');
+                        }
+                    });
+                }
+                
+                // Validación antes de enviar
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleFormSubmit();
+                });
+            },
+
+            async handleFormSubmit() {
+                const formData = new FormData(this.form);
+                
+                try {
+                    const response = await fetch(this.form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            this.showMessage(result.message, 'success');
+                            setTimeout(() => {
+                                this.closeModal();
+                                // Recargar la página para actualizar las estadísticas
+                                window.location.reload();
+                            }, 2000);
+                        } else {
+                            // Mostrar errores específicos del formulario
+                            if (result.errors) {
+                                let errorMessage = result.message || 'Por favor corrige los siguientes errores:';
+                                for (const [field, errors] of Object.entries(result.errors)) {
+                                    errorMessage += `\n• ${field}: ${errors.join(', ')}`;
+                                }
+                                this.showMessage(errorMessage, 'danger');
+                            } else {
+                                this.showMessage(result.message || 'Error al crear el usuario', 'danger');
+                            }
+                        }
+                    } else {
+                        this.showMessage('Error al crear el usuario. Por favor intenta de nuevo.', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showMessage('Error al crear el usuario. Por favor intenta de nuevo.', 'danger');
+                }
+            }
+        };
+
+        // ========================================
+        // MÓDULO: GESTIÓN DEL MODAL DE NUEVA PROPIEDAD
+        // ========================================
+        const PropertyModalManager = {
+            init() {
+                this.modal = document.getElementById('modal-nueva-propiedad');
+                this.btnAbrir = document.getElementById('btn-nueva-propiedad');
+                this.btnCerrar = document.getElementById('cerrar-modal');
+                this.btnCancelar = document.getElementById('cancelar-modal');
+                this.form = document.getElementById('crearPropiedadForm');
+                this.messagesContainer = document.getElementById('modal-messages');
+                
+                this.bindEvents();
+                this.initFormHandlers();
+            },
+
+            bindEvents() {
+                // Abrir modal
+                this.btnAbrir.addEventListener('click', () => {
+                    this.openModal();
+                });
+                
+                // Cerrar modal
+                this.btnCerrar.addEventListener('click', () => {
+                    this.closeModal();
+                });
+                
+                this.btnCancelar.addEventListener('click', () => {
+                    this.closeModal();
+                });
+                
+                // Cerrar al hacer clic fuera del modal
+                this.modal.addEventListener('click', (e) => {
+                    if (e.target === this.modal) {
+                        this.closeModal();
+                    }
+                });
+                
+                // Cerrar con tecla Escape
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !this.modal.classList.contains('hidden')) {
+                        this.closeModal();
+                    }
+                });
+            },
+
+            openModal() {
+                this.modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                // Recrear iconos de Lucide para el modal
+                lucide.createIcons();
+            },
+
+            closeModal() {
+                this.modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                this.resetForm();
+            },
+
+            resetForm() {
+                this.form.reset();
+                this.clearMessages();
+                // Limpiar preview de fotos
+                const fotosPreview = document.getElementById('fotos-preview');
+                const fotosGrid = document.getElementById('fotos-grid');
+                if (fotosPreview) fotosPreview.classList.add('hidden');
+                if (fotosGrid) fotosGrid.innerHTML = '';
+            },
+
+            showMessage(message, type = 'success') {
+                const bgColor = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800';
+                const iconColor = type === 'success' ? 'text-green-600' : 'text-red-600';
+                const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+                
+                this.messagesContainer.innerHTML = `
+                    <div class="border rounded-lg p-4 ${bgColor} flex items-start">
+                        <i data-lucide="${icon}" class="w-5 h-5 ${iconColor} mr-3 mt-0.5"></i>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium">${message}</p>
+                        </div>
+                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+                this.messagesContainer.classList.remove('hidden');
+                // Recrear iconos de Lucide
+                lucide.createIcons();
+            },
+
+            clearMessages() {
+                this.messagesContainer.innerHTML = '';
+                this.messagesContainer.classList.add('hidden');
+            },
+
+            initFormHandlers() {
+                // Form validation
+                const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
+                const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
+                
+                // Formato de precio
+                if (precioInput) {
+                    precioInput.addEventListener('input', function(e) {
+                        let value = e.target.value.replace(/[^\d.]/g, '');
+                        if (value && !isNaN(value)) {
+                            value = parseFloat(value).toFixed(2);
+                            e.target.value = value;
+                        }
+                    });
+                }
+                
+                // Validación antes de enviar
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleFormSubmit();
+                });
+                
+                // Preview de imagen principal
+                const imagenPrincipalInput = document.getElementById('{{ form.imagen_principal.id_for_label }}');
+                if (imagenPrincipalInput) {
+                    imagenPrincipalInput.addEventListener('change', (e) => {
+                        this.validateImageFile(e.target, 'imagen principal');
+                    });
+                }
+                
+                // Preview de imagen secundaria
+                const imagenSecundariaInput = document.getElementById('{{ form.imagen_secundaria.id_for_label }}');
+                if (imagenSecundariaInput) {
+                    imagenSecundariaInput.addEventListener('change', (e) => {
+                        this.validateImageFile(e.target, 'imagen secundaria');
+                    });
+                }
+                
+                // Sistema de múltiples fotos adicionales
+                this.initPhotoUpload();
+            },
+
+            initPhotoUpload() {
+                const fotosInput = document.getElementById('fotosInput');
+                const uploadArea = document.getElementById('uploadArea');
+                let fotosSeleccionadas = [];
+                
+                if (!fotosInput || !uploadArea) return;
+                
+                // Evento para seleccionar archivos
+                fotosInput.addEventListener('change', (e) => {
+                    this.handleFiles(e.target.files, fotosSeleccionadas);
+                });
+                
+                // Drag and Drop
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('dragover');
+                });
+                
+                uploadArea.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                });
+                
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    this.handleFiles(files, fotosSeleccionadas);
+                });
+                
+                // Hacer fotosSeleccionadas accesible globalmente
+                window.fotosSeleccionadas = fotosSeleccionadas;
+            },
+
+            handleFiles(files, fotosSeleccionadas) {
+                const validFiles = Array.from(files).filter(file => {
+                    // Validar tipo de archivo
+                    if (!file.type.startsWith('image/')) {
+                        alert(`El archivo ${file.name} no es una imagen válida.`);
+                        return false;
+                    }
+                    
+                    // Validar tamaño
+                    if (file.size > 5 * 1024 * 1024) { // 5MB
+                        alert(`La imagen ${file.name} excede el tamaño máximo de 5MB.`);
+                        return false;
+                    }
+                    
+                    // Validar cantidad máxima
+                    if (fotosSeleccionadas.length + 1 > 10) {
+                        alert('Puedes seleccionar máximo 10 fotos adicionales.');
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                // Agregar archivos válidos
+                fotosSeleccionadas.push(...validFiles);
+                this.showFotosPreview(fotosSeleccionadas);
+            },
+
+            showFotosPreview(fotosSeleccionadas) {
+                const previewDiv = document.getElementById('fotos-preview');
+                const gridDiv = document.getElementById('fotos-grid');
+                
+                if (fotosSeleccionadas.length === 0) {
+                    previewDiv.classList.add('hidden');
+                    return;
+                }
+                
+                previewDiv.classList.remove('hidden');
+                gridDiv.innerHTML = '';
+                
+                fotosSeleccionadas.forEach((file, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        const col = document.createElement('div');
+                        col.className = 'col-span-1';
+                        col.innerHTML = `
+                            <div class="foto-preview-item">
+                                <button type="button" class="foto-preview-remove" onclick="PropertyModalManager.removeFotoPreview(${index})">
+                                    <i data-lucide="x" class="w-3 h-3"></i>
+                                </button>
+                                <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-32 object-cover rounded">
+                                <div class="foto-preview-info">
+                                    <small class="text-gray-600">${file.name}</small>
+                                    <small class="text-gray-500 block">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                                </div>
+                            </div>
+                        `;
+                        gridDiv.appendChild(col);
+                        // Recrear iconos de Lucide
+                        lucide.createIcons();
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+            },
+
+            removeFotoPreview(index) {
+                if (window.fotosSeleccionadas) {
+                    window.fotosSeleccionadas.splice(index, 1);
+                    this.showFotosPreview(window.fotosSeleccionadas);
+                }
+            },
+
+            validateImageFile(input, fieldName) {
+                const file = input.files[0];
+                if (file) {
+                    if (!file.type.startsWith('image/')) {
+                        alert(`Por favor selecciona solo archivos de imagen para la ${fieldName}.`);
+                        input.value = '';
+                        return false;
+                    }
+                    
+                    if (file.size > 5 * 1024 * 1024) { // 5MB
+                        alert(`La ${fieldName} debe ser menor a 5MB.`);
+                        input.value = '';
+                        return false;
+                    }
+                }
+                return true;
+            },
+
+            async handleFormSubmit() {
+                const formData = new FormData(this.form);
+                
+                // Agregar las fotos adicionales al FormData
+                if (window.fotosSeleccionadas) {
+                    window.fotosSeleccionadas.forEach((file) => {
+                        formData.append('fotos_adicionales', file);
+                    });
+                }
+                
+                try {
+                    const response = await fetch(this.form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            this.showMessage('¡Propiedad creada exitosamente!', 'success');
+                            setTimeout(() => {
+                                this.closeModal();
+                                // Recargar la página para actualizar las estadísticas
+                                window.location.reload();
+                            }, 2000);
+                        } else {
+                            // Mostrar errores específicos del formulario
+                            if (result.errors) {
+                                let errorMessage = result.message || 'Por favor corrige los siguientes errores:';
+                                for (const [field, errors] of Object.entries(result.errors)) {
+                                    errorMessage += `\n• ${field}: ${errors.join(', ')}`;
+                                }
+                                this.showMessage(errorMessage, 'danger');
+                            } else {
+                                this.showMessage(result.message || 'Error al crear la propiedad', 'danger');
+                            }
+                        }
+                    } else {
+                        this.showMessage('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showMessage('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
+                }
+            }
+        };
+
+        // ========================================
+        // MÓDULO: ANIMACIONES Y CONTADORES
+        // ========================================
+        const AnimationManager = {
+            init() {
+                this.animateCounters();
+                this.updateDate();
+            },
+
+            animateCounters() {
+                const counters = document.querySelectorAll('[id^="total"]');
+                
+                counters.forEach(counter => {
+                    const target = parseInt(counter.textContent) || 0;
+                    if (target > 0) {
+                        counter.textContent = '0';
+                        Utils.animateCounter(counter, target);
+                    }
+                });
+            },
+
+            updateDate() {
+                const currentDate = new Date();
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    weekday: 'long'
+                };
+                const optionsShort = { 
+                    day: 'numeric',
+                    month: 'short'
+                };
+                
+                const currentDateElement = document.getElementById('currentDate');
+                const currentDateShortElement = document.getElementById('currentDateShort');
+                
+                if (currentDateElement) {
+                    currentDateElement.textContent = Utils.formatDate(currentDate, options);
+                }
+                if (currentDateShortElement) {
+                    currentDateShortElement.textContent = Utils.formatDate(currentDate, optionsShort);
+                }
+            }
+        };
+
+        // ========================================
+        // FUNCIONES GLOBALES PARA GESTIÓN DE PROPIEDADES
+        // ========================================
+        let propiedadAEliminar = null;
+
+        // Función para confirmar eliminación
+        function confirmarEliminar(propiedadId, titulo) {
+            propiedadAEliminar = propiedadId;
+            document.getElementById('propiedad-titulo-eliminar').textContent = titulo;
+            
+            const modal = document.getElementById('modal-eliminar-propiedad');
+            modal.classList.remove('hidden');
+            
+            // Recrear iconos
+            lucide.createIcons();
+        }
+
+        // Función para eliminar propiedad
+        async function eliminarPropiedad(propiedadId) {
+            try {
+                const response = await fetch(`/login/eliminar-propiedad-ajax/${propiedadId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Remover fila de la tabla
+                    const row = document.querySelector(`tr[data-propiedad-id="${propiedadId}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                    
+                    // Mostrar mensaje de éxito
+                    mostrarMensaje(data.message, 'success');
+                    
+                    // Cerrar modal
+                    const modal = document.getElementById('modal-eliminar-propiedad');
+                    modal.classList.add('hidden');
+                    
+                    // Actualizar contador
+                    actualizarContadorPropiedades();
+                } else {
+                    mostrarMensaje(data.message, 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('Error al eliminar la propiedad', 'danger');
+            }
+        }
+
+        // Función para mostrar mensajes
+        function mostrarMensaje(mensaje, tipo) {
+            const alertDiv = document.createElement('div');
+            const bgColor = tipo === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800';
+            const iconColor = tipo === 'success' ? 'text-green-600' : 'text-red-600';
+            const icon = tipo === 'success' ? 'check-circle' : 'alert-circle';
+            
+            alertDiv.className = `border rounded-lg p-4 ${bgColor} flex items-start mb-4`;
+            alertDiv.innerHTML = `
+                <i data-lucide="${icon}" class="w-5 h-5 ${iconColor} mr-3 mt-0.5"></i>
+                <div class="flex-1">
+                    <p class="text-sm font-medium">${mensaje}</p>
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            `;
+            
+            const container = document.querySelector('.flex-1.overflow-y-auto');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            // Recrear iconos
+            lucide.createIcons();
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Función para actualizar contador de propiedades
+        function actualizarContadorPropiedades() {
+            const filasVisibles = document.querySelectorAll('#propertiesTableBody tr:not([style*="display: none"])').length;
+            const contador = document.getElementById('propiedades-count');
+            if (contador) {
+                contador.textContent = filasVisibles;
+            }
+        }
+
+        // Función para búsqueda
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const table = document.getElementById('propertiesTable');
+                    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                    
+                    for (let row of rows) {
+                        const title = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                        const location = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
+                        
+                        if (title.includes(searchTerm) || location.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                    
+                    // Actualizar contador
+                    actualizarContadorPropiedades();
+                });
+            }
+        }
+
+        // ========================================
+        // INICIALIZACIÓN PRINCIPAL
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Inicializar iconos de Lucide
+                lucide.createIcons();
+                
+                // Inicializar todos los módulos
+                SidebarManager.init();
+                ChartManager.init();
+                AnimationManager.init();
+                PropertyModalManager.init();
+                UsuarioModalManager.init();
+                PropertyManager.init();
+                ConfigManager.init();
+                
+                // Inicializar funcionalidades de gestión
+                initSearch();
+                
+                // Event listeners para modal de eliminación
+                document.getElementById('cancelar-eliminar').addEventListener('click', function() {
+                    document.getElementById('modal-eliminar-propiedad').classList.add('hidden');
+                });
+                
+                document.getElementById('confirmar-eliminar').addEventListener('click', function() {
+                    if (propiedadAEliminar) {
+                        eliminarPropiedad(propiedadAEliminar);
+                    }
+                });
+                
+                console.log('Dashboard inicializado correctamente');
+            } catch (error) {
+                console.error('Error al inicializar el dashboard:', error);
+            }
         });
     </script>
+    
+    <!-- CSRF Token -->
+    {% csrf_token %}
 </body>
 </html>

@@ -3,9 +3,11 @@ from django.contrib import messages
 from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.views import View
-from .models import Propiedad
+from django.utils import timezone
+from .models import Propiedad, ClickPropiedad
 from .forms import PropiedadForm
 import json
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -216,10 +218,32 @@ def crear_propiedad(request):
                         descripcion=f"Foto {i + 1} de {propiedad.titulo}"
                     )
             
-            messages.success(request, 'Propiedad creada exitosamente.')
-            return redirect('propiedades:detalle', propiedad.id)
+            # Verificar si es una petición AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Propiedad creada exitosamente.',
+                    'propiedad_id': propiedad.id,
+                    'redirect_url': reverse('propiedades:detalle', args=[propiedad.id])
+                })
+            else:
+                messages.success(request, 'Propiedad creada exitosamente.')
+                return redirect('propiedades:detalle', propiedad.id)
         else:
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            # Verificar si es una petición AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                # Devolver errores del formulario en formato JSON
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    errors[field] = [str(error) for error in field_errors]
+                
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Por favor corrige los errores en el formulario.',
+                    'errors': errors
+                })
+            else:
+                messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
         form = PropiedadForm()
     
@@ -228,3 +252,40 @@ def crear_propiedad(request):
         'titulo_pagina': 'Crear Nueva Propiedad'
     }
     return render(request, 'propiedades/crear_propiedad.html', context)
+
+@csrf_exempt
+@require_POST
+def registrar_click(request):
+    """Vista AJAX para registrar clics en botones 'Ver Detalle'"""
+    try:
+        data = json.loads(request.body)
+        propiedad_id = data.get('propiedad_id')
+        pagina_origen = data.get('pagina_origen', 'home')
+        
+        if not propiedad_id:
+            return JsonResponse({'success': False, 'error': 'ID de propiedad requerido'})
+        
+        propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+        
+        # Obtener información del request
+        ip_address = request.META.get('REMOTE_ADDR')
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        # Crear el registro de click
+        click = ClickPropiedad.objects.create(
+            propiedad=propiedad,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            pagina_origen=pagina_origen
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'click_id': click.id,
+            'total_clicks': propiedad.get_total_clicks()
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON inválido'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
