@@ -1,0 +1,347 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Buscar Propiedades - Tienda Inmobiliaria{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/buscar-propiedades.css' %}">
+<style>
+body {
+    background-color: var(--bg-light);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Search Header con Carrusel -->
+<section class="search-hero-section" role="banner" aria-label="Búsqueda de propiedades">
+    <!-- Carrusel de imágenes de fondo -->
+    <div id="backgroundCarousel" 
+         class="search-hero-background" 
+         aria-hidden="true"></div>
+    
+    <!-- Overlay con negro sutil -->
+    <div class="search-hero-overlay" aria-hidden="true"></div>
+    
+    <!-- Contenido -->
+    <div class="search-hero-content">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="search-hero-title">Buscar Propiedades</h1>
+                    <p class="search-hero-subtitle">Encuentra la propiedad perfecta con nuestros filtros avanzados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filtros de Búsqueda -->
+<section class="search-filters-section" aria-label="Filtros de búsqueda">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="search-filters-card">
+                    <div class="search-filters-header">
+                        <h4 class="search-filters-title">
+                            <i class="fas fa-filter" aria-hidden="true"></i> 
+                            Filtros de Búsqueda
+                        </h4>
+                    </div>
+                    <div class="search-filters-body">
+                        <form method="get" class="search-form" role="search" aria-label="Formulario de búsqueda">
+                            <div class="search-form-group">
+                                <label for="q" class="search-form-label">Palabras Clave</label>
+                                <input type="text" 
+                                       class="search-form-input" 
+                                       id="q" 
+                                       name="q" 
+                                       placeholder="Título, ubicación o descripción" 
+                                       value="{{ query }}"
+                                       aria-describedby="q-help">
+                                <small id="q-help" class="form-text text-muted">Busca por ubicación, tipo de propiedad o características específicas</small>
+                            </div>
+                            
+                            <div class="search-form-group">
+                                <label for="tipo" class="search-form-label">Tipo de Propiedad</label>
+                                <select class="search-form-select" id="tipo" name="tipo" aria-label="Seleccionar tipo de propiedad">
+                                    <option value="">Todos los tipos</option>
+                                    <option value="casa" {% if tipo == 'casa' %}selected{% endif %}>Casa</option>
+                                    <option value="apartamento" {% if tipo == 'apartamento' %}selected{% endif %}>Apartamento</option>
+                                    <option value="terreno" {% if tipo == 'terreno' %}selected{% endif %}>Terreno</option>
+                                    <option value="local" {% if tipo == 'local' %}selected{% endif %}>Local Comercial</option>
+                                    <option value="oficina" {% if tipo == 'oficina' %}selected{% endif %}>Oficina</option>
+                                </select>
+                            </div>
+                            
+                            <div class="search-form-group">
+                                <label for="operacion" class="search-form-label">Tipo de Operación</label>
+                                <select class="search-form-select" id="operacion" name="operacion" aria-label="Seleccionar tipo de operación">
+                                    <option value="">Todas las operaciones</option>
+                                    <option value="venta" {% if operacion == 'venta' %}selected{% endif %}>Venta</option>
+                                    <option value="alquiler" {% if operacion == 'alquiler' %}selected{% endif %}>Alquiler</option>
+                                    <option value="alquiler_temporal" {% if operacion == 'alquiler_temporal' %}selected{% endif %}>Alquiler Temporal</option>
+                                </select>
+                            </div>
+                            
+                            <div class="search-form-group">
+                                <label for="precio_min" class="search-form-label">Precio Mínimo</label>
+                                <input type="number" 
+                                       class="search-form-input" 
+                                       id="precio_min" 
+                                       name="precio_min" 
+                                       placeholder="0" 
+                                       value="{{ precio_min }}" 
+                                       min="0"
+                                       aria-describedby="precio-min-help">
+                                <small id="precio-min-help" class="form-text text-muted">Precio mínimo en dólares</small>
+                            </div>
+                            
+                            <div class="search-form-group">
+                                <label for="precio_max" class="search-form-label">Precio Máximo</label>
+                                <input type="number" 
+                                       class="search-form-input" 
+                                       id="precio_max" 
+                                       name="precio_max" 
+                                       placeholder="999999" 
+                                       value="{{ precio_max }}" 
+                                       min="0"
+                                       aria-describedby="precio-max-help">
+                                <small id="precio-max-help" class="form-text text-muted">Precio máximo en dólares</small>
+                            </div>
+                            
+                            <div class="search-form-actions">
+                                <button type="submit" class="search-btn" aria-label="Buscar propiedades">
+                                    <i class="fas fa-search" aria-hidden="true"></i> Buscar
+                                </button>
+                                <a href="{% url 'propiedades:buscar' %}" class="clear-btn" aria-label="Limpiar filtros">
+                                    <i class="fas fa-times" aria-hidden="true"></i> Limpiar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Results -->
+<section class="search-results-section" aria-label="Resultados de búsqueda">
+    <div class="container">
+        <div class="search-results-header">
+            <div>
+                {% if query or tipo or operacion or precio_min or precio_max %}
+                    <h2 class="search-results-title">Resultados de Búsqueda</h2>
+                    <p class="search-results-count">
+                        {% if query %}<strong>Búsqueda:</strong> "{{ query }}"{% endif %}
+                        {% if tipo %}<strong>Tipo:</strong> {{ tipo|title }}{% endif %}
+                        {% if operacion %}<strong>Operación:</strong> {{ operacion|title }}{% endif %}
+                        {% if precio_min or precio_max %}<strong>Precio:</strong> 
+                            {% if precio_min %}${{ precio_min }}{% endif %}
+                            {% if precio_min and precio_max %} - {% endif %}
+                            {% if precio_max %}${{ precio_max }}{% endif %}
+                        {% endif %}
+                    </p>
+                    <p class="search-results-count">{{ total_resultados }} propiedades encontradas</p>
+                {% else %}
+                    <h2 class="search-results-title">Propiedades Destacadas</h2>
+                    <p class="search-results-count">{{ total_resultados }} propiedades disponibles</p>
+                {% endif %}
+            </div>
+            
+            <div class="search-results-actions">
+                <div class="view-toggle" role="group" aria-label="Cambiar vista">
+                    <button type="button" 
+                            class="view-toggle-btn active" 
+                            data-view="grid"
+                            aria-label="Vista de cuadrícula"
+                            aria-pressed="true">
+                        <i class="fas fa-th" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" 
+                            class="view-toggle-btn" 
+                            data-view="list"
+                            aria-label="Vista de lista"
+                            aria-pressed="false">
+                        <i class="fas fa-list" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        {% if page_obj %}
+        <div class="search-results-grid" id="search-results" role="region" aria-label="Lista de propiedades">
+            {% for propiedad in page_obj %}
+            <article class="property-card" role="article" aria-label="Propiedad: {{ propiedad.titulo }}">
+                {% if propiedad.imagen_principal %}
+                <img src="{{ propiedad.imagen_principal.url }}" 
+                     class="property-card-image" 
+                     alt="{{ propiedad.titulo }}"
+                     loading="lazy">
+                {% else %}
+                <div class="property-card-image-placeholder">
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                </div>
+                {% endif %}
+                
+                <div class="property-card-body">
+                    <div class="property-card-badges">
+                        <span class="property-card-badge property-card-badge-primary">{{ propiedad.get_tipo_display }}</span>
+                        <span class="property-card-badge property-card-badge-success">{{ propiedad.get_estado_display }}</span>
+                    </div>
+                    
+                    <h3 class="property-card-title">{{ propiedad.titulo }}</h3>
+                    
+                    <p class="property-card-location">
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i> 
+                        {{ propiedad.ubicacion }}
+                    </p>
+                    
+                    <div class="property-card-details">
+                        <div class="property-card-detail">
+                            <span class="property-card-detail-label">Área</span>
+                            <span class="property-card-detail-value">{{ propiedad.metros_cuadrados }} m²</span>
+                        </div>
+                        <div class="property-card-detail">
+                            <span class="property-card-detail-label">Habitaciones</span>
+                            <span class="property-card-detail-value">{{ propiedad.habitaciones }}</span>
+                        </div>
+                        <div class="property-card-detail">
+                            <span class="property-card-detail-label">Baños</span>
+                            <span class="property-card-detail-value">{{ propiedad.banos }}</span>
+                        </div>
+                    </div>
+                    
+                    <p class="property-card-description">{{ propiedad.descripcion|truncatewords:15 }}</p>
+                    
+                    <div class="property-card-footer">
+                        {% if propiedad.operacion == 'alquiler_temporal' %}
+                            <div class="property-card-price">
+                                <h4 class="property-card-price-value">{{ propiedad.get_precio_formateado }}</h4>
+                                <small class="property-card-price-period">por día</small>
+                            </div>
+                        {% else %}
+                            <div class="property-card-price">
+                                <h4 class="property-card-price-value">{{ propiedad.get_precio_formateado }}</h4>
+                            </div>
+                        {% endif %}
+                        
+                        <a href="{% url 'propiedades:detalle' propiedad.id %}" 
+                           class="property-card-btn"
+                           aria-label="Ver detalles de {{ propiedad.titulo }}">
+                            Ver Detalles
+                        </a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav class="search-pagination" aria-label="Navegación de páginas">
+            <ul class="search-pagination-list">
+                {% if page_obj.has_previous %}
+                <li class="search-pagination-item">
+                    <a class="search-pagination-link" 
+                       href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if precio_min %}&precio_min={{ precio_min }}{% endif %}{% if precio_max %}&precio_max={{ precio_max }}{% endif %}"
+                       aria-label="Página anterior">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i> Anterior
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="search-pagination-item active">
+                        <span class="search-pagination-link" aria-current="page">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="search-pagination-item">
+                        <a class="search-pagination-link" 
+                           href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if precio_min %}&precio_min={{ precio_min }}{% endif %}{% if precio_max %}&precio_max={{ precio_max }}{% endif %}"
+                           aria-label="Página {{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="search-pagination-item">
+                    <a class="search-pagination-link" 
+                       href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if precio_min %}&precio_min={{ precio_min }}{% endif %}{% if precio_max %}&precio_max={{ precio_max }}{% endif %}"
+                       aria-label="Página siguiente">
+                        Siguiente <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="search-empty-state">
+            <i class="fas fa-search search-empty-icon" aria-hidden="true"></i>
+            <h4 class="search-empty-title">No se encontraron propiedades</h4>
+            <p class="search-empty-description">Intenta ajustar los filtros de búsqueda o revisar la ortografía.</p>
+            <div class="search-empty-actions">
+                <a href="{% url 'propiedades:lista' %}" class="btn btn-primary">
+                    Ver Todas las Propiedades
+                </a>
+                <a href="{% url 'propiedades:buscar' %}" class="btn btn-outline-primary">
+                    Nueva Búsqueda
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Search Tips -->
+{% if not page_obj %}
+<section class="search-tips-section" aria-label="Consejos de búsqueda">
+    <div class="container">
+        <div class="search-tips-container">
+            <h3 class="search-tips-title">Consejos de Búsqueda</h3>
+            <div class="search-tips-grid">
+                <div class="search-tip">
+                    <i class="fas fa-lightbulb search-tip-icon" aria-hidden="true"></i>
+                    <h5 class="search-tip-title">Usa Palabras Clave</h5>
+                    <p class="search-tip-description">Busca por ubicación, tipo de propiedad o características específicas.</p>
+                </div>
+                <div class="search-tip">
+                    <i class="fas fa-sliders-h search-tip-icon" aria-hidden="true"></i>
+                    <h5 class="search-tip-title">Ajusta los Filtros</h5>
+                    <p class="search-tip-description">Utiliza los filtros de precio y tipo para refinar tu búsqueda.</p>
+                </div>
+                <div class="search-tip">
+                    <i class="fas fa-expand-arrows-alt search-tip-icon" aria-hidden="true"></i>
+                    <h5 class="search-tip-title">Amplía el Rango</h5>
+                    <p class="search-tip-description">Considera ampliar tu rango de precios o ubicación.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/buscar-propiedades-hero.js' %}"></script>
+<script src="{% static 'js/buscar-propiedades-filters.js' %}"></script>
+<script src="{% static 'js/buscar-propiedades-results.js' %}"></script>
+<script src="{% static 'js/tracking-clics.js' %}"></script>
+
+<script>
+// Initialize all components
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Buscar Propiedades page initialized successfully');
+    
+    // Setup additional interactions
+    if (window.buscarPropiedadesResults) {
+        // Add keyboard shortcuts info
+        console.log('Keyboard shortcuts: ESC to clear filters, Arrow keys to toggle view');
+    }
+});
+</script>
+{% endblock %}

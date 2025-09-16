@@ -321,19 +321,22 @@
                                 <div class="reviews-header">
                                     <h4 class="section-title">Reseñas de Huéspedes</h4>
                                     <div class="overall-rating">
-                                        <div class="rating-number">5.0</div>
+                                        <div class="rating-number">{{ promedio_calificacion|default:"0.0" }}</div>
                                         <div class="rating-stars">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= promedio_calificacion %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
-                                        <p class="rating-count">12 reseñas</p>
+                                        <p class="rating-count">{{ total_resenas_aprobadas|default:"0" }} reseñas</p>
                                     </div>
                                 </div>
                                 
                                 <div class="reviews-list">
+                                    {% for resena in resenas_aprobadas %}
                                     <div class="review-item">
                                         <div class="review-header">
                                             <div class="reviewer-info">
@@ -341,46 +344,38 @@
                                                     <i class="fas fa-user"></i>
                                                 </div>
                                                 <div>
-                                                    <h6 class="reviewer-name">María González</h6>
+                                                    <h6 class="reviewer-name">{{ resena.nombre_usuario }}</h6>
                                                     <div class="review-rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
+                                                        {% for i in "12345" %}
+                                                            {% if forloop.counter <= resena.calificacion %}
+                                                                <i class="fas fa-star"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <span class="review-date">Agosto 2024</span>
+                                            <span class="review-date">{{ resena.fecha_creacion|date:"F Y" }}</span>
                                         </div>
-                                        <p class="review-text">"Excelente propiedad, muy cómoda y bien ubicada. La piscina es perfecta para la familia."</p>
+                                        {% if resena.titulo %}
+                                        <h6 class="review-title">{{ resena.titulo }}</h6>
+                                        {% endif %}
+                                        <p class="review-text">"{{ resena.comentario }}"</p>
                                     </div>
-                                    
-                                    <div class="review-item">
-                                        <div class="review-header">
-                                            <div class="reviewer-info">
-                                                <div class="reviewer-avatar">
-                                                    <i class="fas fa-user"></i>
-                                                </div>
-                                                <div>
-                                                    <h6 class="reviewer-name">Carlos Rodríguez</h6>
-                                                    <div class="review-rating">
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                        <i class="fas fa-star"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <span class="review-date">Julio 2024</span>
+                                    {% empty %}
+                                    <div class="no-reviews">
+                                        <div class="text-center py-5">
+                                            <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">Aún no hay reseñas</h5>
+                                            <p class="text-muted">Sé el primero en escribir una reseña sobre esta propiedad.</p>
                                         </div>
-                                        <p class="review-text">"Hermosa casa con todas las comodidades. El WiFi funciona perfectamente y la cocina está muy bien equipada."</p>
                                     </div>
+                                    {% endfor %}
                                 </div>
                                 
                                 <div class="write-review">
-                                    <button class="btn btn-primary">
+                                    <button class="btn btn-primary" onclick="abrirModalResena()">
                                         <i class="fas fa-pen me-2"></i>Escribir una reseña
                                     </button>
                                 </div>
@@ -557,6 +552,69 @@
         <!-- Miniaturas -->
         <div class="image-viewer-thumbnails" id="imageThumbnails">
             <!-- Se llenan dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<!-- Modal para crear reseña -->
+<div id="modal-resena" class="modal-resena">
+    <div class="modal-resena-content">
+        <div class="modal-resena-header">
+            <h3>Escribir una reseña</h3>
+            <button class="modal-resena-close" onclick="cerrarModalResena()">&times;</button>
+        </div>
+        
+        <div class="modal-resena-body">
+            <form id="form-resena" method="post" action="{% url 'propiedades:crear_resena' propiedad.id %}">
+                {% csrf_token %}
+                
+                <!-- Información del usuario -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="nombre_usuario" class="form-label">Nombre completo *</label>
+                        <input type="text" class="form-control" id="nombre_usuario" name="nombre_usuario" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email_usuario" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="email_usuario" name="email_usuario" required>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="telefono_usuario" class="form-label">Teléfono</label>
+                        <input type="tel" class="form-control" id="telefono_usuario" name="telefono_usuario">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="calificacion" class="form-label">Calificación *</label>
+                        <div class="rating-input">
+                            <input type="hidden" id="calificacion" name="calificacion" value="5" required>
+                            <div class="stars">
+                                <i class="fas fa-star" data-rating="1"></i>
+                                <i class="fas fa-star" data-rating="2"></i>
+                                <i class="fas fa-star" data-rating="3"></i>
+                                <i class="fas fa-star" data-rating="4"></i>
+                                <i class="fas fa-star" data-rating="5"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="titulo" class="form-label">Título de la reseña</label>
+                    <input type="text" class="form-control" id="titulo" name="titulo" placeholder="Ej: Excelente experiencia">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="comentario" class="form-label">Comentario *</label>
+                    <textarea class="form-control" id="comentario" name="comentario" rows="4" required placeholder="Comparte tu experiencia con esta propiedad..."></textarea>
+                </div>
+                
+                <div class="modal-resena-footer">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModalResena()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar reseña</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -2166,8 +2224,183 @@
     .feature-value {
         font-size: 1.8rem;
     }
-    
+}
 
+/* Estilos para el modal de reseñas */
+.modal-resena {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-resena-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-resena-header {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-resena-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.modal-resena-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modal-resena-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.modal-resena-body {
+    padding: 25px;
+}
+
+.modal-resena-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: #f8f9fa;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Estilos para el rating de estrellas */
+.rating-input {
+    margin-top: 5px;
+}
+
+.stars {
+    display: flex;
+    gap: 5px;
+}
+
+.stars i {
+    font-size: 1.5rem;
+    color: #ffc107;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.stars i:hover,
+.stars i.active {
+    color: #ffc107;
+    transform: scale(1.1);
+}
+
+.stars i:not(.active) {
+    color: #e9ecef;
+}
+
+/* Estilos para el título de la reseña */
+.review-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+    .modal-resena-content {
+        margin: 10% auto;
+        width: 95%;
+        max-height: 85vh;
+    }
+    
+    .modal-resena-header {
+        padding: 15px 20px;
+    }
+    
+    .modal-resena-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .modal-resena-body {
+        padding: 20px;
+    }
+    
+    .modal-resena-footer {
+        padding: 15px 20px;
+        flex-direction: column;
+    }
+    
+    .modal-resena-footer .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-resena-content {
+        margin: 5% auto;
+        width: 98%;
+        max-height: 90vh;
+    }
+    
+    .modal-resena-header {
+        padding: 12px 15px;
+    }
+    
+    .modal-resena-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .modal-resena-body {
+        padding: 15px;
+    }
+    
+    .modal-resena-footer {
+        padding: 12px 15px;
+    }
 }
 </style>
 {% endblock %}
@@ -2194,11 +2427,11 @@ const fotosData = {
 };
 
 function contactar() {
-    alert('Función de contacto próximamente disponible');
+    mostrarNotificacion('info', 'Función en Desarrollo', 'La función de contacto estará disponible próximamente.');
 }
 
 function agendarVisita() {
-    alert('Función de agendar visita próximamente disponible');
+    mostrarNotificacion('info', 'Función en Desarrollo', 'La función de agendar visita estará disponible próximamente.');
 }
 
 function compartir() {
@@ -2212,7 +2445,7 @@ function compartir() {
         // Fallback para navegadores que no soportan Web Share API
         const url = window.location.href;
         navigator.clipboard.writeText(url).then(() => {
-            alert('Enlace copiado al portapapeles');
+            mostrarNotificacion('success', '¡Enlace Copiado!', 'El enlace de la propiedad ha sido copiado al portapapeles.');
         });
     }
 }
@@ -2476,7 +2709,7 @@ function openImageViewer(index) {
     }
     
     if (imagesArray.length === 0) {
-        alert('No hay imágenes disponibles para mostrar');
+        mostrarNotificacion('warning', 'Sin Imágenes', 'No hay imágenes disponibles para mostrar en la galería.');
         return;
     }
     
@@ -2616,10 +2849,291 @@ document.addEventListener('DOMContentLoaded', function() {
             closeImageViewer();
         }
     });
+    
+    // Inicializar rating de estrellas
+    initStarRating();
+    
+    // Manejar envío del formulario de reseña
+    const formResena = document.getElementById('form-resena');
+    if (formResena) {
+        formResena.addEventListener('submit', handleResenaSubmit);
+    }
 });
+
+// Funciones para el modal de reseñas
+function abrirModalResena() {
+    const modal = document.getElementById('modal-resena');
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalResena() {
+    const modal = document.getElementById('modal-resena');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    
+    // Limpiar formulario
+    const form = document.getElementById('form-resena');
+    if (form) {
+        form.reset();
+        // Resetear rating a 5 estrellas
+        setRating(5);
+    }
+}
+
+// Cerrar modal al hacer clic fuera
+window.onclick = function(event) {
+    const modal = document.getElementById('modal-resena');
+    if (event.target === modal) {
+        cerrarModalResena();
+    }
+}
+
+// Inicializar rating de estrellas
+function initStarRating() {
+    const stars = document.querySelectorAll('.stars i');
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            setRating(index + 1);
+        });
+        
+        star.addEventListener('mouseenter', () => {
+            highlightStars(index + 1);
+        });
+    });
+    
+    const starsContainer = document.querySelector('.stars');
+    if (starsContainer) {
+        starsContainer.addEventListener('mouseleave', () => {
+            const currentRating = document.getElementById('calificacion').value;
+            highlightStars(currentRating);
+        });
+    }
+}
+
+// Establecer rating
+function setRating(rating) {
+    document.getElementById('calificacion').value = rating;
+    highlightStars(rating);
+}
+
+// Resaltar estrellas
+function highlightStars(rating) {
+    const stars = document.querySelectorAll('.stars i');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+// Función para mostrar mensaje de éxito personalizado
+function mostrarMensajeExito() {
+    // Crear el modal de éxito
+    const successModal = document.createElement('div');
+    successModal.id = 'modal-exito-resena';
+    successModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    successModal.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.4s ease;
+            position: relative;
+        ">
+            <div style="
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(135deg, #4CAF50, #45a049);
+                border-radius: 50%;
+                margin: 0 auto 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: bounce 0.6s ease;
+            ">
+                <i class="fas fa-check" style="color: white; font-size: 32px;"></i>
+            </div>
+            
+            <h3 style="
+                color: #2c3e50;
+                margin-bottom: 15px;
+                font-size: 24px;
+                font-weight: 600;
+            ">¡Reseña Enviada!</h3>
+            
+            <p style="
+                color: #7f8c8d;
+                font-size: 16px;
+                line-height: 1.5;
+                margin-bottom: 25px;
+            ">Tu reseña ha sido enviada exitosamente y será revisada antes de publicarse.</p>
+            
+            <div style="
+                background: #f8f9fa;
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 25px;
+                border-left: 4px solid #4CAF50;
+            ">
+                <p style="
+                    color: #495057;
+                    font-size: 14px;
+                    margin: 0;
+                    font-style: italic;
+                ">📝 Nuestro equipo revisará tu reseña en las próximas 24 horas</p>
+            </div>
+            
+            <button onclick="cerrarMensajeExito()" style="
+                background: linear-gradient(135deg, #4CAF50, #45a049);
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 25px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)'" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)'">
+                <i class="fas fa-thumbs-up" style="margin-right: 8px;"></i>
+                ¡Entendido!
+            </button>
+        </div>
+    `;
+    
+    // Agregar estilos CSS para las animaciones
+    if (!document.getElementById('success-modal-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'success-modal-styles';
+        styles.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes slideIn {
+                from { 
+                    opacity: 0;
+                    transform: translateY(-50px) scale(0.9);
+                }
+                to { 
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+            
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% {
+                    transform: translateY(0);
+                }
+                40% {
+                    transform: translateY(-10px);
+                }
+                60% {
+                    transform: translateY(-5px);
+                }
+            }
+            
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+    
+    document.body.appendChild(successModal);
+    
+    // Auto-cerrar después de 3 segundos
+    setTimeout(() => {
+        if (document.getElementById('modal-exito-resena')) {
+            cerrarMensajeExito();
+        }
+    }, 3000);
+}
+
+// Función para cerrar el mensaje de éxito
+function cerrarMensajeExito() {
+    const modal = document.getElementById('modal-exito-resena');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            modal.remove();
+        }, 300);
+    }
+}
+
+// Manejar envío del formulario de reseña
+async function handleResenaSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    try {
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Mostrar mensaje de éxito personalizado
+            mostrarMensajeExitoResena();
+            cerrarModalResena();
+            
+            // Recargar la página para mostrar la nueva reseña (si fue aprobada)
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            // Mostrar errores con notificaciones hermosas
+            let errorMessage = result.message || 'Error al enviar la reseña';
+            if (result.errors) {
+                let errorDetails = '';
+                for (const [field, errors] of Object.entries(result.errors)) {
+                    errorDetails += `• ${field}: ${errors.join(', ')}\n`;
+                }
+                mostrarNotificacion('error', 'Error en el formulario', errorDetails);
+            } else {
+                mostrarNotificacion('error', 'Error al enviar la reseña', errorMessage);
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion('error', 'Error de conexión', 'No se pudo enviar la reseña. Por favor verifica tu conexión e intenta de nuevo.');
+    }
+}
 </script>
 
 <!-- Script de tracking de clics -->
 <script src="{% static 'js/tracking-clics.js' %}"></script>
 {% endblock %}
+
 

@@ -1,0 +1,508 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Inicio - Tienda Inmobiliaria{% endblock %}
+
+{% block content %}
+<!-- Hero Carousel Section -->
+<section class="hero-carousel-section" role="banner" aria-label="Carrusel principal">
+    <div class="carousel-container" id="heroCarousel">
+        <!-- Carousel Item 1 -->
+        <div class="carousel-item active" role="tabpanel" aria-label="Imagen 1 de 2">
+            <img src="{% static 'images/carousel/interior-1.jpg' %}" 
+                 alt="Interior moderno elegante" 
+                 class="carousel-image"
+                 loading="eager">
+            <div class="carousel-overlay">
+                <div class="carousel-content">
+                    <h1 class="carousel-title">Encuentra tu hogar ideal</h1>
+                    <p class="carousel-subtitle">Descubre las mejores propiedades en las ubicaciones más deseadas</p>
+                    <div class="carousel-buttons">
+                        <a href="{% url 'propiedades:lista' %}" 
+                           class="btn btn-light btn-lg me-3"
+                           aria-label="Ver todas las propiedades">
+                            <i class="fas fa-search" aria-hidden="true"></i> Ver Propiedades
+                        </a>
+                        <a href="{% url 'propiedades:buscar' %}" 
+                           class="btn btn-outline-light btn-lg"
+                           aria-label="Buscar propiedades específicas">
+                            <i class="fas fa-filter" aria-hidden="true"></i> Buscar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Carousel Item 2 -->
+        <div class="carousel-item" role="tabpanel" aria-label="Imagen 2 de 2">
+            <img src="{% static 'images/carousel/interior-2.jpg' %}" 
+                 alt="Sala de estar contemporánea" 
+                 class="carousel-image"
+                 loading="lazy">
+            <div class="carousel-overlay">
+                <div class="carousel-content">
+                    <h1 class="carousel-title">Espacios que inspiran</h1>
+                    <p class="carousel-subtitle">Cada propiedad cuenta una historia única de elegancia y confort</p>
+                    <div class="carousel-buttons">
+                        <a href="{% url 'propiedades:lista' %}" 
+                           class="btn btn-light btn-lg me-3"
+                           aria-label="Explorar propiedades">
+                            <i class="fas fa-eye" aria-hidden="true"></i> Explorar
+                        </a>
+                        <a href="{% url 'core:contact' %}" 
+                           class="btn btn-outline-light btn-lg"
+                           aria-label="Contactar con nosotros">
+                            <i class="fas fa-phone" aria-hidden="true"></i> Contactar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Carousel Indicators -->
+        <div class="carousel-indicators" role="tablist" aria-label="Navegación del carrusel">
+            <span class="indicator active" 
+                  data-slide="0" 
+                  role="tab" 
+                  aria-selected="true"
+                  aria-label="Ir a imagen 1"
+                  tabindex="0"></span>
+            <span class="indicator" 
+                  data-slide="1" 
+                  role="tab" 
+                  aria-selected="false"
+                  aria-label="Ir a imagen 2"
+                  tabindex="0"></span>
+        </div>
+    </div>
+</section>
+
+<!-- Properties Section -->
+<section class="properties-section" aria-labelledby="properties-title">
+    <div class="container">
+        <!-- Section Header -->
+        <header class="text-center mb-5">
+            <h2 id="properties-title" class="prop-title-sec">NUEVAS PROPIEDADES EN RENTA</h2>
+            <p class="prop-sub">Descubre nuestras mejores opciones de alquiler y alquiler temporal</p>
+        </header>
+        
+        <!-- Property Type Toggle -->
+        <div class="text-center mb-4">
+            <div class="btn-group-toggle" role="group" aria-label="Tipo de alquiler">
+                <input type="radio" 
+                       class="btn-check" 
+                       name="tipo-alquiler" 
+                       id="btn-alquiler-temporal" 
+                       value="alquiler_temporal" 
+                       checked
+                       aria-describedby="alquiler-temporal-desc">
+                <label class="btn btn-outline-primary" for="btn-alquiler-temporal">
+                    <i class="fas fa-calendar-alt me-2" aria-hidden="true"></i>Alquiler Temporal
+                </label>
+                
+                <input type="radio" 
+                       class="btn-check" 
+                       name="tipo-alquiler" 
+                       id="btn-alquiler" 
+                       value="alquiler"
+                       aria-describedby="alquiler-desc">
+                <label class="btn btn-outline-primary" for="btn-alquiler">
+                    <i class="fas fa-home me-2" aria-hidden="true"></i>Alquiler
+                </label>
+            </div>
+        </div>
+
+        {% if hay_propiedades_alquiler %}
+        <!-- Properties Container -->
+        <div class="row" id="propiedades-alquiler-container">
+            <!-- Alquiler Properties -->
+            <div id="propiedades-alquiler" class="row w-100" style="display: none;" aria-live="polite">
+                {% for propiedad in propiedades_alquiler %}
+                    {% if propiedad.operacion == 'alquiler' %}
+                    <article class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm property-card">
+                            {% if propiedad.get_foto_principal %}
+                            <img src="{{ propiedad.get_foto_principal.url }}" 
+                                 class="card-img-top" 
+                                 alt="{{ propiedad.titulo }}" 
+                                 style="height: 250px; object-fit: cover;"
+                                 loading="lazy">
+                            {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                 style="height: 250px;"
+                                 aria-label="Imagen no disponible">
+                                <i class="fas fa-home fa-4x text-muted" aria-hidden="true"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
+                                    <span class="badge bg-info">{{ propiedad.get_operacion_display }}</span>
+                                </div>
+                                
+                                <h3 class="card-title fw-bold">{{ propiedad.habitaciones }} recámaras</h3>
+                                <h4 class="card-subtitle mb-2 text-muted">{{ propiedad.titulo|upper }}</h4>
+                                
+                                <hr class="my-3">
+                                
+                                <p class="card-text text-muted">
+                                    {{ propiedad.descripcion|truncatechars:120|default:"Propiedad de lujo con acabados premium, ubicación privilegiada y diseño contemporáneo." }}
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <h5 class="text-primary mb-0 fw-bold">{{ propiedad.get_precio_formateado }}</h5>
+                                    <a href="{% url 'propiedades:detalle' propiedad.id %}" 
+                                       class="btn btn-outline-primary btn-sm"
+                                       aria-label="Ver detalles de {{ propiedad.titulo }}">
+                                        Ver detalles
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    {% endif %}
+                {% endfor %}
+                
+                <!-- Empty State for Alquiler -->
+                {% if propiedades_alquiler_count == 0 %}
+                <div class="col-12 text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-home fa-4x text-muted mb-3" aria-hidden="true"></i>
+                        <h4 class="text-muted">No hay propiedades de alquiler disponibles</h4>
+                        <p class="text-muted mb-4">
+                            Actualmente no tenemos propiedades de alquiler. Pronto tendremos nuevas ofertas disponibles.
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Alquiler Temporal Properties -->
+            <div id="propiedades-alquiler-temporal" class="row w-100" aria-live="polite">
+                {% for propiedad in propiedades_alquiler %}
+                    {% if propiedad.operacion == 'alquiler_temporal' %}
+                    <article class="col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm property-card">
+                            {% if propiedad.get_foto_principal %}
+                            <img src="{{ propiedad.get_foto_principal.url }}" 
+                                 class="card-img-top" 
+                                 alt="{{ propiedad.titulo }}" 
+                                 style="height: 250px; object-fit: cover;"
+                                 loading="lazy">
+                            {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                 style="height: 250px;"
+                                 aria-label="Imagen no disponible">
+                                <i class="fas fa-home fa-4x text-muted" aria-hidden="true"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-primary">{{ propiedad.get_tipo_display }}</span>
+                                    <span class="badge bg-warning">{{ propiedad.get_operacion_display }}</span>
+                                </div>
+                                
+                                <h3 class="card-title fw-bold">{{ propiedad.habitaciones }} recámaras</h3>
+                                <h4 class="card-subtitle mb-2 text-muted">{{ propiedad.titulo|upper }}</h4>
+                                
+                                <hr class="my-3">
+                                
+                                <p class="card-text text-muted">
+                                    {{ propiedad.descripcion|truncatechars:120|default:"Propiedad de lujo con acabados premium, ubicación privilegiada y diseño contemporáneo." }}
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <h5 class="text-primary mb-0 fw-bold">{{ propiedad.get_precio_formateado }}</h5>
+                                    <a href="{% url 'propiedades:detalle' propiedad.id %}" 
+                                       class="btn btn-outline-primary btn-sm"
+                                       aria-label="Ver detalles de {{ propiedad.titulo }}">
+                                        Ver detalles
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    {% endif %}
+                {% endfor %}
+                
+                <!-- Empty State for Alquiler Temporal -->
+                {% if propiedades_alquiler_temporal_count == 0 %}
+                <div class="col-12 text-center py-5">
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-alt fa-4x text-muted mb-3" aria-hidden="true"></i>
+                        <h4 class="text-muted">No hay propiedades de alquiler temporal disponibles</h4>
+                        <p class="text-muted mb-4">
+                            Actualmente no tenemos propiedades de alquiler temporal. Pronto tendremos nuevas ofertas disponibles.
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- View All Properties Button -->
+        <div class="text-center mt-5">
+            <a href="{% url 'propiedades:lista' %}?operacion=alquiler" 
+               class="btn btn-outline-success btn-lg px-5 py-3 fw-semibold"
+               aria-label="Ver todas las propiedades en alquiler">
+                <i class="fas fa-key me-2" aria-hidden="true"></i>Ver Todas las Propiedades en Alquiler
+            </a>
+        </div>
+        
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-key fa-4x text-muted mb-3" aria-hidden="true"></i>
+                <h4 class="text-muted">No hay propiedades en alquiler disponibles</h4>
+                <p class="text-muted mb-4">
+                    Actualmente no tenemos propiedades en alquiler. Pronto tendremos nuevas ofertas disponibles.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Consortium Section -->
+<section class="consortium-section" aria-labelledby="consortium-title">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="consortium-content">
+                    <h2 id="consortium-title" class="consortium-title">Gestión profesional de consorcios</h2>
+                    <p class="consortium-description">
+                        Administramos consorcios residenciales y comerciales con transparencia, control financiero y mantenimiento integral.
+                    </p>
+                    
+                    <div class="consortium-features">
+                        <div class="feature-item">
+                            <div class="feature-icon" aria-hidden="true">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <span>Administración transparente y profesional</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon" aria-hidden="true">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <span>Control financiero y presupuestario</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon" aria-hidden="true">
+                                <i class="fas fa-wrench"></i>
+                            </div>
+                            <span>Mantenimiento preventivo y correctivo</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon" aria-hidden="true">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <span>Comunicación efectiva con propietarios</span>
+                        </div>
+                    </div>
+                    
+                    <div class="consortium-cta mt-4">
+                        <a href="{% url 'core:consorcio' %}" 
+                           class="btn-consortium"
+                           aria-label="Conocer más sobre nuestros servicios de consorcios">
+                            Conocer servicios
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="consortium-image">
+                    <img src="{% static 'images/edificio verde.jpg' %}" 
+                         alt="Edificio de Consorcio" 
+                         class="img-fluid consortium-img"
+                         loading="lazy">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section" aria-labelledby="testimonials-title">
+    <div class="container py-5">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 id="testimonials-title" class="text-white fw-bold testimonials-title">NUESTROS CLIENTES OPINAN</h2>
+            </div>
+        </div>
+
+        <div class="testimonials-carousel">
+            <div class="testimonials-wrapper">
+                <div class="testimonials-track" id="testimonialsTrack" role="region" aria-label="Testimonios de clientes">
+                    {% if resenas_aprobadas %}
+                        {% for resena in resenas_aprobadas %}
+                        <div class="testimonial-item">
+                            <div class="testimonial-card text-center">
+                                <div class="quote-mark mb-3">
+                                    <i class="fas fa-quote-left testimonial-icon text-warning" aria-hidden="true"></i>
+                                </div>
+                                <div class="rating-stars mb-3" aria-label="Calificación: {{ resena.calificacion }} de 5 estrellas">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= resena.calificacion %}
+                                            <i class="fas fa-star text-warning" aria-hidden="true"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning" aria-hidden="true"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% if resena.titulo %}
+                                <h3 class="testimonial-title text-warning mb-2">{{ resena.titulo }}</h3>
+                                {% endif %}
+                                <blockquote class="testimonial-text text-white mb-3">
+                                    "{{ resena.comentario }}"
+                                </blockquote>
+                                <div class="client-name text-white fw-bold">- {{ resena.nombre_usuario }}</div>
+                                <div class="property-link mt-2">
+                                    <a href="{% url 'propiedades:detalle' resena.propiedad.id %}" 
+                                       class="text-warning text-decoration-none small"
+                                       aria-label="Ver propiedad: {{ resena.propiedad.titulo }}">
+                                        <i class="fas fa-home me-1" aria-hidden="true"></i>{{ resena.propiedad.titulo }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Default testimonials if no approved reviews -->
+                        <div class="testimonial-item">
+                            <div class="testimonial-card text-center">
+                                <div class="quote-mark mb-3">
+                                    <i class="fas fa-quote-left testimonial-icon text-warning" aria-hidden="true"></i>
+                                </div>
+                                <blockquote class="testimonial-text text-white mb-3">
+                                    "Excelente servicio y atención personalizada. Encontraron exactamente lo que estábamos buscando en tiempo récord. Altamente recomendados para cualquier transacción inmobiliaria."
+                                </blockquote>
+                                <div class="client-name text-white fw-bold">- Marta & Jorge Rosales</div>
+                            </div>
+                        </div>
+
+                        <div class="testimonial-item">
+                            <div class="testimonial-card text-center">
+                                <div class="quote-mark mb-3">
+                                    <i class="fas fa-quote-left testimonial-icon text-warning" aria-hidden="true"></i>
+                                </div>
+                                <blockquote class="testimonial-text text-white mb-3">
+                                    "Profesionales muy serios y comprometidos. El proceso de alquiler fue transparente y sin complicaciones. Definitivamente volveré a confiar en ellos para futuras necesidades."
+                                </blockquote>
+                                <div class="client-name text-white fw-bold">- María Rocha</div>
+                            </div>
+                        </div>
+
+                        <div class="testimonial-item">
+                            <div class="testimonial-card text-center">
+                                <div class="quote-mark mb-3">
+                                    <i class="fas fa-quote-left testimonial-icon text-warning" aria-hidden="true"></i>
+                                </div>
+                                <blockquote class="testimonial-text text-white mb-3">
+                                    "Increíble experiencia desde el primer contacto. Su conocimiento del mercado y atención al detalle nos ayudó a tomar la mejor decisión para nuestra inversión inmobiliaria."
+                                </blockquote>
+                                <div class="client-name text-white fw-bold">- Pablo & Susana Naúm</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="testimonials-navigation text-center mt-4">
+                <button class="btn btn-outline-warning btn-lg me-3" 
+                        id="prevBtn" 
+                        onclick="moveTestimonials('left')"
+                        aria-label="Testimonio anterior"
+                        disabled>
+                    <i class="fas fa-chevron-left me-2" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-outline-warning btn-lg" 
+                        id="nextBtn" 
+                        onclick="moveTestimonials('right')"
+                        aria-label="Siguiente testimonio">
+                    <i class="fas fa-chevron-right me-2" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="services-highlight-section py-5" aria-labelledby="services-title">
+    <div class="container">
+        <div class="row services-grid">
+            <!-- Service 1: Best Broker -->
+            <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                <div class="service-block service-block-grey">
+                    <div class="service-content">
+                        <h3 class="service-title">VOTADO EL MEJOR CORREDOR DE LA BAHÍA</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Service 2: Free Registration -->
+            <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                <div class="service-block service-block-white">
+                    <div class="service-content">
+                        <div class="service-icon" aria-hidden="true">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <h3 class="service-title">REGISTRO GRATIS SIN CUOTAS OCULTAS</h3>
+                        <div class="service-separator"></div>
+                        <p class="service-text">Regístrate gratis y accede a nuestro catálogo completo de propiedades sin costos ocultos ni compromisos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service 3: Free Appraisal -->
+            <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                <div class="service-block service-block-white">
+                    <div class="service-content">
+                        <div class="service-icon" aria-hidden="true">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <h3 class="service-title">AVALÚO GRATUITO DE PROPIEDAD</h3>
+                        <div class="service-separator"></div>
+                        <p class="service-text">Obtén una valoración profesional y precisa de tu propiedad sin costo alguno. Nuestros expertos te asesoran.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service 4: 4 Locations -->
+            <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                <div class="service-block service-block-grey">
+                    <div class="service-content">
+                        <div class="service-icon" aria-hidden="true">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <h3 class="service-title">OFICINAS EN 4 UBICACIONES</h3>
+                        <div class="service-separator"></div>
+                        <p class="service-text">Estamos presentes en las mejores zonas de la bahía para brindarte atención personalizada cerca de ti.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Scripts -->
+<script src="{% static 'js/home-carousel.js' %}"></script>
+<script src="{% static 'js/home-testimonials.js' %}"></script>
+<script src="{% static 'js/home-properties.js' %}"></script>
+<script src="{% static 'js/tracking-clics.js' %}"></script>
+
+<!-- Initialize Home Components -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all home components
+    console.log('Home page initialized successfully');
+    
+    // Add any additional initialization logic here
+});
+</script>
+{% endblock %}

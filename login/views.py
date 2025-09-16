@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from .models import AdminCredentials
 from .forms import AdminCredentialsForm, NuevoUsuarioAdminForm
 from django.contrib.auth.hashers import check_password
+import time
 
 def configurar_admin(request):
     """Vista para configurar credenciales del administrador (solo primera vez)"""
@@ -20,20 +21,22 @@ def configurar_admin(request):
     if request.method == 'POST':
         form = AdminCredentialsForm(request.POST, request.FILES)
         if form.is_valid():
-            # Guardar credenciales
-            credenciales = form.save()
-            
-            # Crear usuario administrador
+            # Crear usuario administrador primero
             try:
                 user = User.objects.create_user(
-                    username=credenciales.email,
-                    email=credenciales.email,
+                    username=form.cleaned_data['email'],
+                    email=form.cleaned_data['email'],
                     password=form.cleaned_data['password'],
-                    first_name=credenciales.nombre or 'Administrador',
-                    last_name=credenciales.apellido or '',
+                    first_name=form.cleaned_data['nombre'] or 'Administrador',
+                    last_name=form.cleaned_data['apellido'] or '',
                     is_staff=True,
                     is_superuser=True
                 )
+                
+                # Ahora crear AdminCredentials con la relación ya establecida
+                credenciales = form.save(commit=False)
+                credenciales.user = user
+                credenciales.save()
                 
                 messages.success(request, f'¡Administrador configurado exitosamente! Ahora puedes acceder con {credenciales.email}')
                 return redirect('login:admin_login')
@@ -85,6 +88,10 @@ def admin_login(request):
                         is_staff=True,
                         is_superuser=True
                     )
+                    
+                    # Vincular el AdminCredentials con el User
+                    credenciales.user = user
+                    credenciales.save()
                 
                 # Autenticar al usuario
                 login(request, user)
@@ -107,6 +114,9 @@ def dashboard(request):
     if not request.user.is_staff:
         messages.error(request, 'No tienes permisos para acceder a esta página.')
         return redirect('core:home')
+    
+    # Optimizar la consulta del usuario para incluir AdminCredentials
+    request.user = User.objects.select_related('admincredentials').get(id=request.user.id)
     
     # Obtener estadísticas básicas
     total_users = User.objects.count()
@@ -312,45 +322,68 @@ def eliminar_propiedad_ajax(request, propiedad_id):
 @login_required
 def actualizar_perfil(request):
     """Vista AJAX para actualizar el perfil del administrador"""
+    print(f"=== ACTUALIZAR PERFIL - Usuario: {request.user.email} ===")
+    print(f"Método: {request.method}")
+    print(f"POST data: {request.POST}")
+    print(f"FILES: {request.FILES}")
+    
     if not request.user.is_staff:
+        print("Error: Usuario no es staff")
         return JsonResponse({'success': False, 'message': 'No tienes permisos para actualizar el perfil.'})
     
     if request.method == 'POST':
         try:
-            # Buscar o crear AdminCredentials
+            # Buscar o crear AdminCredentials usando la nueva relación
             from .models import AdminCredentials
             try:
-                admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                admin_creds = request.user.admincredentials
+                print(f"AdminCredentials encontrado: {admin_creds}")
             except AdminCredentials.DoesNotExist:
+                print("AdminCredentials no existe, creando uno nuevo")
                 admin_creds = AdminCredentials.objects.create(
+                    user=request.user,
                     nombre=request.user.first_name or 'Administrador',
                     apellido=request.user.last_name or 'del Sistema',
                     email=request.user.email,
                     telefono='+52-1-33-00000000',
                     password='temp_password_123'
                 )
+                print(f"AdminCredentials creado: {admin_creds}")
             
             # Actualizar campos
+            nombre_anterior = admin_creds.nombre
+            apellido_anterior = admin_creds.apellido
+            telefono_anterior = admin_creds.telefono
+            
             admin_creds.nombre = request.POST.get('nombre', admin_creds.nombre)
             admin_creds.apellido = request.POST.get('apellido', admin_creds.apellido)
             admin_creds.telefono = request.POST.get('telefono', admin_creds.telefono)
+            
+            print(f"Campos actualizados:")
+            print(f"  Nombre: {nombre_anterior} -> {admin_creds.nombre}")
+            print(f"  Apellido: {apellido_anterior} -> {admin_creds.apellido}")
+            print(f"  Teléfono: {telefono_anterior} -> {admin_creds.telefono}")
             
             # Fecha de nacimiento
             fecha_nacimiento = request.POST.get('fecha_nacimiento')
             if fecha_nacimiento:
                 from datetime import datetime
                 admin_creds.fecha_nacimiento = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
+                print(f"Fecha de nacimiento actualizada: {admin_creds.fecha_nacimiento}")
             
             # Foto de perfil
             if 'foto_perfil' in request.FILES:
                 admin_creds.foto_perfil = request.FILES['foto_perfil']
+                print(f"Foto de perfil actualizada: {admin_creds.foto_perfil}")
             
             admin_creds.save()
+            print("AdminCredentials guardado exitosamente")
             
             # Actualizar también el usuario de Django
             request.user.first_name = admin_creds.nombre
             request.user.last_name = admin_creds.apellido
             request.user.save()
+            print("Usuario de Django actualizado exitosamente")
             
             # Preparar respuesta
             response_data = {
@@ -361,38 +394,56 @@ def actualizar_perfil(request):
             # Incluir URL de la foto si existe
             if admin_creds.foto_perfil:
                 response_data['foto_url'] = admin_creds.foto_perfil.url
+                print(f"URL de foto incluida: {response_data['foto_url']}")
             
+            print(f"Respuesta final: {response_data}")
             return JsonResponse(response_data)
             
         except Exception as e:
+            print(f"Error al actualizar perfil: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return JsonResponse({'success': False, 'message': f'Error al actualizar el perfil: {str(e)}'})
     
+    print("Método no permitido")
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 @login_required
 def crear_nuevo_usuario_admin(request):
     """Vista AJAX para crear un nuevo usuario administrativo"""
+    print(f"=== CREAR NUEVO USUARIO ADMIN - Usuario: {request.user.email} ===")
+    print(f"Método: {request.method}")
+    print(f"POST data: {request.POST}")
+    print(f"FILES: {request.FILES}")
+    
     if not request.user.is_staff:
+        print("Error: Usuario no es staff")
         return JsonResponse({'success': False, 'message': 'No tienes permisos para crear usuarios administrativos.'})
     
     if request.method == 'POST':
         try:
             form = NuevoUsuarioAdminForm(request.POST, request.FILES)
+            print(f"Formulario válido: {form.is_valid()}")
+            if not form.is_valid():
+                print(f"Errores del formulario: {form.errors}")
+            
             if form.is_valid():
-                # Guardar credenciales
-                credenciales = form.save()
-                
-                # Crear usuario administrador
+                # Crear usuario administrador primero
                 try:
                     user = User.objects.create_user(
-                        username=credenciales.email,
-                        email=credenciales.email,
+                        username=form.cleaned_data['email'],
+                        email=form.cleaned_data['email'],
                         password=form.cleaned_data['password'],
-                        first_name=credenciales.nombre or 'Administrador',
-                        last_name=credenciales.apellido or '',
+                        first_name=form.cleaned_data['nombre'] or 'Administrador',
+                        last_name=form.cleaned_data['apellido'] or '',
                         is_staff=True,
                         is_superuser=True
                     )
+                    
+                    # Ahora crear AdminCredentials con la relación ya establecida
+                    credenciales = form.save(commit=False)
+                    credenciales.user = user
+                    credenciales.save()
                     
                     return JsonResponse({
                         'success': True, 
@@ -470,3 +521,367 @@ def contar_usuarios_admin(request):
         
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Error: {str(e)}'})
+
+@login_required
+def cambiar_password(request):
+    """Vista para cambiar la contraseña del usuario"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
+    
+    if request.method == 'POST':
+        try:
+            password_actual = request.POST.get('password_actual')
+            nueva_password = request.POST.get('nueva_password')
+            confirmar_password = request.POST.get('confirmar_nueva_password')
+            
+            print(f"=== DEBUG CAMBIO CONTRASEÑA ===")
+            print(f"Usuario: {request.user.username}")
+            print(f"Password actual recibida: {password_actual}")
+            print(f"Nueva password: {nueva_password}")
+            print(f"Confirmar password: {confirmar_password}")
+            print(f"User password en DB: {request.user.password}")
+            
+            # Validaciones básicas
+            if not nueva_password or not confirmar_password:
+                print("Error: Campos incompletos")
+                return JsonResponse({'success': False, 'message': 'Por favor completa todos los campos.'})
+            
+            if nueva_password != confirmar_password:
+                print("Error: Contraseñas no coinciden")
+                return JsonResponse({'success': False, 'message': 'Las contraseñas no coinciden.'})
+            
+            if len(nueva_password) < 8:
+                print("Error: Contraseña muy corta")
+                return JsonResponse({'success': False, 'message': 'La contraseña debe tener al menos 8 caracteres.'})
+            
+            # Verificar contraseña actual si se proporcionó
+            if password_actual:
+                print(f"Verificando contraseña actual...")
+                print(f"Password ingresada: {password_actual}")
+                print(f"Password en User: {request.user.password}")
+                
+                # Verificar contra User.password
+                user_check = check_password(password_actual, request.user.password)
+                print(f"Verificación contra User.password: {user_check}")
+                
+                # También verificar contra AdminCredentials.password
+                try:
+                    admin_creds = request.user.admincredentials
+                    admin_check = check_password(password_actual, admin_creds.password)
+                    print(f"Verificación contra AdminCredentials.password: {admin_check}")
+                    print(f"AdminCredentials password: {admin_creds.password}")
+                except AdminCredentials.DoesNotExist:
+                    print("No se encontraron AdminCredentials")
+                    admin_check = False
+                
+                # Aceptar si cualquiera de las dos verificaciones es correcta
+                if not user_check and not admin_check:
+                    print("Error: Contraseña actual incorrecta en ambos modelos")
+                    return JsonResponse({'success': False, 'message': 'La contraseña actual es incorrecta.'})
+                else:
+                    print("Contraseña actual verificada correctamente")
+            else:
+                # Si no hay contraseña actual, verificar que esté verificado por SMS
+                # (Esta verificación se haría con una sesión o token temporal)
+                # Por ahora, requerimos contraseña actual
+                print("Error: No se proporcionó contraseña actual")
+                return JsonResponse({'success': False, 'message': 'Debes ingresar tu contraseña actual.'})
+            
+            # Cambiar la contraseña
+            print(f"=== CAMBIO DE CONTRASEÑA ===")
+            print(f"Usuario: {request.user.username}")
+            print(f"Email: {request.user.email}")
+            print(f"Nueva contraseña: {nueva_password}")
+            
+            # Cambiar contraseña en User
+            request.user.set_password(nueva_password)
+            request.user.save()
+            
+            # También cambiar contraseña en AdminCredentials
+            try:
+                admin_creds = request.user.admincredentials
+                from django.contrib.auth.hashers import make_password
+                admin_creds.password = make_password(nueva_password)
+                admin_creds.save()
+                print(f"Contraseña actualizada en AdminCredentials también")
+            except AdminCredentials.DoesNotExist:
+                print(f"Error: No se encontraron AdminCredentials para el usuario")
+                return JsonResponse({'success': False, 'message': 'Error: No se encontraron credenciales de administrador.'})
+            
+            # Verificar que se guardó correctamente
+            user_updated = User.objects.get(id=request.user.id)
+            print(f"Contraseña guardada correctamente en User: {user_updated.password}")
+            
+            return JsonResponse({'success': True, 'message': 'Contraseña cambiada exitosamente.'})
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Error al cambiar la contraseña: {str(e)}'})
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+
+@login_required
+def enviar_codigo_sms(request):
+    """Vista para enviar código de verificación por SMS"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
+    
+    if request.method == 'POST':
+        try:
+            # Obtener el número de teléfono del usuario
+            try:
+                admin_creds = request.user.admincredentials
+                telefono = admin_creds.telefono
+                
+                if not telefono:
+                    return JsonResponse({'success': False, 'message': 'No tienes un número de teléfono registrado.'})
+                
+                # Generar código de 6 dígitos
+                import random
+                codigo = str(random.randint(100000, 999999))
+                
+                # En un entorno real, aquí enviarías el SMS usando un servicio como Twilio
+                # Por ahora, simularemos el envío
+                print(f"CÓDIGO SMS para {telefono}: {codigo}")
+                
+                # Guardar el código en la sesión (en producción usarías Redis o base de datos)
+                request.session['sms_code'] = codigo
+                request.session['sms_timestamp'] = time.time()
+                
+                return JsonResponse({
+                    'success': True, 
+                    'message': f'Código enviado al número {telefono}',
+                    'codigo_demo': codigo  # Solo para desarrollo
+                })
+                
+            except AdminCredentials.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'No se encontraron credenciales de administrador.'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Error al enviar SMS: {str(e)}'})
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+
+@login_required
+def verificar_codigo_sms(request):
+    """Vista para verificar el código SMS"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
+    
+    if request.method == 'POST':
+        try:
+            import json
+            import time
+            
+            data = json.loads(request.body)
+            codigo_ingresado = data.get('codigo')
+            
+            if not codigo_ingresado:
+                return JsonResponse({'success': False, 'message': 'Por favor ingresa el código.'})
+            
+            # Verificar que el código esté en la sesión
+            codigo_guardado = request.session.get('sms_code')
+            timestamp_guardado = request.session.get('sms_timestamp')
+            
+            if not codigo_guardado or not timestamp_guardado:
+                return JsonResponse({'success': False, 'message': 'No hay código SMS pendiente.'})
+            
+            # Verificar que no haya expirado (5 minutos)
+            if time.time() - timestamp_guardado > 300:
+                # Limpiar sesión
+                request.session.pop('sms_code', None)
+                request.session.pop('sms_timestamp', None)
+                return JsonResponse({'success': False, 'message': 'El código SMS ha expirado.'})
+            
+            # Verificar el código
+            if codigo_ingresado == codigo_guardado:
+                # Marcar como verificado en la sesión
+                request.session['sms_verified'] = True
+                request.session['sms_verified_timestamp'] = time.time()
+                
+                # Limpiar el código usado
+                request.session.pop('sms_code', None)
+                request.session.pop('sms_timestamp', None)
+                
+                return JsonResponse({'success': True, 'message': 'Código verificado exitosamente.'})
+            else:
+                return JsonResponse({'success': False, 'message': 'Código incorrecto.'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Error al verificar código: {str(e)}'})
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+
+@login_required
+def listar_usuarios_admin(request):
+    """Vista para listar todos los usuarios administrativos"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
+    
+    try:
+        # Obtener todos los usuarios administrativos
+        usuarios = AdminCredentials.objects.filter(activo=True).select_related('user')
+        
+        usuarios_data = []
+        for cred in usuarios:
+            usuarios_data.append({
+                'id': cred.id,
+                'nombre_completo': cred.get_nombre_completo(),
+                'email': cred.email,
+                'telefono': cred.telefono or 'No registrado',
+                'fecha_creacion': cred.fecha_creacion.strftime('%d/%m/%Y %H:%M'),
+                'activo': cred.activo,
+                'foto_perfil': cred.get_foto_perfil_url()
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'usuarios': usuarios_data
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Error al listar usuarios: {str(e)}'})
+
+@login_required
+def eliminar_usuario_admin(request, usuario_id):
+    """Vista para eliminar un usuario administrativo"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
+    
+    if request.method == 'POST':
+        try:
+            # Verificar que no se esté eliminando a sí mismo
+            if request.user.admincredentials.id == usuario_id:
+                return JsonResponse({'success': False, 'message': 'No puedes eliminar tu propia cuenta.'})
+            
+            # Buscar las credenciales del usuario
+            try:
+                admin_creds = AdminCredentials.objects.get(id=usuario_id, activo=True)
+            except AdminCredentials.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Usuario no encontrado.'})
+            
+            # Obtener el usuario asociado
+            user = admin_creds.user
+            
+            # Eliminar las credenciales (esto también eliminará el usuario por CASCADE)
+            admin_creds.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Usuario {admin_creds.get_nombre_completo()} eliminado exitosamente.'
+            })
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Error al eliminar usuario: {str(e)}'})
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+
+@login_required
+def gestionar_resenas(request):
+    """Vista para gestionar reseñas en el dashboard admin"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
+    
+    try:
+        from propiedades.models import Resena
+        
+        # Obtener parámetros de paginación
+        page = int(request.GET.get('page', 1))
+        per_page = 5
+        start = (page - 1) * per_page
+        end = start + per_page
+        
+        # Obtener solo reseñas pendientes y aprobadas (excluir rechazadas)
+        resenas = Resena.objects.filter(
+            estado__in=['pendiente', 'aprobada']
+        ).select_related('propiedad').order_by('-fecha_creacion')
+        total_resenas = resenas.count()
+        resenas_paginadas = resenas[start:end]
+        
+        resenas_data = []
+        for resena in resenas_paginadas:
+            resenas_data.append({
+                'id': resena.id,
+                'propiedad_titulo': resena.propiedad.titulo,
+                'propiedad_id': resena.propiedad.id,
+                'nombre_usuario': resena.nombre_usuario,
+                'email_usuario': resena.email_usuario,
+                'calificacion': resena.calificacion,
+                'titulo': resena.titulo,
+                'comentario': resena.comentario,
+                'fecha_creacion': resena.fecha_creacion.strftime('%d/%m/%Y %H:%M'),
+                'estado': resena.get_estado_display(),
+                'estrellas_html': resena.get_estrellas_html()
+            })
+        
+        # Calcular información de paginación
+        total_pages = (total_resenas + per_page - 1) // per_page
+        has_previous = page > 1
+        has_next = page < total_pages
+        
+        return JsonResponse({
+            'success': True,
+            'resenas': resenas_data,
+            'pagination': {
+                'current_page': page,
+                'total_pages': total_pages,
+                'total_resenas': total_resenas,
+                'per_page': per_page,
+                'has_previous': has_previous,
+                'has_next': has_next,
+                'previous_page': page - 1 if has_previous else None,
+                'next_page': page + 1 if has_next else None
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Error al cargar reseñas: {str(e)}'})
+
+@login_required
+def aprobar_resena(request, resena_id):
+    """Vista para aprobar una reseña"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
+    
+    if request.method == 'POST':
+        try:
+            from propiedades.models import Resena
+            
+            resena = Resena.objects.get(id=resena_id, estado='pendiente')
+            resena.aprobar(request.user.admincredentials)
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Reseña de {resena.nombre_usuario} aprobada exitosamente.'
+            })
+            
+        except Resena.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Reseña no encontrada.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Error al aprobar reseña: {str(e)}'})
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+
+@login_required
+def rechazar_resena(request, resena_id):
+    """Vista para rechazar una reseña"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
+    
+    if request.method == 'POST':
+        try:
+            from propiedades.models import Resena
+            
+            resena = Resena.objects.get(id=resena_id, estado='pendiente')
+            resena.rechazar(request.user.admincredentials)
+            
+            return JsonResponse({
+                'success': True,
+                'message': f'Reseña de {resena.nombre_usuario} rechazada.'
+            })
+            
+        except Resena.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Reseña no encontrada.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Error al rechazar reseña: {str(e)}'})
+    
+    return JsonResponse({'success': False, 'message': 'Método no permitido.'})

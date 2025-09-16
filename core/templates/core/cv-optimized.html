@@ -1,0 +1,236 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Envío de CV - Tienda Inmobiliaria{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cv.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- CV Application Section -->
+<section class="cv-application-section" role="main" aria-label="Sección de envío de CV">
+    <div class="cv-container">
+        <div class="cv-layout">
+            <!-- Image Section -->
+            <div class="cv-image-section" aria-hidden="true">
+                <div class="cv-image" style="background-image: url('{% static "images/CV2.webp" %}');"></div>
+            </div>
+            
+            <!-- Form Section -->
+            <div class="cv-form-section">
+                <div class="cv-header">
+                    <h1 class="cv-title">Envíanos tu CV</h1>
+                    <h3 class="cv-subtitle">Únete a nuestro equipo</h3>
+                    <p class="cv-description">Forma parte de una empresa líder en el sector inmobiliario. Completa el formulario y te contactaremos pronto.</p>
+                    
+                    <!-- CV Form -->
+                    <div class="cv-form-card">
+                        <form id="cvForm" class="cv-form" novalidate role="form" aria-label="Formulario de envío de CV">
+                            <div class="row g-1">
+                                <div class="col-md-6">
+                                    <label for="nombre" class="form-label">
+                                        Nombre Completo <span class="cv-form-required">*</span>
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="nombre" 
+                                           name="nombre" 
+                                           required 
+                                           aria-required="true"
+                                           placeholder="Tu nombre completo"
+                                           aria-describedby="nombre-help">
+                                    <div class="invalid-feedback" role="alert"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">
+                                        Email <span class="cv-form-required">*</span>
+                                    </label>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="email" 
+                                           name="email" 
+                                           required 
+                                           aria-required="true"
+                                           placeholder="tu@email.com"
+                                           aria-describedby="email-help">
+                                    <div class="invalid-feedback" role="alert"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-1 mt-1">
+                                <div class="col-md-6">
+                                    <label for="telefono" class="form-label">Teléfono</label>
+                                    <input type="tel" 
+                                           class="form-control" 
+                                           id="telefono" 
+                                           name="telefono"
+                                           placeholder="+1 234 567 890"
+                                           aria-describedby="telefono-help">
+                                    <div class="invalid-feedback" role="alert"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="posicion" class="form-label">
+                                        Posición de Interés <span class="cv-form-required">*</span>
+                                    </label>
+                                    <select class="form-select" 
+                                            id="posicion" 
+                                            name="posicion" 
+                                            required 
+                                            aria-required="true"
+                                            aria-describedby="posicion-help">
+                                        <option value="">Selecciona una posición</option>
+                                        <option value="agente_inmobiliario">Agente Inmobiliario</option>
+                                        <option value="asesor_comercial">Asesor Comercial</option>
+                                        <option value="gerente_ventas">Gerente de Ventas</option>
+                                        <option value="administrativo">Personal Administrativo</option>
+                                        <option value="marketing">Especialista en Marketing</option>
+                                        <option value="contabilidad">Contabilidad</option>
+                                        <option value="legal">Asesoría Legal</option>
+                                        <option value="otro">Otra posición</option>
+                                    </select>
+                                    <div class="invalid-feedback" role="alert"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-1 mt-1">
+                                <div class="col-md-6">
+                                    <label for="experiencia" class="form-label">Años de Experiencia</label>
+                                    <select class="form-select" id="experiencia" name="experiencia">
+                                        <option value="">Selecciona experiencia</option>
+                                        <option value="sin_experiencia">Sin experiencia</option>
+                                        <option value="1-2">1-2 años</option>
+                                        <option value="3-5">3-5 años</option>
+                                        <option value="6-10">6-10 años</option>
+                                        <option value="10+">Más de 10 años</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="educacion" class="form-label">Nivel Educativo</label>
+                                    <select class="form-select" id="educacion" name="educacion">
+                                        <option value="">Selecciona nivel educativo</option>
+                                        <option value="secundario">Secundario Completo</option>
+                                        <option value="terciario">Terciario</option>
+                                        <option value="universitario">Universitario</option>
+                                        <option value="posgrado">Posgrado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-1">
+                                <label for="cv_file" class="form-label">
+                                    Archivo CV <span class="cv-form-required">*</span>
+                                </label>
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="cv_file" 
+                                       name="cv_file" 
+                                       accept=".pdf,.doc,.docx"
+                                       required 
+                                       aria-required="true"
+                                       aria-describedby="cv_file-help">
+                                <div class="form-text">Formatos aceptados: PDF, DOC, DOCX (máximo 5MB)</div>
+                                <div class="invalid-feedback" role="alert"></div>
+                            </div>
+                            
+                            <div class="mt-1">
+                                <label for="carta_presentacion" class="form-label">Carta de Presentación</label>
+                                <textarea class="form-control" 
+                                          id="carta_presentacion" 
+                                          name="carta_presentacion" 
+                                          rows="2" 
+                                          placeholder="Cuéntanos por qué te interesa trabajar con nosotros..."
+                                          aria-describedby="carta_presentacion-help"></textarea>
+                            </div>
+                            
+                            <div class="mt-2">
+                                <button type="submit" 
+                                        class="btn-cta w-100"
+                                        aria-label="Enviar currículum">
+                                    <i class="fas fa-paper-plane me-2" aria-hidden="true"></i>
+                                    Enviar CV
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="cv-benefits-section" aria-label="Beneficios de trabajar con nosotros">
+    <div class="cv-benefits-overlay" aria-hidden="true"></div>
+    
+    <div class="cv-benefits-container">
+        <div class="cv-benefits-content">
+            <h3 class="cv-benefits-title">¿Por qué trabajar con nosotros?</h3>
+            <div class="cv-benefits-grid">
+                <div class="cv-benefit-item">
+                    <div class="cv-benefit-icon">
+                        <i class="fas fa-chart-line" aria-hidden="true"></i>
+                    </div>
+                    <div class="cv-benefit-content">
+                        <h5>Crecimiento Profesional</h5>
+                        <p>Oportunidades de desarrollo y capacitación continua</p>
+                    </div>
+                </div>
+                <div class="cv-benefit-item">
+                    <div class="cv-benefit-icon">
+                        <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+                    </div>
+                    <div class="cv-benefit-content">
+                        <h5>Competencia Salarial</h5>
+                        <p>Remuneración competitiva y beneficios adicionales</p>
+                    </div>
+                </div>
+                <div class="cv-benefit-item">
+                    <div class="cv-benefit-icon">
+                        <i class="fas fa-users" aria-hidden="true"></i>
+                    </div>
+                    <div class="cv-benefit-content">
+                        <h5>Ambiente de Trabajo</h5>
+                        <p>Equipo colaborativo y ambiente laboral positivo</p>
+                    </div>
+                </div>
+                <div class="cv-benefit-item">
+                    <div class="cv-benefit-icon">
+                        <i class="fas fa-handshake" aria-hidden="true"></i>
+                    </div>
+                    <div class="cv-benefit-content">
+                        <h5>Estabilidad</h5>
+                        <p>Empresa consolidada con proyección a futuro</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/cv-form.js' %}"></script>
+<script src="{% static 'js/cv-benefits.js' %}"></script>
+<script src="{% static 'js/cv-layout.js' %}"></script>
+
+<script>
+// Initialize all CV components
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('CV page initialized successfully');
+    
+    // Setup additional interactions
+    if (window.cvForm) {
+        console.log('CV form ready');
+    }
+    
+    if (window.cvBenefits) {
+        console.log('CV benefits ready');
+    }
+    
+    if (window.cvLayout) {
+        console.log('CV layout ready');
+    }
+});
+</script>
+{% endblock %}

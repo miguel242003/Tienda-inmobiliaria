@@ -1041,7 +1041,7 @@ function handleFormSubmission() {
             
             // Simulate form submission
             setTimeout(() => {
-                alert('¡Gracias por enviar tu CV! Te contactaremos pronto si tu perfil coincide con nuestras necesidades.');
+                mostrarNotificacion('success', '¡CV Enviado!', 'Gracias por enviar tu CV. Te contactaremos pronto si tu perfil coincide con nuestras necesidades.');
                 this.reset();
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;

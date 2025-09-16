@@ -236,3 +236,117 @@ class ClickPropiedad(models.Model):
     
     def __str__(self):
         return f"Click en {self.propiedad.titulo} - {self.fecha_click.strftime('%d/%m/%Y %H:%M')}"
+
+class Resena(models.Model):
+    """Modelo para las reseñas de propiedades"""
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente de Aprobación'),
+        ('aprobada', 'Aprobada'),
+        ('rechazada', 'Rechazada'),
+    ]
+    
+    propiedad = models.ForeignKey(
+        Propiedad,
+        on_delete=models.CASCADE,
+        related_name='resenas',
+        verbose_name="Propiedad"
+    )
+    nombre_usuario = models.CharField(
+        max_length=100,
+        verbose_name="Nombre del Usuario"
+    )
+    email_usuario = models.EmailField(
+        verbose_name="Email del Usuario"
+    )
+    telefono_usuario = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name="Teléfono del Usuario"
+    )
+    calificacion = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Calificación (1-5 estrellas)"
+    )
+    titulo = models.CharField(
+        max_length=200,
+        verbose_name="Título de la Reseña"
+    )
+    comentario = models.TextField(
+        verbose_name="Comentario"
+    )
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='pendiente',
+        verbose_name="Estado de la Reseña"
+    )
+    fecha_creacion = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Fecha de Creación"
+    )
+    fecha_moderacion = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Fecha de Moderación"
+    )
+    moderado_por = models.ForeignKey(
+        'login.AdminCredentials',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Moderado por"
+    )
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        verbose_name="Dirección IP"
+    )
+    
+    class Meta:
+        verbose_name = "Reseña"
+        verbose_name_plural = "Reseñas"
+        ordering = ['-fecha_creacion']
+    
+    def __str__(self):
+        return f"Reseña de {self.nombre_usuario} para {self.propiedad.titulo}"
+    
+    def get_estrellas_html(self):
+        """Retorna HTML para mostrar las estrellas de calificación"""
+        estrellas_llenas = '★' * self.calificacion
+        estrellas_vacias = '☆' * (5 - self.calificacion)
+        return f"{estrellas_llenas}{estrellas_vacias}"
+    
+    def get_estado_badge_class(self):
+        """Retorna la clase CSS para el badge del estado"""
+        clases = {
+            'pendiente': 'bg-yellow-100 text-yellow-800',
+            'aprobada': 'bg-green-100 text-green-800',
+            'rechazada': 'bg-red-100 text-red-800',
+        }
+        return clases.get(self.estado, 'bg-gray-100 text-gray-800')
+    
+    def get_estado_display_color(self):
+        """Retorna el color para mostrar el estado"""
+        colores = {
+            'pendiente': 'yellow',
+            'aprobada': 'green',
+            'rechazada': 'red',
+        }
+        return colores.get(self.estado, 'gray')
+    
+    def aprobar(self, moderador):
+        """Aprobar la reseña"""
+        from django.utils import timezone
+        self.estado = 'aprobada'
+        self.moderado_por = moderador
+        self.fecha_moderacion = timezone.now()
+        self.save()
+    
+    def rechazar(self, moderador):
+        """Rechazar la reseña"""
+        from django.utils import timezone
+        self.estado = 'rechazada'
+        self.moderado_por = moderador
+        self.fecha_moderacion = timezone.now()
+        self.save()

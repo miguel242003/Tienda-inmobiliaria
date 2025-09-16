@@ -1,0 +1,210 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Login Administrador - Tienda Inmobiliaria{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="login-background">
+    <!-- Admin Login Header -->
+    <section class="text-white py-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Form -->
+    <section class="py-5 admin-login-page" style="margin-top: 50px;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="card login-card">
+                        <div class="card-body login-card-body">
+                            <div class="login-header">
+                                <i class="fas fa-user-shield login-icon" aria-hidden="true"></i>
+                                <h3 class="login-title">Login Administrador</h3>
+                                <p class="login-subtitle">Solo personal autorizado</p>
+                            </div>
+
+                            <!-- Messages -->
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="login-alert alert-{{ message.tags }}" role="alert">
+                                        <i class="fas fa-{{ message.tags == 'error' and 'exclamation-circle' or 'check-circle' }}" aria-hidden="true"></i>
+                                        <span>{{ message }}</span>
+                                        <button class="login-alert-close" onclick="this.parentElement.remove()" aria-label="Cerrar mensaje">
+                                            <i class="fas fa-times" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+
+                            <form method="post" id="adminLoginForm" class="login-form" role="form" aria-label="Formulario de login administrativo">
+                                {% csrf_token %}
+                                <div class="login-form-group">
+                                    <label for="email" class="login-form-label">
+                                        <i class="fas fa-envelope" aria-hidden="true"></i> Correo Electrónico
+                                    </label>
+                                    <input type="email" 
+                                           class="login-form-input" 
+                                           id="email" 
+                                           name="email" 
+                                           placeholder="Ingresa tu correo electrónico"
+                                           required
+                                           aria-required="true"
+                                           autocomplete="email"
+                                           aria-describedby="email-help">
+                                </div>
+                                
+                                <div class="login-form-group">
+                                    <label for="password" class="login-form-label">
+                                        <i class="fas fa-lock" aria-hidden="true"></i> Contraseña
+                                    </label>
+                                    <div class="login-password-group">
+                                        <input type="password" 
+                                               class="login-form-input" 
+                                               id="password" 
+                                               name="password" 
+                                               placeholder="Ingresa tu contraseña"
+                                               required
+                                               aria-required="true"
+                                               autocomplete="current-password"
+                                               aria-describedby="password-help">
+                                        <button class="login-password-toggle" 
+                                                type="button" 
+                                                id="togglePassword"
+                                                aria-label="Mostrar/ocultar contraseña">
+                                            <i class="fas fa-eye" id="eyeIcon" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="login-remember">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
+                                    <label class="form-check-label" for="rememberMe">
+                                        Recordar mi sesión
+                                    </label>
+                                </div>
+                                
+                                <div class="d-grid mb-4">
+                                    <button type="submit" class="login-submit-btn">
+                                        <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Iniciar Sesión
+                                    </button>
+                                </div>
+                            </form>
+                            
+                            <hr class="login-divider">
+                            
+                            <div class="login-footer">
+                                <div class="login-security-info">
+                                    <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                                    <span>Acceso seguro y encriptado</span>
+                                </div>
+                                
+                                <div class="text-center mt-3">
+                                    <a href="{% url 'core:home' %}" class="login-back-link">
+                                        <i class="fas fa-arrow-left" aria-hidden="true"></i> Volver al inicio
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security Info -->
+    <section class="py-3 login-security-section" aria-label="Información de seguridad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center text-white">
+                    <div class="login-security-card">
+                        <h4 class="login-security-title">Seguridad Garantizada</h4>
+                        <div class="login-security-grid">
+                            <div class="login-security-item">
+                                <i class="fas fa-lock login-security-icon" aria-hidden="true"></i>
+                                <h6 class="login-security-item-title">Acceso Encriptado</h6>
+                                <small class="login-security-item-description">Todas las comunicaciones están protegidas</small>
+                            </div>
+                            <div class="login-security-item">
+                                <i class="fas fa-user-check login-security-icon" aria-hidden="true"></i>
+                                <h6 class="login-security-item-title">Verificación de Usuario</h6>
+                                <small class="login-security-item-description">Solo usuarios autorizados pueden acceder</small>
+                            </div>
+                            <div class="login-security-item">
+                                <i class="fas fa-history login-security-icon" aria-hidden="true"></i>
+                                <h6 class="login-security-item-title">Registro de Actividad</h6>
+                                <small class="login-security-item-description">Todas las acciones quedan registradas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/login-form.js' %}"></script>
+<script src="{% static 'js/login-security.js' %}"></script>
+
+<script>
+// Initialize all login components
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Login page initialized successfully');
+    
+    // Setup additional interactions
+    if (window.loginForm) {
+        console.log('Login form ready');
+    }
+    
+    if (window.loginSecurity) {
+        console.log('Login security ready');
+    }
+    
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+Enter to submit form
+        if (e.ctrlKey && e.key === 'Enter') {
+            const form = document.getElementById('adminLoginForm');
+            if (form) {
+                form.dispatchEvent(new Event('submit'));
+            }
+        }
+        
+        // Escape to clear form
+        if (e.key === 'Escape') {
+            const form = document.getElementById('adminLoginForm');
+            if (form) {
+                form.reset();
+                const inputs = form.querySelectorAll('.login-form-input');
+                inputs.forEach(input => {
+                    input.classList.remove('is-invalid', 'is-valid');
+                });
+            }
+        }
+    });
+    
+    // Add form animations
+    const form = document.getElementById('adminLoginForm');
+    if (form) {
+        form.classList.add('animate-fade-in-up');
+    }
+    
+    // Add security card animations
+    const securityCards = document.querySelectorAll('.login-security-item');
+    securityCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-slide-in-left');
+    });
+});
+</script>
+{% endblock %}

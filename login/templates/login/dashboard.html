@@ -285,10 +285,10 @@
                     <span class="font-medium text-sm sm:text-base">Nuevo Usuario</span>
                 </button>
                 
-                <a href="#" class="flex items-center px-3 sm:px-4 py-2 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                <button id="btn-gestionar-resenas" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
                     <i data-lucide="star" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
                     <span class="font-medium text-sm sm:text-base">Reseñas</span>
-                </a>
+                </button>
                 
                 <button id="btn-configuraciones" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
                     <i data-lucide="settings" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
@@ -801,6 +801,12 @@
                         </div>
                         
                         <div class="p-6">
+                            <!-- DEBUG: Datos del usuario -->
+                            <!-- Nombre: {{ user.admincredentials.nombre|default:"No definido" }} -->
+                            <!-- Apellido: {{ user.admincredentials.apellido|default:"No definido" }} -->
+                            <!-- Teléfono: {{ user.admincredentials.telefono|default:"No definido" }} -->
+                            <!-- Fecha: {{ user.admincredentials.fecha_nacimiento|default:"No definido" }} -->
+                            
                             <form id="configuracion-perfil-form" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 
@@ -888,7 +894,7 @@
                                             Fecha de Nacimiento
                                         </label>
                                         <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" 
-                                               value="{{ user.admincredentials.fecha_nacimiento|default:'' }}" 
+                                               value="{% if user.admincredentials.fecha_nacimiento %}{{ user.admincredentials.fecha_nacimiento|date:'Y-m-d' }}{% endif %}" 
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                 </div>
@@ -905,6 +911,218 @@
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+
+                    <!-- Sección de Cambio de Contraseña -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mt-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i data-lucide="lock" class="w-5 h-5 mr-2 text-blue-600"></i>
+                                Cambiar Contraseña
+                            </h3>
+                        </div>
+                        
+                        <div class="p-6">
+                            <!-- Messages para cambio de contraseña -->
+                            <div id="password-messages" class="hidden mb-4"></div>
+                            
+                            <form id="cambiar-password-form" method="post">
+                                {% csrf_token %}
+                                
+                                <!-- Contraseña Actual -->
+                                <div class="mb-6">
+                                    <label for="password_actual" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i data-lucide="key" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                        Contraseña Actual
+                                    </label>
+                                    <div class="relative">
+                                        <input type="password" id="password_actual" name="password_actual" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                                               placeholder="Ingresa tu contraseña actual" required>
+                                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('password_actual')">
+                                            <i data-lucide="eye" class="w-4 h-4 text-gray-400"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Nueva Contraseña -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <label for="nueva_password" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i data-lucide="lock" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                            Nueva Contraseña
+                                        </label>
+                                        <div class="relative">
+                                            <input type="password" id="nueva_password" name="nueva_password" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                                                   placeholder="Ingresa nueva contraseña" required>
+                                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('nueva_password')">
+                                                <i data-lucide="eye" class="w-4 h-4 text-gray-400"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="confirmar_nueva_password" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            <i data-lucide="lock" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                            Confirmar Nueva Contraseña
+                                        </label>
+                                        <div class="relative">
+                                            <input type="password" id="confirmar_nueva_password" name="confirmar_nueva_password" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
+                                                   placeholder="Confirma nueva contraseña" required>
+                                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('confirmar_nueva_password')">
+                                                <i data-lucide="eye" class="w-4 h-4 text-gray-400"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Opción de Recuperación por SMS -->
+                                <div class="mb-6">
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div class="flex items-start">
+                                            <i data-lucide="smartphone" class="w-5 h-5 text-yellow-600 mr-3 mt-0.5"></i>
+                                            <div class="flex-1">
+                                                <h4 class="text-sm font-semibold text-yellow-800 mb-2">¿No recuerdas tu contraseña actual?</h4>
+                                                <p class="text-sm text-yellow-700 mb-3">
+                                                    Te enviaremos un código de verificación al número: 
+                                                    <strong>{{ user.admincredentials.telefono|default:"No registrado" }}</strong>
+                                                </p>
+                                                <button type="button" id="btn-enviar-sms" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-sm">
+                                                    <i data-lucide="send" class="w-4 h-4 mr-2"></i>
+                                                    Enviar Código por SMS
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Campo para código SMS (oculto inicialmente) -->
+                                <div id="sms-verification-section" class="mb-6 hidden">
+                                    <label for="codigo_sms" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        <i data-lucide="message-square" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                        Código de Verificación SMS
+                                    </label>
+                                    <div class="flex items-center space-x-3">
+                                        <input type="text" id="codigo_sms" name="codigo_sms" 
+                                               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                               placeholder="Ingresa el código de 6 dígitos" maxlength="6">
+                                        <button type="button" id="btn-verificar-sms" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                                            <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                            Verificar
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">
+                                        <i data-lucide="clock" class="w-3 h-3 mr-1"></i>
+                                        El código expira en <span id="sms-timer">5:00</span>
+                                    </p>
+                                </div>
+
+                                <!-- Botones de Acción -->
+                                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                    <button type="button" id="cancelar-password" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                        <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" id="btn-cambiar-password" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" disabled>
+                                        <i data-lucide="key" class="w-4 h-4 mr-2"></i>
+                                        Cambiar Contraseña
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contenido de Gestión de Reseñas (oculto por defecto) -->
+                <div id="gestion-resenas-content" class="hidden">
+                    <!-- Header de Gestión de Reseñas -->
+                    <div class="mb-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                                    Gestión de Reseñas
+                                </h1>
+                                <p class="text-gray-600">Modera y administra las reseñas de propiedades</p>
+                            </div>
+                            <div class="mt-4 sm:mt-0">
+                                <button id="btn-volver-dashboard-resenas" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                                    Volver al Dashboard
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros de Reseñas -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i data-lucide="filter" class="w-5 h-5 mr-2 text-blue-600"></i>
+                                Filtros
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="filtro-estado" class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
+                                    <select id="filtro-estado" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="todos">Todos los estados</option>
+                                        <option value="pendiente">Pendientes</option>
+                                        <option value="aprobada">Aprobadas</option>
+                                        <option value="rechazada">Rechazadas</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="filtro-propiedad" class="block text-sm font-semibold text-gray-700 mb-2">Propiedad</label>
+                                    <select id="filtro-propiedad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="todas">Todas las propiedades</option>
+                                        {% for propiedad in todas_propiedades %}
+                                        <option value="{{ propiedad.id }}">{{ propiedad.titulo }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="filtro-calificacion" class="block text-sm font-semibold text-gray-700 mb-2">Calificación</label>
+                                    <select id="filtro-calificacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="todas">Todas las calificaciones</option>
+                                        <option value="5">5 estrellas</option>
+                                        <option value="4">4 estrellas</option>
+                                        <option value="3">3 estrellas</option>
+                                        <option value="2">2 estrellas</option>
+                                        <option value="1">1 estrella</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Reseñas -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                        <i data-lucide="star" class="w-5 h-5 mr-2 text-blue-600"></i>
+                                        Reseñas (<span id="resenas-count">0</span>)
+                                    </h3>
+                                </div>
+                                <div class="mt-4 sm:mt-0">
+                                    <button id="btn-refrescar-resenas" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
+                                        Refrescar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="resenas-list" class="p-6">
+                            <div class="text-center py-8 text-gray-500">
+                                <i data-lucide="star" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                                <p>Cargando reseñas...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1231,12 +1449,12 @@
     <!-- Modal Nuevo Usuario Administrativo -->
     <div id="modal-nuevo-usuario" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
                 <!-- Header del Modal -->
                 <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-green-600 text-white">
                     <div>
-                        <h2 class="text-xl font-bold">Crear Nuevo Usuario Administrativo</h2>
-                        <p class="text-green-100">Agrega un nuevo administrador al sistema</p>
+                        <h2 class="text-xl font-bold">Gestión de Usuarios Administrativos</h2>
+                        <p class="text-green-100">Crea y administra usuarios del sistema</p>
                     </div>
                     <button id="cerrar-modal-usuario" class="text-white hover:text-green-200 transition-colors">
                         <i data-lucide="x" class="w-6 h-6"></i>
@@ -1246,135 +1464,181 @@
                 <!-- Contenido del Modal -->
                 <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
                     <div class="p-6">
-                        <!-- Messages -->
-                        <div id="modal-messages-usuario" class="hidden"></div>
+                        <!-- Tabs -->
+                        <div class="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
+                            <button id="tab-crear-usuario" class="flex-1 py-2 px-4 text-sm font-medium rounded-md bg-green-600 text-white transition-colors">
+                                <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
+                                Crear Usuario
+                            </button>
+                            <button id="tab-gestionar-usuarios" class="flex-1 py-2 px-4 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-200 transition-colors">
+                                <i data-lucide="users" class="w-4 h-4 mr-2"></i>
+                                Gestionar Usuarios
+                            </button>
+                        </div>
 
-                        <form method="post" enctype="multipart/form-data" id="crearUsuarioForm" action="{% url 'login:crear_nuevo_usuario_admin' %}">
-                            {% csrf_token %}
-                            
-                            <!-- Información Personal -->
-                            <div class="mb-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i data-lucide="user" class="w-5 h-5 mr-2 text-green-600"></i>
-                                    Información Personal
-                                </h3>
+                        <!-- Tab: Crear Usuario -->
+                        <div id="content-crear-usuario">
+                            <!-- Messages -->
+                            <div id="modal-messages-usuario" class="hidden"></div>
+
+                            <form method="post" enctype="multipart/form-data" id="crearUsuarioForm" action="{% url 'login:crear_nuevo_usuario_admin' %}">
+                                {% csrf_token %}
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="nombre_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Nombre
-                                        </label>
-                                        <input type="text" id="nombre_usuario" name="nombre" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                               placeholder="Ingresa el nombre" required>
+                                <!-- Información Personal -->
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                        <i data-lucide="user" class="w-5 h-5 mr-2 text-green-600"></i>
+                                        Información Personal
+                                    </h3>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="nombre_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Nombre
+                                            </label>
+                                            <input type="text" id="nombre_usuario" name="nombre" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                   placeholder="Ingresa el nombre" required>
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="apellido_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Apellido
+                                            </label>
+                                            <input type="text" id="apellido_usuario" name="apellido" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                   placeholder="Ingresa el apellido" required>
+                                        </div>
                                     </div>
                                     
-                                    <div>
-                                        <label for="apellido_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Apellido
-                                        </label>
-                                        <input type="text" id="apellido_usuario" name="apellido" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                               placeholder="Ingresa el apellido" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                                    <div>
-                                        <label for="telefono_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Teléfono
-                                        </label>
-                                        <input type="tel" id="telefono_usuario" name="telefono" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                               placeholder="+52-1-33-12345678">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                        <div>
+                                            <label for="telefono_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Teléfono
+                                            </label>
+                                            <input type="tel" id="telefono_usuario" name="telefono" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                   placeholder="+52-1-33-12345678">
+                                        </div>
+                                        
+                                        <div>
+                                            <label for="fecha_nacimiento_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Fecha de Nacimiento
+                                            </label>
+                                            <input type="date" id="fecha_nacimiento_usuario" name="fecha_nacimiento" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                        </div>
                                     </div>
                                     
-                                    <div>
-                                        <label for="fecha_nacimiento_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Fecha de Nacimiento
+                                    <div class="mt-4">
+                                        <label for="foto_perfil_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Foto de Perfil
                                         </label>
-                                        <input type="date" id="fecha_nacimiento_usuario" name="fecha_nacimiento" 
+                                        
+                                        <!-- Preview de la foto -->
+                                        <div class="text-center mb-3">
+                                            <div id="foto-preview-usuario" class="hidden">
+                                                <img id="foto-preview-img-usuario" src="" alt="Preview" class="rounded-full border-4 border-green-500 mx-auto" style="width: 120px; height: 120px; object-fit: cover;">
+                                                <p class="text-gray-600 text-sm mt-2">Vista previa de la foto de perfil</p>
+                                            </div>
+                                            <div id="foto-placeholder-usuario" class="border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mx-auto" style="width: 120px; height: 120px;">
+                                                <i data-lucide="camera" class="w-8 h-8 text-gray-400"></i>
+                                            </div>
+                                        </div>
+                                        
+                                        <input type="file" id="foto_perfil_usuario" name="foto_perfil" accept="image/*" 
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                     </div>
                                 </div>
                                 
-                                <div class="mt-4">
-                                    <label for="foto_perfil_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Foto de Perfil
-                                    </label>
+                                <!-- Información de Acceso -->
+                                <div class="mb-6">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                        <i data-lucide="lock" class="w-5 h-5 mr-2 text-green-600"></i>
+                                        Información de Acceso
+                                    </h3>
                                     
-                                    <!-- Preview de la foto -->
-                                    <div class="text-center mb-3">
-                                        <div id="foto-preview-usuario" class="hidden">
-                                            <img id="foto-preview-img-usuario" src="" alt="Preview" class="rounded-full border-4 border-green-500 mx-auto" style="width: 120px; height: 120px; object-fit: cover;">
-                                            <p class="text-gray-600 text-sm mt-2">Vista previa de la foto de perfil</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="email_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Correo Electrónico
+                                            </label>
+                                            <input type="email" id="email_usuario" name="email" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                   placeholder="usuario@email.com" required>
                                         </div>
-                                        <div id="foto-placeholder-usuario" class="border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mx-auto" style="width: 120px; height: 120px;">
-                                            <i data-lucide="camera" class="w-8 h-8 text-gray-400"></i>
+                                        
+                                        <div>
+                                            <label for="password_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                                Contraseña
+                                            </label>
+                                            <input type="password" id="password_usuario" name="password" 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                   placeholder="Mínimo 8 caracteres" required>
                                         </div>
                                     </div>
                                     
-                                    <input type="file" id="foto_perfil_usuario" name="foto_perfil" accept="image/*" 
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <div class="mt-4">
+                                        <label for="confirmar_password_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Confirmar Contraseña
+                                        </label>
+                                        <input type="password" id="confirmar_password_usuario" name="confirmar_password" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                               placeholder="Repite la contraseña" required>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Buttons -->
+                                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                    <button type="button" id="cancelar-modal-usuario" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                                        <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                        <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
+                                        Crear Usuario
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Tab: Gestionar Usuarios -->
+                        <div id="content-gestionar-usuarios" class="hidden">
+                            <div class="mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <i data-lucide="users" class="w-5 h-5 mr-2 text-blue-600"></i>
+                                    Usuarios Administrativos
+                                </h3>
+                                
+                                <!-- Messages para gestión de usuarios -->
+                                <div id="usuarios-messages" class="hidden mb-4"></div>
+                                
+                                <!-- Botón para refrescar -->
+                                <div class="flex justify-between items-center mb-4">
+                                    <p class="text-sm text-gray-600">Gestiona los usuarios administrativos del sistema</p>
+                                    <button id="btn-refrescar-usuarios" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
+                                        Refrescar
+                                    </button>
                                 </div>
                             </div>
                             
-                            <!-- Información de Acceso -->
-                            <div class="mb-6">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i data-lucide="lock" class="w-5 h-5 mr-2 text-green-600"></i>
-                                    Información de Acceso
-                                </h3>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="email_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Correo Electrónico
-                                        </label>
-                                        <input type="email" id="email_usuario" name="email" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                               placeholder="usuario@email.com" required>
-                                    </div>
-                                    
-                                    <div>
-                                        <label for="password_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            Contraseña
-                                        </label>
-                                        <input type="password" id="password_usuario" name="password" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                               placeholder="Mínimo 8 caracteres" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4">
-                                    <label for="confirmar_password_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
-                                        Confirmar Contraseña
-                                    </label>
-                                    <input type="password" id="confirmar_password_usuario" name="confirmar_password" 
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                           placeholder="Repite la contraseña" required>
+                            <!-- Lista de usuarios -->
+                            <div id="usuarios-list" class="space-y-4">
+                                <!-- Los usuarios se cargarán aquí dinámicamente -->
+                                <div class="text-center py-8 text-gray-500">
+                                    <i data-lucide="users" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                                    <p>Cargando usuarios...</p>
                                 </div>
                             </div>
-
-                            <!-- Submit Buttons -->
-                            <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                                <button type="button" id="cancelar-modal-usuario" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
-                                    Cancelar
-                                </button>
-                                <button type="submit" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
-                                    Crear Usuario
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Confirmación de Eliminación -->
+    <!-- Modal de Confirmación de Eliminación de Propiedad -->
     <div id="modal-eliminar-propiedad" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
@@ -1402,6 +1666,46 @@
                         </button>
                         <button id="confirmar-eliminar" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                             <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                            Sí, Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Eliminación de Usuario -->
+    <div id="modal-eliminar-usuario" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                            <i data-lucide="user-x" class="w-6 h-6 text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Confirmar Eliminación de Usuario</h3>
+                            <p class="text-sm text-gray-500">Esta acción no se puede deshacer</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <p class="text-gray-700">
+                            ¿Estás seguro de que quieres eliminar al usuario 
+                            <strong id="usuario-nombre-eliminar" class="text-gray-900"></strong>?
+                        </p>
+                        <p class="text-sm text-red-600 mt-2">
+                            <i data-lucide="alert-circle" class="w-4 h-4 inline mr-1"></i>
+                            Se eliminarán todas las credenciales y datos asociados.
+                        </p>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button id="cancelar-eliminar-usuario" class="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+                            Cancelar
+                        </button>
+                        <button id="confirmar-eliminar-usuario" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            <i data-lucide="user-x" class="w-4 h-4 mr-2"></i>
                             Sí, Eliminar
                         </button>
                     </div>
@@ -1833,6 +2137,22 @@
                     this.showDashboard();
                 });
                 
+                // Navegación desde configuraciones
+                const btnInicio = document.getElementById('btn-inicio');
+                const btnGestionar = document.getElementById('btn-gestionar-propiedades');
+                
+                if (btnInicio) {
+                    btnInicio.addEventListener('click', () => {
+                        this.showDashboard();
+                    });
+                }
+                
+                if (btnGestionar) {
+                    btnGestionar.addEventListener('click', () => {
+                        this.showGestionPropiedades();
+                    });
+                }
+                
                 // Cambiar foto de perfil
                 this.btnCambiarFoto.addEventListener('click', () => {
                     this.fotoInput.click();
@@ -1843,11 +2163,16 @@
                     this.handleFotoChange(e);
                 });
                 
-                // Envío del formulario
-                this.form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.handleFormSubmit();
-                });
+                // Envío del formulario (solo para configuraciones)
+                if (this.form.id === 'configuracion-perfil-form') {
+                    this.form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleFormSubmit();
+                    });
+                }
+                
+                // Inicializar gestión de cambio de contraseña
+                this.initPasswordManager();
             },
 
             showConfiguraciones() {
@@ -1866,14 +2191,50 @@
             },
 
             showDashboard() {
-                // Ocultar configuraciones
-                this.configContent.classList.add('hidden');
+                // Ocultar todas las secciones
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Ocultar específicamente la sección de reseñas
+                const resenasSection = document.getElementById('gestion-resenas-content');
+                if (resenasSection) {
+                    resenasSection.classList.add('hidden');
+                }
+                
+                // Limpiar modales activos
+                limpiarModales();
                 
                 // Mostrar dashboard
                 document.getElementById('dashboard-content').classList.remove('hidden');
                 
                 // Actualizar estado del sidebar
                 this.updateSidebarState('dashboard');
+                
+                // Recrear iconos
+                lucide.createIcons();
+            },
+
+            showGestionPropiedades() {
+                // Ocultar todas las secciones
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Ocultar específicamente la sección de reseñas
+                const resenasSection = document.getElementById('gestion-resenas-content');
+                if (resenasSection) {
+                    resenasSection.classList.add('hidden');
+                }
+                
+                // Limpiar modales activos
+                limpiarModales();
+                
+                // Mostrar gestión de propiedades
+                document.getElementById('gestion-propiedades-content').classList.remove('hidden');
+                
+                // Actualizar estado del sidebar
+                this.updateSidebarState('gestion');
                 
                 // Recrear iconos
                 lucide.createIcons();
@@ -1921,7 +2282,14 @@
             },
 
             async handleFormSubmit() {
+                console.log('=== INICIANDO ACTUALIZACIÓN DE PERFIL ===');
                 const formData = new FormData(this.form);
+                
+                // Log de los datos que se van a enviar
+                console.log('Datos del formulario:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
                 
                 try {
                     const response = await fetch('/login/actualizar-perfil/', {
@@ -1933,19 +2301,23 @@
                         }
                     });
                     
+                    console.log('Respuesta del servidor:', response.status, response.statusText);
                     const result = await response.json();
+                    console.log('Resultado JSON:', result);
                     
                     if (result.success) {
+                        console.log('Perfil actualizado exitosamente');
                         mostrarMensaje('Perfil actualizado exitosamente.', 'success');
                         // Actualizar la foto en el sidebar si cambió
                         if (result.foto_url) {
                             this.updateSidebarFoto(result.foto_url);
                         }
                     } else {
+                        console.log('Error en la respuesta:', result.message);
                         mostrarMensaje(result.message || 'Error al actualizar el perfil.', 'danger');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('Error en la petición:', error);
                     mostrarMensaje('Error al actualizar el perfil.', 'danger');
                 }
             },
@@ -1954,6 +2326,155 @@
                 const sidebarFoto = document.querySelector('#sidebar footer .w-7');
                 if (sidebarFoto && fotoUrl) {
                     sidebarFoto.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" class="w-full h-full object-cover rounded-full">`;
+                }
+            },
+
+            initPasswordManager() {
+                const passwordForm = document.getElementById('cambiar-password-form');
+                const btnEnviarSMS = document.getElementById('btn-enviar-sms');
+                const btnVerificarSMS = document.getElementById('btn-verificar-sms');
+                const btnCancelarPassword = document.getElementById('cancelar-password');
+                const btnCambiarPassword = document.getElementById('btn-cambiar-password');
+                
+                // Event listeners para cambio de contraseña
+                if (btnEnviarSMS) {
+                    btnEnviarSMS.addEventListener('click', enviarCodigoSMS);
+                }
+                
+                if (btnVerificarSMS) {
+                    btnVerificarSMS.addEventListener('click', verificarCodigoSMS);
+                }
+                
+                if (btnCancelarPassword) {
+                    btnCancelarPassword.addEventListener('click', () => {
+                        this.resetPasswordForm();
+                    });
+                }
+                
+                if (passwordForm) {
+                    passwordForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handlePasswordChange();
+                    });
+                }
+                
+                // Validación en tiempo real de contraseñas
+                const nuevaPassword = document.getElementById('nueva_password');
+                const confirmarPassword = document.getElementById('confirmar_nueva_password');
+                
+                if (nuevaPassword && confirmarPassword) {
+                    [nuevaPassword, confirmarPassword].forEach(input => {
+                        input.addEventListener('input', () => {
+                            this.validatePasswords();
+                        });
+                    });
+                }
+            },
+
+            validatePasswords() {
+                const nuevaPassword = document.getElementById('nueva_password').value;
+                const confirmarPassword = document.getElementById('confirmar_nueva_password').value;
+                const btnCambiarPassword = document.getElementById('btn-cambiar-password');
+                
+                // Validar que las contraseñas coincidan
+                if (nuevaPassword && confirmarPassword) {
+                    if (nuevaPassword === confirmarPassword) {
+                        if (nuevaPassword.length >= 8) {
+                            // Habilitar botón si está verificado por SMS o tiene contraseña actual
+                            const passwordActual = document.getElementById('password_actual').value;
+                            if (passwordActual || smsVerified) {
+                                btnCambiarPassword.disabled = false;
+                            }
+                        } else {
+                            btnCambiarPassword.disabled = true;
+                            mostrarMensajePassword('La contraseña debe tener al menos 8 caracteres.', 'danger');
+                        }
+                    } else {
+                        btnCambiarPassword.disabled = true;
+                        mostrarMensajePassword('Las contraseñas no coinciden.', 'danger');
+                    }
+                } else {
+                    btnCambiarPassword.disabled = true;
+                }
+            },
+
+            resetPasswordForm() {
+                const form = document.getElementById('cambiar-password-form');
+                if (form) form.reset();
+                
+                // Limpiar variables globales
+                smsCodeSent = false;
+                smsVerified = false;
+                if (smsTimer) {
+                    clearInterval(smsTimer);
+                    smsTimer = null;
+                }
+                
+                // Ocultar sección de SMS
+                const smsSection = document.getElementById('sms-verification-section');
+                if (smsSection) smsSection.classList.add('hidden');
+                
+                // Deshabilitar botón
+                const btnCambiarPassword = document.getElementById('btn-cambiar-password');
+                if (btnCambiarPassword) btnCambiarPassword.disabled = true;
+                
+                // Limpiar mensajes
+                const messagesContainer = document.getElementById('password-messages');
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = '';
+                    messagesContainer.classList.add('hidden');
+                }
+            },
+
+            async handlePasswordChange() {
+                const formData = new FormData(document.getElementById('cambiar-password-form'));
+                const passwordActual = formData.get('password_actual');
+                const nuevaPassword = formData.get('nueva_password');
+                const confirmarPassword = formData.get('confirmar_nueva_password');
+                
+                // Validaciones
+                if (!nuevaPassword || !confirmarPassword) {
+                    mostrarMensajePassword('Por favor completa todos los campos.', 'danger');
+                    return;
+                }
+                
+                if (nuevaPassword !== confirmarPassword) {
+                    mostrarMensajePassword('Las contraseñas no coinciden.', 'danger');
+                    return;
+                }
+                
+                if (nuevaPassword.length < 8) {
+                    mostrarMensajePassword('La contraseña debe tener al menos 8 caracteres.', 'danger');
+                    return;
+                }
+                
+                // Verificar que tenga contraseña actual O verificación SMS
+                if (!passwordActual && !smsVerified) {
+                    mostrarMensajePassword('Debes ingresar tu contraseña actual o verificar por SMS.', 'danger');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/login/cambiar-password/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        mostrarMensajePassword('Contraseña cambiada exitosamente.', 'success');
+                        this.resetPasswordForm();
+                    } else {
+                        mostrarMensajePassword(result.message || 'Error al cambiar la contraseña.', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarMensajePassword('Error al cambiar la contraseña.', 'danger');
                 }
             }
         };
@@ -1970,8 +2491,20 @@
                 this.form = document.getElementById('crearUsuarioForm');
                 this.messagesContainer = document.getElementById('modal-messages-usuario');
                 
+                // Tabs
+                this.tabCrearUsuario = document.getElementById('tab-crear-usuario');
+                this.tabGestionarUsuarios = document.getElementById('tab-gestionar-usuarios');
+                this.contentCrearUsuario = document.getElementById('content-crear-usuario');
+                this.contentGestionarUsuarios = document.getElementById('content-gestionar-usuarios');
+                
+                // Gestión de usuarios
+                this.btnRefrescarUsuarios = document.getElementById('btn-refrescar-usuarios');
+                this.usuariosList = document.getElementById('usuarios-list');
+                this.usuariosMessages = document.getElementById('usuarios-messages');
+                
                 this.bindEvents();
                 this.initFormHandlers();
+                this.initTabHandlers();
             },
 
             bindEvents() {
@@ -2094,11 +2627,13 @@
                     });
                 }
                 
-                // Validación antes de enviar
-                this.form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.handleFormSubmit();
-                });
+                // Validación antes de enviar (solo para nuevo usuario)
+                if (this.form.id === 'crearUsuarioForm') {
+                    this.form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleFormSubmit();
+                    });
+                }
             },
 
             async handleFormSubmit() {
@@ -2142,6 +2677,143 @@
                     console.error('Error:', error);
                     this.showMessage('Error al crear el usuario. Por favor intenta de nuevo.', 'danger');
                 }
+            },
+
+            initTabHandlers() {
+                // Tab: Crear Usuario
+                this.tabCrearUsuario.addEventListener('click', () => {
+                    this.showTab('crear');
+                });
+                
+                // Tab: Gestionar Usuarios
+                this.tabGestionarUsuarios.addEventListener('click', () => {
+                    this.showTab('gestionar');
+                });
+                
+                // Botón refrescar usuarios
+                this.btnRefrescarUsuarios.addEventListener('click', () => {
+                    this.cargarUsuarios();
+                });
+            },
+
+            showTab(tabName) {
+                // Remover clases activas de todos los tabs
+                this.tabCrearUsuario.classList.remove('bg-green-600', 'text-white');
+                this.tabCrearUsuario.classList.add('text-gray-600', 'hover:bg-gray-200');
+                this.tabGestionarUsuarios.classList.remove('bg-green-600', 'text-white');
+                this.tabGestionarUsuarios.classList.add('text-gray-600', 'hover:bg-gray-200');
+                
+                // Ocultar todos los contenidos
+                this.contentCrearUsuario.classList.add('hidden');
+                this.contentGestionarUsuarios.classList.add('hidden');
+                
+                if (tabName === 'crear') {
+                    // Activar tab crear usuario
+                    this.tabCrearUsuario.classList.remove('text-gray-600', 'hover:bg-gray-200');
+                    this.tabCrearUsuario.classList.add('bg-green-600', 'text-white');
+                    this.contentCrearUsuario.classList.remove('hidden');
+                } else if (tabName === 'gestionar') {
+                    // Activar tab gestionar usuarios
+                    this.tabGestionarUsuarios.classList.remove('text-gray-600', 'hover:bg-gray-200');
+                    this.tabGestionarUsuarios.classList.add('bg-green-600', 'text-white');
+                    this.contentGestionarUsuarios.classList.remove('hidden');
+                    // Cargar usuarios cuando se muestra el tab
+                    this.cargarUsuarios();
+                }
+                
+                lucide.createIcons();
+            },
+
+            async cargarUsuarios() {
+                try {
+                    this.usuariosList.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i data-lucide="loader" class="w-8 h-8 mx-auto mb-4 text-gray-300 animate-spin"></i>
+                            <p>Cargando usuarios...</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    
+                    const response = await fetch('/login/listar-usuarios-admin/', {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.mostrarUsuarios(result.usuarios);
+                    } else {
+                        this.mostrarErrorUsuarios(result.message || 'Error al cargar usuarios');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.mostrarErrorUsuarios('Error al cargar usuarios');
+                }
+            },
+
+            mostrarUsuarios(usuarios) {
+                if (usuarios.length === 0) {
+                    this.usuariosList.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i data-lucide="users" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                            <p>No hay usuarios administrativos registrados</p>
+                        </div>
+                    `;
+                } else {
+                    this.usuariosList.innerHTML = usuarios.map(usuario => `
+                        <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center overflow-hidden">
+                                        ${usuario.foto_perfil ? 
+                                            `<img src="${usuario.foto_perfil}" alt="Foto de perfil" class="w-full h-full object-cover">` :
+                                            `<i data-lucide="user" class="w-6 h-6 text-blue-600"></i>`
+                                        }
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">${usuario.nombre_completo}</h4>
+                                        <p class="text-sm text-gray-600">${usuario.email}</p>
+                                        <p class="text-xs text-gray-500">Creado: ${usuario.fecha_creacion}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${usuario.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                        ${usuario.activo ? 'Activo' : 'Inactivo'}
+                                    </span>
+                                    <button onclick="UsuarioModalManager.confirmarEliminarUsuario(${usuario.id}, '${usuario.nombre_completo}')" 
+                                            class="text-red-600 hover:text-red-800 transition-colors" title="Eliminar usuario">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                lucide.createIcons();
+            },
+
+            mostrarErrorUsuarios(mensaje) {
+                this.usuariosList.innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-4 text-red-300"></i>
+                        <p>${mensaje}</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            },
+
+            confirmarEliminarUsuario(usuarioId, nombreUsuario) {
+                window.usuarioAEliminar = usuarioId;
+                document.getElementById('usuario-nombre-eliminar').textContent = nombreUsuario;
+                
+                const modal = document.getElementById('modal-eliminar-usuario');
+                modal.classList.remove('hidden');
+                
+                lucide.createIcons();
             }
         };
 
@@ -2256,11 +2928,13 @@
                     });
                 }
                 
-                // Validación antes de enviar
-                this.form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    this.handleFormSubmit();
-                });
+                // Validación antes de enviar (solo para nueva propiedad)
+                if (this.form.id === 'crearPropiedadForm') {
+                    this.form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleFormSubmit();
+                    });
+                }
                 
                 // Preview de imagen principal
                 const imagenPrincipalInput = document.getElementById('{{ form.imagen_principal.id_for_label }}');
@@ -2510,6 +3184,151 @@
         // ========================================
         let propiedadAEliminar = null;
 
+        // ========================================
+        // FUNCIONES GLOBALES PARA GESTIÓN DE USUARIOS
+        // ========================================
+        let usuarioAEliminar = null;
+
+        // ========================================
+        // FUNCIONES GLOBALES PARA CAMBIO DE CONTRASEÑA
+        // ========================================
+        let smsTimer = null;
+        let smsCodeSent = false;
+        let smsVerified = false;
+
+        // Función para alternar visibilidad de contraseña
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        // Función para mostrar mensajes de cambio de contraseña
+        function mostrarMensajePassword(mensaje, tipo) {
+            const messagesContainer = document.getElementById('password-messages');
+            const bgColor = tipo === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800';
+            const iconColor = tipo === 'success' ? 'text-green-600' : 'text-red-600';
+            const icon = tipo === 'success' ? 'check-circle' : 'alert-circle';
+            
+            messagesContainer.innerHTML = `
+                <div class="border rounded-lg p-4 ${bgColor} flex items-start">
+                    <i data-lucide="${icon}" class="w-5 h-5 ${iconColor} mr-3 mt-0.5"></i>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">${mensaje}</p>
+                    </div>
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            messagesContainer.classList.remove('hidden');
+            lucide.createIcons();
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (messagesContainer.innerHTML) {
+                    messagesContainer.innerHTML = '';
+                    messagesContainer.classList.add('hidden');
+                }
+            }, 5000);
+        }
+
+        // Función para iniciar timer de SMS
+        function iniciarTimerSMS() {
+            let tiempo = 300; // 5 minutos en segundos
+            const timerElement = document.getElementById('sms-timer');
+            
+            smsTimer = setInterval(() => {
+                const minutos = Math.floor(tiempo / 60);
+                const segundos = tiempo % 60;
+                timerElement.textContent = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+                
+                if (tiempo <= 0) {
+                    clearInterval(smsTimer);
+                    timerElement.textContent = '0:00';
+                    mostrarMensajePassword('El código SMS ha expirado. Solicita uno nuevo.', 'danger');
+                    smsCodeSent = false;
+                    smsVerified = false;
+                    document.getElementById('sms-verification-section').classList.add('hidden');
+                }
+                tiempo--;
+            }, 1000);
+        }
+
+        // Función para enviar código SMS
+        async function enviarCodigoSMS() {
+            try {
+                const response = await fetch('/login/enviar-codigo-sms/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    mostrarMensajePassword('Código SMS enviado exitosamente.', 'success');
+                    smsCodeSent = true;
+                    document.getElementById('sms-verification-section').classList.remove('hidden');
+                    iniciarTimerSMS();
+                } else {
+                    mostrarMensajePassword(result.message || 'Error al enviar el código SMS.', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensajePassword('Error al enviar el código SMS.', 'danger');
+            }
+        }
+
+        // Función para verificar código SMS
+        async function verificarCodigoSMS() {
+            const codigo = document.getElementById('codigo_sms').value;
+            
+            if (!codigo || codigo.length !== 6) {
+                mostrarMensajePassword('Por favor ingresa un código de 6 dígitos.', 'danger');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/login/verificar-codigo-sms/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ codigo: codigo })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    mostrarMensajePassword('Código verificado exitosamente. Ahora puedes cambiar tu contraseña.', 'success');
+                    smsVerified = true;
+                    document.getElementById('btn-cambiar-password').disabled = false;
+                    clearInterval(smsTimer);
+                    document.getElementById('sms-timer').textContent = 'Verificado';
+                } else {
+                    mostrarMensajePassword(result.message || 'Código incorrecto.', 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensajePassword('Error al verificar el código.', 'danger');
+            }
+        }
+
         // Función para confirmar eliminación
         function confirmarEliminar(propiedadId, titulo) {
             propiedadAEliminar = propiedadId;
@@ -2557,6 +3376,40 @@
             } catch (error) {
                 console.error('Error:', error);
                 mostrarMensaje('Error al eliminar la propiedad', 'danger');
+            }
+        }
+
+        // Función para eliminar usuario
+        async function eliminarUsuario(usuarioId) {
+            try {
+                const response = await fetch(`/login/eliminar-usuario-admin/${usuarioId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    mostrarMensaje(data.message, 'success');
+                    
+                    // Cerrar modal
+                    const modal = document.getElementById('modal-eliminar-usuario');
+                    modal.classList.add('hidden');
+                    
+                    // Recargar la lista de usuarios
+                    if (UsuarioModalManager && UsuarioModalManager.cargarUsuarios) {
+                        UsuarioModalManager.cargarUsuarios();
+                    }
+                } else {
+                    mostrarMensaje(data.message, 'danger');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensaje('Error al eliminar el usuario', 'danger');
             }
         }
 
@@ -2647,7 +3500,7 @@
                 // Inicializar funcionalidades de gestión
                 initSearch();
                 
-                // Event listeners para modal de eliminación
+                // Event listeners para modal de eliminación de propiedades
                 document.getElementById('cancelar-eliminar').addEventListener('click', function() {
                     document.getElementById('modal-eliminar-propiedad').classList.add('hidden');
                 });
@@ -2658,11 +3511,829 @@
                     }
                 });
                 
+                // Event listeners para modal de eliminación de usuarios
+                document.getElementById('cancelar-eliminar-usuario').addEventListener('click', function() {
+                    document.getElementById('modal-eliminar-usuario').classList.add('hidden');
+                });
+                
+                document.getElementById('confirmar-eliminar-usuario').addEventListener('click', function() {
+                    if (usuarioAEliminar) {
+                        eliminarUsuario(usuarioAEliminar);
+                    }
+                });
+                
+                // Event listeners para gestión de reseñas
+                const btnGestionarResenas = document.getElementById('btn-gestionar-resenas');
+                const btnVolverDashboardResenas = document.getElementById('btn-volver-dashboard-resenas');
+                const btnRefrescarResenas = document.getElementById('btn-refrescar-resenas');
+                
+                if (btnGestionarResenas) {
+                    btnGestionarResenas.addEventListener('click', function() {
+                        // Ocultar todos los contenidos
+                        document.getElementById('dashboard-content').classList.add('hidden');
+                        document.getElementById('gestion-propiedades-content').classList.add('hidden');
+                        document.getElementById('configuraciones-content').classList.add('hidden');
+                        
+                        // Mostrar contenido de reseñas
+                        document.getElementById('gestion-resenas-content').classList.remove('hidden');
+                        
+                        // Limpiar modales previos y cargar reseñas
+                        limpiarModales();
+                        window.cargarResenas();
+                    });
+                }
+                
+                if (btnVolverDashboardResenas) {
+                    btnVolverDashboardResenas.addEventListener('click', function() {
+                        // Limpiar modales y ocultar contenido de reseñas
+                        limpiarModales();
+                        document.getElementById('gestion-resenas-content').classList.add('hidden');
+                        
+                        // Mostrar dashboard
+                        document.getElementById('dashboard-content').classList.remove('hidden');
+                    });
+                }
+                
+                if (btnRefrescarResenas) {
+                    btnRefrescarResenas.addEventListener('click', function() {
+                        window.cargarResenas(currentPage);
+                    });
+                }
+                
                 console.log('Dashboard inicializado correctamente');
             } catch (error) {
                 console.error('Error al inicializar el dashboard:', error);
             }
         });
+
+        // ========================================
+        // MÓDULO: GESTIÓN DE RESEÑAS
+        // ========================================
+        
+        // Variable para la página actual
+        let currentPage = 1;
+
+        // Hacer las funciones globales para que puedan ser llamadas desde onclick
+        window.cargarResenas = async function(page = 1) {
+            try {
+                currentPage = page;
+                const response = await fetch(`{% url "login:gestionar_resenas" %}?page=${page}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const resenasList = document.getElementById('resenas-list');
+                    const resenasCount = document.getElementById('resenas-count');
+                    
+                    resenasList.innerHTML = '';
+                    resenasCount.textContent = data.pagination.total_resenas;
+                    
+                    if (data.resenas.length === 0) {
+                        resenasList.innerHTML = `
+                            <div class="text-center py-8 text-gray-500">
+                                <i data-lucide="star" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                                <p>No hay reseñas para moderar</p>
+                            </div>
+                        `;
+                    } else {
+                        data.resenas.forEach(resena => {
+                            const resenaElement = document.createElement('div');
+                            resenaElement.className = 'bg-white rounded-lg border border-gray-200 p-6 mb-4';
+                            resenaElement.setAttribute('data-resena-id', resena.id);
+                            
+                            // Generar estrellas
+                            let estrellas = '';
+                            for (let i = 1; i <= 5; i++) {
+                                if (i <= resena.calificacion) {
+                                    estrellas += '<i class="fas fa-star text-yellow-400"></i>';
+                                } else {
+                                    estrellas += '<i class="far fa-star text-gray-300"></i>';
+                                }
+                            }
+                            
+                            // Determinar color del estado
+                            let estadoColor = '';
+                            let estadoTexto = '';
+                            switch(resena.estado) {
+                                case 'Pendiente de Aprobación':
+                                    estadoColor = 'bg-yellow-100 text-yellow-800';
+                                    estadoTexto = 'Pendiente';
+                                    break;
+                                case 'Aprobada':
+                                    estadoColor = 'bg-green-100 text-green-800';
+                                    estadoTexto = 'Aprobada';
+                                    break;
+                                case 'Rechazada':
+                                    estadoColor = 'bg-red-100 text-red-800';
+                                    estadoTexto = 'Rechazada';
+                                    break;
+                            }
+                            
+                            resenaElement.innerHTML = `
+                                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between">
+                                    <div class="flex-1 mb-4 lg:mb-0">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div>
+                                                <h4 class="font-semibold text-gray-900 mb-1">${resena.nombre_usuario}</h4>
+                                                <p class="text-sm text-gray-600 mb-2">${resena.email_usuario}</p>
+                                                <div class="flex items-center mb-2">
+                                                    <div class="flex items-center mr-2">
+                                                        ${estrellas}
+                                                    </div>
+                                                    <span class="text-sm text-gray-600">${resena.calificacion}/5</span>
+                                                </div>
+                                            </div>
+                                            <span class="text-xs px-2 py-1 rounded-full ${estadoColor}">
+                                                ${estadoTexto}
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <a href="${resena.propiedad_url}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                                <i data-lucide="home" class="w-4 h-4 inline mr-1"></i>
+                                                ${resena.propiedad_titulo}
+                                            </a>
+                                        </div>
+                                        
+                                        ${resena.titulo ? `<h5 class="font-medium text-gray-900 mb-2">${resena.titulo}</h5>` : ''}
+                                        
+                                        <p class="text-gray-700 mb-3">"${resena.comentario}"</p>
+                                        
+                                        <p class="text-xs text-gray-500">
+                                            <i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>
+                                            ${resena.fecha_creacion}
+                                        </p>
+                                    </div>
+                                    
+                                    ${resena.estado === 'Pendiente de Aprobación' ? `
+                                    <div class="flex flex-col sm:flex-row gap-2 lg:ml-4">
+                                        <button onclick="aprobarResena(${resena.id})" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm flex items-center justify-center">
+                                            <i data-lucide="check" class="w-4 h-4 mr-2"></i>
+                                            Aprobar
+                                        </button>
+                                        <button onclick="rechazarResena(${resena.id})" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm flex items-center justify-center">
+                                            <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                            Rechazar
+                                        </button>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                            resenasList.appendChild(resenaElement);
+                        });
+                    }
+                    
+                    // Agregar controles de paginación
+                    if (data.pagination.total_pages > 1) {
+                        const paginationHTML = crearControlesPaginacion(data.pagination);
+                        resenasList.appendChild(paginationHTML);
+                    }
+                    
+                    // Reinicializar iconos
+                    lucide.createIcons();
+                } else {
+                    console.error('Error al cargar reseñas:', data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Función para crear controles de paginación
+        function crearControlesPaginacion(pagination) {
+            const paginationDiv = document.createElement('div');
+            paginationDiv.className = 'pagination-container';
+            paginationDiv.style.cssText = `
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+                margin-top: 30px;
+                padding: 20px;
+                background: #f8f9fa;
+                border-radius: 10px;
+                border: 1px solid #e9ecef;
+            `;
+            
+            let paginationHTML = `
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="color: #6c757d; font-size: 14px;">
+                        Página ${pagination.current_page} de ${pagination.total_pages} 
+                        (${pagination.total_resenas} reseñas)
+                    </span>
+                    
+                    <div style="display: flex; gap: 5px;">
+            `;
+            
+            // Botón anterior
+            if (pagination.has_previous) {
+                paginationHTML += `
+                    <button onclick="cargarResenas(${pagination.previous_page})" style="
+                        background: #007bff;
+                        color: white;
+                        border: none;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#0056b3'" 
+                       onmouseout="this.style.background='#007bff'">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                `;
+            } else {
+                paginationHTML += `
+                    <button disabled style="
+                        background: #e9ecef;
+                        color: #6c757d;
+                        border: none;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        cursor: not-allowed;
+                    ">
+                        <i class="fas fa-chevron-left"></i> Anterior
+                    </button>
+                `;
+            }
+            
+            // Números de página
+            const startPage = Math.max(1, pagination.current_page - 2);
+            const endPage = Math.min(pagination.total_pages, pagination.current_page + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === pagination.current_page) {
+                    paginationHTML += `
+                        <button style="
+                            background: #28a745;
+                            color: white;
+                            border: none;
+                            padding: 8px 12px;
+                            border-radius: 6px;
+                            font-size: 14px;
+                            font-weight: bold;
+                        ">${i}</button>
+                    `;
+                } else {
+                    paginationHTML += `
+                        <button onclick="cargarResenas(${i})" style="
+                            background: white;
+                            color: #007bff;
+                            border: 1px solid #007bff;
+                            padding: 8px 12px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.background='#007bff'; this.style.color='white'" 
+                           onmouseout="this.style.background='white'; this.style.color='#007bff'">
+                            ${i}
+                        </button>
+                    `;
+                }
+            }
+            
+            // Botón siguiente
+            if (pagination.has_next) {
+                paginationHTML += `
+                    <button onclick="cargarResenas(${pagination.next_page})" style="
+                        background: #007bff;
+                        color: white;
+                        border: none;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#0056b3'" 
+                       onmouseout="this.style.background='#007bff'">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                `;
+            } else {
+                paginationHTML += `
+                    <button disabled style="
+                        background: #e9ecef;
+                        color: #6c757d;
+                        border: none;
+                        padding: 8px 12px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        cursor: not-allowed;
+                    ">
+                        Siguiente <i class="fas fa-chevron-right"></i>
+                    </button>
+                `;
+            }
+            
+            paginationHTML += `
+                    </div>
+                </div>
+            `;
+            
+            paginationDiv.innerHTML = paginationHTML;
+            return paginationDiv;
+        }
+
+        // Función para aprobar reseña
+        window.aprobarResena = async function(resenaId) {
+            if (!confirm('¿Estás seguro de que quieres aprobar esta reseña?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/login/aprobar-resena/${resenaId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    mostrarNotificacion('success', 'Reseña aprobada exitosamente', 'La reseña ha sido aprobada y ahora es visible públicamente.');
+                    window.cargarResenas(currentPage); // Recargar la lista manteniendo la página actual
+                } else {
+                    mostrarNotificacion('error', 'Error al aprobar la reseña', data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('error', 'Error al aprobar la reseña', 'Por favor intenta de nuevo.');
+            }
+        }
+
+        // Función para rechazar reseña
+        window.rechazarResena = async function(resenaId) {
+            mostrarConfirmacionRechazo(resenaId);
+        }
+
+        // ========================================
+        // SISTEMA DE NOTIFICACIONES HERMOSAS
+        // ========================================
+        
+        // Función para mostrar notificaciones hermosas
+        function mostrarNotificacion(tipo, titulo, mensaje, duracion = 4000) {
+            // Crear el contenedor de notificaciones si no existe
+            let container = document.getElementById('notificaciones-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'notificaciones-container';
+                container.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    z-index: 10000;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                `;
+                document.body.appendChild(container);
+            }
+            
+            // Definir colores y iconos según el tipo
+            const configs = {
+                success: {
+                    color: '#4CAF50',
+                    icon: 'fas fa-check-circle',
+                    bgColor: 'linear-gradient(135deg, #4CAF50, #45a049)',
+                    borderColor: '#4CAF50'
+                },
+                error: {
+                    color: '#f44336',
+                    icon: 'fas fa-exclamation-circle',
+                    bgColor: 'linear-gradient(135deg, #f44336, #d32f2f)',
+                    borderColor: '#f44336'
+                },
+                warning: {
+                    color: '#ff9800',
+                    icon: 'fas fa-exclamation-triangle',
+                    bgColor: 'linear-gradient(135deg, #ff9800, #f57c00)',
+                    borderColor: '#ff9800'
+                },
+                info: {
+                    color: '#2196F3',
+                    icon: 'fas fa-info-circle',
+                    bgColor: 'linear-gradient(135deg, #2196F3, #1976D2)',
+                    borderColor: '#2196F3'
+                }
+            };
+            
+            const config = configs[tipo] || configs.info;
+            
+            // Crear la notificación
+            const notificacion = document.createElement('div');
+            notificacion.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                border-left: 4px solid ${config.borderColor};
+                max-width: 400px;
+                min-width: 300px;
+                position: relative;
+                animation: slideInRight 0.4s ease;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            `;
+            
+            notificacion.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 15px;">
+                    <div style="
+                        width: 40px;
+                        height: 40px;
+                        background: ${config.bgColor};
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                        animation: pulse 0.6s ease;
+                    ">
+                        <i class="${config.icon}" style="color: white; font-size: 18px;"></i>
+                    </div>
+                    
+                    <div style="flex: 1;">
+                        <h4 style="
+                            margin: 0 0 8px 0;
+                            color: #2c3e50;
+                            font-size: 16px;
+                            font-weight: 600;
+                        ">${titulo}</h4>
+                        
+                        <p style="
+                            margin: 0;
+                            color: #7f8c8d;
+                            font-size: 14px;
+                            line-height: 1.4;
+                        ">${mensaje}</p>
+                    </div>
+                    
+                    <button onclick="cerrarNotificacion(this)" style="
+                        background: none;
+                        border: none;
+                        color: #bdc3c7;
+                        font-size: 18px;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 24px;
+                        height: 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 50%;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='#ecf0f1'; this.style.color='#e74c3c'" 
+                       onmouseout="this.style.background='none'; this.style.color='#bdc3c7'">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div style="
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    height: 3px;
+                    background: ${config.bgColor};
+                    border-radius: 0 0 12px 12px;
+                    animation: progressBar ${duracion}ms linear;
+                "></div>
+            `;
+            
+            // Agregar estilos CSS si no existen
+            if (!document.getElementById('notificaciones-styles')) {
+                const styles = document.createElement('style');
+                styles.id = 'notificaciones-styles';
+                styles.textContent = `
+                    @keyframes slideInRight {
+                        from {
+                            opacity: 0;
+                            transform: translateX(100%);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                    }
+                    
+                    @keyframes slideOutRight {
+                        from {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                        to {
+                            opacity: 0;
+                            transform: translateX(100%);
+                        }
+                    }
+                    
+                    @keyframes pulse {
+                        0% { transform: scale(1); }
+                        50% { transform: scale(1.1); }
+                        100% { transform: scale(1); }
+                    }
+                    
+                    @keyframes progressBar {
+                        from { width: 100%; }
+                        to { width: 0%; }
+                    }
+                `;
+                document.head.appendChild(styles);
+            }
+            
+            // Agregar efecto hover
+            notificacion.addEventListener('mouseenter', () => {
+                notificacion.style.transform = 'translateX(-5px)';
+                notificacion.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.25)';
+            });
+            
+            notificacion.addEventListener('mouseleave', () => {
+                notificacion.style.transform = 'translateX(0)';
+                notificacion.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.2)';
+            });
+            
+            // Agregar a la página
+            container.appendChild(notificacion);
+            
+            // Auto-eliminar después del tiempo especificado
+            setTimeout(() => {
+                if (notificacion.parentNode) {
+                    cerrarNotificacion(notificacion.querySelector('button'));
+                }
+            }, duracion);
+        }
+        
+        // Función para cerrar notificaciones
+        function cerrarNotificacion(button) {
+            const notificacion = button.closest('div');
+            notificacion.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                if (notificacion.parentNode) {
+                    notificacion.remove();
+                }
+            }, 300);
+        }
+
+        // Función para mostrar confirmación de rechazo hermoso
+        function mostrarConfirmacionRechazo(resenaId) {
+            // Crear el modal de confirmación
+            const confirmModal = document.createElement('div');
+            confirmModal.id = 'modal-confirmacion-rechazo';
+            confirmModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10001;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            confirmModal.innerHTML = `
+                <div style="
+                    background: white;
+                    border-radius: 20px;
+                    padding: 40px;
+                    text-align: center;
+                    max-width: 500px;
+                    width: 90%;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+                    animation: slideIn 0.4s ease;
+                    position: relative;
+                ">
+                    <div style="
+                        width: 80px;
+                        height: 80px;
+                        background: linear-gradient(135deg, #f44336, #d32f2f);
+                        border-radius: 50%;
+                        margin: 0 auto 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        animation: pulse 0.6s ease;
+                    ">
+                        <i class="fas fa-exclamation-triangle" style="color: white; font-size: 32px;"></i>
+                    </div>
+                    
+                    <h3 style="
+                        color: #2c3e50;
+                        margin-bottom: 15px;
+                        font-size: 24px;
+                        font-weight: 600;
+                    ">¿Rechazar Reseña?</h3>
+                    
+                    <p style="
+                        color: #7f8c8d;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin-bottom: 25px;
+                    ">¿Estás seguro de que quieres rechazar esta reseña? Esta acción no se puede deshacer.</p>
+                    
+                    <div style="
+                        background: #fff3cd;
+                        border: 1px solid #ffeaa7;
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin-bottom: 25px;
+                        border-left: 4px solid #f39c12;
+                    ">
+                        <p style="
+                            color: #856404;
+                            font-size: 14px;
+                            margin: 0;
+                            font-style: italic;
+                        ">⚠️ La reseña será rechazada y no se mostrará públicamente</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button onclick="cerrarConfirmacionRechazo()" style="
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 25px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(108, 117, 125, 0.4)'" 
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(108, 117, 125, 0.3)'">
+                            <i class="fas fa-times" style="margin-right: 8px;"></i>
+                            Cancelar
+                        </button>
+                        
+                        <button onclick="confirmarRechazoResena(${resenaId})" style="
+                            background: linear-gradient(135deg, #f44336, #d32f2f);
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 25px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(244, 67, 54, 0.4)'" 
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(244, 67, 54, 0.3)'">
+                            <i class="fas fa-ban" style="margin-right: 8px;"></i>
+                            Rechazar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar estilos CSS para las animaciones si no existen
+            if (!document.getElementById('confirm-modal-styles')) {
+                const styles = document.createElement('style');
+                styles.id = 'confirm-modal-styles';
+                styles.textContent = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    
+                    @keyframes slideIn {
+                        from { 
+                            opacity: 0;
+                            transform: translateY(-50px) scale(0.9);
+                        }
+                        to { 
+                            opacity: 1;
+                            transform: translateY(0) scale(1);
+                        }
+                    }
+                    
+                    @keyframes pulse {
+                        0%, 20%, 50%, 80%, 100% {
+                            transform: scale(1);
+                        }
+                        40% {
+                            transform: scale(1.1);
+                        }
+                        60% {
+                            transform: scale(1.05);
+                        }
+                    }
+                    
+                    @keyframes fadeOut {
+                        from { opacity: 1; }
+                        to { opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(styles);
+            }
+            
+            document.body.appendChild(confirmModal);
+            
+            // Cerrar modal al hacer clic fuera de él
+            confirmModal.addEventListener('click', function(e) {
+                if (e.target === confirmModal) {
+                    cerrarConfirmacionRechazo();
+                }
+            });
+            
+            // Cerrar modal con tecla Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.getElementById('modal-confirmacion-rechazo')) {
+                    cerrarConfirmacionRechazo();
+                }
+            });
+        }
+
+        // Función para cerrar el modal de confirmación
+        function cerrarConfirmacionRechazo() {
+            const modal = document.getElementById('modal-confirmacion-rechazo');
+            if (modal) {
+                modal.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (modal.parentNode) {
+                        modal.remove();
+                    }
+                }, 300);
+            }
+        }
+
+        // Función para eliminar reseña de la lista actual
+        function eliminarResenaDeLista(resenaId) {
+            const resenasList = document.getElementById('resenas-list');
+            const resenaElement = resenasList.querySelector(`[data-resena-id="${resenaId}"]`);
+            
+            if (resenaElement) {
+                // Animación de desvanecimiento
+                resenaElement.style.transition = 'all 0.3s ease';
+                resenaElement.style.opacity = '0';
+                resenaElement.style.transform = 'translateX(-100%)';
+                
+                setTimeout(() => {
+                    if (resenaElement.parentNode) {
+                        resenaElement.remove();
+                        
+                        // Actualizar contador
+                        const resenasCount = document.getElementById('resenas-count');
+                        if (resenasCount) {
+                            const currentCount = parseInt(resenasCount.textContent) || 0;
+                            resenasCount.textContent = Math.max(0, currentCount - 1);
+                        }
+                        
+                        // Verificar si la página quedó vacía
+                        const resenasRestantes = resenasList.querySelectorAll('[data-resena-id]');
+                        if (resenasRestantes.length === 0) {
+                            // Si no hay más reseñas en la página actual, recargar
+                            window.cargarResenas(currentPage);
+                        }
+                    }
+                }, 300);
+            }
+        }
+
+        // Función para limpiar todos los modales
+        function limpiarModales() {
+            const modales = [
+                'modal-confirmacion-rechazo',
+                'modal-exito-resena'
+            ];
+            
+            modales.forEach(id => {
+                const modal = document.getElementById(id);
+                if (modal && modal.parentNode) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Función para confirmar el rechazo
+        async function confirmarRechazoResena(resenaId) {
+            cerrarConfirmacionRechazo();
+            
+            try {
+                const response = await fetch(`/login/rechazar-resena/${resenaId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    mostrarNotificacion('success', 'Reseña rechazada exitosamente', 'La reseña ha sido rechazada y eliminada de la lista.');
+                    // Eliminar la reseña de la lista actual sin recargar
+                    eliminarResenaDeLista(resenaId);
+                } else {
+                    mostrarNotificacion('error', 'Error al rechazar la reseña', data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('error', 'Error al rechazar la reseña', 'Por favor intenta de nuevo.');
+            }
+        }
     </script>
     
     <!-- CSRF Token -->

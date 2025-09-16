@@ -29,6 +29,12 @@ def home(request):
             operacion='alquiler_temporal'
         ).count()
         
+        # Obtener reseñas aprobadas para mostrar en testimonios
+        from propiedades.models import Resena
+        resenas_aprobadas = Resena.objects.filter(
+            estado='aprobada'
+        ).select_related('propiedad').order_by('-fecha_creacion')[:6]
+        
         # Debug: imprimir información sobre las propiedades de alquiler encontradas
         print(f"DEBUG: Propiedades en alquiler encontradas: {propiedades_alquiler.count()}")
         print(f"DEBUG: Propiedades de alquiler: {propiedades_alquiler_count}")
@@ -46,6 +52,7 @@ def home(request):
             'propiedades_alquiler_count': propiedades_alquiler_count,
             'propiedades_alquiler_temporal_count': propiedades_alquiler_temporal_count,
             'hay_propiedades_alquiler': len(propiedades_alquiler) > 0,
+            'resenas_aprobadas': resenas_aprobadas,
         }
         
     except Exception as e:
@@ -55,6 +62,7 @@ def home(request):
             'propiedades_alquiler_count': 0,
             'propiedades_alquiler_temporal_count': 0,
             'hay_propiedades_alquiler': False,
+            'resenas_aprobadas': [],
             'error_message': 'Error al cargar las propiedades'
         }
         print(f"Error en vista home: {e}")

@@ -12,6 +12,7 @@ class AdminCredentialsForm(forms.ModelForm):
     class Meta:
         model = AdminCredentials
         fields = ['nombre', 'apellido', 'email', 'telefono', 'fecha_nacimiento', 'foto_perfil', 'password', 'confirmar_password']
+        exclude = ['user']  # Excluir el campo user ya que se asignará después
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -84,6 +85,7 @@ class NuevoUsuarioAdminForm(forms.ModelForm):
     class Meta:
         model = AdminCredentials
         fields = ['nombre', 'apellido', 'email', 'telefono', 'fecha_nacimiento', 'foto_perfil', 'password', 'confirmar_password']
+        exclude = ['user']  # Excluir el campo user ya que se asignará después
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',

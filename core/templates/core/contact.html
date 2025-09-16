@@ -1006,7 +1006,7 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
         submitBtn.disabled = true;
         
         setTimeout(() => {
-            alert('¡Gracias por tu mensaje! Te contactaremos pronto.');
+            mostrarNotificacion('success', '¡Mensaje Enviado!', 'Gracias por tu mensaje. Te contactaremos pronto.');
             this.reset();
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;

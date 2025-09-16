@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración A&G - Consorcio</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+    
+    <!-- CSS de Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/consorcio.css' %}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+</head>
+<body>
+    <!-- Navegación -->
+    <nav class="responsive-nav" role="navigation" aria-label="Navegación principal">
+        <div class="nav-container">
+            <!-- Logo/Marca -->
+            <div class="nav-brand">
+                <a href="{% url 'core:home' %}" aria-label="Ir al inicio">
+                    <img src="{% static 'images/logo/logo-gisa.jpeg' %}" 
+                         alt="GISA NQN Gestión de Consorcios" 
+                         class="nav-logo"
+                         loading="eager">
+                </a>
+            </div>
+            
+            <!-- Menú de Escritorio -->
+            <div class="nav-menu desktop-menu" role="menubar">
+                <a href="{% url 'core:home' %}" class="nav-item" role="menuitem">INICIO</a>
+                <span class="nav-separator" aria-hidden="true">|</span>
+                <a href="{% url 'core:consorcio' %}" class="nav-item active" role="menuitem" aria-current="page">CONSORCIO</a>
+                <span class="nav-separator" aria-hidden="true">|</span>
+                <a href="{% url 'propiedades:lista' %}" class="nav-item" role="menuitem">PROPIEDADES</a>
+                <span class="nav-separator" aria-hidden="true">|</span>
+                <a href="{% url 'core:contact' %}" class="nav-item" role="menuitem">CONTACTO</a>
+                <span class="nav-separator" aria-hidden="true">|</span>
+                <a href="{% url 'core:about' %}" class="nav-item" role="menuitem">SOBRE NOSOTROS</a>
+            </div>
+            
+            <!-- Botón del Menú Móvil -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú móvil" aria-expanded="false">
+                <span class="hamburger-line" aria-hidden="true"></span>
+                <span class="hamburger-line" aria-hidden="true"></span>
+                <span class="hamburger-line" aria-hidden="true"></span>
+            </button>
+        </div>
+        
+        <!-- Panel del Menú Móvil -->
+        <div class="mobile-menu-panel" id="mobileMenuPanel" role="dialog" aria-label="Menú móvil">
+            <div class="mobile-menu-header">
+                <h3>Menú</h3>
+                <button class="close-btn" id="closeMenuBtn" aria-label="Cerrar menú">
+                    <span class="close-line" aria-hidden="true"></span>
+                    <span class="close-line" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="mobile-menu-items" role="menu">
+                <a href="{% url 'core:home' %}" class="mobile-nav-item" role="menuitem">INICIO</a>
+                <hr class="mobile-separator" aria-hidden="true">
+                <a href="{% url 'core:consorcio' %}" class="mobile-nav-item" role="menuitem" aria-current="page">CONSORCIO</a>
+                <hr class="mobile-separator" aria-hidden="true">
+                <a href="{% url 'propiedades:lista' %}" class="mobile-nav-item" role="menuitem">PROPIEDADES</a>
+                <hr class="mobile-separator" aria-hidden="true">
+                <a href="{% url 'core:contact' %}" class="mobile-nav-item" role="menuitem">CONTACTO</a>
+                <hr class="mobile-separator" aria-hidden="true">
+                <a href="{% url 'core:about' %}" class="mobile-nav-item" role="menuitem">SOBRE NOSOTROS</a>
+            </div>
+        </div>
+        
+        <!-- Superposición para el menú móvil -->
+        <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+    </nav>
+
+    <!-- Fondo con imagen y overlay -->
+    <div class="consorcio-hero-section" role="banner" aria-label="Sección principal del consorcio">
+        <div class="consorcio-background" 
+             style="background: url('/static/images/Fondo Consorcio 1.jpg') center/cover no-repeat; min-height: 600px;"
+             aria-hidden="true"></div>
+        <div class="consorcio-overlay" aria-hidden="true"></div>
+        
+        <!-- Redes sociales en esquina superior derecha -->
+        <div class="consorcio-social-optimal" aria-label="Redes sociales">
+            <div class="social-icons-container">
+                <a href="#" class="social-icon-optimal" aria-label="WhatsApp">
+                    <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="social-icon-optimal" aria-label="Instagram">
+                    <i class="fab fa-instagram" aria-hidden="true"></i>
+                </a>
+                <a href="#" class="social-icon-optimal" aria-label="Facebook">
+                    <i class="fab fa-facebook" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="consorcio-content">
+            <div class="container">
+                <div class="row">
+                    <!-- Cuadrado de presupuesto en esquina superior derecha -->
+                    <div class="consorcio-budget-container">
+                        <div class="consorcio-budget-box">
+                            <h3 class="consorcio-budget-title">Presupuesto</h3>
+                            <p class="consorcio-budget-text">Solicite su presupuesto y responderemos inmediatamente a sus necesidades.</p>
+                            <a href="{% url 'core:contact' %}?asunto=consorcio" 
+                               class="btn btn-primary consorcio-budget-btn"
+                               aria-label="Hablar con un asesor sobre consorcio">
+                                <i class="fas fa-phone me-2" aria-hidden="true"></i>Hablar con un asesor
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Columna principal -->
+                    <div class="col-lg-10 col-xl-8 consorcio-main-wrapper">
+                        <div class="consorcio-main-container">
+                            <div class="consorcio-main-content">
+                                <!-- Encabezado claro -->
+                                <header>
+                                    <h1 class="consorcio-title">Consorcio Inmobiliario</h1>
+                                    <h2 class="consorcio-subtitle">Financiamiento en Consorcio</h2>
+                                    
+                                    <div class="consorcio-highlight">
+                                        <h3 class="consorcio-highlight-text">Invierte junto a otros y accede a tu propiedad sin necesidad de crédito hipotecario.</h3>
+                                    </div>
+                                </header>
+                                
+                                <!-- Explicación sencilla -->
+                                <section class="consorcio-description" aria-labelledby="consorcio-explanation">
+                                    <h4 id="consorcio-explanation">¿Qué es un Consorcio Inmobiliario?</h4>
+                                    <p>Un consorcio inmobiliario es la unión de personas que se organizan para comprar una propiedad de forma compartida. Cada participante aporta una cuota mensual hasta completar el valor total de la propiedad, y al finalizar el período, uno de los participantes se adjudica la propiedad.</p>
+                                    
+                                    <!-- Sección de dos columnas: Cómo funciona y Beneficios -->
+                                    <div class="row g-4">
+                                        <!-- Columna izquierda: Cómo funciona -->
+                                        <div class="col-md-6">
+                                            <h4>¿Cómo funciona?</h4>
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <div class="process-step">
+                                                        <div class="process-step-number" aria-label="Paso 1">1</div>
+                                                        <span class="process-step-text">Te inscribes en el consorcio y comienzas a pagar cuotas mensuales</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="process-step">
+                                                        <div class="process-step-number" aria-label="Paso 2">2</div>
+                                                        <span class="process-step-text">Participas en sorteos mensuales para la adjudicación</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="process-step">
+                                                        <div class="process-step-number" aria-label="Paso 3">3</div>
+                                                        <span class="process-step-text">Si ganas el sorteo, te adjudicas la propiedad</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="process-step">
+                                                        <div class="process-step-number" aria-label="Paso 4">4</div>
+                                                        <span class="process-step-text">Si no ganas, continúas hasta el próximo sorteo</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Columna derecha: Beneficios destacados -->
+                                        <div class="col-md-6">
+                                            <h4>Beneficios Destacados</h4>
+                                            <div class="row g-3">
+                                                <div class="col-12">
+                                                    <div class="benefit-item">
+                                                        <i class="fas fa-home benefit-icon" aria-hidden="true"></i>
+                                                        <span class="benefit-text">Sin necesidad de hipotecario</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="benefit-item">
+                                                        <i class="fas fa-coins benefit-icon" aria-hidden="true"></i>
+                                                        <span class="benefit-text">Inversión en cuotas accesibles</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="benefit-item">
+                                                        <i class="fas fa-trophy benefit-icon" aria-hidden="true"></i>
+                                                        <span class="benefit-text">Posibilidad de adjudicación anticipada</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="benefit-item">
+                                                        <i class="fas fa-shield-alt benefit-icon" aria-hidden="true"></i>
+                                                        <span class="benefit-text">Seguridad y respaldo de la inmobiliaria</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie de Página -->
+    <footer class="bg-dark text-light py-4" role="contentinfo">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Inmobiliaria</h5>
+                    <p>Tu socio de confianza en bienes raíces.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Enlaces Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'core:home' %}" class="text-light">Inicio</a></li>
+                        <li><a href="{% url 'propiedades:lista' %}" class="text-light">Propiedades</a></li>
+                        <li><a href="{% url 'core:contact' %}" class="text-light">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contacto</h5>
+                    <p>
+                        <i class="fas fa-phone" aria-hidden="true"></i> +1 234 567 890<br>
+                        <i class="fas fa-envelope" aria-hidden="true"></i> info@inmobiliaria.com<br>
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i> Calle Principal 123
+                    </p>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2024 Inmobiliaria. Todos los derechos reservados.</p>
+                <div class="mt-3">
+                    <a href="{% url 'login:admin_login' %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-user-shield me-2" aria-hidden="true"></i>Admin
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="{% static 'js/consorcio-navigation.js' %}"></script>
+    <script src="{% static 'js/consorcio-animations.js' %}"></script>
+
+    <!-- Initialize Consorcio Components -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all consorcio components
+        console.log('Consorcio page initialized successfully');
+        
+        // Setup hover animations
+        if (window.consorcioAnimations) {
+            window.consorcioAnimations.setupHoverAnimations();
+        }
+    });
+    </script>
+</body>
+</html>

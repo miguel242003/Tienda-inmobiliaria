@@ -1,0 +1,131 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Sobre Nosotros - Tienda Inmobiliaria{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Company Story -->
+<section class="about-main-section" role="main" aria-label="Información sobre la empresa">
+    <div class="about-container">
+        <div class="about-content">
+            <h1 class="about-title">Sobre nosotros</h1>
+            <h3 class="about-subtitle">Nuestra misión y metas</h3>
+            <p class="about-description">Fundada en 2009, nuestra empresa ha sido líder en el sector inmobiliario, ayudando a miles de familias a encontrar su hogar ideal. Nuestro compromiso con la excelencia y la satisfacción del cliente nos ha convertido en una de las inmobiliarias más confiables del mercado.</p>
+            
+            <div class="about-item">
+                <div class="about-item-content">
+                    <i class="fas fa-flag about-item-icon" aria-hidden="true"></i>
+                    <div class="about-item-text">
+                        <h4 class="about-item-title">Misión</h4>
+                        <p class="about-item-description">Facilitar el proceso de compra, venta y alquiler de propiedades, brindando un servicio personalizado y profesional que satisfaga las necesidades de nuestros clientes, garantizando transparencia y confianza en cada transacción.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-item">
+                <div class="about-item-content">
+                    <i class="fas fa-eye about-item-icon" aria-hidden="true"></i>
+                    <div class="about-item-text">
+                        <h4 class="about-item-title">Visión</h4>
+                        <p class="about-item-description">Ser la inmobiliaria líder en el mercado, reconocida por la excelencia en el servicio, la innovación tecnológica y el compromiso con la satisfacción total del cliente, contribuyendo al desarrollo de comunidades prósperas.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-item">
+                <div class="about-item-content">
+                    <i class="fas fa-file-alt about-item-icon" aria-hidden="true"></i>
+                    <div class="about-item-text">
+                        <h4 class="about-item-title">Historia</h4>
+                        <p class="about-item-description">Contamos con un equipo de profesionales altamente capacitados que conocen el mercado local y están comprometidos con brindar el mejor servicio a nuestros clientes. Más de 15 años de experiencia nos respaldan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Section -->
+    <div class="about-image-section" aria-hidden="true">
+        <div class="about-image" style="background-image: url('{% static "images/imgsobrenostros2.jpg" %}');"></div>
+        <div class="about-image-overlay"></div>
+    </div>
+</section>
+
+<!-- Nuestros Valores -->
+<section class="about-values-section" aria-label="Nuestros valores corporativos">
+    <h2 class="about-values-title">Nuestros Valores</h2>
+</section>
+
+<section class="about-values-hero" aria-label="Valores de la empresa">
+    <div class="about-values-overlay" aria-hidden="true"></div>
+    
+    <div class="about-values-cards">
+        <!-- Tarjeta 1: Confianza -->
+        <article class="about-value-card" role="article" aria-label="Valor: Confianza">
+            <div class="about-value-icon">
+                <i class="fas fa-chess-knight" aria-hidden="true"></i>
+            </div>
+            <h4 class="about-value-title">Confianza</h4>
+            <p class="about-value-description">Brindamos un servicio transparente y seguro, generando tranquilidad en cada decisión inmobiliaria.</p>
+        </article>
+
+        <!-- Tarjeta 2: Compromiso -->
+        <article class="about-value-card" role="article" aria-label="Valor: Compromiso">
+            <div class="about-value-icon">
+                <i class="fas fa-bullhorn" aria-hidden="true"></i>
+            </div>
+            <h4 class="about-value-title">Compromiso</h4>
+            <p class="about-value-description">Acompañamos a nuestros clientes en todo el proceso, asegurando un trato cercano y responsable.</p>
+        </article>
+
+        <!-- Tarjeta 3: Experiencia -->
+        <article class="about-value-card" role="article" aria-label="Valor: Experiencia">
+            <div class="about-value-icon">
+                <i class="fas fa-gem" aria-hidden="true"></i>
+            </div>
+            <h4 class="about-value-title">Experiencia</h4>
+            <p class="about-value-description">Contamos con un equipo profesional y años de trayectoria en el mercado inmobiliario.</p>
+        </article>
+
+        <!-- Tarjeta 4: Innovación -->
+        <article class="about-value-card" role="article" aria-label="Valor: Innovación">
+            <div class="about-value-icon">
+                <i class="fas fa-user" aria-hidden="true"></i>
+            </div>
+            <h4 class="about-value-title">Innovación</h4>
+            <p class="about-value-description">Incorporamos tecnología y soluciones modernas para hacer más simple y eficiente cada gestión.</p>
+        </article>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/about-animations.js' %}"></script>
+<script src="{% static 'js/about-layout.js' %}"></script>
+
+<script>
+// Initialize all about components
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('About page initialized successfully');
+    
+    // Setup additional interactions
+    if (window.aboutAnimations) {
+        console.log('About animations ready');
+    }
+    
+    if (window.aboutLayout) {
+        console.log('About layout ready');
+    }
+    
+    // Initialize animations on load
+    if (window.aboutAnimations) {
+        window.aboutAnimations.animateAboutSection();
+        window.aboutAnimations.animateValuesSection();
+    }
+});
+</script>
+{% endblock %}

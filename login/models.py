@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 class AdminCredentials(models.Model):
     """Modelo para almacenar credenciales del administrador de forma segura"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admincredentials', verbose_name="Usuario")
     nombre = models.CharField(max_length=100, verbose_name="Nombre del Administrador", blank=True, null=True)
     apellido = models.CharField(max_length=100, verbose_name="Apellido del Administrador", blank=True, null=True)
     email = models.EmailField(unique=True, verbose_name="Correo del Administrador")
