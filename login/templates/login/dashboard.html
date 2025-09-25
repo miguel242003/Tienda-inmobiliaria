@@ -36,12 +36,24 @@
     
     <!-- Estilos personalizados -->
     <style>
-        /* Variables CSS para colores del gráfico */
+        /* Variables CSS optimizadas */
         :root {
             --color-bajo: #22C55E;
             --color-medio: #F59E0B;
             --color-alto: #EF4444;
             --color-fondo: #e9ecef;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 80px;
+            --main-margin: 280px;
+            --main-margin-collapsed: 80px;
+            --transition-duration: 0.3s;
+            --transition-easing: ease;
+        }
+        
+        /* Utility classes */
+        .hidden {
+            display: none !important;
+            visibility: hidden !important;
         }
         
         /* Estilos para las barras del gráfico */
@@ -238,7 +250,329 @@
         #crearPropiedadForm input[type="number"][id*="metros"] {
             padding-right: 2.5rem;
         }
+        
+        /* ===== RESPONSIVE STYLES ===== */
+        
+        /* Sidebar responsive */
+        .sidebar {
+            width: var(--sidebar-width);
+            transition: width var(--transition-duration) var(--transition-easing), 
+                        transform var(--transition-duration) var(--transition-easing);
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed);
+        }
+        
+        .sidebar.collapsed .sidebar-content {
+            padding: 1rem 0.75rem;
+        }
+        
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .user-text {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s var(--transition-easing), 
+                        visibility 0.2s var(--transition-easing);
+        }
+        
+        .sidebar.collapsed .nav-button {
+            justify-content: center;
+            padding: 0.75rem;
+        }
+        
+        .sidebar.collapsed .nav-button i {
+            margin-right: 0;
+        }
+        
+        .sidebar.collapsed .user-info {
+            justify-content: center;
+        }
+        
+        .sidebar.collapsed .user-avatar {
+            margin-right: 0;
+        }
+        
+        /* Main content responsive */
+        .main-content {
+            margin-left: var(--main-margin);
+            transition: margin-left var(--transition-duration) var(--transition-easing);
+        }
+        
+        .main-content.sidebar-collapsed {
+            margin-left: var(--main-margin-collapsed);
+        }
+        
+        /* Tooltips for collapsed sidebar */
+        .nav-button[data-tooltip] {
+            position: relative;
+        }
+        
+        .nav-button[data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-left: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-button[data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-right-color: #1f2937;
+            z-index: 1000;
+        }
+        
+        /* Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-duration) var(--transition-easing), 
+                        visibility var(--transition-duration) var(--transition-easing);
+        }
+        
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Responsive breakpoints */
+        
+        /* Mobile (≤640px) */
+        @media (max-width: 640px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: var(--sidebar-width);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .sidebar.collapsed {
+                width: var(--sidebar-width);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            button, .btn {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .text-2xl { font-size: 1.5rem; }
+            .text-xl { font-size: 1.25rem; }
+            .text-lg { font-size: 1.125rem; }
+            .p-6 { padding: 1rem; }
+            .mb-8 { margin-bottom: 1.5rem; }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .nav-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            #sidebar-collapse {
+                display: none;
+            }
+        }
+        
+        /* Medium screens auto-collapse (641px - 1035px) */
+        @media (max-width: 1035px) and (min-width: 641px) {
+            .sidebar {
+                width: var(--sidebar-collapsed) !important;
+            }
+            
+            .main-content {
+                margin-left: var(--main-margin-collapsed) !important;
+            }
+            
+            .sidebar .logo-text,
+            .sidebar .nav-text,
+            .sidebar .user-text {
+                opacity: 0 !important;
+                visibility: hidden !important;
+            }
+            
+            .sidebar .nav-button {
+                justify-content: center !important;
+                padding: 0.75rem !important;
+            }
+            
+            .sidebar .nav-button i {
+                margin-right: 0 !important;
+            }
+            
+            .sidebar .user-info {
+                justify-content: center !important;
+            }
+            
+            .sidebar .user-avatar {
+                margin-right: 0 !important;
+            }
+            
+            #sidebar-collapse {
+                display: none !important;
+            }
+        }
+        
+        /* Large Desktop (≥1036px) */
+        @media (min-width: 1036px) {
+            .sidebar {
+                width: var(--sidebar-width);
+            }
+            
+            .sidebar.collapsed {
+                width: var(--sidebar-collapsed);
+            }
+            
+            .main-content {
+                margin-left: var(--main-margin);
+            }
+            
+            .main-content.sidebar-collapsed {
+                margin-left: var(--main-margin-collapsed);
+            }
+            
+            #sidebar-collapse {
+                display: flex;
+            }
+        }
+        
+        /* Interactive elements */
+        .widget-card,
+        .nav-button,
+        button {
+            transition: all 0.2s var(--transition-easing);
+        }
+        
+        button:focus,
+        .nav-button:focus,
+        .form-input:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        
+        /* Hover effects */
+        @media (hover: hover) {
+            .widget-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            
+            #sidebar-collapse:hover {
+                background-color: #f3f4f6;
+            }
+        }
+        
+        @media (hover: none) {
+            .widget-card:active {
+                transform: scale(0.98);
+            }
+        }
     </style>
+    
+    <!-- Optimized initialization script -->
+    <script>
+        // Dashboard initialization and responsive behavior
+        (function() {
+            'use strict';
+            
+            // Configuration
+            const CONFIG = {
+                breakpoints: {
+                    mobile: 640,
+                    tablet: 1024,
+                    desktop: 1035
+                },
+                sidebar: {
+                    width: 280,
+                    collapsed: 80
+                },
+                storage: {
+                    key: 'sidebar-collapsed'
+                }
+            };
+            
+            // Utility functions
+            const utils = {
+                getScreenWidth: () => window.innerWidth,
+                isLargeScreen: () => utils.getScreenWidth() > CONFIG.breakpoints.desktop,
+                isMediumScreen: () => {
+                    const width = utils.getScreenWidth();
+                    return width > CONFIG.breakpoints.mobile && width <= CONFIG.breakpoints.desktop;
+                },
+                isMobileScreen: () => utils.getScreenWidth() <= CONFIG.breakpoints.mobile,
+                setCSSVariable: (name, value) => {
+                    document.documentElement.style.setProperty(name, value);
+                }
+            };
+            
+            // Initialize CSS variables based on screen size
+            function initializeCSSVariables() {
+                const screenWidth = utils.getScreenWidth();
+                
+                if (utils.isLargeScreen()) {
+                    const isCollapsed = localStorage.getItem(CONFIG.storage.key) === 'true';
+                    const sidebarWidth = isCollapsed ? CONFIG.sidebar.collapsed : CONFIG.sidebar.width;
+                    const mainMargin = isCollapsed ? CONFIG.sidebar.collapsed : CONFIG.sidebar.width;
+                    
+                    utils.setCSSVariable('--sidebar-width', `${sidebarWidth}px`);
+                    utils.setCSSVariable('--main-margin', `${mainMargin}px`);
+                } else {
+                    utils.setCSSVariable('--sidebar-width', `${CONFIG.sidebar.width}px`);
+                    utils.setCSSVariable('--main-margin', utils.isMobileScreen() ? '0px' : `${CONFIG.sidebar.collapsed}px`);
+                }
+            }
+            
+            // Initialize on load
+            initializeCSSVariables();
+            
+            // Make functions globally available
+            window.DashboardUtils = utils;
+            window.DashboardConfig = CONFIG;
+        })();
+    </script>
 </head>
     
 <body class="bg-gray-50 min-h-screen">
@@ -319,6 +653,47 @@
                 </a>
             </footer>
         </aside>
+        
+        <!-- Immediate sidebar state application -->
+        <script>
+            // Apply sidebar state immediately based on screen size
+            (function() {
+                const screenWidth = window.innerWidth;
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('main-content');
+                const collapseBtn = document.getElementById('sidebar-collapse');
+                
+                if (screenWidth <= 1035 && screenWidth > 640) {
+                    // Medium screens - auto-collapse (CSS handles this, but ensure classes are applied)
+                    if (sidebar) {
+                        sidebar.classList.add('collapsed');
+                    }
+                    if (mainContent) {
+                        mainContent.classList.add('sidebar-collapsed');
+                    }
+                    if (collapseBtn) {
+                        collapseBtn.style.display = 'none';
+                    }
+                } else if (screenWidth > 1035) {
+                    // Large screens - check localStorage for manual state
+                    const isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+                    if (isCollapsed) {
+                        if (sidebar) {
+                            sidebar.classList.add('collapsed');
+                        }
+                        if (mainContent) {
+                            mainContent.classList.add('sidebar-collapsed');
+                        }
+                        if (collapseBtn) {
+                            const icon = collapseBtn.querySelector('i');
+                            if (icon) {
+                                icon.className = 'fas fa-chevron-right text-gray-600 text-lg';
+                            }
+                        }
+                    }
+                }
+            })();
+        </script>
 
     <!-- Contenido Principal -->
         <main class="flex-1 flex flex-col overflow-hidden">
@@ -345,8 +720,10 @@
                         <div class="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
                             <div class="text-xs sm:text-sm text-white flex items-center">
                                 <i data-lucide="calendar" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1"></i>
-                                <span id="currentDate" class="hidden lg:inline"></span>
-                                <span id="currentDateShort" class="lg:hidden"></span>
+                                <span id="currentDateFull" class="hidden xl:inline"></span>
+                                <span id="currentDateMedium" class="hidden lg:inline xl:hidden"></span>
+                                <span id="currentDateShort" class="hidden md:inline lg:hidden"></span>
+                                <span id="currentDateMinimal" class="inline md:hidden"></span>
                             </div>
                         </div>
                     </div>
@@ -547,101 +924,29 @@
                 <section>
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 animate-fade-in">
                         <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
-                            <h2 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
-                                <i data-lucide="activity" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2"></i>
-                                Actividades Recientes
-                            </h2>
-                        </div>
-                        <div class="p-4 sm:p-6">
-                            <div class="space-y-4">
-                        
-                        <!-- Últimas Propiedades -->
-                                <div class="mb-4 sm:mb-6">
-                                    <h3 class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center">
-                                        <i data-lucide="home" class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-blue-600"></i>
-                                Últimas Propiedades
-                            </h3>
-                                    <div class="space-y-2 sm:space-y-3">
-                                {% for propiedad in propiedades_recientes %}
-                                        <div class="flex items-center py-2 px-2 sm:px-3 bg-gray-50 rounded-lg">
-                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
-                                                <i data-lucide="home" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{ propiedad.titulo }}</p>
-                                                <p class="text-xs text-gray-500 truncate">{{ propiedad.get_precio_formateado }}</p>
-                                    </div>
-                                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">
-                                                {{ propiedad.fecha_creacion|date:"d/m/Y" }}
-                                    </div>
-                                </div>
-                                {% empty %}
-                                        <div class="flex items-center py-3 sm:py-4 px-2 sm:px-3 bg-gray-50 rounded-lg">
-                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
-                                                <i data-lucide="info" class="w-3 h-3 sm:w-4 sm:h-4 text-gray-500"></i>
-                                    </div>
-                                    <div class="flex-1">
-                                                <p class="text-xs sm:text-sm text-gray-500">No hay propiedades registradas</p>
-                                    </div>
-                                </div>
-                                {% endfor %}
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                                    <i data-lucide="activity" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2"></i>
+                                    Actividades Recientes
+                                </h2>
+                                <button id="btn-refrescar-actividades" class="text-gray-500 hover:text-blue-600 transition-colors" title="Actualizar actividades">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                </button>
                             </div>
                         </div>
-                        
-                        <!-- Acciones del Sistema -->
-                        <div>
-                                    <h3 class="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center">
-                                        <i data-lucide="zap" class="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-green-600"></i>
-                                Acciones del Sistema
-                            </h3>
-                                    <div class="space-y-2 sm:space-y-3">
-                                        <div class="flex items-center py-2 px-2 sm:px-3 bg-gray-50 rounded-lg">
-                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
-                                                <i data-lucide="user-plus" class="w-3 h-3 sm:w-4 sm:h-4 text-green-600"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">Nuevo usuario registrado</p>
-                                                <p class="text-xs text-gray-500 truncate">Sistema de autenticación</p>
-                                            </div>
-                                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">hace 2h</div>
-                                        </div>
-                                        
-                                        <div class="flex items-center py-2 px-2 sm:px-3 bg-gray-50 rounded-lg">
-                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
-                                                <i data-lucide="edit" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600"></i>
+                        <div class="p-4 sm:p-6">
+                            <div id="actividades-container" class="space-y-3">
+                                <!-- Las actividades se cargarán dinámicamente aquí -->
+                                <div class="text-center py-8">
+                                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <i data-lucide="activity" class="w-6 h-6 text-gray-400"></i>
                                     </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">Propiedad actualizada</p>
-                                                <p class="text-xs text-gray-500 truncate">Información modificada</p>
-                                    </div>
-                                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">hace 4h</div>
+                                    <p class="text-sm text-gray-500">Cargando actividades...</p>
                                 </div>
-                                
-                                        <div class="flex items-center py-2 px-2 sm:px-3 bg-gray-50 rounded-lg">
-                                            <div class="w-7 h-7 sm:w-8 sm:h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
-                                                <i data-lucide="star" class="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600"></i>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">Nueva reseña recibida</p>
-                                                <div class="flex items-center space-x-1 mt-1">
-                                                    <div class="flex items-center space-x-0.5">
-                                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                                        <i class="fas fa-star text-yellow-400 text-xs"></i>
-                                                        <i class="far fa-star text-gray-300 text-xs"></i>
-                                                        <i class="far fa-star text-gray-300 text-xs"></i>
-                                                    </div>
-                                                    <span class="text-xs text-gray-500 ml-1">3/5</span>
-                                                </div>
-                                            </div>
-                                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">hace 1d</div>
-                                    </div>
-                                    </div>
-                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </section>
+                </section>
                 </div>
                 
                 <!-- Contenido de Gestión de Propiedades (oculto por defecto) -->
@@ -655,10 +960,10 @@
                                 </h1>
                                 <p class="text-gray-600">Administra todas las propiedades del catálogo</p>
                             </div>
-                            <div class="mt-4 sm:mt-0">
-                                <button id="btn-volver-dashboard" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors mr-2">
+                            <div class="mt-4 sm:mt-0 flex gap-2">
+                                <button id="btn-volver-inicio-gestion" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
                                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                                    Volver al Dashboard
+                                    Volver al Inicio
                                 </button>
                                 <button id="btn-nueva-propiedad-gestion" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                                     <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
@@ -801,9 +1106,9 @@
                                 <p class="text-gray-600">Gestiona tu perfil y configuraciones de cuenta</p>
                             </div>
                             <div class="mt-4 sm:mt-0">
-                                <button id="btn-volver-dashboard-config" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                                <button id="btn-volver-inicio-config" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
                                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                                    Volver al Dashboard
+                                    Volver al Inicio
                                 </button>
                             </div>
                         </div>
@@ -1057,36 +1362,75 @@
                 <!-- Contenido de Gestión de Reseñas (oculto por defecto) -->
                 <div id="gestion-resenas-content" class="hidden">
                     <!-- Header de Gestión de Reseñas -->
-                    <div class="mb-6">
+                    <div class="mb-4 sm:mb-6">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                            <div class="mb-3 sm:mb-0">
+                                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
                                     Gestión de Reseñas
                                 </h1>
-                                <p class="text-gray-600">Modera y administra las reseñas de propiedades</p>
+                                <p class="text-sm sm:text-base text-gray-600">Modera y administra las reseñas de propiedades</p>
                             </div>
-                            <div class="mt-4 sm:mt-0">
-                                <button id="btn-volver-dashboard-resenas" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                                    Volver al Dashboard
+                            <div class="mt-2 sm:mt-0">
+                                <button id="btn-volver-inicio-resenas" class="w-full sm:w-auto bg-gray-500 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-1 sm:mr-2"></i>
+                                    Volver al Inicio
                                 </button>
                             </div>
                         </div>
                     </div>
 
+
                     <!-- Filtros de Reseñas -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-                        <div class="p-6 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                                <i data-lucide="filter" class="w-5 h-5 mr-2 text-blue-600"></i>
-                                Filtros
-                            </h3>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6">
+                        <div class="p-4 sm:p-6 border-b border-gray-200">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center mb-3 sm:mb-0">
+                                    <i data-lucide="filter" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600"></i>
+                                    Filtros
+                                </h3>
+                                
+                                <!-- Estadísticas pequeñas -->
+                                <div class="flex items-center space-x-4 sm:space-x-6">
+                                    <!-- En Espera -->
+                                    <div class="flex items-center">
+                                        <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center mr-1.5">
+                                            <i data-lucide="clock" class="w-3 h-3 text-yellow-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-gray-900" id="resenasEspera">{{ resenas_espera|default:"0" }}</div>
+                                            <div class="text-xs text-gray-500">Espera</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Aceptadas -->
+                                    <div class="flex items-center">
+                                        <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-1.5">
+                                            <i data-lucide="check-circle" class="w-3 h-3 text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-gray-900" id="resenasAceptadas">{{ resenas_aceptadas|default:"0" }}</div>
+                                            <div class="text-xs text-gray-500">Aceptadas</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rechazadas -->
+                                    <div class="flex items-center">
+                                        <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-1.5">
+                                            <i data-lucide="x-circle" class="w-3 h-3 text-red-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-gray-900" id="resenasRechazadas">{{ resenas_rechazadas|default:"0" }}</div>
+                                            <div class="text-xs text-gray-500">Rechazadas</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 sm:p-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                 <div>
-                                    <label for="filtro-estado" class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
-                                    <select id="filtro-estado" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label for="filtro-estado" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">Estado</label>
+                                    <select id="filtro-estado" class="w-full px-3 py-2 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base">
                                         <option value="todos">Todos los estados</option>
                                         <option value="pendiente">Pendientes</option>
                                         <option value="aprobada">Aprobadas</option>
@@ -1094,17 +1438,17 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="filtro-propiedad" class="block text-sm font-semibold text-gray-700 mb-2">Propiedad</label>
-                                    <select id="filtro-propiedad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label for="filtro-propiedad" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">Propiedad</label>
+                                    <select id="filtro-propiedad" class="w-full px-3 py-2 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base">
                                         <option value="todas">Todas las propiedades</option>
                                         {% for propiedad in todas_propiedades %}
                                         <option value="{{ propiedad.id }}">{{ propiedad.titulo }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div>
-                                    <label for="filtro-calificacion" class="block text-sm font-semibold text-gray-700 mb-2">Calificación</label>
-                                    <select id="filtro-calificacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <div class="sm:col-span-2 lg:col-span-1">
+                                    <label for="filtro-calificacion" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">Calificación</label>
+                                    <select id="filtro-calificacion" class="w-full px-3 py-2 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base">
                                         <option value="todas">Todas las calificaciones</option>
                                         <option value="5">5 estrellas</option>
                                         <option value="4">4 estrellas</option>
@@ -1114,32 +1458,40 @@
                                     </select>
                                 </div>
                             </div>
+                            
+                            <!-- Botón para limpiar filtros -->
+                            <div class="mt-4 flex justify-end">
+                                <button id="btn-limpiar-filtros" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm">
+                                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                                    Limpiar Filtros
+                                </button>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Lista de Reseñas -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                        <div class="p-6 border-b border-gray-200">
+                        <div class="p-4 sm:p-6 border-b border-gray-200">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                <div>
-                                    <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                                        <i data-lucide="star" class="w-5 h-5 mr-2 text-blue-600"></i>
+                                <div class="mb-3 sm:mb-0">
+                                    <h3 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
+                                        <i data-lucide="star" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600"></i>
                                         Reseñas (<span id="resenas-count">0</span>)
                                     </h3>
                                 </div>
-                                <div class="mt-4 sm:mt-0">
-                                    <button id="btn-refrescar-resenas" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
+                                <div class="mt-2 sm:mt-0">
+                                    <button id="btn-refrescar-resenas" class="w-full sm:w-auto bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4 mr-1 sm:mr-2"></i>
                                         Refrescar
                                     </button>
                                 </div>
                             </div>
                         </div>
                         
-                        <div id="resenas-list" class="p-6">
-                            <div class="text-center py-8 text-gray-500">
-                                <i data-lucide="star" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                                <p>Cargando reseñas...</p>
+                        <div id="resenas-list" class="p-4 sm:p-6">
+                            <div class="text-center py-6 sm:py-8 text-gray-500">
+                                <i data-lucide="star" class="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300"></i>
+                                <p class="text-sm sm:text-base">Cargando reseñas...</p>
                             </div>
                         </div>
                     </div>
@@ -1735,6 +2087,261 @@
     <!-- JavaScript organizado en módulos -->
     <script>
         // ========================================
+        // FUNCIONES DE NAVEGACIÓN CENTRALIZADAS
+        // ========================================
+        
+        // Función para ocultar todas las secciones
+        function hideAllSections() {
+            const sections = [
+                'dashboard-content',
+                'gestion-propiedades-content', 
+                'gestion-resenas-content',
+                'configuraciones-content'
+            ];
+            
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    section.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Función para mostrar una sección específica
+        function showSection(sectionId) {
+            hideAllSections(); // Ocultar todas primero
+            limpiarModales(); // Limpiar modales activos
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.remove('hidden');
+            }
+        }
+        
+        // Función para actualizar el estado del sidebar
+        function updateSidebarState(activeSection) {
+            // Remover estado activo de todos los botones
+            document.querySelectorAll('#sidebar button, #sidebar a').forEach(btn => {
+                btn.classList.remove('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
+                btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
+            });
+            
+            // Agregar estado activo al botón correspondiente
+            let activeButton = null;
+            switch(activeSection) {
+                case 'dashboard':
+                    activeButton = document.getElementById('btn-inicio');
+                    break;
+                case 'gestion':
+                    activeButton = document.getElementById('btn-gestionar-propiedades');
+                    break;
+                case 'resenas':
+                    activeButton = document.getElementById('btn-gestionar-resenas');
+                    break;
+                case 'config':
+                    activeButton = document.getElementById('btn-configuraciones');
+                    break;
+            }
+            
+            if (activeButton) {
+                activeButton.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
+                activeButton.classList.add('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
+            }
+        }
+
+        // ========================================
+        // SISTEMA DE ACTIVIDADES RECIENTES
+        // ========================================
+        
+        // Almacenamiento de actividades en localStorage
+        const ActivitiesManager = {
+            storageKey: 'dashboard-activities',
+            maxActivities: 20,
+            
+            // Agregar una nueva actividad
+            addActivity(type, title, description, icon = 'activity', color = 'blue') {
+                const activity = {
+                    id: Date.now(),
+                    type: type,
+                    title: title,
+                    description: description,
+                    icon: icon,
+                    color: color,
+                    timestamp: new Date().toISOString(),
+                    timeAgo: 'ahora'
+                };
+                
+                // Obtener actividades existentes
+                const activities = this.getActivities();
+                
+                // Agregar nueva actividad al inicio
+                activities.unshift(activity);
+                
+                // Limitar a maxActivities
+                if (activities.length > this.maxActivities) {
+                    activities.splice(this.maxActivities);
+                }
+                
+                // Guardar en localStorage
+                localStorage.setItem(this.storageKey, JSON.stringify(activities));
+                
+                // Actualizar la UI
+                this.updateUI();
+                
+                console.log('Nueva actividad agregada:', activity);
+            },
+            
+            // Obtener todas las actividades
+            getActivities() {
+                try {
+                    const stored = localStorage.getItem(this.storageKey);
+                    return stored ? JSON.parse(stored) : [];
+                } catch (error) {
+                    console.error('Error al obtener actividades:', error);
+                    return [];
+                }
+            },
+            
+            // Calcular tiempo transcurrido
+            getTimeAgo(timestamp) {
+                const now = new Date();
+                const activityTime = new Date(timestamp);
+                const diffMs = now - activityTime;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMins / 60);
+                const diffDays = Math.floor(diffHours / 24);
+                
+                if (diffMins < 1) return 'ahora';
+                if (diffMins < 60) return `hace ${diffMins}m`;
+                if (diffHours < 24) return `hace ${diffHours}h`;
+                if (diffDays < 7) return `hace ${diffDays}d`;
+                return activityTime.toLocaleDateString('es-ES');
+            },
+            
+            // Actualizar la UI
+            updateUI() {
+                const container = document.getElementById('actividades-container');
+                if (!container) return;
+                
+                const activities = this.getActivities();
+                
+                if (activities.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="activity" class="w-6 h-6 text-gray-400"></i>
+                            </div>
+                            <p class="text-sm text-gray-500">No hay actividades recientes</p>
+                            <p class="text-xs text-gray-400 mt-1">Las acciones del dashboard aparecerán aquí</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Generar HTML de actividades
+                const activitiesHTML = activities.map(activity => {
+                    const timeAgo = this.getTimeAgo(activity.timestamp);
+                    const colorClasses = {
+                        blue: 'bg-blue-100 text-blue-600',
+                        green: 'bg-green-100 text-green-600',
+                        yellow: 'bg-yellow-100 text-yellow-600',
+                        red: 'bg-red-100 text-red-600',
+                        purple: 'bg-purple-100 text-purple-600',
+                        gray: 'bg-gray-100 text-gray-600'
+                    };
+                    
+                    return `
+                        <div class="flex items-center py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="w-8 h-8 ${colorClasses[activity.color]} rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                <i data-lucide="${activity.icon}" class="w-4 h-4"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">${activity.title}</p>
+                                <p class="text-xs text-gray-500 truncate">${activity.description}</p>
+                            </div>
+                            <div class="text-xs text-gray-400 ml-2 flex-shrink-0">${timeAgo}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = activitiesHTML;
+                
+                // Recrear iconos de Lucide
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            },
+            
+            // Inicializar el sistema
+            init() {
+                this.updateUI();
+                
+                // Actualizar tiempo transcurrido cada minuto
+                setInterval(() => {
+                    this.updateUI();
+                }, 60000);
+                
+                // Event listener para botón de refrescar
+                const refreshBtn = document.getElementById('btn-refrescar-actividades');
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', () => {
+                        this.updateUI();
+                        // Efecto visual de refrescar
+                        refreshBtn.style.transform = 'rotate(360deg)';
+                        setTimeout(() => {
+                            refreshBtn.style.transform = 'rotate(0deg)';
+                        }, 300);
+                    });
+                }
+            }
+        };
+        
+        // Hacer el manager globalmente disponible
+        window.ActivitiesManager = ActivitiesManager;
+        
+        // ========================================
+        // FUNCIONES PARA ACTUALIZAR CONTADORES DE RESEÑAS
+        // ========================================
+        
+        // Función para actualizar el total de reseñas desde el backend
+        function actualizarTotalResenas(total) {
+            const totalElement = document.getElementById('totalReviews');
+            if (totalElement && total !== undefined) {
+                totalElement.textContent = total;
+            }
+        }
+        
+        // Función para cargar estadísticas de reseñas desde el backend
+        async function cargarEstadisticasResenas() {
+            try {
+                const response = await fetch(`{% url "login:gestionar_resenas" %}?estadisticas=true`);
+                const data = await response.json();
+                
+                if (data.success && data.estadisticas) {
+                    // Actualizar el total en el dashboard
+                    actualizarTotalResenas(data.estadisticas.total);
+                    
+                    // Actualizar los contadores individuales en la vista de reseñas
+                    const esperaElement = document.getElementById('resenasEspera');
+                    const aceptadasElement = document.getElementById('resenasAceptadas');
+                    const rechazadasElement = document.getElementById('resenasRechazadas');
+                    
+                    if (esperaElement) esperaElement.textContent = data.estadisticas.en_espera || 0;
+                    if (aceptadasElement) aceptadasElement.textContent = data.estadisticas.aceptadas || 0;
+                    if (rechazadasElement) rechazadasElement.textContent = data.estadisticas.rechazadas || 0;
+                    
+                    console.log('Estadísticas de reseñas cargadas:', data.estadisticas);
+                }
+            } catch (error) {
+                console.error('Error al cargar estadísticas de reseñas:', error);
+            }
+        }
+        
+        // Hacer las funciones globalmente disponibles
+        window.actualizarTotalResenas = actualizarTotalResenas;
+        window.cargarEstadisticasResenas = cargarEstadisticasResenas;
+        window.aplicarFiltrosResenas = aplicarFiltrosResenas;
+
+        // ========================================
         // MÓDULO: CONFIGURACIÓN Y UTILIDADES
         // ========================================
         const DashboardConfig = {
@@ -1756,7 +2363,7 @@
         // MÓDULO: FUNCIONES DE UTILIDAD
         // ========================================
         const Utils = {
-            // Obtener color según escala de calor (dinámico basado en el máximo)
+            // Obtener color según escala de calor (basado en rangos absolutos)
             getHeatColor(value, maxValue = null) {
                 console.log(`Evaluando color para valor: ${value}, máximo: ${maxValue}`);
                 
@@ -1766,24 +2373,17 @@
                     return DashboardConfig.colors.bajo; // Verde para 0 clics
                 }
                 
-                // Si no hay máximo, usar valores fijos
-                if (!maxValue || maxValue === 0) {
-                    return DashboardConfig.colors.bajo;
+                // Usar rangos absolutos: 0-60 → 61-150 → 151+
+                if (value <= 60) {
+                    console.log(`Valor ${value} -> Verde (bajo - rango absoluto)`);
+                    return DashboardConfig.colors.bajo; // Verde para 0-60 clics
                 }
-                
-                // Calcular porcentaje del valor respecto al máximo
-                const porcentaje = (value / maxValue) * 100;
-                
-                if (porcentaje <= 33) {
-                    console.log(`Valor ${value} (${porcentaje.toFixed(1)}%) -> Verde (bajo)`);
-                    return DashboardConfig.colors.bajo;
+                if (value <= 150) {
+                    console.log(`Valor ${value} -> Amarillo (medio - rango absoluto)`);
+                    return DashboardConfig.colors.medio; // Amarillo para 61-150 clics
                 }
-                if (porcentaje <= 66) {
-                    console.log(`Valor ${value} (${porcentaje.toFixed(1)}%) -> Amarillo (medio)`);
-                    return DashboardConfig.colors.medio;
-                }
-                console.log(`Valor ${value} (${porcentaje.toFixed(1)}%) -> Rojo (alto)`);
-                return DashboardConfig.colors.alto;
+                console.log(`Valor ${value} -> Rojo (alto - rango absoluto)`);
+                return DashboardConfig.colors.alto; // Rojo para 151+ clics
             },
 
             // Formatear fecha
@@ -2103,7 +2703,6 @@
                 this.gestionContent = document.getElementById('gestion-propiedades-content');
                 this.btnInicio = document.getElementById('btn-inicio');
                 this.btnGestionar = document.getElementById('btn-gestionar-propiedades');
-                this.btnVolver = document.getElementById('btn-volver-dashboard');
                 this.btnNuevaGestion = document.getElementById('btn-nueva-propiedad-gestion');
                 this.btnAgregarPrimera = document.getElementById('btn-agregar-primera-propiedad');
                 
@@ -2121,10 +2720,6 @@
                     this.showGestionPropiedades();
                 });
                 
-                // Volver al dashboard
-                this.btnVolver.addEventListener('click', () => {
-                    this.showDashboard();
-                });
                 
                 // Nueva propiedad desde gestión
                 this.btnNuevaGestion.addEventListener('click', () => {
@@ -2161,22 +2756,6 @@
                 lucide.createIcons();
             },
 
-            updateSidebarState(activeSection) {
-                // Remover estado activo de todos los botones
-                document.querySelectorAll('#sidebar button, #sidebar a').forEach(btn => {
-                    btn.classList.remove('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                    btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                });
-                
-                // Agregar estado activo al botón correspondiente
-                if (activeSection === 'gestion') {
-                    this.btnGestionar.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                    this.btnGestionar.classList.add('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                } else {
-                    this.btnInicio.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                    this.btnInicio.classList.add('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                }
-            }
         };
 
         // ========================================
@@ -2186,7 +2765,6 @@
             init() {
                 this.configContent = document.getElementById('configuraciones-content');
                 this.btnConfiguraciones = document.getElementById('btn-configuraciones');
-                this.btnVolverConfig = document.getElementById('btn-volver-dashboard-config');
                 this.form = document.getElementById('configuracion-perfil-form');
                 this.fotoInput = document.getElementById('foto-perfil-input');
                 this.btnCambiarFoto = document.getElementById('btn-cambiar-foto');
@@ -2201,10 +2779,6 @@
                     this.showConfiguraciones();
                 });
                 
-                // Volver al dashboard
-                this.btnVolverConfig.addEventListener('click', () => {
-                    this.showDashboard();
-                });
                 
                 // Navegación desde configuraciones
                 const btnInicio = document.getElementById('btn-inicio');
@@ -2245,80 +2819,23 @@
             },
 
             showConfiguraciones() {
-                // Ocultar otros contenidos
-                document.getElementById('dashboard-content').classList.add('hidden');
-                document.getElementById('gestion-propiedades-content').classList.add('hidden');
-                
-                // Mostrar configuraciones
-                this.configContent.classList.remove('hidden');
-                
-                // Actualizar estado del sidebar
-                this.updateSidebarState('config');
-                
-                // Recrear iconos
+                showSection('configuraciones-content');
+                updateSidebarState('config');
                 lucide.createIcons();
             },
 
             showDashboard() {
-                // Ocultar todas las secciones específicas
-                document.getElementById('configuraciones-content').classList.add('hidden');
-                document.getElementById('gestion-propiedades-content').classList.add('hidden');
-                document.getElementById('gestion-resenas-content').classList.add('hidden');
-                
-                // Limpiar modales activos
-                limpiarModales();
-                
-                // Mostrar dashboard
-                document.getElementById('dashboard-content').classList.remove('hidden');
-                
-                // Actualizar estado del sidebar
-                this.updateSidebarState('dashboard');
-                
-                // Recrear iconos
+                showSection('dashboard-content');
+                updateSidebarState('dashboard');
                 lucide.createIcons();
             },
 
             showGestionPropiedades() {
-                // Ocultar todas las secciones
-                document.querySelectorAll('.content-section').forEach(section => {
-                    section.classList.add('hidden');
-                });
-                
-                // Ocultar específicamente la sección de reseñas
-                const resenasSection = document.getElementById('gestion-resenas-content');
-                if (resenasSection) {
-                    resenasSection.classList.add('hidden');
-                }
-                
-                // Limpiar modales activos
-                limpiarModales();
-                
-                // Mostrar gestión de propiedades
-                document.getElementById('gestion-propiedades-content').classList.remove('hidden');
-                
-                // Actualizar estado del sidebar
-                this.updateSidebarState('gestion');
-                
-                // Recrear iconos
+                showSection('gestion-propiedades-content');
+                updateSidebarState('gestion');
                 lucide.createIcons();
             },
 
-            updateSidebarState(activeSection) {
-                // Remover estado activo de todos los botones
-                document.querySelectorAll('#sidebar button, #sidebar a').forEach(btn => {
-                    btn.classList.remove('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                    btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                });
-                
-                // Agregar estado activo al botón correspondiente
-                if (activeSection === 'config') {
-                    this.btnConfiguraciones.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                    this.btnConfiguraciones.classList.add('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                } else if (activeSection === 'dashboard') {
-                    document.getElementById('btn-inicio').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                    document.getElementById('btn-inicio').classList.add('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                }
-            },
 
             handleFotoChange(e) {
                 const file = e.target.files[0];
@@ -2716,6 +3233,20 @@
                         const result = await response.json();
                         if (result.success) {
                             this.showMessage(result.message, 'success');
+                            
+                            // Agregar actividad
+                            const nombre = formData.get('nombre') || 'Nuevo usuario';
+                            const apellido = formData.get('apellido') || '';
+                            const nombreCompleto = `${nombre} ${apellido}`.trim();
+                            
+                            ActivitiesManager.addActivity(
+                                'user', 
+                                'Usuario creado', 
+                                `"${nombreCompleto}" agregado al sistema`, 
+                                'user-plus', 
+                                'green'
+                            );
+                            
                             setTimeout(() => {
                                 this.closeModal();
                                 // Recargar la página para actualizar las estadísticas
@@ -3169,6 +3700,17 @@
                         const result = await response.json();
                         if (result.success) {
                             this.showMessage('¡Propiedad creada exitosamente!', 'success');
+                            
+                            // Agregar actividad
+                            const titulo = formData.get('titulo') || 'Nueva propiedad';
+                            ActivitiesManager.addActivity(
+                                'property', 
+                                'Propiedad creada', 
+                                `"${titulo}" agregada al catálogo`, 
+                                'home', 
+                                'green'
+                            );
+                            
                             setTimeout(() => {
                                 this.closeModal();
                                 // Recargar la página para actualizar las estadísticas
@@ -3219,25 +3761,86 @@
 
             updateDate() {
                 const currentDate = new Date();
-                const options = { 
+                
+                // Diferentes formatos según el tamaño de pantalla
+                const optionsFull = { 
                     year: 'numeric', 
                     month: 'long', 
                     day: 'numeric',
                     weekday: 'long'
                 };
+                const optionsMedium = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                };
                 const optionsShort = { 
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                };
+                const optionsMinimal = { 
                     day: 'numeric',
                     month: 'short'
                 };
                 
-                const currentDateElement = document.getElementById('currentDate');
+                // Obtener todos los elementos
+                const currentDateFullElement = document.getElementById('currentDateFull');
+                const currentDateMediumElement = document.getElementById('currentDateMedium');
                 const currentDateShortElement = document.getElementById('currentDateShort');
+                const currentDateMinimalElement = document.getElementById('currentDateMinimal');
                 
-                if (currentDateElement) {
-                    currentDateElement.textContent = Utils.formatDate(currentDate, options);
+                console.log('Actualizando fecha...', { 
+                    currentDateFullElement, 
+                    currentDateMediumElement, 
+                    currentDateShortElement, 
+                    currentDateMinimalElement 
+                });
+                
+                // Función para formatear fecha directamente
+                const formatDate = (date, options) => {
+                    try {
+                        return date.toLocaleDateString('es-ES', options);
+                    } catch (error) {
+                        console.error('Error formateando fecha:', error);
+                        return date.toLocaleDateString();
+                    }
+                };
+                
+                // Actualizar fecha completa (XL+)
+                if (currentDateFullElement) {
+                    const formattedDate = formatDate(currentDate, optionsFull);
+                    currentDateFullElement.textContent = formattedDate;
+                    console.log('Fecha completa actualizada:', formattedDate);
+                } else {
+                    console.log('Elemento currentDateFull no encontrado');
                 }
+                
+                // Actualizar fecha media (LG)
+                if (currentDateMediumElement) {
+                    const formattedDate = formatDate(currentDate, optionsMedium);
+                    currentDateMediumElement.textContent = formattedDate;
+                    console.log('Fecha media actualizada:', formattedDate);
+                } else {
+                    console.log('Elemento currentDateMedium no encontrado');
+                }
+                
+                // Actualizar fecha corta (MD)
                 if (currentDateShortElement) {
-                    currentDateShortElement.textContent = Utils.formatDate(currentDate, optionsShort);
+                    const formattedDate = formatDate(currentDate, optionsShort);
+                    currentDateShortElement.textContent = formattedDate;
+                    console.log('Fecha corta actualizada:', formattedDate);
+                } else {
+                    console.log('Elemento currentDateShort no encontrado');
+                }
+                
+                // Actualizar fecha mínima (SM y menor)
+                if (currentDateMinimalElement) {
+                    const formattedDate = formatDate(currentDate, optionsMinimal);
+                    currentDateMinimalElement.textContent = formattedDate;
+                    console.log('Fecha mínima actualizada:', formattedDate);
+                } else {
+                    console.log('Elemento currentDateMinimal no encontrado');
                 }
             }
         };
@@ -3418,11 +4021,23 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Remover fila de la tabla
+                    // Obtener el título de la propiedad antes de eliminarla
                     const row = document.querySelector(`tr[data-propiedad-id="${propiedadId}"]`);
+                    const titulo = row ? row.querySelector('td:first-child').textContent.trim() : 'Propiedad';
+                    
+                    // Remover fila de la tabla
                     if (row) {
                         row.remove();
                     }
+                    
+                    // Agregar actividad
+                    ActivitiesManager.addActivity(
+                        'property', 
+                        'Propiedad eliminada', 
+                        `"${titulo}" removida del catálogo`, 
+                        'trash-2', 
+                        'red'
+                    );
                     
                     // Mostrar mensaje de éxito
                     mostrarMensaje(data.message, 'success');
@@ -3456,6 +4071,15 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    // Agregar actividad
+                    ActivitiesManager.addActivity(
+                        'user', 
+                        'Usuario eliminado', 
+                        'Usuario administrativo removido del sistema', 
+                        'user-minus', 
+                        'red'
+                    );
+                    
                     // Mostrar mensaje de éxito
                     mostrarMensaje(data.message, 'success');
                     
@@ -3555,10 +4179,38 @@
                 SidebarManager.init();
                 ChartManager.init();
                 AnimationManager.init();
+                ActivitiesManager.init();
                 PropertyModalManager.init();
                 UsuarioModalManager.init();
                 PropertyManager.init();
                 ConfigManager.init();
+                
+                // Asegurar que la fecha se actualice después de la inicialización
+                setTimeout(() => {
+                    AnimationManager.updateDate();
+                }, 100);
+                
+                // Actualizar la fecha cada minuto
+                setInterval(() => {
+                    AnimationManager.updateDate();
+                }, 60000);
+                
+                // Fallback: actualizar fecha inmediatamente
+                AnimationManager.updateDate();
+                
+                // Agregar actividades de ejemplo si no hay ninguna
+                setTimeout(() => {
+                    const activities = ActivitiesManager.getActivities();
+                    if (activities.length === 0) {
+                        ActivitiesManager.addActivity('system', 'Dashboard iniciado', 'Sistema de actividades activado', 'zap', 'green');
+                        ActivitiesManager.addActivity('info', 'Bienvenido al dashboard', 'Todas las funciones están disponibles', 'home', 'blue');
+                    }
+                }, 1000);
+                
+                // Cargar estadísticas de reseñas desde el backend
+                setTimeout(() => {
+                    cargarEstadisticasResenas();
+                }, 500);
                 
                 // Inicializar funcionalidades de gestión
                 initSearch();
@@ -3587,60 +4239,83 @@
                 
                 // Event listeners para gestión de reseñas
                 const btnGestionarResenas = document.getElementById('btn-gestionar-resenas');
-                const btnVolverDashboardResenas = document.getElementById('btn-volver-dashboard-resenas');
                 const btnRefrescarResenas = document.getElementById('btn-refrescar-resenas');
                 
                 if (btnGestionarResenas) {
                     btnGestionarResenas.addEventListener('click', function() {
-                        // Ocultar todos los contenidos
-                        document.getElementById('dashboard-content').classList.add('hidden');
-                        document.getElementById('gestion-propiedades-content').classList.add('hidden');
-                        document.getElementById('configuraciones-content').classList.add('hidden');
-                        
-                        // Mostrar contenido de reseñas
-                        document.getElementById('gestion-resenas-content').classList.remove('hidden');
-                        
-                        // Actualizar estado activo de botones
-                        document.querySelectorAll('#sidebar button').forEach(btn => {
-                            btn.classList.remove('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                            btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                        });
-                        
-                        // Activar botón de reseñas
-                        btnGestionarResenas.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                        btnGestionarResenas.classList.add('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                        
-                        // Limpiar modales previos y cargar reseñas
-                        limpiarModales();
+                        showSection('gestion-resenas-content');
+                        updateSidebarState('resenas');
                         window.cargarResenas();
                     });
                 }
                 
-                if (btnVolverDashboardResenas) {
-                    btnVolverDashboardResenas.addEventListener('click', function() {
-                        // Limpiar modales y ocultar contenido de reseñas
-                        limpiarModales();
-                        document.getElementById('gestion-resenas-content').classList.add('hidden');
-                        
-                        // Mostrar dashboard
-                        document.getElementById('dashboard-content').classList.remove('hidden');
-                        
-                        // Actualizar estado activo de botones
-                        document.querySelectorAll('#sidebar button').forEach(btn => {
-                            btn.classList.remove('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                            btn.classList.add('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                        });
-                        
-                        // Activar botón de inicio
-                        const btnInicio = document.getElementById('btn-inicio');
-                        btnInicio.classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-gradient-to-r', 'hover:from-blue-500', 'hover:to-purple-600', 'hover:scale-105');
-                        btnInicio.classList.add('text-white', 'bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'transform', 'scale-105', 'shadow-lg');
-                    });
-                }
                 
                 if (btnRefrescarResenas) {
                     btnRefrescarResenas.addEventListener('click', function() {
                         window.cargarResenas(currentPage);
+                    });
+                }
+                
+                // Event listeners para filtros de reseñas
+                const filtroEstado = document.getElementById('filtro-estado');
+                const filtroPropiedad = document.getElementById('filtro-propiedad');
+                const filtroCalificacion = document.getElementById('filtro-calificacion');
+                
+                if (filtroEstado) {
+                    filtroEstado.addEventListener('change', function() {
+                        aplicarFiltrosResenas();
+                    });
+                }
+                
+                if (filtroPropiedad) {
+                    filtroPropiedad.addEventListener('change', function() {
+                        aplicarFiltrosResenas();
+                    });
+                }
+                
+                if (filtroCalificacion) {
+                    filtroCalificacion.addEventListener('change', function() {
+                        aplicarFiltrosResenas();
+                    });
+                }
+                
+                // Event listener para botón limpiar filtros
+                const btnLimpiarFiltros = document.getElementById('btn-limpiar-filtros');
+                if (btnLimpiarFiltros) {
+                    btnLimpiarFiltros.addEventListener('click', function() {
+                        // Resetear todos los filtros a sus valores por defecto
+                        if (filtroEstado) filtroEstado.value = 'todos';
+                        if (filtroPropiedad) filtroPropiedad.value = 'todas';
+                        if (filtroCalificacion) filtroCalificacion.value = 'todas';
+                        
+                        // Recargar reseñas sin filtros
+                        window.cargarResenas(1);
+                    });
+                }
+                
+                // Event listeners para botones "Volver al Inicio"
+                const btnVolverInicioConfig = document.getElementById('btn-volver-inicio-config');
+                const btnVolverInicioResenas = document.getElementById('btn-volver-inicio-resenas');
+                const btnVolverInicioGestion = document.getElementById('btn-volver-inicio-gestion');
+                
+                if (btnVolverInicioConfig) {
+                    btnVolverInicioConfig.addEventListener('click', function() {
+                        showSection('dashboard-content');
+                        updateSidebarState('dashboard');
+                    });
+                }
+                
+                if (btnVolverInicioResenas) {
+                    btnVolverInicioResenas.addEventListener('click', function() {
+                        showSection('dashboard-content');
+                        updateSidebarState('dashboard');
+                    });
+                }
+                
+                if (btnVolverInicioGestion) {
+                    btnVolverInicioGestion.addEventListener('click', function() {
+                        showSection('dashboard-content');
+                        updateSidebarState('dashboard');
                     });
                 }
                 
@@ -3665,11 +4340,220 @@
             alert(`Ver propiedad con ID: ${propiedadId}`);
         };
 
+        // Función para aplicar filtros de reseñas
+        function aplicarFiltrosResenas() {
+            const filtroEstado = document.getElementById('filtro-estado')?.value || 'todos';
+            const filtroPropiedad = document.getElementById('filtro-propiedad')?.value || 'todas';
+            const filtroCalificacion = document.getElementById('filtro-calificacion')?.value || 'todas';
+            
+            // Recargar reseñas con los filtros aplicados
+            window.cargarResenas(1, {
+                estado: filtroEstado,
+                propiedad: filtroPropiedad,
+                calificacion: filtroCalificacion
+            });
+        }
+
+        // Función para eliminar reseña
+        async function eliminarResena(resenaId) {
+            // Crear modal de confirmación personalizado
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+                    <!-- Header del modal -->
+                    <div class="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 rounded-t-xl">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
+                                <i data-lucide="trash-2" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Eliminar Reseña</h3>
+                                <p class="text-red-100 text-sm">Acción irreversible</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contenido del modal -->
+                    <div class="px-6 py-6">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-2">¿Estás seguro?</h4>
+                                <p class="text-gray-600 mb-4">Esta reseña será eliminada permanentemente del sistema. Esta acción no se puede deshacer.</p>
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                    <div class="flex items-center">
+                                        <i data-lucide="info" class="w-4 h-4 text-red-600 mr-2"></i>
+                                        <span class="text-sm text-red-700 font-medium">Se actualizarán automáticamente todos los contadores</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones del modal -->
+                    <div class="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
+                        <button id="cancelar-eliminar" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium">
+                            Cancelar
+                        </button>
+                        <button id="confirmar-eliminar" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center">
+                            <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                            Eliminar Reseña
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Agregar el modal al DOM
+            document.body.appendChild(modal);
+            
+            // Inicializar iconos de Lucide
+            lucide.createIcons();
+            
+            // Crear una promesa para manejar la respuesta
+            return new Promise((resolve) => {
+                const cancelarBtn = modal.querySelector('#cancelar-eliminar');
+                const confirmarBtn = modal.querySelector('#confirmar-eliminar');
+                
+                const limpiarModal = () => {
+                    modal.remove();
+                };
+                
+                cancelarBtn.addEventListener('click', () => {
+                    limpiarModal();
+                    resolve(false);
+                });
+                
+                confirmarBtn.addEventListener('click', async () => {
+                    limpiarModal();
+                    resolve(true);
+                });
+                
+                // Cerrar al hacer clic fuera del modal
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        limpiarModal();
+                        resolve(false);
+                    }
+                });
+                
+                // Cerrar con tecla Escape
+                const handleEscape = (e) => {
+                    if (e.key === 'Escape') {
+                        limpiarModal();
+                        resolve(false);
+                        document.removeEventListener('keydown', handleEscape);
+                    }
+                };
+                document.addEventListener('keydown', handleEscape);
+            }).then(async (confirmado) => {
+                if (!confirmado) {
+                    return;
+                }
+
+            try {
+                const response = await fetch(`{% url "login:eliminar_resena" %}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        resena_id: resenaId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Eliminar el elemento visual de la lista inmediatamente
+                    const resenaElement = document.querySelector(`[data-resena-id="${resenaId}"]`);
+                    if (resenaElement) {
+                        // Agregar animación de desvanecimiento antes de eliminar
+                        resenaElement.style.transition = 'all 0.3s ease';
+                        resenaElement.style.opacity = '0';
+                        resenaElement.style.transform = 'translateX(-100%)';
+                        
+                        setTimeout(() => {
+                            resenaElement.remove();
+                        }, 300);
+                    }
+                    
+                    // Agregar actividad
+                    ActivitiesManager.addActivity(
+                        'review', 
+                        'Reseña eliminada', 
+                        'Reseña eliminada permanentemente del sistema', 
+                        'trash-2', 
+                        'red'
+                    );
+                    
+                    // Actualizar estadísticas inmediatamente
+                    cargarEstadisticasResenas();
+                    
+                    // Mostrar notificación
+                    mostrarNotificacion('success', 'Reseña eliminada exitosamente', 'La reseña ha sido eliminada permanentemente.');
+                    
+                    // Limpiar completamente la interfaz y recargar
+                    setTimeout(() => {
+                        // Limpiar cualquier elemento residual
+                        const resenasList = document.getElementById('resenas-list');
+                        if (resenasList) {
+                            // Limpiar completamente la lista
+                            resenasList.innerHTML = '';
+                        }
+                        
+                        // Limpiar cualquier estado residual de filtros
+                        const filtroEstado = document.getElementById('filtro-estado');
+                        const filtroPropiedad = document.getElementById('filtro-propiedad');
+                        const filtroCalificacion = document.getElementById('filtro-calificacion');
+                        
+                        if (filtroEstado && filtroEstado.value !== 'todos') {
+                            filtroEstado.value = 'todos';
+                        }
+                        if (filtroPropiedad && filtroPropiedad.value !== 'todas') {
+                            filtroPropiedad.value = 'todas';
+                        }
+                        if (filtroCalificacion && filtroCalificacion.value !== 'todas') {
+                            filtroCalificacion.value = 'todas';
+                        }
+                        
+                        // Recargar la lista de reseñas
+                        window.cargarResenas(currentPage);
+                    }, 500);
+                } else {
+                    mostrarNotificacion('error', 'Error al eliminar reseña', data.message || 'No se pudo eliminar la reseña.');
+                }
+            } catch (error) {
+                console.error('Error al eliminar reseña:', error);
+                mostrarNotificacion('error', 'Error al eliminar reseña', 'Ocurrió un error inesperado.');
+            }
+            });
+        }
+        
         // Hacer las funciones globales para que puedan ser llamadas desde onclick
-        window.cargarResenas = async function(page = 1) {
+        window.eliminarResena = eliminarResena;
+        window.cargarResenas = async function(page = 1, filtros = {}) {
             try {
                 currentPage = page;
-                const response = await fetch(`{% url "login:gestionar_resenas" %}?page=${page}`);
+                
+                // Construir parámetros de la URL
+                const params = new URLSearchParams();
+                params.append('page', page);
+                
+                if (filtros.estado && filtros.estado !== 'todos') {
+                    params.append('estado', filtros.estado);
+                }
+                if (filtros.propiedad && filtros.propiedad !== 'todas') {
+                    params.append('propiedad', filtros.propiedad);
+                }
+                if (filtros.calificacion && filtros.calificacion !== 'todas') {
+                    params.append('calificacion', filtros.calificacion);
+                }
+                
+                const response = await fetch(`{% url "login:gestionar_resenas" %}?${params.toString()}`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -3679,18 +4563,33 @@
                     resenasList.innerHTML = '';
                     resenasCount.textContent = data.pagination.total_resenas;
                     
+                    // Actualizar contadores con datos reales del backend
+                    if (data.estadisticas) {
+                        // Actualizar el total en el dashboard
+                        actualizarTotalResenas(data.estadisticas.total);
+                        
+                        // Actualizar los contadores individuales en la vista de reseñas
+                        const esperaElement = document.getElementById('resenasEspera');
+                        const aceptadasElement = document.getElementById('resenasAceptadas');
+                        const rechazadasElement = document.getElementById('resenasRechazadas');
+                        
+                        if (esperaElement) esperaElement.textContent = data.estadisticas.en_espera || 0;
+                        if (aceptadasElement) aceptadasElement.textContent = data.estadisticas.aceptadas || 0;
+                        if (rechazadasElement) rechazadasElement.textContent = data.estadisticas.rechazadas || 0;
+                    }
+                    
                     if (data.resenas.length === 0) {
                         resenasList.innerHTML = `
-                            <div class="text-center py-8 text-gray-500">
-                                <i data-lucide="star" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                                <p>No hay reseñas para moderar</p>
+                            <div class="text-center py-6 sm:py-8 text-gray-500">
+                                <i data-lucide="star" class="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300"></i>
+                                <p class="text-sm sm:text-base">No hay reseñas para moderar</p>
                             </div>
                         `;
                     } else {
                         data.resenas.forEach(resena => {
-                            const resenaElement = document.createElement('div');
-                            resenaElement.className = 'bg-white rounded-lg border border-gray-200 p-6 mb-4';
-                            resenaElement.setAttribute('data-resena-id', resena.id);
+                        const resenaElement = document.createElement('div');
+                        resenaElement.className = 'bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-3 sm:mb-4';
+                        resenaElement.setAttribute('data-resena-id', resena.id);
                             
                             // Generar estrellas con Lucide icons
                             let estrellas = '';
@@ -3723,51 +4622,51 @@
                             resenaElement.innerHTML = `
                                 <div class="bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
                                     <!-- Header de la reseña -->
-                                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 rounded-t-xl border-b border-gray-200">
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-4">
+                                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-4 sm:px-6 py-3 sm:py-4 rounded-t-xl border-b border-gray-200">
+                                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                            <div class="flex items-center space-x-3 sm:space-x-4 mb-2 sm:mb-0">
                                                 <!-- Avatar del usuario -->
-                                                <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                                <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg flex-shrink-0">
                                                     ${resena.nombre_usuario.charAt(0).toUpperCase()}
                                                 </div>
-                                                <div>
-                                                    <h4 class="font-bold text-gray-900 text-lg">${resena.nombre_usuario}</h4>
-                                                    <p class="text-sm text-gray-600 flex items-center">
-                                                        <i data-lucide="mail" class="w-3 h-3 mr-1"></i>
-                                                        ${resena.email_usuario}
+                                                <div class="min-w-0 flex-1">
+                                                    <h4 class="font-bold text-gray-900 text-base sm:text-lg truncate">${resena.nombre_usuario}</h4>
+                                                    <p class="text-xs sm:text-sm text-gray-600 flex items-center truncate">
+                                                        <i data-lucide="mail" class="w-3 h-3 mr-1 flex-shrink-0"></i>
+                                                        <span class="truncate">${resena.email_usuario}</span>
                                                     </p>
                                                 </div>
                                             </div>
-                                            <span class="px-3 py-1 rounded-full text-sm font-medium ${estadoColor} shadow-sm">
+                                            <span class="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${estadoColor} shadow-sm self-start sm:self-auto">
                                                 ${estadoTexto}
                                             </span>
                                         </div>
                                     </div>
                                     
                                     <!-- Contenido principal -->
-                                    <div class="p-6">
+                                    <div class="p-4 sm:p-6">
                                         <!-- Calificación destacada -->
-                                        <div class="flex items-center justify-between mb-4">
-                                            <div class="flex items-center space-x-3">
+                                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
+                                            <div class="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-0">
                                                 <div class="flex items-center space-x-1">
                                                     ${estrellas}
                                                 </div>
-                                                <span class="text-lg font-bold text-gray-900">${resena.calificacion}/5</span>
+                                                <span class="text-base sm:text-lg font-bold text-gray-900">${resena.calificacion}/5</span>
                                             </div>
-                                            <div class="text-sm text-gray-500 flex items-center">
-                                                <i data-lucide="calendar" class="w-4 h-4 mr-1"></i>
+                                            <div class="text-xs sm:text-sm text-gray-500 flex items-center">
+                                                <i data-lucide="calendar" class="w-3 h-3 sm:w-4 sm:h-4 mr-1"></i>
                                                 ${resena.fecha_creacion}
                                             </div>
                                         </div>
                                         
                                         <!-- Propiedad -->
-                                        <div class="mb-4">
-                                            <h6 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                                <i data-lucide="home" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                        <div class="mb-3 sm:mb-4">
+                                            <h6 class="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2 flex items-center">
+                                                <i data-lucide="home" class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-blue-600"></i>
                                                 Propiedad
                                             </h6>
-                                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                                <span class="text-blue-600 font-semibold cursor-pointer hover:text-blue-800 transition-colors" onclick="verPropiedad(${resena.propiedad_id})">
+                                            <div class="p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                                <span class="text-blue-600 font-semibold cursor-pointer hover:text-blue-800 transition-colors text-sm sm:text-base truncate block" onclick="verPropiedad(${resena.propiedad_id})">
                                                     ${resena.propiedad_titulo}
                                                 </span>
                                             </div>
@@ -3775,44 +4674,53 @@
                                         
                                         <!-- Título de la reseña -->
                                         ${resena.titulo ? `
-                                        <div class="mb-4">
-                                            <h6 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                                <i data-lucide="message-square" class="w-4 h-4 mr-2 text-green-600"></i>
+                                        <div class="mb-3 sm:mb-4">
+                                            <h6 class="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2 flex items-center">
+                                                <i data-lucide="message-square" class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-green-600"></i>
                                                 Título de la Reseña
                                             </h6>
-                                            <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                                <h5 class="font-bold text-gray-900 text-lg">"${resena.titulo}"</h5>
+                                            <div class="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 shadow-sm">
+                                                <h5 class="font-bold text-gray-900 text-base sm:text-lg">"${resena.titulo}"</h5>
                                             </div>
                                         </div>
                                         ` : ''}
                                         
                                         <!-- Comentario -->
-                                        <div class="mb-4">
-                                            <h6 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                                <i data-lucide="file-text" class="w-4 h-4 mr-2 text-purple-600"></i>
+                                        <div class="mb-3 sm:mb-4">
+                                            <h6 class="text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2 flex items-center">
+                                                <i data-lucide="file-text" class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-purple-600"></i>
                                                 Descripción
                                             </h6>
-                                            <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                                                <p class="text-gray-700 leading-relaxed italic">"${resena.comentario}"</p>
+                                            <div class="bg-white rounded-lg p-3 sm:p-4 border border-gray-200 shadow-sm">
+                                                <p class="text-gray-700 leading-relaxed italic text-sm sm:text-base">"${resena.comentario}"</p>
                                             </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- Botones de acción -->
-                                    ${resena.estado === 'Pendiente de Aprobación' ? `
-                                    <div class="bg-gray-50 px-6 py-4 rounded-b-xl border-t border-gray-200">
-                                        <div class="flex flex-col sm:flex-row gap-3">
-                                            <button onclick="aprobarResena(${resena.id})" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 text-sm font-medium flex items-center justify-center shadow-sm hover:shadow-md">
-                                                <i data-lucide="check" class="w-4 h-4 mr-2"></i>
-                                                Aprobar Reseña
-                                            </button>
-                                            <button onclick="rechazarResena(${resena.id})" class="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 text-sm font-medium flex items-center justify-center shadow-sm hover:shadow-md">
-                                                <i data-lucide="x" class="w-4 h-4 mr-2"></i>
-                                                Rechazar Reseña
-                                            </button>
-                                        </div>
-                                    </div>
-                                    ` : ''}
+                    <!-- Botones de acción -->
+                    ${resena.estado === 'Pendiente de Aprobación' ? `
+                    <div class="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-xl border-t border-gray-200">
+                        <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                            <button onclick="aprobarResena(${resena.id})" class="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 text-xs sm:text-sm font-medium flex items-center justify-center shadow-sm hover:shadow-md">
+                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"></i>
+                                Aprobar Reseña
+                            </button>
+                            <button onclick="rechazarResena(${resena.id})" class="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 text-xs sm:text-sm font-medium flex items-center justify-center shadow-sm hover:shadow-md">
+                                <i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"></i>
+                                Rechazar Reseña
+                            </button>
+                        </div>
+                    </div>
+                    ` : (resena.estado === 'Aprobada' || resena.estado === 'Rechazada') ? `
+                    <div class="bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-xl border-t border-gray-200">
+                        <div class="flex justify-end">
+                            <button onclick="eliminarResena(${resena.id})" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-medium flex items-center shadow-sm hover:shadow-md">
+                                <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                                Eliminar Reseña
+                            </button>
+                        </div>
+                    </div>
+                    ` : ''}
                                 </div>
                             `;
                             resenasList.appendChild(resenaElement);
@@ -3990,6 +4898,18 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    // Agregar actividad
+                    ActivitiesManager.addActivity(
+                        'review', 
+                        'Reseña aprobada', 
+                        'Nueva reseña aprobada y publicada', 
+                        'check-circle', 
+                        'green'
+                    );
+                    
+                    // Recargar estadísticas desde el backend
+                    cargarEstadisticasResenas();
+                    
                     mostrarNotificacion('success', 'Reseña aprobada exitosamente', 'La reseña ha sido aprobada y ahora es visible públicamente.');
                     window.cargarResenas(currentPage); // Recargar la lista manteniendo la página actual
                 } else {
@@ -4460,6 +5380,18 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    // Agregar actividad
+                    ActivitiesManager.addActivity(
+                        'review', 
+                        'Reseña rechazada', 
+                        'Reseña rechazada y eliminada del sistema', 
+                        'x-circle', 
+                        'red'
+                    );
+                    
+                    // Recargar estadísticas desde el backend
+                    cargarEstadisticasResenas();
+                    
                     mostrarNotificacion('success', 'Reseña rechazada exitosamente', 'La reseña ha sido rechazada y eliminada de la lista.');
                     // Eliminar la reseña de la lista actual sin recargar
                     eliminarResenaDeLista(resenaId);
@@ -4473,7 +5405,243 @@
         }
     </script>
     
+    <!-- Optimized Dashboard JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            'use strict';
+            
+            // Get configuration and utilities
+            const CONFIG = window.DashboardConfig;
+            const utils = window.DashboardUtils;
+            
+            // DOM elements
+            const elements = {
+                sidebar: document.getElementById('sidebar'),
+                sidebarToggle: document.getElementById('sidebar-toggle'),
+                sidebarCollapse: document.getElementById('sidebar-collapse'),
+                sidebarOverlay: document.getElementById('sidebar-overlay'),
+                mainContent: document.getElementById('main-content'),
+                navButtons: document.querySelectorAll('[data-section]'),
+                touchElements: document.querySelectorAll('button, .nav-button, .widget-card'),
+                chartBars: document.querySelectorAll('.bar-chart')
+            };
+            
+            // Sidebar state management
+            const sidebarState = {
+                isCollapsed: () => elements.sidebar ? elements.sidebar.classList.contains('collapsed') : false,
+                isOpen: () => elements.sidebar ? elements.sidebar.classList.contains('open') : false,
+                
+                open: () => {
+                    if (elements.sidebar) {
+                        elements.sidebar.classList.add('open');
+                    }
+                    if (elements.sidebarOverlay) {
+                        elements.sidebarOverlay.classList.add('active');
+                    }
+                    document.body.style.overflow = 'hidden';
+                },
+                
+                close: () => {
+                    if (elements.sidebar) {
+                        elements.sidebar.classList.remove('open');
+                    }
+                    if (elements.sidebarOverlay) {
+                        elements.sidebarOverlay.classList.remove('active');
+                    }
+                    document.body.style.overflow = '';
+                },
+                
+                collapse: () => {
+                    if (elements.sidebar) {
+                        elements.sidebar.classList.add('collapsed');
+                    }
+                    if (elements.mainContent) {
+                        elements.mainContent.classList.add('sidebar-collapsed');
+                    }
+                    const icon = elements.sidebarCollapse?.querySelector('i');
+                    if (icon) icon.className = 'fas fa-chevron-right text-gray-600 text-lg';
+                    localStorage.setItem(CONFIG.storage.key, 'true');
+                    utils.setCSSVariable('--sidebar-width', `${CONFIG.sidebar.collapsed}px`);
+                    utils.setCSSVariable('--main-margin', `${CONFIG.sidebar.collapsed}px`);
+                },
+                
+                expand: () => {
+                    if (elements.sidebar) {
+                        elements.sidebar.classList.remove('collapsed');
+                    }
+                    if (elements.mainContent) {
+                        elements.mainContent.classList.remove('sidebar-collapsed');
+                    }
+                    const icon = elements.sidebarCollapse?.querySelector('i');
+                    if (icon) icon.className = 'fas fa-chevron-left text-gray-600 text-lg';
+                    localStorage.setItem(CONFIG.storage.key, 'false');
+                    utils.setCSSVariable('--sidebar-width', `${CONFIG.sidebar.width}px`);
+                    utils.setCSSVariable('--main-margin', `${CONFIG.sidebar.width}px`);
+                },
+                
+                toggle: () => {
+                    if (sidebarState.isCollapsed()) {
+                        sidebarState.expand();
+                    } else {
+                        sidebarState.collapse();
+                    }
+                }
+            };
+            
+            // Initialize sidebar state - only for large screens
+            function initializeSidebar() {
+                if (utils.isLargeScreen()) {
+                    const isCollapsed = localStorage.getItem(CONFIG.storage.key) === 'true';
+                    if (isCollapsed) {
+                        sidebarState.collapse();
+                    }
+                }
+                // For medium and mobile screens, let CSS handle everything
+            }
+            
+            // Handle responsive behavior - simplified
+            function handleResize() {
+                if (utils.isMobileScreen()) {
+                    sidebarState.close();
+                    elements.sidebarCollapse?.classList.add('hidden');
+                    elements.sidebarCollapse?.classList.remove('flex');
+                } else if (utils.isLargeScreen()) {
+                    sidebarState.close();
+                    if (elements.sidebarCollapse) {
+                        elements.sidebarCollapse.style.display = 'flex';
+                        elements.sidebarCollapse.classList.remove('hidden');
+                        elements.sidebarCollapse.classList.add('flex');
+                    }
+                    
+                    const isCollapsed = localStorage.getItem(CONFIG.storage.key) === 'true';
+                    if (isCollapsed) {
+                        sidebarState.collapse();
+                    } else {
+                        sidebarState.expand();
+                    }
+                }
+                // For medium screens, let CSS handle everything automatically
+            }
+            
+            // Event listeners
+            function setupEventListeners() {
+                // Sidebar controls
+                elements.sidebarToggle?.addEventListener('click', () => {
+                    if (utils.isMobileScreen()) {
+                        if (sidebarState.isOpen()) {
+                            sidebarState.close();
+                        } else {
+                            sidebarState.open();
+                        }
+                    }
+                });
+                
+                elements.sidebarCollapse?.addEventListener('click', () => {
+                    if (utils.isLargeScreen()) {
+                        sidebarState.toggle();
+                    }
+                });
+                
+                elements.sidebarOverlay?.addEventListener('click', sidebarState.close);
+                
+                // Resize handling with debouncing
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(handleResize, 100);
+                });
+                
+                // Touch interactions
+                elements.touchElements.forEach(element => {
+                    element.addEventListener('touchstart', function() {
+                        this.style.transform = 'scale(0.98)';
+                    });
+                    
+                    element.addEventListener('touchend', function() {
+                        this.style.transform = 'scale(1)';
+                    });
+                });
+                
+                // Prevent iOS double-tap zoom
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', function(event) {
+                    const now = Date.now();
+                    if (now - lastTouchEnd <= 300) {
+                        event.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, false);
+            }
+            
+            // Initialize everything
+            function init() {
+                // Initialize external libraries
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+                
+                // Initialize dashboard components
+                initializeSidebar();
+                setupEventListeners();
+            }
+            
+            // Start initialization
+            init();
+        });
+    </script>
+    
     <!-- CSRF Token -->
     {% csrf_token %}
+    
+    <!-- Script de fallback para la fecha -->
+    <script>
+        // Script inmediato para mostrar la fecha
+        (function() {
+            const currentDate = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            };
+            const optionsShort = { 
+                day: 'numeric',
+                month: 'short'
+            };
+            
+            // Función para actualizar fecha
+            function updateDateElements() {
+                const elements = [
+                    { id: 'currentDateFull', options: options },
+                    { id: 'currentDateMedium', options: options },
+                    { id: 'currentDateShort', options: options },
+                    { id: 'currentDateMinimal', options: optionsShort }
+                ];
+                
+                elements.forEach(({ id, options: opts }) => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = currentDate.toLocaleDateString('es-ES', opts);
+                        console.log(`Fecha actualizada en ${id}:`, element.textContent);
+                    } else {
+                        console.log(`Elemento ${id} no encontrado`);
+                    }
+                });
+            }
+            
+            // Ejecutar inmediatamente
+            updateDateElements();
+            
+            // Ejecutar cuando el DOM esté listo
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', updateDateElements);
+            }
+            
+            // Ejecutar con delay
+            setTimeout(updateDateElements, 100);
+            setTimeout(updateDateElements, 500);
+            setTimeout(updateDateElements, 1000);
+        })();
+    </script>
 </body>
 </html>

@@ -784,16 +784,54 @@ def gestionar_resenas(request):
     try:
         from propiedades.models import Resena
         
-        # Obtener parámetros de paginación
+        # Verificar si solo se solicitan estadísticas
+        solo_estadisticas = request.GET.get('estadisticas') == 'true'
+        
+        if solo_estadisticas:
+            # Solo devolver estadísticas
+            total_espera = Resena.objects.filter(estado='pendiente').count()
+            total_aceptadas = Resena.objects.filter(estado='aprobada').count()
+            total_rechazadas = Resena.objects.filter(estado='rechazada').count()
+            
+            return JsonResponse({
+                'success': True,
+                'estadisticas': {
+                    'en_espera': total_espera,
+                    'aceptadas': total_aceptadas,
+                    'rechazadas': total_rechazadas,
+                    'total': total_espera + total_aceptadas + total_rechazadas
+                }
+            })
+        
+        # Obtener parámetros de paginación y filtros
         page = int(request.GET.get('page', 1))
         per_page = 5
         start = (page - 1) * per_page
         end = start + per_page
         
-        # Obtener solo reseñas pendientes y aprobadas (excluir rechazadas)
-        resenas = Resena.objects.filter(
-            estado__in=['pendiente', 'aprobada']
-        ).select_related('propiedad').order_by('-fecha_creacion')
+        # Obtener filtros
+        filtro_estado = request.GET.get('estado', 'todos')
+        filtro_propiedad = request.GET.get('propiedad', 'todas')
+        filtro_calificacion = request.GET.get('calificacion', 'todas')
+        
+        # Construir queryset base
+        resenas = Resena.objects.all().select_related('propiedad').order_by('-fecha_creacion')
+        
+        # Aplicar filtros
+        if filtro_estado != 'todos':
+            if filtro_estado == 'pendiente':
+                resenas = resenas.filter(estado='pendiente')
+            elif filtro_estado == 'aprobada':
+                resenas = resenas.filter(estado='aprobada')
+            elif filtro_estado == 'rechazada':
+                resenas = resenas.filter(estado='rechazada')
+        # Si filtro_estado == 'todos', mostrar todas las reseñas (incluyendo rechazadas)
+        
+        if filtro_propiedad != 'todas':
+            resenas = resenas.filter(propiedad_id=filtro_propiedad)
+        
+        if filtro_calificacion != 'todas':
+            resenas = resenas.filter(calificacion=int(filtro_calificacion))
         total_resenas = resenas.count()
         resenas_paginadas = resenas[start:end]
         
@@ -818,6 +856,11 @@ def gestionar_resenas(request):
         has_previous = page > 1
         has_next = page < total_pages
         
+        # Incluir estadísticas en la respuesta
+        total_espera = Resena.objects.filter(estado='pendiente').count()
+        total_aceptadas = Resena.objects.filter(estado='aprobada').count()
+        total_rechazadas = Resena.objects.filter(estado='rechazada').count()
+        
         return JsonResponse({
             'success': True,
             'resenas': resenas_data,
@@ -830,11 +873,52 @@ def gestionar_resenas(request):
                 'has_next': has_next,
                 'previous_page': page - 1 if has_previous else None,
                 'next_page': page + 1 if has_next else None
+            },
+            'estadisticas': {
+                'en_espera': total_espera,
+                'aceptadas': total_aceptadas,
+                'rechazadas': total_rechazadas,
+                'total': total_espera + total_aceptadas + total_rechazadas
             }
         })
         
     except Exception as e:
         return JsonResponse({'success': False, 'message': f'Error al cargar reseñas: {str(e)}'})
+
+@login_required
+def eliminar_resena(request):
+    """Vista para eliminar una reseña permanentemente"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos para eliminar reseñas.'})
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+    
+    try:
+        import json
+        data = json.loads(request.body)
+        resena_id = data.get('resena_id')
+        
+        if not resena_id:
+            return JsonResponse({'success': False, 'message': 'ID de reseña no proporcionado.'})
+        
+        from propiedades.models import Resena
+        resena = get_object_or_404(Resena, id=resena_id)
+        
+        # Verificar que la reseña esté aprobada o rechazada (no pendiente)
+        if resena.estado == 'pendiente':
+            return JsonResponse({'success': False, 'message': 'No se puede eliminar una reseña pendiente. Primero debe ser aprobada o rechazada.'})
+        
+        # Eliminar la reseña
+        resena.delete()
+        
+        return JsonResponse({
+            'success': True, 
+            'message': 'Reseña eliminada exitosamente.'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'Error al eliminar reseña: {str(e)}'})
 
 @login_required
 def aprobar_resena(request, resena_id):

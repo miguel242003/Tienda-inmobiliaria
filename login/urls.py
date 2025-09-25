@@ -23,4 +23,5 @@ urlpatterns = [
     path('gestionar-resenas/', views.gestionar_resenas, name='gestionar_resenas'),
     path('aprobar-resena/<int:resena_id>/', views.aprobar_resena, name='aprobar_resena'),
     path('rechazar-resena/<int:resena_id>/', views.rechazar_resena, name='rechazar_resena'),
+    path('eliminar-resena/', views.eliminar_resena, name='eliminar_resena'),
 ]
