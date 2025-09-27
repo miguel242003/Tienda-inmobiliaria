@@ -101,6 +101,14 @@ def contact(request):
                     mensaje_con_propiedad = f"{mensaje_original}\n\n--- Información de la Propiedad ---\nID: {propiedad_id}\nTítulo: {propiedad_titulo}"
                     contact_submission.mensaje = mensaje_con_propiedad
                     contact_submission.save()
+                    
+                    # Incrementar contador de consulta de propiedad
+                    from .models import FormularioCount
+                    FormularioCount.incrementar_conteo('consulta_propiedad')
+                else:
+                    # Incrementar contador de formulario de contacto general
+                    from .models import FormularioCount
+                    FormularioCount.incrementar_conteo('contacto')
                 
                 # Enviar email de confirmación al usuario
                 send_contact_confirmation_email(contact_submission)
@@ -141,6 +149,10 @@ def cv(request):
             try:
                 # Guardar el CV
                 cv_submission = form.save()
+                
+                # Incrementar contador de formulario de CV
+                from .models import FormularioCount
+                FormularioCount.incrementar_conteo('cv')
                 
                 # Enviar email de confirmación al candidato
                 send_cv_confirmation_email(cv_submission)

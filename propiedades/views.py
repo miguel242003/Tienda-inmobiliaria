@@ -89,6 +89,10 @@ def detalle_propiedad(request, propiedad_id):
                 contact_submission.mensaje = mensaje_con_propiedad
                 contact_submission.save()
                 
+                # Incrementar contador de consulta de propiedad
+                from core.models import FormularioCount
+                FormularioCount.incrementar_conteo('consulta_propiedad')
+                
                 # Enviar email de confirmación al usuario
                 send_contact_confirmation_email(contact_submission)
                 

@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.db.models import Sum
 
 
 class ContactSubmission(models.Model):
@@ -14,8 +15,6 @@ class ContactSubmission(models.Model):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     asunto = models.CharField(max_length=20, choices=ASUNTO_CHOICES, verbose_name="Asunto")
     mensaje = models.TextField(verbose_name="Mensaje")
-    fecha_entrada = models.DateField(blank=True, null=True, verbose_name="Fecha de Entrada")
-    fecha_salida = models.DateField(blank=True, null=True, verbose_name="Fecha de Salida")
     fecha_envio = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Envío")
     
     class Meta:
@@ -126,3 +125,105 @@ class CVSubmission(models.Model):
         if self.cv_file:
             return self.cv_file.name.split('.')[-1].upper()
         return "N/A"
+
+
+class FormularioCount(models.Model):
+    """Modelo para contar formularios enviados por mes"""
+    
+    TIPO_FORMULARIO_CHOICES = [
+        ('contacto', 'Formulario de Contacto'),
+        ('consulta_propiedad', 'Consulta de Propiedad'),
+        ('cv', 'Formulario de CV'),
+    ]
+    
+    tipo_formulario = models.CharField(
+        max_length=20, 
+        choices=TIPO_FORMULARIO_CHOICES,
+        verbose_name="Tipo de Formulario"
+    )
+    año = models.IntegerField(verbose_name="Año")
+    mes = models.IntegerField(verbose_name="Mes")  # 1-12
+    cantidad = models.PositiveIntegerField(default=0, verbose_name="Cantidad")
+    fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
+    fecha_actualizacion = models.DateTimeField(auto_now=True, verbose_name="Fecha de Actualización")
+    
+    class Meta:
+        verbose_name = "Conteo de Formulario"
+        verbose_name_plural = "Conteos de Formularios"
+        unique_together = ['tipo_formulario', 'año', 'mes']
+        ordering = ['-año', '-mes', 'tipo_formulario']
+    
+    def __str__(self):
+        meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+        return f"{self.get_tipo_formulario_display()} - {meses[self.mes-1]} {self.año}: {self.cantidad}"
+    
+    @classmethod
+    def incrementar_conteo(cls, tipo_formulario):
+        """Incrementa el conteo para el tipo de formulario en el mes actual"""
+        now = timezone.now()
+        año_actual = now.year
+        mes_actual = now.month
+        
+        # Obtener o crear el registro para este mes
+        conteo, created = cls.objects.get_or_create(
+            tipo_formulario=tipo_formulario,
+            año=año_actual,
+            mes=mes_actual,
+            defaults={'cantidad': 0}
+        )
+        
+        # Incrementar el conteo
+        conteo.cantidad += 1
+        conteo.save()
+        
+        return conteo
+    
+    @classmethod
+    def obtener_conteo_mensual(cls, tipo_formulario, año=None, mes=None):
+        """Obtiene el conteo para un tipo de formulario en un mes específico"""
+        if año is None:
+            año = timezone.now().year
+        if mes is None:
+            mes = timezone.now().month
+            
+        try:
+            conteo = cls.objects.get(
+                tipo_formulario=tipo_formulario,
+                año=año,
+                mes=mes
+            )
+            return conteo.cantidad
+        except cls.DoesNotExist:
+            return 0
+    
+    @classmethod
+    def obtener_conteo_total_mes_actual(cls):
+        """Obtiene el conteo total de todos los formularios en el mes actual"""
+        now = timezone.now()
+        conteos = cls.objects.filter(año=now.year, mes=now.month)
+        return sum(conteo.cantidad for conteo in conteos)
+    
+    @classmethod
+    def obtener_estadisticas_mensuales(cls, año=None):
+        """Obtiene estadísticas mensuales para un año específico"""
+        if año is None:
+            año = timezone.now().year
+            
+        estadisticas = {}
+        meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+        
+        for mes in range(1, 13):
+            conteos = cls.objects.filter(año=año, mes=mes)
+            total_mes = sum(conteo.cantidad for conteo in conteos)
+            
+            estadisticas[mes] = {
+                'nombre': meses[mes-1],
+                'total': total_mes,
+                'contacto': cls.obtener_conteo_mensual('contacto', año, mes),
+                'consulta_propiedad': cls.obtener_conteo_mensual('consulta_propiedad', año, mes),
+                'cv': cls.obtener_conteo_mensual('cv', año, mes),
+            }
+        
+        return estadisticas

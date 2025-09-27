@@ -22,36 +22,52 @@ class CVSubmissionForm(forms.ModelForm):
             'nombre_completo': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Tu nombre completo',
-                'required': True
+                'required': True,
+                'minlength': '2',
+                'maxlength': '200',
+                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s\\-\\\'\\.]+',
+                'title': 'Solo se permiten letras, espacios, guiones, apostrofes y puntos'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'tu@email.com',
-                'required': True
+                'required': True,
+                'maxlength': '254',
+                'title': 'Ingresa un correo electrónico válido'
             }),
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': '+1 234 567 890'
+                'placeholder': '+5491123456789',
+                'pattern': '^\\+?[0-9\\s\\-\\(\\)]{8,15}$',
+                'title': 'Formato: +5491123456789 o 5491123456789 (8-15 dígitos)',
+                'minlength': '8',
+                'maxlength': '15'
             }),
             'posicion_interes': forms.Select(attrs={
                 'class': 'form-select',
-                'required': True
+                'required': True,
+                'title': 'Selecciona una posición de interés'
             }),
             'anos_experiencia': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+                'title': 'Selecciona tu experiencia (opcional)'
             }),
             'nivel_educativo': forms.Select(attrs={
-                'class': 'form-select'
+                'class': 'form-select',
+                'title': 'Selecciona tu nivel educativo (opcional)'
             }),
             'cv_file': forms.FileInput(attrs={
                 'class': 'form-control',
                 'accept': '.pdf,.doc,.docx',
-                'required': True
+                'required': True,
+                'title': 'Solo archivos PDF, DOC o DOCX (máximo 5MB)'
             }),
             'carta_presentacion': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
-                'placeholder': 'Cuéntanos por qué te interesa trabajar con nosotros...'
+                'placeholder': 'Cuéntanos por qué te interesa trabajar con nosotros...',
+                'maxlength': '2000',
+                'title': 'Máximo 2000 caracteres'
             })
         }
     
@@ -97,56 +113,128 @@ class CVSubmissionForm(forms.ModelForm):
         
         return file
     
+    def clean_nombre_completo(self):
+        """Validación personalizada para el nombre completo"""
+        nombre = self.cleaned_data.get('nombre_completo')
+        
+        if not nombre:
+            raise ValidationError('El nombre completo es obligatorio.')
+        
+        # Validar longitud mínima
+        if len(nombre.strip()) < 2:
+            raise ValidationError('El nombre debe tener al menos 2 caracteres.')
+        
+        # Validar longitud máxima
+        if len(nombre) > 200:
+            raise ValidationError('El nombre no puede exceder los 200 caracteres.')
+        
+        # Validar que contenga solo letras, espacios y algunos caracteres especiales
+        import re
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\'\.]+$', nombre):
+            raise ValidationError('El nombre solo puede contener letras, espacios, guiones, apostrofes y puntos.')
+        
+        # Validar que no sea solo espacios
+        if not nombre.strip():
+            raise ValidationError('El nombre no puede estar vacío.')
+        
+        return nombre.strip()
+    
     def clean_email(self):
         """Validación personalizada para el email"""
         email = self.cleaned_data.get('email')
         
-        # Por ahora permitimos múltiples CVs con el mismo email
-        # La validación de duplicados se puede reactivar más tarde si es necesario
+        if not email:
+            raise ValidationError('El correo electrónico es obligatorio.')
         
-        return email
+        # Validar formato de email
+        import re
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            raise ValidationError('Por favor ingresa un correo electrónico válido.')
+        
+        # Validar longitud máxima
+        if len(email) > 254:
+            raise ValidationError('El correo electrónico no puede exceder los 254 caracteres.')
+        
+        # Normalizar email (convertir a minúsculas)
+        return email.lower().strip()
     
     def clean_telefono(self):
         """Validación personalizada para el teléfono"""
         telefono = self.cleaned_data.get('telefono')
         
-        if telefono:
-            # Limpiar el teléfono (remover espacios, guiones, paréntesis)
-            import re
-            cleaned_phone = re.sub(r'[\s\-\(\)]', '', telefono)
+        if telefono:  # Solo validar si se proporciona (es opcional)
+            # Limpiar el teléfono de espacios y caracteres especiales
+            telefono_limpio = re.sub(r'[^\d+]', '', telefono)
             
-            # Verificar que solo contenga números y el símbolo +
-            if not re.match(r'^\+?[0-9]+$', cleaned_phone):
-                raise ValidationError('Por favor ingresa un número de teléfono válido.')
+            # Validar longitud mínima
+            if len(telefono_limpio) < 8:
+                raise ValidationError('El teléfono debe tener al menos 8 dígitos.')
             
-            # Verificar longitud mínima
-            if len(cleaned_phone) < 10:
-                raise ValidationError('El número de teléfono debe tener al menos 10 dígitos.')
+            # Validar longitud máxima
+            if len(telefono_limpio) > 15:
+                raise ValidationError('El teléfono no puede exceder los 15 dígitos.')
+            
+            # Validar que contenga solo números y opcionalmente un + al inicio
+            if not re.match(r'^\+?[0-9]+$', telefono_limpio):
+                raise ValidationError('El teléfono solo puede contener números y opcionalmente un + al inicio.')
+            
+            return telefono_limpio
         
         return telefono
     
-    def clean(self):
-        """Validación cruzada de fechas"""
-        cleaned_data = super().clean()
-        fecha_entrada = cleaned_data.get('fecha_entrada')
-        fecha_salida = cleaned_data.get('fecha_salida')
+    def clean_posicion_interes(self):
+        """Validación personalizada para la posición de interés"""
+        posicion = self.cleaned_data.get('posicion_interes')
         
-        # Validar que la fecha de salida sea posterior a la de entrada
-        if fecha_entrada and fecha_salida:
-            if fecha_salida <= fecha_entrada:
-                raise ValidationError('La fecha de salida debe ser posterior a la fecha de entrada.')
+        if not posicion:
+            raise ValidationError('Debes seleccionar una posición de interés.')
         
-        # Validar que las fechas no sean en el pasado
-        from django.utils import timezone
-        today = timezone.now().date()
+        # Validar que la posición esté en las opciones válidas
+        valid_positions = [choice[0] for choice in CVSubmission.POSITION_CHOICES]
+        if posicion not in valid_positions:
+            raise ValidationError('La posición seleccionada no es válida.')
         
-        if fecha_entrada and fecha_entrada < today:
-            raise ValidationError('La fecha de entrada no puede ser en el pasado.')
+        return posicion
+    
+    def clean_anos_experiencia(self):
+        """Validación personalizada para años de experiencia"""
+        experiencia = self.cleaned_data.get('anos_experiencia')
         
-        if fecha_salida and fecha_salida < today:
-            raise ValidationError('La fecha de salida no puede ser en el pasado.')
+        if experiencia:  # Solo validar si se proporciona (es opcional)
+            valid_experiences = [choice[0] for choice in CVSubmission.EXPERIENCE_CHOICES]
+            if experiencia not in valid_experiences:
+                raise ValidationError('La experiencia seleccionada no es válida.')
         
-        return cleaned_data
+        return experiencia
+    
+    def clean_nivel_educativo(self):
+        """Validación personalizada para nivel educativo"""
+        nivel = self.cleaned_data.get('nivel_educativo')
+        
+        if nivel:  # Solo validar si se proporciona (es opcional)
+            valid_levels = [choice[0] for choice in CVSubmission.EDUCATION_CHOICES]
+            if nivel not in valid_levels:
+                raise ValidationError('El nivel educativo seleccionado no es válido.')
+        
+        return nivel
+    
+    def clean_carta_presentacion(self):
+        """Validación personalizada para la carta de presentación"""
+        carta = self.cleaned_data.get('carta_presentacion')
+        
+        if carta:  # Solo validar si se proporciona (es opcional)
+            # Validar longitud máxima
+            if len(carta) > 2000:
+                raise ValidationError('La carta de presentación no puede exceder los 2000 caracteres.')
+            
+            # Validar que no sea solo espacios
+            if not carta.strip():
+                raise ValidationError('La carta de presentación no puede estar vacía.')
+            
+            return carta.strip()
+        
+        return carta
 
 
 class ContactSubmissionForm(forms.ModelForm):
@@ -154,41 +242,45 @@ class ContactSubmissionForm(forms.ModelForm):
     
     class Meta:
         model = ContactSubmission
-        fields = ['nombre', 'email', 'telefono', 'asunto', 'mensaje', 'fecha_entrada', 'fecha_salida']
+        fields = ['nombre', 'email', 'telefono', 'asunto', 'mensaje']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Tu nombre completo',
-                'required': True
+                'required': True,
+                'minlength': '2',
+                'maxlength': '200',
+                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s\\-\\\'\\.]+',
+                'title': 'Solo se permiten letras, espacios, guiones, apostrofes y puntos'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'tu@email.com',
-                'required': True
+                'required': True,
+                'maxlength': '254',
+                'title': 'Ingresa un correo electrónico válido'
             }),
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': '+1 234 567 890'
+                'placeholder': '+5491123456789',
+                'pattern': '^\\+?[0-9\\s\\-\\(\\)]{8,15}$',
+                'title': 'Formato: +5491123456789 o 5491123456789 (8-15 dígitos)',
+                'minlength': '8',
+                'maxlength': '15'
             }),
             'asunto': forms.Select(attrs={
                 'class': 'form-select',
-                'required': True
+                'required': True,
+                'title': 'Selecciona un asunto'
             }),
             'mensaje': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 5,
                 'placeholder': 'Cuéntanos cómo podemos ayudarte...',
-                'required': True
-            }),
-            'fecha_entrada': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date',
-                'placeholder': 'Fecha de entrada'
-            }),
-            'fecha_salida': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date',
-                'placeholder': 'Fecha de salida'
+                'required': True,
+                'minlength': '10',
+                'maxlength': '2000',
+                'title': 'Mínimo 10 caracteres, máximo 2000'
             })
         }
     
@@ -204,44 +296,109 @@ class ContactSubmissionForm(forms.ModelForm):
         self.fields['asunto'].required = True
         self.fields['mensaje'].required = True
     
+    def clean_nombre(self):
+        """Validación personalizada para el nombre"""
+        nombre = self.cleaned_data.get('nombre')
+        
+        if not nombre:
+            raise ValidationError('El nombre es obligatorio.')
+        
+        # Validar longitud mínima
+        if len(nombre.strip()) < 2:
+            raise ValidationError('El nombre debe tener al menos 2 caracteres.')
+        
+        # Validar longitud máxima
+        if len(nombre) > 200:
+            raise ValidationError('El nombre no puede exceder los 200 caracteres.')
+        
+        # Validar que contenga solo letras, espacios y algunos caracteres especiales
+        import re
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\'\.]+$', nombre):
+            raise ValidationError('El nombre solo puede contener letras, espacios, guiones, apostrofes y puntos.')
+        
+        # Validar que no sea solo espacios
+        if not nombre.strip():
+            raise ValidationError('El nombre no puede estar vacío.')
+        
+        return nombre.strip()
+    
+    def clean_email(self):
+        """Validación personalizada para el email"""
+        email = self.cleaned_data.get('email')
+        
+        if not email:
+            raise ValidationError('El correo electrónico es obligatorio.')
+        
+        # Validar formato de email
+        import re
+        email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_regex, email):
+            raise ValidationError('Por favor ingresa un correo electrónico válido.')
+        
+        # Validar longitud máxima
+        if len(email) > 254:
+            raise ValidationError('El correo electrónico no puede exceder los 254 caracteres.')
+        
+        # Normalizar email (convertir a minúsculas)
+        return email.lower().strip()
+    
     def clean_telefono(self):
         """Validación personalizada para el teléfono"""
         telefono = self.cleaned_data.get('telefono')
         
-        if telefono:
-            # Limpiar el teléfono (remover espacios, guiones, paréntesis)
+        if telefono:  # Solo validar si se proporciona (es opcional)
+            # Limpiar el teléfono de espacios y caracteres especiales
             import re
-            cleaned_phone = re.sub(r'[\s\-\(\)]', '', telefono)
+            telefono_limpio = re.sub(r'[^\d+]', '', telefono)
             
-            # Verificar que solo contenga números y el símbolo +
-            if not re.match(r'^\+?[0-9]+$', cleaned_phone):
-                raise ValidationError('Por favor ingresa un número de teléfono válido.')
+            # Validar longitud mínima
+            if len(telefono_limpio) < 8:
+                raise ValidationError('El teléfono debe tener al menos 8 dígitos.')
             
-            # Verificar longitud mínima
-            if len(cleaned_phone) < 10:
-                raise ValidationError('El número de teléfono debe tener al menos 10 dígitos.')
+            # Validar longitud máxima
+            if len(telefono_limpio) > 15:
+                raise ValidationError('El teléfono no puede exceder los 15 dígitos.')
+            
+            # Validar que contenga solo números y opcionalmente un + al inicio
+            if not re.match(r'^\+?[0-9]+$', telefono_limpio):
+                raise ValidationError('El teléfono solo puede contener números y opcionalmente un + al inicio.')
+            
+            return telefono_limpio
         
         return telefono
     
-    def clean(self):
-        """Validación cruzada de fechas"""
-        cleaned_data = super().clean()
-        fecha_entrada = cleaned_data.get('fecha_entrada')
-        fecha_salida = cleaned_data.get('fecha_salida')
+    def clean_asunto(self):
+        """Validación personalizada para el asunto"""
+        asunto = self.cleaned_data.get('asunto')
         
-        # Validar que la fecha de salida sea posterior a la de entrada
-        if fecha_entrada and fecha_salida:
-            if fecha_salida <= fecha_entrada:
-                raise ValidationError('La fecha de salida debe ser posterior a la fecha de entrada.')
+        if not asunto:
+            raise ValidationError('Debes seleccionar un asunto.')
         
-        # Validar que las fechas no sean en el pasado
-        from django.utils import timezone
-        today = timezone.now().date()
+        # Validar que el asunto esté en las opciones válidas
+        valid_asuntos = [choice[0] for choice in ContactSubmission.ASUNTO_CHOICES]
+        if asunto not in valid_asuntos:
+            raise ValidationError('El asunto seleccionado no es válido.')
         
-        if fecha_entrada and fecha_entrada < today:
-            raise ValidationError('La fecha de entrada no puede ser en el pasado.')
+        return asunto
+    
+    def clean_mensaje(self):
+        """Validación personalizada para el mensaje"""
+        mensaje = self.cleaned_data.get('mensaje')
         
-        if fecha_salida and fecha_salida < today:
-            raise ValidationError('La fecha de salida no puede ser en el pasado.')
+        if not mensaje:
+            raise ValidationError('El mensaje es obligatorio.')
         
-        return cleaned_data
+        # Validar longitud mínima
+        if len(mensaje.strip()) < 10:
+            raise ValidationError('El mensaje debe tener al menos 10 caracteres.')
+        
+        # Validar longitud máxima
+        if len(mensaje) > 2000:
+            raise ValidationError('El mensaje no puede exceder los 2000 caracteres.')
+        
+        # Validar que no sea solo espacios
+        if not mensaje.strip():
+            raise ValidationError('El mensaje no puede estar vacío.')
+        
+        return mensaje.strip()
+    

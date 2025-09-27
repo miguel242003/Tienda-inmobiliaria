@@ -2945,12 +2945,20 @@
                 
                 <!-- Contador Principal -->
                 <div class="text-center mb-6">
-                                <div class="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-2 counter-animation" id="total-formularios">
-                        1,247
-                        </div>
+                    <div class="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent mb-2 counter-animation" id="total-formularios">
+                        {{ total_formularios_mes|floatformat:0 }}
+                    </div>
                     <div class="flex items-center justify-center space-x-2 text-sm text-gray-600">
-                        <i data-lucide="trending-up" class="w-4 h-4 text-green-500"></i>
-                        <span>+18% este mes</span>
+                        {% if cambio_porcentaje > 0 %}
+                            <i data-lucide="trending-up" class="w-4 h-4 text-green-500"></i>
+                            <span class="text-green-600">+{{ cambio_porcentaje }}% este mes</span>
+                        {% elif cambio_porcentaje < 0 %}
+                            <i data-lucide="trending-down" class="w-4 h-4 text-red-500"></i>
+                            <span class="text-red-600">{{ cambio_porcentaje }}% este mes</span>
+                        {% else %}
+                            <i data-lucide="minus" class="w-4 h-4 text-gray-500"></i>
+                            <span class="text-gray-600">Sin cambios este mes</span>
+                        {% endif %}
                     </div>
                 </div>
                 
@@ -2968,25 +2976,40 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-lg font-bold text-blue-600">892</div>
+                            <div class="text-lg font-bold text-blue-600">{{ formularios_contacto }}</div>
                         </div>
                     </div>
                     
-                    <!-- Interés en Propiedades -->
+                    <!-- Consultas de Propiedades -->
                     <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                         <div class="flex items-center">
                             <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                <i data-lucide="heart" class="w-4 h-4 text-green-600"></i>
+                                <i data-lucide="home" class="w-4 h-4 text-green-600"></i>
                             </div>
                             <div>
-                                <p class="text-sm font-medium text-gray-900">Interés en Propiedades</p>
+                                <p class="text-sm font-medium text-gray-900">Consultas de Propiedades</p>
                                 <p class="text-xs text-gray-600">Solicitudes específicas</p>
-                    </div>
-                </div>
+                            </div>
+                        </div>
                         <div class="text-right">
-                            <div class="text-lg font-bold text-green-600">355</div>
+                            <div class="text-lg font-bold text-green-600">{{ formularios_consulta_propiedad }}</div>
                         </div>
                     </div>
+                    
+                    <!-- Formularios de CV -->
+                    <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                <i data-lucide="file-text" class="w-4 h-4 text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Currículums</p>
+                                <p class="text-xs text-gray-600">CVs enviados</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-purple-600">{{ formularios_cv }}</div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -257,6 +257,33 @@ def dashboard(request):
     staff_users = User.objects.filter(is_staff=True).count()
     total_propiedades = Propiedad.objects.count()
     
+    # Obtener conteos de formularios del mes actual
+    from core.models import FormularioCount
+    total_formularios_mes = FormularioCount.obtener_conteo_total_mes_actual()
+    formularios_contacto = FormularioCount.obtener_conteo_mensual('contacto')
+    formularios_consulta_propiedad = FormularioCount.obtener_conteo_mensual('consulta_propiedad')
+    formularios_cv = FormularioCount.obtener_conteo_mensual('cv')
+    
+    # Obtener estadísticas del mes anterior para comparación
+    from datetime import datetime
+    now = timezone.now()
+    if now.month == 1:
+        mes_anterior = 12
+        año_anterior = now.year - 1
+    else:
+        mes_anterior = now.month - 1
+        año_anterior = now.year
+    
+    total_formularios_mes_anterior = 0
+    for tipo in ['contacto', 'consulta_propiedad', 'cv']:
+        total_formularios_mes_anterior += FormularioCount.obtener_conteo_mensual(tipo, año_anterior, mes_anterior)
+    
+    # Calcular porcentaje de cambio
+    if total_formularios_mes_anterior > 0:
+        cambio_porcentaje = round(((total_formularios_mes - total_formularios_mes_anterior) / total_formularios_mes_anterior) * 100)
+    else:
+        cambio_porcentaje = 0 if total_formularios_mes == 0 else 100
+    
     # Obtener propiedades recientes
     propiedades_recientes = Propiedad.objects.all().order_by('-fecha_creacion')[:5]
     
@@ -273,14 +300,12 @@ def dashboard(request):
     
     # Obtener estadísticas de clics
     from propiedades.models import ClickPropiedad
-    from django.utils import timezone
     from datetime import datetime, timedelta
     
     # Total de clics
     total_clicks = ClickPropiedad.objects.count()
     
     # Clics por mes (año actual completo: enero a diciembre)
-    now = timezone.now()
     clicks_por_mes = []
     meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
                      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
@@ -366,6 +391,12 @@ def dashboard(request):
         'clicks_por_propiedad': clicks_por_propiedad_json,
         'form': form,
         'amenidades': amenidades,
+        # Conteos de formularios
+        'total_formularios_mes': total_formularios_mes,
+        'formularios_contacto': formularios_contacto,
+        'formularios_consulta_propiedad': formularios_consulta_propiedad,
+        'formularios_cv': formularios_cv,
+        'cambio_porcentaje': cambio_porcentaje,
     }
     
     return render(request, 'login/dashboard.html', context)

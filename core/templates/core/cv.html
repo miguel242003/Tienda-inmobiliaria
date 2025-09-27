@@ -504,11 +504,90 @@
 .form-control.is-invalid, 
 .form-select.is-invalid {
     border-color: var(--error);
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-control.is-valid,
+.form-select.is-valid {
+    border-color: var(--success);
+    box-shadow: 0 0 0 0.2rem rgba(5, 150, 105, 0.25);
 }
 
 .form-control.is-invalid + .invalid-feedback,
-.form-select.is-invalid + .invalid-feedback {
+.form-select.is-invalid + .invalid-feedback,
+.field-error-message {
     display: block;
+    color: var(--error);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+/* Mensaje de error del formulario */
+.form-error-message {
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.2);
+    border: none;
+    font-weight: 500;
+    padding: 16px 20px;
+    font-size: 15px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    color: #721c24;
+    border-left: 5px solid #dc3545;
+}
+
+.form-error-message::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+}
+
+/* Animaciones para validación */
+.form-control, .form-select {
+    transition: all 0.3s ease;
+}
+
+.form-control.is-invalid, .form-select.is-invalid {
+    animation: shake 0.5s ease-in-out;
+}
+
+.form-control.is-valid, .form-select.is-valid {
+    animation: successPulse 0.3s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* Contador de caracteres para carta de presentación */
+.character-counter {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: right;
+    margin-top: 0.25rem;
+}
+
+.character-counter.warning {
+    color: var(--warning);
+}
+
+.character-counter.danger {
+    color: var(--error);
 }
 
 /* ========================================
@@ -1139,56 +1218,179 @@ function setupRealTimeValidation() {
     const inputs = form.querySelectorAll('input, select, textarea');
     
     inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            const value = this.value.trim();
-            
-            // Clear previous validation
-            this.classList.remove('is-invalid');
-            
-            // Validate only if there's a value
-            if (value) {
-                if (this.type === 'email') {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!emailRegex.test(value)) {
-                        this.classList.add('is-invalid');
-                    }
-                }
-                
-                if (this.type === 'tel') {
-                    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
-                    if (!phoneRegex.test(value)) {
-                        this.classList.add('is-invalid');
-                    }
-                }
-            }
+        // Validación en tiempo real mientras el usuario escribe
+        input.addEventListener('input', function() {
+            validateField(this);
         });
         
-        // Special validation for file inputs
+        // Validación al perder el foco
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        // Validación especial para archivos
         if (input.type === 'file') {
             input.addEventListener('change', function() {
-                this.classList.remove('is-invalid');
-                
-                const file = this.files[0];
-                if (file) {
-                    // Validate file size (5MB)
-                    const maxSize = 5 * 1024 * 1024;
-                    if (file.size > maxSize) {
-                        this.classList.add('is-invalid');
-                    }
-                    
-                    // Validate file type
-                    const allowedTypes = [
-                        'application/pdf', 
-                        'application/msword', 
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                    ];
-                    if (!allowedTypes.includes(file.type)) {
-                        this.classList.add('is-invalid');
-                    }
-                }
+                validateFileInput(this);
             });
         }
     });
+}
+
+// Función para validar campos individuales
+function validateField(field) {
+    const value = field.value.trim();
+    const fieldName = field.name;
+    
+    // Limpiar validaciones previas
+    field.classList.remove('is-invalid', 'is-valid');
+    
+    // Remover mensajes de error existentes
+    const existingError = field.parentNode.querySelector('.field-error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Validar solo si hay valor o si es requerido
+    if (value || field.required) {
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Validación de nombre completo
+        if (fieldName === 'nombre_completo') {
+            if (!value) {
+                isValid = false;
+                errorMessage = 'El nombre completo es obligatorio.';
+            } else if (value.length < 2) {
+                isValid = false;
+                errorMessage = 'El nombre debe tener al menos 2 caracteres.';
+            } else if (value.length > 200) {
+                isValid = false;
+                errorMessage = 'El nombre no puede exceder los 200 caracteres.';
+            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\'\.]+$/.test(value)) {
+                isValid = false;
+                errorMessage = 'El nombre solo puede contener letras, espacios, guiones, apostrofes y puntos.';
+            }
+        }
+        
+        // Validación de email
+        else if (fieldName === 'email') {
+            if (!value) {
+                isValid = false;
+                errorMessage = 'El correo electrónico es obligatorio.';
+            } else if (value.length > 254) {
+                isValid = false;
+                errorMessage = 'El correo electrónico no puede exceder los 254 caracteres.';
+            } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+                isValid = false;
+                errorMessage = 'Por favor ingresa un correo electrónico válido.';
+            }
+        }
+        
+        // Validación de teléfono
+        else if (fieldName === 'telefono' && value) {
+            const cleanPhone = value.replace(/[^\d+]/g, '');
+            if (cleanPhone.length < 8) {
+                isValid = false;
+                errorMessage = 'El teléfono debe tener al menos 8 dígitos.';
+            } else if (cleanPhone.length > 15) {
+                isValid = false;
+                errorMessage = 'El teléfono no puede exceder los 15 dígitos.';
+            } else if (!/^\+?[0-9]+$/.test(cleanPhone)) {
+                isValid = false;
+                errorMessage = 'El teléfono solo puede contener números y opcionalmente un + al inicio.';
+            }
+        }
+        
+        // Validación de posición de interés
+        else if (fieldName === 'posicion_interes') {
+            if (!value) {
+                isValid = false;
+                errorMessage = 'Debes seleccionar una posición de interés.';
+            }
+        }
+        
+        // Validación de carta de presentación
+        else if (fieldName === 'carta_presentacion' && value) {
+            if (value.length > 2000) {
+                isValid = false;
+                errorMessage = 'La carta de presentación no puede exceder los 2000 caracteres.';
+            } else if (!value.trim()) {
+                isValid = false;
+                errorMessage = 'La carta de presentación no puede estar vacía.';
+            }
+        }
+        
+        // Aplicar validación
+        if (isValid) {
+            field.classList.add('is-valid');
+        } else {
+            field.classList.add('is-invalid');
+            showFieldError(field, errorMessage);
+        }
+    }
+}
+
+// Función para validar archivos
+function validateFileInput(fileInput) {
+    const file = fileInput.files[0];
+    
+    // Limpiar validaciones previas
+    fileInput.classList.remove('is-invalid', 'is-valid');
+    
+    // Remover mensajes de error existentes
+    const existingError = fileInput.parentNode.querySelector('.field-error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    if (file) {
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Validar tamaño del archivo (5MB)
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            isValid = false;
+            errorMessage = 'El archivo no puede ser mayor a 5MB.';
+        }
+        
+        // Validar tipo de archivo
+        const allowedTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+        
+        if (!allowedTypes.includes(file.type)) {
+            isValid = false;
+            errorMessage = 'Solo se permiten archivos PDF, DOC o DOCX.';
+        }
+        
+        // Validar extensión del archivo
+        const allowedExtensions = ['.pdf', '.doc', '.docx'];
+        const fileExtension = '.' + file.name.toLowerCase().split('.').pop();
+        if (!allowedExtensions.includes(fileExtension)) {
+            isValid = false;
+            errorMessage = 'Solo se permiten archivos PDF, DOC o DOCX.';
+        }
+        
+        // Aplicar validación
+        if (isValid) {
+            fileInput.classList.add('is-valid');
+        } else {
+            fileInput.classList.add('is-invalid');
+            showFieldError(fileInput, errorMessage);
+        }
+    }
+}
+
+// Función para mostrar mensajes de error
+function showFieldError(field, message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'field-error-message invalid-feedback d-block';
+    errorDiv.textContent = message;
+    field.parentNode.appendChild(errorDiv);
 }
 
 // Form submission enhancement
@@ -1196,6 +1398,15 @@ function handleFormSubmission() {
     const form = document.getElementById('cvForm');
     
     form.addEventListener('submit', function(e) {
+        // Validar todos los campos antes de enviar
+        const isValid = validateAllFields();
+        
+        if (!isValid) {
+            e.preventDefault();
+            showFormError('Por favor corrige los errores antes de enviar el formulario.');
+            return;
+        }
+        
         const submitBtn = this.querySelector('.btn-cta');
         const originalText = submitBtn.innerHTML;
         
@@ -1203,12 +1414,53 @@ function handleFormSubmission() {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
         submitBtn.disabled = true;
         
-        // Re-enable button after 5 seconds in case of error
+        // Re-enable button after 10 seconds in case of error
         setTimeout(() => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-        }, 5000);
+        }, 10000);
     });
+}
+
+// Función para validar todos los campos del formulario
+function validateAllFields() {
+    const form = document.getElementById('cvForm');
+    const inputs = form.querySelectorAll('input, select, textarea');
+    let isFormValid = true;
+    
+    inputs.forEach(input => {
+        validateField(input);
+        if (input.classList.contains('is-invalid')) {
+            isFormValid = false;
+        }
+    });
+    
+    return isFormValid;
+}
+
+// Función para mostrar error general del formulario
+function showFormError(message) {
+    // Remover mensaje de error existente
+    const existingError = document.querySelector('.form-error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Crear nuevo mensaje de error
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'form-error-message alert alert-danger alert-dismissible fade show';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    
+    // Insertar al inicio del formulario
+    const form = document.getElementById('cvForm');
+    form.insertBefore(errorDiv, form.firstChild);
+    
+    // Scroll al error
+    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // File upload preview
@@ -1222,9 +1474,9 @@ function setupFilePreview() {
                 const fileInfo = document.createElement('div');
                 fileInfo.className = 'file-info mt-2';
                 fileInfo.innerHTML = `
-                    <small class="text-muted">
-                        <i class="fas fa-file me-1"></i>
-                        ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                    <small class="text-success">
+                        <i class="fas fa-check-circle me-1"></i>
+                        <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)
                     </small>
                 `;
                 
@@ -1240,11 +1492,55 @@ function setupFilePreview() {
     }
 }
 
+// Contador de caracteres para carta de presentación
+function setupCharacterCounter() {
+    const cartaInput = document.getElementById('id_carta_presentacion');
+    if (cartaInput) {
+        const maxLength = 2000;
+        
+        // Crear contador
+        const counter = document.createElement('div');
+        counter.className = 'character-counter';
+        counter.textContent = `0 / ${maxLength} caracteres`;
+        cartaInput.parentNode.appendChild(counter);
+        
+        // Actualizar contador
+        function updateCounter() {
+            const length = cartaInput.value.length;
+            counter.textContent = `${length} / ${maxLength} caracteres`;
+            
+            // Cambiar color según la longitud
+            counter.classList.remove('warning', 'danger');
+            if (length > maxLength * 0.9) {
+                counter.classList.add('warning');
+            }
+            if (length > maxLength) {
+                counter.classList.add('danger');
+            }
+        }
+        
+        // Event listeners
+        cartaInput.addEventListener('input', updateCounter);
+        cartaInput.addEventListener('paste', function() {
+            setTimeout(updateCounter, 10);
+        });
+        
+        // Validación en tiempo real
+        cartaInput.addEventListener('input', function() {
+            if (this.value.length > maxLength) {
+                this.value = this.value.substring(0, maxLength);
+                updateCounter();
+            }
+        });
+    }
+}
+
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     setupRealTimeValidation();
     handleFormSubmission();
     setupFilePreview();
+    setupCharacterCounter();
     
     // Auto-dismiss alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');

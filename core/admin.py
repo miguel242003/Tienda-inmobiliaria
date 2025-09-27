@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from .models import CVSubmission, ContactSubmission
+from .models import CVSubmission, ContactSubmission, FormularioCount
 
 
 @admin.register(CVSubmission)
@@ -114,15 +114,11 @@ class ContactSubmissionAdmin(admin.ModelAdmin):
         'nombre', 
         'email', 
         'asunto', 
-        'fecha_entrada',
-        'fecha_salida',
         'fecha_envio', 
         'contact_actions'
     ]
     list_filter = [
         'asunto',
-        'fecha_entrada',
-        'fecha_salida',
         'fecha_envio'
     ]
     search_fields = [
@@ -140,9 +136,6 @@ class ContactSubmissionAdmin(admin.ModelAdmin):
         }),
         ('Consulta', {
             'fields': ('asunto', 'mensaje')
-        }),
-        ('Fechas de Estancia', {
-            'fields': ('fecha_entrada', 'fecha_salida')
         }),
         ('Metadatos', {
             'fields': ('fecha_envio',),
@@ -164,3 +157,33 @@ class ContactSubmissionAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimiza las consultas"""
         return super().get_queryset(request).select_related()
+
+
+@admin.register(FormularioCount)
+class FormularioCountAdmin(admin.ModelAdmin):
+    list_display = [
+        'tipo_formulario',
+        'año',
+        'mes',
+        'cantidad',
+        'fecha_creacion',
+        'fecha_actualizacion'
+    ]
+    list_filter = [
+        'tipo_formulario',
+        'año',
+        'mes'
+    ]
+    search_fields = [
+        'tipo_formulario'
+    ]
+    readonly_fields = [
+        'fecha_creacion',
+        'fecha_actualizacion'
+    ]
+    ordering = ['-año', '-mes', 'tipo_formulario']
+    date_hierarchy = 'fecha_creacion'
+    
+    def get_queryset(self, request):
+        """Optimiza las consultas"""
+        return super().get_queryset(request)
