@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
+import re
 from .models import AdminCredentials, PasswordResetCode
 from .forms import AdminCredentialsForm, NuevoUsuarioAdminForm
 from .forms_2fa import TwoFactorVerifyForm, BackupCodeForm
@@ -488,13 +489,37 @@ def actualizar_perfil(request):
                 )
                 print(f"AdminCredentials creado: {admin_creds}")
             
+            # Validar campos antes de actualizar
+            nombre = request.POST.get('nombre', '').strip()
+            apellido = request.POST.get('apellido', '').strip()
+            
+            # Validaciones para nombre
+            if not nombre:
+                return JsonResponse({'success': False, 'message': 'El nombre es obligatorio.'})
+            elif len(nombre) < 2:
+                return JsonResponse({'success': False, 'message': 'El nombre debe tener al menos 2 caracteres.'})
+            elif len(nombre) > 50:
+                return JsonResponse({'success': False, 'message': 'El nombre no puede tener más de 50 caracteres.'})
+            elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
+                return JsonResponse({'success': False, 'message': 'El nombre solo puede contener letras y espacios.'})
+            
+            # Validaciones para apellido
+            if not apellido:
+                return JsonResponse({'success': False, 'message': 'El apellido es obligatorio.'})
+            elif len(apellido) < 2:
+                return JsonResponse({'success': False, 'message': 'El apellido debe tener al menos 2 caracteres.'})
+            elif len(apellido) > 50:
+                return JsonResponse({'success': False, 'message': 'El apellido no puede tener más de 50 caracteres.'})
+            elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', apellido):
+                return JsonResponse({'success': False, 'message': 'El apellido solo puede contener letras y espacios.'})
+            
             # Actualizar campos
             nombre_anterior = admin_creds.nombre
             apellido_anterior = admin_creds.apellido
             telefono_anterior = admin_creds.telefono
             
-            admin_creds.nombre = request.POST.get('nombre', admin_creds.nombre)
-            admin_creds.apellido = request.POST.get('apellido', admin_creds.apellido)
+            admin_creds.nombre = nombre
+            admin_creds.apellido = apellido
             admin_creds.telefono = request.POST.get('telefono', admin_creds.telefono)
             
             print(f"Campos actualizados:")
@@ -560,6 +585,73 @@ def crear_nuevo_usuario_admin(request):
     
     if request.method == 'POST':
         try:
+            # Validar campos antes de procesar el formulario
+            nombre = request.POST.get('nombre', '').strip()
+            apellido = request.POST.get('apellido', '').strip()
+            telefono = request.POST.get('telefono', '').strip()
+            email = request.POST.get('email', '').strip()
+            password = request.POST.get('password', '')
+            confirmar_password = request.POST.get('confirmar_password', '')
+            fecha_nacimiento = request.POST.get('fecha_nacimiento', '')
+            
+            # Validaciones para nombre
+            if not nombre:
+                return JsonResponse({'success': False, 'message': 'El nombre es obligatorio.'})
+            elif len(nombre) < 2:
+                return JsonResponse({'success': False, 'message': 'El nombre debe tener al menos 2 caracteres.'})
+            elif len(nombre) > 50:
+                return JsonResponse({'success': False, 'message': 'El nombre no puede tener más de 50 caracteres.'})
+            elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
+                return JsonResponse({'success': False, 'message': 'El nombre solo puede contener letras y espacios.'})
+            
+            # Validaciones para apellido
+            if not apellido:
+                return JsonResponse({'success': False, 'message': 'El apellido es obligatorio.'})
+            elif len(apellido) < 2:
+                return JsonResponse({'success': False, 'message': 'El apellido debe tener al menos 2 caracteres.'})
+            elif len(apellido) > 50:
+                return JsonResponse({'success': False, 'message': 'El apellido no puede tener más de 50 caracteres.'})
+            elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', apellido):
+                return JsonResponse({'success': False, 'message': 'El apellido solo puede contener letras y espacios.'})
+            
+            # Validaciones para teléfono
+            if not telefono or telefono == '+54':
+                return JsonResponse({'success': False, 'message': 'Debes ingresar el número de teléfono después del +54.'})
+            elif not re.match(r'^\+54\d{10,12}$', telefono):
+                return JsonResponse({'success': False, 'message': 'El teléfono debe tener entre 10 y 12 dígitos después del +54.'})
+            
+            # Validaciones para correo electrónico
+            if not email:
+                return JsonResponse({'success': False, 'message': 'El correo electrónico es obligatorio.'})
+            elif not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+                return JsonResponse({'success': False, 'message': 'Ingresa un correo electrónico válido.'})
+            
+            # Validaciones para contraseña
+            if not password:
+                return JsonResponse({'success': False, 'message': 'La contraseña es obligatoria.'})
+            elif len(password) < 8:
+                return JsonResponse({'success': False, 'message': 'La contraseña debe tener al menos 8 caracteres.'})
+            
+            # Validaciones para confirmar contraseña
+            if not confirmar_password:
+                return JsonResponse({'success': False, 'message': 'Debes confirmar la contraseña.'})
+            elif password != confirmar_password:
+                return JsonResponse({'success': False, 'message': 'Las contraseñas no coinciden.'})
+            
+            # Validaciones para fecha de nacimiento
+            if fecha_nacimiento:
+                from datetime import datetime
+                try:
+                    fecha_obj = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
+                    min_fecha = datetime(1900, 1, 1).date()
+                    año_actual = datetime.now().year
+                    max_fecha = datetime(año_actual, 12, 31).date()
+                    
+                    if fecha_obj < min_fecha or fecha_obj > max_fecha:
+                        return JsonResponse({'success': False, 'message': f'La fecha debe estar entre 1900 y {año_actual}.'})
+                except ValueError:
+                    return JsonResponse({'success': False, 'message': 'Formato de fecha inválido.'})
+            
             form = NuevoUsuarioAdminForm(request.POST, request.FILES)
             print(f"Formulario válido: {form.is_valid()}")
             if not form.is_valid():
@@ -583,13 +675,16 @@ def crear_nuevo_usuario_admin(request):
                     credenciales.user = user
                     credenciales.save()
                     
+                    # Convertir la fecha UTC a la zona horaria local
+                    fecha_local = timezone.localtime(credenciales.fecha_creacion)
+                    
                     return JsonResponse({
                         'success': True, 
                         'message': f'Usuario administrativo "{credenciales.get_nombre_completo()}" creado exitosamente.',
                         'usuario': {
                             'nombre': credenciales.get_nombre_completo(),
                             'email': credenciales.email,
-                            'fecha_creacion': credenciales.fecha_creacion.strftime('%d/%m/%Y %H:%M')
+                            'fecha_creacion': fecha_local.strftime('%d/%m/%Y %H:%M')
                         }
                     })
                     
@@ -861,12 +956,14 @@ def listar_usuarios_admin(request):
         
         usuarios_data = []
         for cred in usuarios:
+            # Convertir la fecha UTC a la zona horaria local
+            fecha_local = timezone.localtime(cred.fecha_creacion)
             usuarios_data.append({
                 'id': cred.id,
                 'nombre_completo': cred.get_nombre_completo(),
                 'email': cred.email,
                 'telefono': cred.telefono or 'No registrado',
-                'fecha_creacion': cred.fecha_creacion.strftime('%d/%m/%Y %H:%M'),
+                'fecha_creacion': fecha_local.strftime('%d/%m/%Y %H:%M'),
                 'activo': cred.activo,
                 'foto_perfil': cred.get_foto_perfil_url()
             })

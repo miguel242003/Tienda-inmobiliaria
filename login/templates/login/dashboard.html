@@ -3278,7 +3278,10 @@
                                         </div>
                                         
                                         <div class="flex-1 profile-photo-info">
-                                            <input type="file" id="foto-perfil-input" name="foto_perfil" accept="image/*" class="hidden">
+                                            <input type="file" id="foto-perfil-input" name="foto_perfil" 
+                                                   accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" 
+                                                   title="Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)"
+                                                   class="hidden">
                                             <div class="text-sm text-gray-600">
                                                 <p class="font-medium">Cambiar foto de perfil</p>
                                                 <p class="text-gray-500">JPG, PNG o GIF. Máximo 5MB</p>
@@ -3314,10 +3317,12 @@
                                         <i data-lucide="mail" class="w-4 h-4 mr-2 text-blue-600"></i>
                                         Correo Electrónico
                                     </label>
-                                    <input type="email" id="email" name="email" 
-                                           value="{{ user.email }}" 
-                                           readonly
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
+                                        <input type="email" id="email" name="email" 
+                                               value="{{ user.email }}" 
+                                               readonly
+                                               pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                               title="Ingresa un correo electrónico válido"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600">
                                     <p class="text-xs text-gray-500 mt-1">El correo electrónico no se puede modificar</p>
                                 </div>
 
@@ -3329,8 +3334,12 @@
                                             Teléfono
                                         </label>
                                         <input type="tel" id="telefono" name="telefono" 
-                                               value="{{ user.admincredentials.telefono|default:'' }}" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                               value="{{ user.admincredentials.telefono|default:'No definido' }}" 
+                                               readonly
+                                               pattern="^\+54\d{10,12}$"
+                                               title="El teléfono debe comenzar con +54 y tener entre 10 y 12 dígitos"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                                        <p class="text-xs text-gray-500 mt-1">El teléfono no se puede modificar</p>
                                     </div>
                                     
                                     <div class="form-field">
@@ -3339,8 +3348,13 @@
                                             Fecha de Nacimiento
                                         </label>
                                         <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" 
-                                               value="{% if user.admincredentials.fecha_nacimiento %}{{ user.admincredentials.fecha_nacimiento|date:'Y-m-d' }}{% endif %}" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                               value="{% if user.admincredentials.fecha_nacimiento %}{{ user.admincredentials.fecha_nacimiento|date:'Y-m-d' }}{% else %}No definido{% endif %}" 
+                                               readonly
+                                               min="1900-01-01"
+                                               max="{% now 'Y' %}-12-31"
+                                               title="La fecha debe estar entre 1900 y {% now 'Y' %}"
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed">
+                                        <p class="text-xs text-gray-500 mt-1">La fecha de nacimiento no se puede modificar</p>
                                     </div>
                                 </div>
 
@@ -4011,7 +4025,10 @@
                                             </label>
                                             <input type="text" id="nombre_usuario" name="nombre" 
                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                   placeholder="Ingresa el nombre" required>
+                                                   placeholder="Ingresa el nombre" 
+                                                   pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,50}$"
+                                                   title="El nombre debe tener entre 2 y 50 caracteres, solo letras y espacios"
+                                                   required>
                                         </div>
                                         
                                         <div class="modal-usuario-field">
@@ -4020,7 +4037,10 @@
                                             </label>
                                             <input type="text" id="apellido_usuario" name="apellido" 
                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                   placeholder="Ingresa el apellido" required>
+                                                   placeholder="Ingresa el apellido" 
+                                                   pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,50}$"
+                                                   title="El apellido debe tener entre 2 y 50 caracteres, solo letras y espacios"
+                                                   required>
                                         </div>
                                     </div>
                                     
@@ -4031,7 +4051,11 @@
                                             </label>
                                             <input type="tel" id="telefono_usuario" name="telefono" 
                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                   placeholder="+52-1-33-12345678">
+                                                   placeholder="+5491123456789"
+                                                   value="+54"
+                                                   pattern="^\+54\d{10,12}$"
+                                                   title="El teléfono debe comenzar con +54 y tener entre 10 y 12 dígitos"
+                                                   required>
                                         </div>
                                         
                                         <div class="modal-usuario-field">
@@ -4039,7 +4063,10 @@
                                                 Fecha de Nacimiento
                                             </label>
                                             <input type="date" id="fecha_nacimiento_usuario" name="fecha_nacimiento" 
-                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                                   min="1900-01-01"
+                                                   max="{% now 'Y' %}-12-31"
+                                                   title="La fecha debe estar entre 1900 y {% now 'Y' %}">
                                         </div>
                                     </div>
                                     
@@ -4059,7 +4086,9 @@
                                             </div>
                                         </div>
                                         
-                                        <input type="file" id="foto_perfil_usuario" name="foto_perfil" accept="image/*" 
+                                        <input type="file" id="foto_perfil_usuario" name="foto_perfil" 
+                                               accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" 
+                                               title="Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)"
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                     </div>
                                 </div>
@@ -4078,7 +4107,10 @@
                                             </label>
                                             <input type="email" id="email_usuario" name="email" 
                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                   placeholder="usuario@email.com" required>
+                                                   placeholder="usuario@email.com" 
+                                                   pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                                                   title="Ingresa un correo electrónico válido"
+                                                   required>
                                         </div>
                                         
                                         <div class="modal-usuario-field">
@@ -4087,7 +4119,10 @@
                                             </label>
                                             <input type="password" id="password_usuario" name="password" 
                                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                   placeholder="Mínimo 8 caracteres" required>
+                                                   placeholder="Mínimo 8 caracteres" 
+                                                   pattern=".{8,}"
+                                                   title="La contraseña debe tener al menos 8 caracteres"
+                                                   required>
                                         </div>
                                     </div>
                                     
@@ -4097,7 +4132,10 @@
                                         </label>
                                         <input type="password" id="confirmar_password_usuario" name="confirmar_password" 
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                               placeholder="Repite la contraseña" required>
+                                               placeholder="Repite la contraseña" 
+                                               pattern=".{8,}"
+                                               title="La contraseña debe tener al menos 8 caracteres"
+                                               required>
                                     </div>
                                 </div>
 
@@ -4964,6 +5002,9 @@
                         e.preventDefault();
                         this.handleFormSubmit();
                     });
+                    
+                    // Validación en tiempo real para nombre y apellido
+                    this.initRealTimeValidation();
                 }
                 
                 // Inicializar gestión de cambio de contraseña
@@ -5015,6 +5056,12 @@
 
             async handleFormSubmit() {
                 console.log('=== INICIANDO ACTUALIZACIÓN DE PERFIL ===');
+                
+                // Validar campos antes de enviar
+                if (!this.validateForm()) {
+                    return;
+                }
+                
                 const formData = new FormData(this.form);
                 
                 // Log de los datos que se van a enviar
@@ -5040,6 +5087,10 @@
                     if (result.success) {
                         console.log('Perfil actualizado exitosamente');
                         mostrarMensaje('Perfil actualizado exitosamente.', 'success');
+                        
+                        // Actualizar la interfaz con los nuevos datos
+                        this.updateUserInterface(formData);
+                        
                         // Actualizar la foto en el sidebar si cambió
                         if (result.foto_url) {
                             this.updateSidebarFoto(result.foto_url);
@@ -5058,6 +5109,252 @@
                 const sidebarFoto = document.querySelector('#sidebar footer .w-7');
                 if (sidebarFoto && fotoUrl) {
                     sidebarFoto.innerHTML = `<img src="${fotoUrl}" alt="Foto de perfil" class="w-full h-full object-cover rounded-full">`;
+                }
+            },
+
+            updateUserInterface(formData) {
+                // Obtener los nuevos valores del formulario
+                const nuevoNombre = formData.get('nombre') || '';
+                const nuevoApellido = formData.get('apellido') || '';
+                const nombreCompleto = `${nuevoNombre} ${nuevoApellido}`.trim() || 'Administrador';
+                
+                console.log('Actualizando interfaz con:', { nuevoNombre, nuevoApellido, nombreCompleto });
+                
+                // Actualizar el nombre en el sidebar
+                const sidebarNombre = document.querySelector('#sidebar footer .ml-2 p');
+                if (sidebarNombre) {
+                    sidebarNombre.textContent = nombreCompleto;
+                }
+                
+                // Actualizar el saludo en el header
+                const headerSaludo = document.querySelector('.min-w-0 p');
+                if (headerSaludo) {
+                    headerSaludo.textContent = `Bienvenido, ${nombreCompleto}`;
+                }
+                
+                console.log('Interfaz actualizada exitosamente');
+            },
+
+            validateForm() {
+                console.log('=== VALIDANDO FORMULARIO ===');
+                let isValid = true;
+                
+                // Limpiar errores anteriores
+                this.clearValidationErrors();
+                
+                // Validar nombre
+                const nombreInput = document.getElementById('nombre');
+                const nombre = nombreInput.value.trim();
+                
+                if (!nombre) {
+                    this.showFieldError(nombreInput, 'El nombre es obligatorio');
+                    isValid = false;
+                } else if (nombre.length < 2) {
+                    this.showFieldError(nombreInput, 'El nombre debe tener al menos 2 caracteres');
+                    isValid = false;
+                } else if (nombre.length > 50) {
+                    this.showFieldError(nombreInput, 'El nombre no puede tener más de 50 caracteres');
+                    isValid = false;
+                } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) {
+                    this.showFieldError(nombreInput, 'El nombre solo puede contener letras y espacios');
+                    isValid = false;
+                } else {
+                    this.showFieldSuccess(nombreInput);
+                }
+                
+                // Validar apellido
+                const apellidoInput = document.getElementById('apellido');
+                const apellido = apellidoInput.value.trim();
+                
+                if (!apellido) {
+                    this.showFieldError(apellidoInput, 'El apellido es obligatorio');
+                    isValid = false;
+                } else if (apellido.length < 2) {
+                    this.showFieldError(apellidoInput, 'El apellido debe tener al menos 2 caracteres');
+                    isValid = false;
+                } else if (apellido.length > 50) {
+                    this.showFieldError(apellidoInput, 'El apellido no puede tener más de 50 caracteres');
+                    isValid = false;
+                } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(apellido)) {
+                    this.showFieldError(apellidoInput, 'El apellido solo puede contener letras y espacios');
+                    isValid = false;
+                } else {
+                    this.showFieldSuccess(apellidoInput);
+                }
+                
+                // Validar foto de perfil
+                const fotoInput = document.getElementById('foto-perfil-input');
+                if (fotoInput.files.length > 0) {
+                    const file = fotoInput.files[0];
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                    
+                    if (!allowedTypes.includes(file.type)) {
+                        this.showFieldError(fotoInput, 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)');
+                        isValid = false;
+                    } else if (file.size > maxSize) {
+                        this.showFieldError(fotoInput, 'El archivo debe ser menor a 5MB');
+                        isValid = false;
+                    } else {
+                        this.showFieldSuccess(fotoInput);
+                    }
+                }
+                
+                console.log('Validación completada. Válido:', isValid);
+                return isValid;
+            },
+
+            clearValidationErrors() {
+                // Limpiar todos los mensajes de error y éxito
+                const errorMessages = document.querySelectorAll('.field-error-message');
+                errorMessages.forEach(msg => msg.remove());
+                
+                // Limpiar clases de error y éxito de todos los inputs
+                const inputs = document.querySelectorAll('#configuracion-perfil-form input[type="text"]');
+                inputs.forEach(input => {
+                    input.classList.remove('border-red-500', 'border-green-500', 'bg-red-50', 'bg-green-50');
+                    input.classList.add('border-gray-300');
+                });
+            },
+
+            showFieldError(input, message) {
+                // Agregar clase de error al input
+                input.classList.remove('border-gray-300', 'border-green-500', 'bg-green-50');
+                input.classList.add('border-red-500', 'bg-red-50');
+                
+                // Remover mensaje de error anterior si existe
+                const existingError = input.parentNode.querySelector('.field-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Crear y mostrar mensaje de error
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error-message text-red-500 text-xs mt-1 flex items-center';
+                errorDiv.innerHTML = `
+                    <i data-lucide="alert-circle" class="w-3 h-3 mr-1"></i>
+                    ${message}
+                `;
+                
+                input.parentNode.appendChild(errorDiv);
+                lucide.createIcons();
+            },
+
+            showFieldSuccess(input) {
+                // Agregar clase de éxito al input
+                input.classList.remove('border-gray-300', 'border-red-500', 'bg-red-50');
+                input.classList.add('border-green-500', 'bg-green-50');
+                
+                // Remover mensaje de error anterior si existe
+                const existingError = input.parentNode.querySelector('.field-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+            },
+
+            initRealTimeValidation() {
+                const nombreInput = document.getElementById('nombre');
+                const apellidoInput = document.getElementById('apellido');
+                const fotoInput = document.getElementById('foto-perfil-input');
+                
+                if (nombreInput) {
+                    nombreInput.addEventListener('blur', () => {
+                        this.validateSingleField(nombreInput, 'nombre');
+                    });
+                    
+                    nombreInput.addEventListener('input', () => {
+                        // Limpiar errores mientras se escribe
+                        if (nombreInput.classList.contains('border-red-500')) {
+                            this.clearFieldError(nombreInput);
+                        }
+                    });
+                }
+                
+                if (apellidoInput) {
+                    apellidoInput.addEventListener('blur', () => {
+                        this.validateSingleField(apellidoInput, 'apellido');
+                    });
+                    
+                    apellidoInput.addEventListener('input', () => {
+                        // Limpiar errores mientras se escribe
+                        if (apellidoInput.classList.contains('border-red-500')) {
+                            this.clearFieldError(apellidoInput);
+                        }
+                    });
+                }
+                
+                if (fotoInput) {
+                    fotoInput.addEventListener('change', () => {
+                        this.validateSingleField(fotoInput, 'foto');
+                    });
+                }
+            },
+
+            validateSingleField(input, fieldType) {
+                const value = input.value.trim();
+                let isValid = true;
+                let errorMessage = '';
+                
+                if (fieldType === 'nombre') {
+                    if (!value) {
+                        errorMessage = 'El nombre es obligatorio';
+                        isValid = false;
+                    } else if (value.length < 2) {
+                        errorMessage = 'El nombre debe tener al menos 2 caracteres';
+                        isValid = false;
+                    } else if (value.length > 50) {
+                        errorMessage = 'El nombre no puede tener más de 50 caracteres';
+                        isValid = false;
+                    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                        errorMessage = 'El nombre solo puede contener letras y espacios';
+                        isValid = false;
+                    }
+                } else if (fieldType === 'apellido') {
+                    if (!value) {
+                        errorMessage = 'El apellido es obligatorio';
+                        isValid = false;
+                    } else if (value.length < 2) {
+                        errorMessage = 'El apellido debe tener al menos 2 caracteres';
+                        isValid = false;
+                    } else if (value.length > 50) {
+                        errorMessage = 'El apellido no puede tener más de 50 caracteres';
+                        isValid = false;
+                    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                        errorMessage = 'El apellido solo puede contener letras y espacios';
+                        isValid = false;
+                    }
+                } else if (fieldType === 'foto') {
+                    if (input.files.length > 0) {
+                        const file = input.files[0];
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                        
+                        if (!allowedTypes.includes(file.type)) {
+                            errorMessage = 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)';
+                            isValid = false;
+                        } else if (file.size > maxSize) {
+                            errorMessage = 'El archivo debe ser menor a 5MB';
+                            isValid = false;
+                        }
+                    }
+                }
+                
+                if (!isValid) {
+                    this.showFieldError(input, errorMessage);
+                } else if (value || (fieldType === 'foto' && input.files.length > 0)) {
+                    this.showFieldSuccess(input);
+                } else {
+                    this.clearFieldError(input);
+                }
+            },
+
+            clearFieldError(input) {
+                input.classList.remove('border-red-500', 'border-green-500', 'bg-red-50', 'bg-green-50');
+                input.classList.add('border-gray-300');
+                
+                const existingError = input.parentNode.querySelector('.field-error-message');
+                if (existingError) {
+                    existingError.remove();
                 }
             },
 
@@ -5364,10 +5661,18 @@
                         e.preventDefault();
                         this.handleFormSubmit();
                     });
+                    
+                    // Validación en tiempo real para nombre y apellido
+                    this.initRealTimeValidationCreateUser();
                 }
             },
 
             async handleFormSubmit() {
+                // Validar campos antes de enviar
+                if (!this.validateCreateUserForm()) {
+                    return;
+                }
+                
                 const formData = new FormData(this.form);
                 
                 try {
@@ -5559,6 +5864,433 @@
                 modal.classList.remove('hidden');
                 
                 lucide.createIcons();
+            },
+
+            validateCreateUserForm() {
+                console.log('=== VALIDANDO FORMULARIO DE CREAR USUARIO ===');
+                let isValid = true;
+                
+                // Limpiar errores anteriores
+                this.clearCreateUserValidationErrors();
+                
+                // Validar nombre
+                const nombreInput = document.getElementById('nombre_usuario');
+                const nombre = nombreInput.value.trim();
+                
+                if (!nombre) {
+                    this.showCreateUserFieldError(nombreInput, 'El nombre es obligatorio');
+                    isValid = false;
+                } else if (nombre.length < 2) {
+                    this.showCreateUserFieldError(nombreInput, 'El nombre debe tener al menos 2 caracteres');
+                    isValid = false;
+                } else if (nombre.length > 50) {
+                    this.showCreateUserFieldError(nombreInput, 'El nombre no puede tener más de 50 caracteres');
+                    isValid = false;
+                } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) {
+                    this.showCreateUserFieldError(nombreInput, 'El nombre solo puede contener letras y espacios');
+                    isValid = false;
+                } else {
+                    this.showCreateUserFieldSuccess(nombreInput);
+                }
+                
+                // Validar apellido
+                const apellidoInput = document.getElementById('apellido_usuario');
+                const apellido = apellidoInput.value.trim();
+                
+                if (!apellido) {
+                    this.showCreateUserFieldError(apellidoInput, 'El apellido es obligatorio');
+                    isValid = false;
+                } else if (apellido.length < 2) {
+                    this.showCreateUserFieldError(apellidoInput, 'El apellido debe tener al menos 2 caracteres');
+                    isValid = false;
+                } else if (apellido.length > 50) {
+                    this.showCreateUserFieldError(apellidoInput, 'El apellido no puede tener más de 50 caracteres');
+                    isValid = false;
+                } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(apellido)) {
+                    this.showCreateUserFieldError(apellidoInput, 'El apellido solo puede contener letras y espacios');
+                    isValid = false;
+                } else {
+                    this.showCreateUserFieldSuccess(apellidoInput);
+                }
+                
+                // Validar teléfono
+                const telefonoInput = document.getElementById('telefono_usuario');
+                const telefono = telefonoInput.value.trim();
+                
+                if (!telefono || telefono === '+54') {
+                    this.showCreateUserFieldError(telefonoInput, 'Debes ingresar el número de teléfono después del +54');
+                    isValid = false;
+                } else if (!/^\+54\d{10,12}$/.test(telefono)) {
+                    this.showCreateUserFieldError(telefonoInput, 'El teléfono debe tener entre 10 y 12 dígitos después del +54');
+                    isValid = false;
+                } else {
+                    this.showCreateUserFieldSuccess(telefonoInput);
+                }
+                
+                // Validar fecha de nacimiento
+                const fechaInput = document.getElementById('fecha_nacimiento_usuario');
+                const fecha = fechaInput.value;
+                
+                if (fecha) {
+                    const fechaNacimiento = new Date(fecha);
+                    const añoActual = new Date().getFullYear();
+                    const minFecha = new Date('1900-01-01');
+                    const maxFecha = new Date(`${añoActual}-12-31`);
+                    
+                    if (fechaNacimiento < minFecha || fechaNacimiento > maxFecha) {
+                        this.showCreateUserFieldError(fechaInput, `La fecha debe estar entre 1900 y ${añoActual}`);
+                        isValid = false;
+                    } else {
+                        this.showCreateUserFieldSuccess(fechaInput);
+                    }
+                }
+                
+                // Validar foto de perfil
+                const fotoInput = document.getElementById('foto_perfil_usuario');
+                if (fotoInput.files.length > 0) {
+                    const file = fotoInput.files[0];
+                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                    
+                    if (!allowedTypes.includes(file.type)) {
+                        this.showCreateUserFieldError(fotoInput, 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)');
+                        isValid = false;
+                    } else if (file.size > maxSize) {
+                        this.showCreateUserFieldError(fotoInput, 'El archivo debe ser menor a 5MB');
+                        isValid = false;
+                    } else {
+                        this.showCreateUserFieldSuccess(fotoInput);
+                    }
+                }
+                
+                // Validar correo electrónico
+                const emailInput = document.getElementById('email_usuario');
+                const email = emailInput.value.trim();
+                
+                if (!email) {
+                    this.showCreateUserFieldError(emailInput, 'El correo electrónico es obligatorio');
+                    isValid = false;
+                } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+                    this.showCreateUserFieldError(emailInput, 'Ingresa un correo electrónico válido');
+                    isValid = false;
+                } else {
+                    this.showCreateUserFieldSuccess(emailInput);
+                }
+                
+                // Validar contraseña
+                const passwordInput = document.getElementById('password_usuario');
+                const password = passwordInput.value;
+                
+                if (!password) {
+                    this.showCreateUserFieldError(passwordInput, 'La contraseña es obligatoria');
+                    isValid = false;
+                } else if (password.length < 8) {
+                    this.showCreateUserFieldError(passwordInput, 'La contraseña debe tener al menos 8 caracteres');
+                    isValid = false;
+                } else {
+                    this.showCreateUserFieldSuccess(passwordInput);
+                }
+                
+                // Validar confirmar contraseña
+                const confirmPasswordInput = document.getElementById('confirmar_password_usuario');
+                const confirmPassword = confirmPasswordInput.value;
+                
+                if (!confirmPassword) {
+                    this.showCreateUserFieldError(confirmPasswordInput, 'Debes confirmar la contraseña');
+                    isValid = false;
+                } else if (password !== confirmPassword) {
+                    this.showCreateUserFieldError(confirmPasswordInput, 'Las contraseñas no coinciden');
+                    isValid = false;
+                } else {
+                    this.showCreateUserFieldSuccess(confirmPasswordInput);
+                }
+                
+                console.log('Validación de crear usuario completada. Válido:', isValid);
+                return isValid;
+            },
+
+            clearCreateUserValidationErrors() {
+                // Limpiar todos los mensajes de error y éxito
+                const errorMessages = document.querySelectorAll('.create-user-field-error-message');
+                errorMessages.forEach(msg => msg.remove());
+                
+                // Limpiar clases de error y éxito de todos los inputs
+                const inputs = document.querySelectorAll('#crearUsuarioForm input[type="text"]');
+                inputs.forEach(input => {
+                    input.classList.remove('border-red-500', 'border-green-500', 'bg-red-50', 'bg-green-50');
+                    input.classList.add('border-gray-300');
+                });
+            },
+
+            showCreateUserFieldError(input, message) {
+                // Agregar clase de error al input
+                input.classList.remove('border-gray-300', 'border-green-500', 'bg-green-50');
+                input.classList.add('border-red-500', 'bg-red-50');
+                
+                // Remover mensaje de error anterior si existe
+                const existingError = input.parentNode.querySelector('.create-user-field-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Crear y mostrar mensaje de error
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'create-user-field-error-message text-red-500 text-xs mt-1 flex items-center';
+                errorDiv.innerHTML = `
+                    <i data-lucide="alert-circle" class="w-3 h-3 mr-1"></i>
+                    ${message}
+                `;
+                
+                input.parentNode.appendChild(errorDiv);
+                lucide.createIcons();
+            },
+
+            showCreateUserFieldSuccess(input) {
+                // Agregar clase de éxito al input
+                input.classList.remove('border-gray-300', 'border-red-500', 'bg-red-50');
+                input.classList.add('border-green-500', 'bg-green-50');
+                
+                // Remover mensaje de error anterior si existe
+                const existingError = input.parentNode.querySelector('.create-user-field-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+            },
+
+            initRealTimeValidationCreateUser() {
+                const nombreInput = document.getElementById('nombre_usuario');
+                const apellidoInput = document.getElementById('apellido_usuario');
+                const telefonoInput = document.getElementById('telefono_usuario');
+                const fechaInput = document.getElementById('fecha_nacimiento_usuario');
+                const fotoInput = document.getElementById('foto_perfil_usuario');
+                const emailInput = document.getElementById('email_usuario');
+                const passwordInput = document.getElementById('password_usuario');
+                const confirmPasswordInput = document.getElementById('confirmar_password_usuario');
+                
+                // Validación para nombre
+                if (nombreInput) {
+                    nombreInput.addEventListener('blur', () => {
+                        this.validateCreateUserSingleField(nombreInput, 'nombre');
+                    });
+                    
+                    nombreInput.addEventListener('input', () => {
+                        if (nombreInput.classList.contains('border-red-500')) {
+                            this.clearCreateUserFieldError(nombreInput);
+                        }
+                    });
+                }
+                
+                // Validación para apellido
+                if (apellidoInput) {
+                    apellidoInput.addEventListener('blur', () => {
+                        this.validateCreateUserSingleField(apellidoInput, 'apellido');
+                    });
+                    
+                    apellidoInput.addEventListener('input', () => {
+                        if (apellidoInput.classList.contains('border-red-500')) {
+                            this.clearCreateUserFieldError(apellidoInput);
+                        }
+                    });
+                }
+                
+                // Validación para teléfono
+                if (telefonoInput) {
+                    // Asegurar que siempre tenga el prefijo +54
+                    telefonoInput.addEventListener('focus', () => {
+                        if (!telefonoInput.value.startsWith('+54')) {
+                            telefonoInput.value = '+54';
+                        }
+                    });
+                    
+                    telefonoInput.addEventListener('input', () => {
+                        // Si el usuario intenta borrar el prefijo, restaurarlo
+                        if (!telefonoInput.value.startsWith('+54')) {
+                            telefonoInput.value = '+54' + telefonoInput.value.replace(/[^\d]/g, '');
+                        }
+                        
+                        if (telefonoInput.classList.contains('border-red-500')) {
+                            this.clearCreateUserFieldError(telefonoInput);
+                        }
+                    });
+                    
+                    telefonoInput.addEventListener('blur', () => {
+                        this.validateCreateUserSingleField(telefonoInput, 'telefono');
+                    });
+                    
+                    // Prevenir que el usuario borre el prefijo +54
+                    telefonoInput.addEventListener('keydown', (e) => {
+                        const cursorPos = telefonoInput.selectionStart;
+                        if (cursorPos <= 3 && (e.key === 'Backspace' || e.key === 'Delete')) {
+                            e.preventDefault();
+                        }
+                    });
+                }
+                
+                // Validación para fecha de nacimiento
+                if (fechaInput) {
+                    fechaInput.addEventListener('change', () => {
+                        this.validateCreateUserSingleField(fechaInput, 'fecha');
+                    });
+                }
+                
+                // Validación para foto de perfil
+                if (fotoInput) {
+                    fotoInput.addEventListener('change', () => {
+                        this.validateCreateUserSingleField(fotoInput, 'foto');
+                    });
+                }
+                
+                // Validación para correo electrónico
+                if (emailInput) {
+                    emailInput.addEventListener('blur', () => {
+                        this.validateCreateUserSingleField(emailInput, 'email');
+                    });
+                    
+                    emailInput.addEventListener('input', () => {
+                        if (emailInput.classList.contains('border-red-500')) {
+                            this.clearCreateUserFieldError(emailInput);
+                        }
+                    });
+                }
+                
+                // Validación para contraseña
+                if (passwordInput) {
+                    passwordInput.addEventListener('blur', () => {
+                        this.validateCreateUserSingleField(passwordInput, 'password');
+                    });
+                    
+                    passwordInput.addEventListener('input', () => {
+                        if (passwordInput.classList.contains('border-red-500')) {
+                            this.clearCreateUserFieldError(passwordInput);
+                        }
+                    });
+                }
+                
+                // Validación para confirmar contraseña
+                if (confirmPasswordInput) {
+                    confirmPasswordInput.addEventListener('blur', () => {
+                        this.validateCreateUserSingleField(confirmPasswordInput, 'confirmPassword');
+                    });
+                    
+                    confirmPasswordInput.addEventListener('input', () => {
+                        if (confirmPasswordInput.classList.contains('border-red-500')) {
+                            this.clearCreateUserFieldError(confirmPasswordInput);
+                        }
+                    });
+                }
+            },
+
+            validateCreateUserSingleField(input, fieldType) {
+                const value = input.value.trim();
+                let isValid = true;
+                let errorMessage = '';
+                
+                if (fieldType === 'nombre') {
+                    if (!value) {
+                        errorMessage = 'El nombre es obligatorio';
+                        isValid = false;
+                    } else if (value.length < 2) {
+                        errorMessage = 'El nombre debe tener al menos 2 caracteres';
+                        isValid = false;
+                    } else if (value.length > 50) {
+                        errorMessage = 'El nombre no puede tener más de 50 caracteres';
+                        isValid = false;
+                    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                        errorMessage = 'El nombre solo puede contener letras y espacios';
+                        isValid = false;
+                    }
+                } else if (fieldType === 'apellido') {
+                    if (!value) {
+                        errorMessage = 'El apellido es obligatorio';
+                        isValid = false;
+                    } else if (value.length < 2) {
+                        errorMessage = 'El apellido debe tener al menos 2 caracteres';
+                        isValid = false;
+                    } else if (value.length > 50) {
+                        errorMessage = 'El apellido no puede tener más de 50 caracteres';
+                        isValid = false;
+                    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+                        errorMessage = 'El apellido solo puede contener letras y espacios';
+                        isValid = false;
+                    }
+                } else if (fieldType === 'telefono') {
+                    if (!value || value === '+54') {
+                        errorMessage = 'Debes ingresar el número de teléfono después del +54';
+                        isValid = false;
+                    } else if (!/^\+54\d{10,12}$/.test(value)) {
+                        errorMessage = 'El teléfono debe tener entre 10 y 12 dígitos después del +54';
+                        isValid = false;
+                    }
+                } else if (fieldType === 'fecha') {
+                    if (value) {
+                        const fechaNacimiento = new Date(value);
+                        const minFecha = new Date('1900-01-01');
+                        const añoActual = new Date().getFullYear();
+                        const maxFecha = new Date(`${añoActual}-12-31`);
+                        
+                        if (fechaNacimiento < minFecha || fechaNacimiento > maxFecha) {
+                            errorMessage = `La fecha debe estar entre 1900 y ${añoActual}`;
+                            isValid = false;
+                        }
+                    }
+                } else if (fieldType === 'foto') {
+                    if (input.files.length > 0) {
+                        const file = input.files[0];
+                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                        
+                        if (!allowedTypes.includes(file.type)) {
+                            errorMessage = 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)';
+                            isValid = false;
+                        } else if (file.size > maxSize) {
+                            errorMessage = 'El archivo debe ser menor a 5MB';
+                            isValid = false;
+                        }
+                    }
+                } else if (fieldType === 'email') {
+                    if (!value) {
+                        errorMessage = 'El correo electrónico es obligatorio';
+                        isValid = false;
+                    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+                        errorMessage = 'Ingresa un correo electrónico válido';
+                        isValid = false;
+                    }
+                } else if (fieldType === 'password') {
+                    if (!value) {
+                        errorMessage = 'La contraseña es obligatoria';
+                        isValid = false;
+                    } else if (value.length < 8) {
+                        errorMessage = 'La contraseña debe tener al menos 8 caracteres';
+                        isValid = false;
+                    }
+                } else if (fieldType === 'confirmPassword') {
+                    const password = document.getElementById('password_usuario').value;
+                    if (!value) {
+                        errorMessage = 'Debes confirmar la contraseña';
+                        isValid = false;
+                    } else if (password !== value) {
+                        errorMessage = 'Las contraseñas no coinciden';
+                        isValid = false;
+                    }
+                }
+                
+                if (!isValid) {
+                    this.showCreateUserFieldError(input, errorMessage);
+                } else if (value || (fieldType === 'foto' && input.files.length > 0)) {
+                    this.showCreateUserFieldSuccess(input);
+                } else {
+                    this.clearCreateUserFieldError(input);
+                }
+            },
+
+            clearCreateUserFieldError(input) {
+                input.classList.remove('border-red-500', 'border-green-500', 'bg-red-50', 'bg-green-50');
+                input.classList.add('border-gray-300');
+                
+                const existingError = input.parentNode.querySelector('.create-user-field-error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
             }
         };
 
@@ -5631,26 +6363,6 @@
                 if (fotosGrid) fotosGrid.innerHTML = '';
             },
 
-            showMessage(message, type = 'success') {
-                const bgColor = type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800';
-                const iconColor = type === 'success' ? 'text-green-600' : 'text-red-600';
-                const icon = type === 'success' ? 'check-circle' : 'alert-circle';
-                
-                this.messagesContainer.innerHTML = 
-                    '<div class="border rounded-lg p-4 ' + bgColor + ' flex items-start">' +
-                        '<i data-lucide="' + icon + '" class="w-5 h-5 ' + iconColor + ' mr-3 mt-0.5"></i>' +
-                        '<div class="flex-1">' +
-                            '<p class="text-sm font-medium">' + message + '</p>' +
-                        '</div>' +
-                        '<button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">' +
-                            '<i data-lucide="x" class="w-4 h-4"></i>' +
-                        '</button>' +
-                    '</div>';
-                this.messagesContainer.classList.remove('hidden');
-                // Recrear iconos de Lucide
-                lucide.createIcons();
-            },
-
             clearMessages() {
                 this.messagesContainer.innerHTML = '';
                 this.messagesContainer.classList.add('hidden');
@@ -5677,6 +6389,9 @@
                         e.preventDefault();
                         this.handleFormSubmit();
                     });
+                    
+                    // Validación en tiempo real para todos los campos
+                    this.initPropertyRealTimeValidation();
                 }
                 
                 // Preview de imagen principal
@@ -5825,6 +6540,11 @@
             },
 
             async handleFormSubmit() {
+                // Validar campos antes de enviar
+                if (!this.validatePropertyForm()) {
+                    return;
+                }
+                
                 const formData = new FormData(this.form);
                 
                 // Agregar las fotos adicionales al FormData
@@ -5847,7 +6567,7 @@
                     if (response.ok) {
                         const result = await response.json();
                         if (result.success) {
-                            this.showMessage('¡Propiedad creada exitosamente!', 'success');
+                            mostrarMensaje('¡Propiedad creada exitosamente!', 'success');
                             
                             // Agregar actividad
                             const titulo = formData.get('titulo') || 'Nueva propiedad';
@@ -5871,18 +6591,335 @@
                                 for (const [field, errors] of Object.entries(result.errors)) {
                                     errorMessage += `\n- ${field}: ${errors.join(', ')}`;
                                 }
-                                this.showMessage(errorMessage, 'danger');
+                                mostrarMensaje(errorMessage, 'danger');
                             } else {
-                                this.showMessage(result.message || 'Error al crear la propiedad', 'danger');
+                                mostrarMensaje(result.message || 'Error al crear la propiedad', 'danger');
                             }
                         }
                     } else {
-                        this.showMessage('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
+                        mostrarMensaje('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    this.showMessage('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
+                    mostrarMensaje('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
                 }
+            },
+
+            // ========================================
+            // VALIDACIONES DEL FORMULARIO DE PROPIEDAD
+            // ========================================
+            
+            validatePropertyForm() {
+                console.log('=== VALIDANDO FORMULARIO DE PROPIEDAD ===');
+                let isValid = true;
+                
+                // Limpiar errores previos
+                this.clearPropertyValidationErrors();
+                
+                // Validar cada campo
+                const campos = [
+                    { id: 'id_titulo', type: 'titulo', required: true },
+                    { id: 'id_descripcion', type: 'descripcion', required: true },
+                    { id: 'id_precio', type: 'precio', required: true },
+                    { id: 'id_tipo', type: 'select', required: true },
+                    { id: 'id_operacion', type: 'select', required: true },
+                    { id: 'id_estado', type: 'select', required: true },
+                    { id: 'id_ubicacion', type: 'ubicacion', required: true },
+                    { id: 'id_metros_cuadrados', type: 'metros', required: true },
+                    { id: 'id_habitaciones', type: 'habitaciones', required: true },
+                    { id: 'id_banos', type: 'banos', required: true },
+                    { id: 'id_imagen_principal', type: 'imagen', required: true },
+                    { id: 'id_imagen_secundaria', type: 'imagen', required: false },
+                    { id: 'id_latitud', type: 'latitud', required: false },
+                    { id: 'id_longitud', type: 'longitud', required: false }
+                ];
+                
+                campos.forEach(campo => {
+                    const input = document.getElementById(campo.id);
+                    if (input) {
+                        if (!this.validatePropertySingleField(input, campo.type, campo.required)) {
+                            isValid = false;
+                        }
+                    }
+                });
+                
+                console.log('Formulario válido:', isValid);
+                return isValid;
+            },
+
+            validatePropertySingleField(input, fieldType, required = true) {
+                const value = input.value.trim();
+                const fieldName = input.name || input.id;
+                
+                console.log(`Validando ${fieldName}:`, value, 'Tipo:', fieldType);
+                
+                // Verificar si es requerido y está vacío
+                if (required && !value) {
+                    this.showPropertyFieldError(input, `${this.getFieldLabel(fieldName)} es obligatorio.`);
+                    return false;
+                }
+                
+                // Si no es requerido y está vacío, es válido
+                if (!required && !value) {
+                    this.showPropertyFieldSuccess(input);
+                    return true;
+                }
+                
+                // Validaciones específicas por tipo
+                switch (fieldType) {
+                    case 'titulo':
+                        if (value.length < 5) {
+                            this.showPropertyFieldError(input, 'El título debe tener al menos 5 caracteres.');
+                            return false;
+                        } else if (value.length > 100) {
+                            this.showPropertyFieldError(input, 'El título no puede tener más de 100 caracteres.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'descripcion':
+                        if (value.length < 10) {
+                            this.showPropertyFieldError(input, 'La descripción debe tener al menos 10 caracteres.');
+                            return false;
+                        } else if (value.length > 1000) {
+                            this.showPropertyFieldError(input, 'La descripción no puede tener más de 1000 caracteres.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'precio':
+                        const precio = parseFloat(value);
+                        if (isNaN(precio) || precio <= 0) {
+                            this.showPropertyFieldError(input, 'El precio debe ser mayor a 0.');
+                            return false;
+                        } else if (precio > 999999999) {
+                            this.showPropertyFieldError(input, 'El precio no puede ser mayor a 999,999,999.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'ubicacion':
+                        if (value.length < 5) {
+                            this.showPropertyFieldError(input, 'La ubicación debe tener al menos 5 caracteres.');
+                            return false;
+                        } else if (value.length > 200) {
+                            this.showPropertyFieldError(input, 'La ubicación no puede tener más de 200 caracteres.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'metros':
+                        const metros = parseInt(value);
+                        if (isNaN(metros) || metros <= 0) {
+                            this.showPropertyFieldError(input, 'Los metros cuadrados deben ser mayor a 0.');
+                            return false;
+                        } else if (metros > 10000) {
+                            this.showPropertyFieldError(input, 'Los metros cuadrados no pueden ser mayor a 10,000.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'habitaciones':
+                        const habitaciones = parseInt(value);
+                        if (isNaN(habitaciones) || habitaciones < 0) {
+                            this.showPropertyFieldError(input, 'Las habitaciones no pueden ser negativas.');
+                            return false;
+                        } else if (habitaciones > 20) {
+                            this.showPropertyFieldError(input, 'Las habitaciones no pueden ser mayor a 20.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'banos':
+                        const banos = parseInt(value);
+                        if (isNaN(banos) || banos < 0) {
+                            this.showPropertyFieldError(input, 'Los baños no pueden ser negativos.');
+                            return false;
+                        } else if (banos > 10) {
+                            this.showPropertyFieldError(input, 'Los baños no pueden ser mayor a 10.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'imagen':
+                        if (input.files && input.files.length > 0) {
+                            const file = input.files[0];
+                            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                            
+                            if (!allowedTypes.includes(file.type)) {
+                                this.showPropertyFieldError(input, 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP).');
+                                return false;
+                            }
+                            
+                            if (file.size > 5 * 1024 * 1024) {
+                                this.showPropertyFieldError(input, 'La imagen debe ser menor a 5MB.');
+                                return false;
+                            }
+                        }
+                        break;
+                        
+                    case 'latitud':
+                        const latitud = parseFloat(value);
+                        if (isNaN(latitud) || latitud < -90 || latitud > 90) {
+                            this.showPropertyFieldError(input, 'La latitud debe estar entre -90 y 90 grados.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'longitud':
+                        const longitud = parseFloat(value);
+                        if (isNaN(longitud) || longitud < -180 || longitud > 180) {
+                            this.showPropertyFieldError(input, 'La longitud debe estar entre -180 y 180 grados.');
+                            return false;
+                        }
+                        break;
+                }
+                
+                this.showPropertyFieldSuccess(input);
+                return true;
+            },
+
+            clearPropertyValidationErrors() {
+                // Limpiar errores de todos los campos
+                const errorElements = this.form.querySelectorAll('.field-error');
+                errorElements.forEach(element => element.remove());
+                
+                // Limpiar estilos de error
+                const inputs = this.form.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    input.classList.remove('border-red-500', 'bg-red-50');
+                    input.classList.add('border-gray-300');
+                });
+            },
+
+            showPropertyFieldError(input, message) {
+                // Remover mensaje de error previo
+                const existingError = input.parentNode.querySelector('.field-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Aplicar estilos de error
+                input.classList.remove('border-gray-300', 'bg-white');
+                input.classList.add('border-red-500', 'bg-red-50');
+                
+                // Crear mensaje de error
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error text-red-600 text-sm mt-1';
+                errorDiv.textContent = message;
+                
+                // Insertar después del input
+                input.parentNode.insertBefore(errorDiv, input.nextSibling);
+            },
+
+            showPropertyFieldSuccess(input) {
+                // Remover mensaje de error
+                const existingError = input.parentNode.querySelector('.field-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Aplicar estilos de éxito
+                input.classList.remove('border-red-500', 'bg-red-50');
+                input.classList.add('border-green-500', 'bg-green-50');
+                
+                // Remover estilos de éxito después de 2 segundos
+                setTimeout(() => {
+                    input.classList.remove('border-green-500', 'bg-green-50');
+                    input.classList.add('border-gray-300', 'bg-white');
+                }, 2000);
+            },
+
+            getFieldLabel(fieldName) {
+                const labels = {
+                    'titulo': 'Título',
+                    'descripcion': 'Descripción',
+                    'precio': 'Precio',
+                    'tipo': 'Tipo',
+                    'operacion': 'Operación',
+                    'estado': 'Estado',
+                    'ubicacion': 'Ubicación',
+                    'metros_cuadrados': 'Metros cuadrados',
+                    'habitaciones': 'Habitaciones',
+                    'banos': 'Baños',
+                    'imagen_principal': 'Imagen principal',
+                    'imagen_secundaria': 'Imagen secundaria',
+                    'latitud': 'Latitud',
+                    'longitud': 'Longitud'
+                };
+                return labels[fieldName] || fieldName;
+            },
+
+            initPropertyRealTimeValidation() {
+                console.log('Inicializando validación en tiempo real para formulario de propiedad');
+                
+                // Campos de texto y número
+                const textFields = [
+                    { id: 'id_titulo', type: 'titulo', required: true },
+                    { id: 'id_descripcion', type: 'descripcion', required: true },
+                    { id: 'id_precio', type: 'precio', required: true },
+                    { id: 'id_ubicacion', type: 'ubicacion', required: true },
+                    { id: 'id_metros_cuadrados', type: 'metros', required: true },
+                    { id: 'id_habitaciones', type: 'habitaciones', required: true },
+                    { id: 'id_banos', type: 'banos', required: true },
+                    { id: 'id_latitud', type: 'latitud', required: false },
+                    { id: 'id_longitud', type: 'longitud', required: false }
+                ];
+                
+                textFields.forEach(field => {
+                    const input = document.getElementById(field.id);
+                    if (input) {
+                        input.addEventListener('blur', () => {
+                            this.validatePropertySingleField(input, field.type, field.required);
+                        });
+                        
+                        input.addEventListener('input', () => {
+                            if (input.classList.contains('border-red-500')) {
+                                this.clearPropertyFieldError(input);
+                            }
+                        });
+                    }
+                });
+                
+                // Campos de archivo
+                const fileFields = [
+                    { id: 'id_imagen_principal', type: 'imagen', required: true },
+                    { id: 'id_imagen_secundaria', type: 'imagen', required: false }
+                ];
+                
+                fileFields.forEach(field => {
+                    const input = document.getElementById(field.id);
+                    if (input) {
+                        input.addEventListener('change', () => {
+                            this.validatePropertySingleField(input, field.type, field.required);
+                        });
+                    }
+                });
+                
+                // Campos select
+                const selectFields = [
+                    { id: 'id_tipo', type: 'select', required: true },
+                    { id: 'id_operacion', type: 'select', required: true },
+                    { id: 'id_estado', type: 'select', required: true }
+                ];
+                
+                selectFields.forEach(field => {
+                    const input = document.getElementById(field.id);
+                    if (input) {
+                        input.addEventListener('change', () => {
+                            this.validatePropertySingleField(input, field.type, field.required);
+                        });
+                    }
+                });
+            },
+
+            clearPropertyFieldError(input) {
+                const existingError = input.parentNode.querySelector('.field-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                input.classList.remove('border-red-500', 'bg-red-50');
+                input.classList.add('border-gray-300', 'bg-white');
             }
         };
 
