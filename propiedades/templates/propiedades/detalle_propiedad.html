@@ -119,13 +119,15 @@
                                     </p>
                                     <div class="property-rating">
                                         <div class="rating-stars">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= promedio_calificacion %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
                                         </div>
-                                        <span class="rating-text">5.0 (12 valoraciones) · Más</span>
+                                        <span class="rating-text">{{ promedio_calificacion|default:"0.0" }} ({{ total_resenas_aprobadas|default:"0" }} valoraciones) · Más</span>
                                     </div>
                                 </div>
                             </div>

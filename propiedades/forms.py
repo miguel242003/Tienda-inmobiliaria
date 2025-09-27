@@ -1,5 +1,5 @@
 from django import forms
-from .models import Propiedad, Amenidad
+from .models import Propiedad, Amenidad, Resena
 
 class PropiedadForm(forms.ModelForm):
     """Formulario para crear y editar propiedades"""
@@ -247,3 +247,117 @@ class PropiedadForm(forms.ModelForm):
             if longitud < -180 or longitud > 180:
                 raise forms.ValidationError('La longitud debe estar entre -180 y 180 grados.')
         return longitud
+
+
+class ResenaForm(forms.ModelForm):
+    """Formulario para crear reseñas de propiedades"""
+    
+    class Meta:
+        model = Resena
+        fields = [
+            'nombre_usuario', 'email_usuario', 'telefono_usuario',
+            'calificacion', 'titulo', 'comentario'
+        ]
+        widgets = {
+            'nombre_usuario': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese su nombre completo',
+                'required': True,
+                'maxlength': '100'
+            }),
+            'email_usuario': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese su email',
+                'required': True
+            }),
+            'telefono_usuario': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese su teléfono (opcional)',
+                'maxlength': '20'
+            }),
+            'calificacion': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'max': '5',
+                'required': True,
+                'id': 'calificacion'
+            }),
+            'titulo': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Título de su reseña',
+                'required': True,
+                'maxlength': '200'
+            }),
+            'comentario': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Escriba su comentario sobre la propiedad',
+                'required': True
+            }),
+        }
+        labels = {
+            'nombre_usuario': 'Nombre completo',
+            'email_usuario': 'Email',
+            'telefono_usuario': 'Teléfono',
+            'calificacion': 'Calificación (1-5 estrellas)',
+            'titulo': 'Título de la reseña',
+            'comentario': 'Comentario',
+        }
+    
+    def clean_nombre_usuario(self):
+        """Validar el nombre del usuario"""
+        nombre = self.cleaned_data.get('nombre_usuario')
+        if nombre:
+            if len(nombre.strip()) < 2:
+                raise forms.ValidationError('El nombre debe tener al menos 2 caracteres.')
+            elif len(nombre) > 100:
+                raise forms.ValidationError('El nombre no puede tener más de 100 caracteres.')
+        return nombre.strip()
+    
+    def clean_email_usuario(self):
+        """Validar el email del usuario"""
+        email = self.cleaned_data.get('email_usuario')
+        if email:
+            if len(email) > 254:  # Límite estándar de email
+                raise forms.ValidationError('El email no puede tener más de 254 caracteres.')
+        return email
+    
+    def clean_telefono_usuario(self):
+        """Validar el teléfono del usuario"""
+        telefono = self.cleaned_data.get('telefono_usuario')
+        if telefono:
+            # Remover espacios y caracteres especiales para validar
+            telefono_limpio = ''.join(filter(str.isdigit, telefono))
+            if len(telefono_limpio) < 7:
+                raise forms.ValidationError('El teléfono debe tener al menos 7 dígitos.')
+            elif len(telefono) > 20:
+                raise forms.ValidationError('El teléfono no puede tener más de 20 caracteres.')
+        return telefono
+    
+    def clean_calificacion(self):
+        """Validar la calificación"""
+        calificacion = self.cleaned_data.get('calificacion')
+        if calificacion:
+            if calificacion < 1 or calificacion > 5:
+                raise forms.ValidationError('La calificación debe estar entre 1 y 5 estrellas.')
+        return calificacion
+    
+    def clean_titulo(self):
+        """Validar el título de la reseña"""
+        titulo = self.cleaned_data.get('titulo')
+        if titulo:
+            if len(titulo.strip()) < 5:
+                raise forms.ValidationError('El título debe tener al menos 5 caracteres.')
+            elif len(titulo) > 200:
+                raise forms.ValidationError('El título no puede tener más de 200 caracteres.')
+        return titulo.strip()
+    
+    def clean_comentario(self):
+        """Validar el comentario"""
+        comentario = self.cleaned_data.get('comentario')
+        if comentario:
+            if len(comentario.strip()) < 10:
+                raise forms.ValidationError('El comentario debe tener al menos 10 caracteres.')
+            elif len(comentario) > 2000:
+                raise forms.ValidationError('El comentario no puede tener más de 2000 caracteres.')
+        return comentario.strip()

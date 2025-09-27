@@ -7061,7 +7061,6 @@
         // ========================================
         // FUNCIONES GLOBALES PARA GESTIÓN DE USUARIOS
         // ========================================
-        let usuarioAEliminar = null;
 
         // ========================================
         // FUNCIONES GLOBALES PARA CAMBIO DE CONTRASEÑA
@@ -7266,14 +7265,20 @@
 
         // Función para eliminar usuario
         async function eliminarUsuario(usuarioId) {
+            console.log('Intentando eliminar usuario con ID:', usuarioId);
             try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                console.log('CSRF Token:', csrfToken);
+                
                 const response = await fetch(`/login/eliminar-usuario-admin/${usuarioId}/`, {
                     method: 'POST',
                     headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'X-CSRFToken': csrfToken,
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
+                
+                console.log('Respuesta del servidor:', response.status);
                 
                 const data = await response.json();
                 
@@ -7577,8 +7582,12 @@
                 });
                 
                 document.getElementById('confirmar-eliminar-usuario').addEventListener('click', function() {
-                    if (usuarioAEliminar) {
-                        eliminarUsuario(usuarioAEliminar);
+                    console.log('Botón de confirmar eliminación clickeado');
+                    console.log('Usuario a eliminar:', window.usuarioAEliminar);
+                    if (window.usuarioAEliminar) {
+                        eliminarUsuario(window.usuarioAEliminar);
+                    } else {
+                        console.error('No hay usuario seleccionado para eliminar');
                     }
                 });
                 
