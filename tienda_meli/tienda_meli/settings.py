@@ -172,3 +172,7 @@ EMAIL_HOST_USER = 'xmiguelastorgax@gmail.com'  # ← Cambia por tu email de Gmai
 EMAIL_HOST_PASSWORD = 'gsam eenf yjvg bzeu'  # ← Cambia por la contraseña de aplicación de Gmail
 DEFAULT_FROM_EMAIL = 'Tienda Inmobiliaria <xmiguelastorgax@gmail.com>'  # ← Cambia por tu email
 ADMIN_EMAIL = 'xmiguelastorgax@gmail.com'  # ← Email del administrador para notificaciones
+
+# Configuración para recuperación de contraseña
+PASSWORD_RESET_CODE_LENGTH = 6  # Longitud del código de recuperación
+PASSWORD_RESET_TIMEOUT = 3600  # Tiempo de expiración en segundos (1 hora)

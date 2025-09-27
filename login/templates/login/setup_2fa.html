@@ -3,67 +3,1025 @@
 
 {% block title %}Configurar 2FA - Tienda Inmobiliaria{% endblock %}
 
+{% block extra_head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Ocultar navegación */
+    .responsive-nav {
+        display: none !important;
+    }
+    
+    /* Ajustar el contenido principal para que ocupe toda la pantalla */
+    main {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Fondo moderno con gradiente */
+    html, body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        min-height: 100vh !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        overflow-x: hidden;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+    
+    /* Prevenir desbordamiento horizontal */
+    * {
+        box-sizing: border-box;
+    }
+    
+    .container {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Mejorar experiencia táctil */
+    .download-btn,
+    .submit-btn,
+    .btn-cancel,
+    .btn-refresh,
+    .copy-btn {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+    
+    /* Asegurar que los inputs sean fáciles de usar en móvil */
+    .form-control {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+    
+    @media (max-width: 767px) {
+        .form-control {
+            font-size: 16px; /* Mantiene el tamaño para evitar zoom */
+        }
+    }
+    
+    .container {
+        background-color: transparent !important;
+    }
+    
+    main {
+        background: transparent !important;
+        min-height: 100vh !important;
+    }
+    
+    /* Diseño moderno de la tarjeta principal */
+    .setup-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        margin: 0.5rem 0;
+    }
+    
+    .setup-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .setup-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .setup-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .setup-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0.25rem 0 0 0;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .setup-body {
+        padding: 1.5rem;
+    }
+    
+    /* Pasos mejorados */
+    .step-container {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+    
+    .step-container:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        left: 1.5rem;
+        top: 4rem;
+        width: 2px;
+        height: calc(100% - 2rem);
+        background: linear-gradient(to bottom, #667eea, #764ba2);
+        opacity: 0.3;
+    }
+    
+    .step-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .step-number {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-right: 1rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .step-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+    }
+    
+    .step-content {
+        margin-left: 3.5rem;
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    /* Botones de descarga mejorados */
+    .download-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .download-btn {
+        padding: 0.75rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        font-size: 0.9rem;
+    }
+    
+    .download-btn.android {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+    }
+    
+    .download-btn.ios {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+    }
+    
+    .download-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        color: white;
+        text-decoration: none;
+    }
+    
+    /* QR Code mejorado */
+    .qr-section {
+        text-align: center;
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin: 0.75rem 0;
+    }
+    
+    .qr-container {
+        display: inline-block;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        margin: 0.25rem 0;
+    }
+    
+    .qr-code {
+        width: 140px;
+        height: 140px;
+        border-radius: 8px;
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .secret-key {
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin: 0.75rem 0;
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 0.8rem;
+        word-break: break-all;
+        position: relative;
+    }
+    
+    .copy-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .copy-btn:hover {
+        background: #5a67d8;
+        transform: scale(1.05);
+    }
+    
+    /* Formulario mejorado */
+    .verification-form {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin: 0.75rem 0;
+    }
+    
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 1rem;
+        text-align: center;
+        letter-spacing: 0.2em;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+    }
+    
+    /* Información importante */
+    .info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+    }
+    
+    .info-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .info-list li {
+        padding: 0.15rem 0;
+        position: relative;
+        padding-left: 1.5rem;
+        font-size: 0.85rem;
+        line-height: 1.3;
+    }
+    
+    .info-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: #48bb78;
+        font-weight: bold;
+    }
+    
+    /* Botones de acción */
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-cancel {
+        background: #e2e8f0;
+        color: #4a5568;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    
+    .btn-cancel:hover {
+        background: #cbd5e0;
+        color: #2d3748;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+    
+    .btn-refresh {
+        background: #4299e1;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    
+    .btn-refresh:hover {
+        background: #3182ce;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(66, 153, 225, 0.3);
+    }
+    
+    /* Animaciones para notificaciones */
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    /* ===== RESPONSIVE DESIGN ===== */
+    
+    /* Tablet (768px - 1024px) */
+    @media (max-width: 1024px) {
+        .setup-body {
+            padding: 1.25rem;
+        }
+        
+        .step-content {
+            margin-left: 3rem;
+        }
+        
+        .qr-code {
+            width: 130px;
+            height: 130px;
+        }
+        
+        .setup-title {
+            font-size: 1.5rem;
+        }
+        
+        .step-title {
+            font-size: 1.1rem;
+        }
+    }
+    
+    /* Tablet Portrait (768px - 991px) */
+    @media (max-width: 991px) {
+        .container {
+            padding: 0 1rem;
+        }
+        
+        .setup-card {
+            margin: 0.25rem 0;
+        }
+        
+        .setup-header {
+            padding: 1.25rem;
+        }
+        
+        .setup-body {
+            padding: 1rem;
+        }
+        
+        .step-container {
+            margin-bottom: 1.25rem;
+        }
+        
+        .step-content {
+            margin-left: 2.75rem;
+            padding: 0.875rem;
+        }
+        
+        .step-number {
+            width: 2.25rem;
+            height: 2.25rem;
+            font-size: 0.9rem;
+            margin-right: 0.875rem;
+        }
+        
+        .step-title {
+            font-size: 1rem;
+        }
+        
+        .qr-code {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .download-btn {
+            padding: 0.625rem;
+            font-size: 0.85rem;
+        }
+        
+        .form-control {
+            padding: 0.625rem;
+            font-size: 0.95rem;
+        }
+        
+        .submit-btn {
+            padding: 0.625rem 1.25rem;
+            font-size: 0.95rem;
+        }
+    }
+    
+    /* Mobile Landscape (576px - 767px) */
+    @media (max-width: 767px) {
+        .container {
+            padding: 0 0.75rem;
+        }
+        
+        .setup-header {
+            padding: 1rem;
+        }
+        
+        .setup-title {
+            font-size: 1.4rem;
+        }
+        
+        .setup-subtitle {
+            font-size: 0.85rem;
+        }
+        
+        .setup-body {
+            padding: 0.875rem;
+        }
+        
+        .step-container {
+            margin-bottom: 1rem;
+        }
+        
+        .step-header {
+            margin-bottom: 0.75rem;
+        }
+        
+        .step-content {
+            margin-left: 0;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+        }
+        
+        .step-number {
+            width: 2rem;
+            height: 2rem;
+            font-size: 0.85rem;
+            margin-right: 0.75rem;
+        }
+        
+        .step-title {
+            font-size: 0.95rem;
+        }
+        
+        .download-buttons {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        
+        .download-btn {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .qr-section {
+            padding: 0.875rem;
+            margin: 0.5rem 0;
+        }
+        
+        .qr-container {
+            padding: 0.625rem;
+        }
+        
+        .qr-code {
+            width: 110px;
+            height: 110px;
+        }
+        
+        .secret-key {
+            padding: 0.625rem;
+            margin: 0.5rem 0;
+            font-size: 0.75rem;
+        }
+        
+        .verification-form {
+            padding: 0.875rem;
+            margin: 0.5rem 0;
+        }
+        
+        .form-group {
+            margin-bottom: 0.625rem;
+        }
+        
+        .form-control {
+            padding: 0.75rem;
+            font-size: 1rem;
+        }
+        
+        .submit-btn {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .info-card {
+            padding: 0.875rem;
+            margin: 0.75rem 0;
+        }
+        
+        .info-title {
+            font-size: 0.95rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .info-list li {
+            padding: 0.125rem 0;
+            font-size: 0.8rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        
+        .btn-cancel,
+        .btn-refresh {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            justify-content: center;
+        }
+    }
+    
+    /* Mobile Portrait (320px - 575px) */
+    @media (max-width: 575px) {
+        .container {
+            padding: 0 0.5rem;
+        }
+        
+        .setup-header {
+            padding: 0.875rem;
+        }
+        
+        .setup-title {
+            font-size: 1.25rem;
+        }
+        
+        .setup-subtitle {
+            font-size: 0.8rem;
+        }
+        
+        .setup-body {
+            padding: 0.75rem;
+        }
+        
+        .step-container {
+            margin-bottom: 0.875rem;
+        }
+        
+        .step-header {
+            margin-bottom: 0.5rem;
+        }
+        
+        .step-content {
+            margin-left: 0;
+            margin-top: 0.5rem;
+            padding: 0.625rem;
+        }
+        
+        .step-number {
+            width: 1.75rem;
+            height: 1.75rem;
+            font-size: 0.8rem;
+            margin-right: 0.625rem;
+        }
+        
+        .step-title {
+            font-size: 0.9rem;
+        }
+        
+        .download-buttons {
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .download-btn {
+            padding: 0.625rem;
+            font-size: 0.85rem;
+        }
+        
+        .qr-section {
+            padding: 0.75rem;
+            margin: 0.375rem 0;
+        }
+        
+        .qr-container {
+            padding: 0.5rem;
+        }
+        
+        .qr-code {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .secret-key {
+            padding: 0.5rem;
+            margin: 0.375rem 0;
+            font-size: 0.7rem;
+        }
+        
+        .copy-btn {
+            top: 0.25rem;
+            right: 0.25rem;
+            padding: 0.375rem;
+        }
+        
+        .verification-form {
+            padding: 0.75rem;
+            margin: 0.375rem 0;
+        }
+        
+        .form-group {
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .form-control {
+            padding: 0.625rem;
+            font-size: 0.95rem;
+        }
+        
+        .submit-btn {
+            padding: 0.625rem 1.25rem;
+            font-size: 0.95rem;
+        }
+        
+        .info-card {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+        }
+        
+        .info-title {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-list li {
+            padding: 0.1rem 0;
+            font-size: 0.75rem;
+            line-height: 1.25;
+        }
+        
+        .action-buttons {
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .btn-cancel,
+        .btn-refresh {
+            padding: 0.625rem 1.25rem;
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* Extra Small Mobile (max-width: 374px) */
+    @media (max-width: 374px) {
+        .container {
+            padding: 0 0.375rem;
+        }
+        
+        .setup-header {
+            padding: 0.75rem;
+        }
+        
+        .setup-title {
+            font-size: 1.1rem;
+        }
+        
+        .setup-subtitle {
+            font-size: 0.75rem;
+        }
+        
+        .setup-body {
+            padding: 0.625rem;
+        }
+        
+        .step-content {
+            padding: 0.5rem;
+        }
+        
+        .step-number {
+            width: 1.5rem;
+            height: 1.5rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        
+        .step-title {
+            font-size: 0.85rem;
+        }
+        
+        .download-btn {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .qr-code {
+            width: 90px;
+            height: 90px;
+        }
+        
+        .secret-key {
+            font-size: 0.65rem;
+        }
+        
+        .form-control {
+            padding: 0.5rem;
+            font-size: 16px; /* Mantener 16px para evitar zoom */
+        }
+        
+        .submit-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .info-list li {
+            font-size: 0.7rem;
+        }
+        
+        .btn-cancel,
+        .btn-refresh {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+    
+    /* Mejoras adicionales para accesibilidad y usabilidad */
+    @media (max-width: 767px) {
+        /* Asegurar que el texto sea legible */
+        p, .step-content p {
+            line-height: 1.5;
+        }
+        
+        /* Mejorar el contraste en pantallas pequeñas */
+        .secret-key {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+        }
+        
+        /* Asegurar que los botones sean fáciles de tocar */
+        .download-btn,
+        .submit-btn,
+        .btn-cancel,
+        .btn-refresh {
+            min-height: 44px; /* Tamaño mínimo recomendado para touch */
+        }
+        
+        /* Mejorar el espaciado entre elementos táctiles */
+        .download-buttons {
+            gap: 0.75rem;
+        }
+        
+        .action-buttons {
+            gap: 0.75rem;
+        }
+    }
+    
+    /* Optimizaciones para pantallas de alta densidad */
+    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .qr-code {
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    }
+    
+    /* Mejoras para dispositivos con orientación landscape */
+    @media (orientation: landscape) and (max-height: 600px) {
+        .setup-card {
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        
+        .step-container {
+            margin-bottom: 0.75rem;
+        }
+        
+        .qr-code {
+            width: 80px;
+            height: 80px;
+        }
+    }
+    
+    /* Landscape Orientation Adjustments */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .container {
+            padding: 0.5rem 0;
+        }
+        
+        .setup-card {
+            margin: 0.25rem 0;
+        }
+        
+        .setup-header {
+            padding: 0.75rem;
+        }
+        
+        .setup-body {
+            padding: 0.75rem;
+        }
+        
+        .step-container {
+            margin-bottom: 0.75rem;
+        }
+        
+        .step-content {
+            padding: 0.5rem;
+        }
+        
+        .qr-code {
+            width: 80px;
+            height: 80px;
+        }
+        
+        .action-buttons {
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+<script>
+// Aplicar fondo inmediatamente, antes de que se cargue el DOM
+(function() {
+    document.documentElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+})();
+</script>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">
-                        <i class="fas fa-shield-alt me-2"></i>
-                        Configurar Autenticación de Dos Factores (2FA)
-                    </h3>
+<div class="container py-2" style="min-height: 100vh; display: flex; align-items: center;">
+    <div class="row justify-content-center w-100">
+        <div class="col-lg-8 col-xl-6">
+            <div class="setup-card">
+                <div class="setup-header">
+                    <h1 class="setup-title">
+                        <i class="fas fa-shield-alt me-3"></i>
+                        Configurar 2FA
+                    </h1>
+                    <p class="setup-subtitle">Protege tu cuenta con autenticación de dos factores</p>
                 </div>
-                <div class="card-body p-4">
+                <div class="setup-body">
                     <!-- Paso 1: Instrucciones -->
-                    <div class="step mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-primary rounded-circle me-3">1</span>
-                            <h4 class="mb-0">Instalar Google Authenticator</h4>
+                    <div class="step-container">
+                        <div class="step-header">
+                            <div class="step-number">1</div>
+                            <h3 class="step-title">Instalar Google Authenticator</h3>
                         </div>
-                        <div class="ms-5">
-                            <p>Descarga e instala Google Authenticator en tu dispositivo móvil:</p>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" 
-                                       target="_blank" class="btn btn-outline-success w-100 mb-2">
-                                        <i class="fab fa-google-play me-2"></i>
-                                        Android
-                                    </a>
-                                </div>
-                                <div class="col-md-6">
-                                    <a href="https://apps.apple.com/app/google-authenticator/id388497605" 
-                                       target="_blank" class="btn btn-outline-primary w-100 mb-2">
-                                        <i class="fab fa-apple me-2"></i>
-                                        iOS
-                                    </a>
-                                </div>
+                        <div class="step-content">
+                            <p class="mb-3">Descarga e instala Google Authenticator en tu dispositivo móvil:</p>
+                            <div class="download-buttons">
+                                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" 
+                                   target="_blank" class="download-btn android">
+                                    <i class="fab fa-google-play me-2"></i>
+                                    Android
+                                </a>
+                                <a href="https://apps.apple.com/app/google-authenticator/id388497605" 
+                                   target="_blank" class="download-btn ios">
+                                    <i class="fab fa-apple me-2"></i>
+                                    iOS
+                                </a>
                             </div>
                         </div>
                     </div>
 
                     <!-- Paso 2: Escanear QR -->
-                    <div class="step mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-primary rounded-circle me-3">2</span>
-                            <h4 class="mb-0">Escanear Código QR</h4>
+                    <div class="step-container">
+                        <div class="step-header">
+                            <div class="step-number">2</div>
+                            <h3 class="step-title">Escanear Código QR</h3>
                         </div>
-                        <div class="ms-5">
-                            <p>Usa Google Authenticator para escanear este código QR:</p>
-                            <div class="text-center">
-                                <div class="qr-container p-3 bg-light rounded">
+                        <div class="step-content">
+                            <p class="mb-3">Usa Google Authenticator para escanear este código QR:</p>
+                            <div class="qr-section">
+                                <div class="qr-container">
                                     <img src="data:image/png;base64,{{ qr_code }}" 
                                          alt="Código QR para 2FA" 
-                                         class="img-fluid"
-                                         style="max-width: 200px;">
+                                         class="qr-code">
                                 </div>
-                                <small class="text-muted d-block mt-2">
+                                <p class="text-muted mb-3">
                                     Si no puedes escanear el código, usa esta clave manual:
-                                </small>
-                                <div class="mt-2">
-                                    <code class="bg-light p-2 rounded">{{ credenciales.totp_secret }}</code>
-                                    <button class="btn btn-sm btn-outline-secondary ms-2" 
-                                            onclick="copyToClipboard('{{ credenciales.totp_secret }}')">
+                                </p>
+                                <div class="secret-key">
+                                    {{ credenciales.totp_secret }}
+                                    <button class="copy-btn" onclick="copyToClipboard('{{ credenciales.totp_secret }}')">
                                         <i class="fas fa-copy"></i>
                                     </button>
                                 </div>
@@ -72,16 +1030,15 @@
                     </div>
 
                     <!-- Paso 3: Verificar -->
-                    <div class="step mb-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-primary rounded-circle me-3">3</span>
-                            <h4 class="mb-0">Verificar Configuración</h4>
+                    <div class="step-container">
+                        <div class="step-header">
+                            <div class="step-number">3</div>
+                            <h3 class="step-title">Verificar Configuración</h3>
                         </div>
-                        <div class="ms-5">
-                            <p>Ingresa el código de 6 dígitos que aparece en Google Authenticator:</p>
+                        <div class="step-content">
+                            <p class="mb-3">Ingresa el código de 6 dígitos que aparece en Google Authenticator:</p>
                             
-                            
-                            <form method="post" id="setup2FAForm">
+                            <form method="post" id="setup2FAForm" class="verification-form">
                                 {% csrf_token %}
                                 
                                 <!-- Mostrar mensajes -->
@@ -94,36 +1051,33 @@
                                     {% endfor %}
                                 {% endif %}
                                 
-                                <div class="row justify-content-center">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="id_totp_code" class="form-label">Código de 6 dígitos:</label>
-                                            {{ form.totp_code }}
-                                            {% if form.totp_code.errors %}
-                                                <div class="text-danger">
-                                                    {% for error in form.totp_code.errors %}
-                                                        <small>{{ error }}</small>
-                                                    {% endfor %}
-                                                </div>
-                                            {% endif %}
+                                <div class="form-group">
+                                    <label for="id_totp_code" class="form-label">Código de 6 dígitos:</label>
+                                    {{ form.totp_code }}
+                                    {% if form.totp_code.errors %}
+                                        <div class="text-danger mt-2">
+                                            {% for error in form.totp_code.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
                                         </div>
-                                        
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-success btn-lg">
-                                                <i class="fas fa-check me-2"></i>
-                                                Verificar y Habilitar 2FA
-                                            </button>
-                                        </div>
-                                    </div>
+                                    {% endif %}
                                 </div>
+                                
+                                <button type="submit" class="submit-btn">
+                                    <i class="fas fa-check me-2"></i>
+                                    Verificar y Habilitar 2FA
+                                </button>
                             </form>
                         </div>
                     </div>
 
                     <!-- Información adicional -->
-                    <div class="alert alert-info">
-                        <h5><i class="fas fa-info-circle me-2"></i>Información Importante</h5>
-                        <ul class="mb-0">
+                    <div class="info-card">
+                        <h4 class="info-title">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Información Importante
+                        </h4>
+                        <ul class="info-list">
                             <li>Una vez habilitado, necesitarás un código de Google Authenticator para cada login</li>
                             <li>Recibirás códigos de respaldo que puedes usar si pierdes tu dispositivo</li>
                             <li>Guarda los códigos de respaldo en un lugar seguro</li>
@@ -132,12 +1086,12 @@
                     </div>
 
                     <!-- Botones de acción -->
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'login:dashboard' %}" class="btn btn-outline-secondary">
+                    <div class="action-buttons">
+                        <a href="{% url 'login:dashboard' %}" class="btn-cancel">
                             <i class="fas fa-arrow-left me-2"></i>
                             Cancelar
                         </a>
-                        <button type="button" class="btn btn-outline-info" onclick="refreshQR()">
+                        <button type="button" class="btn-refresh" onclick="refreshQR()">
                             <i class="fas fa-sync-alt me-2"></i>
                             Generar Nuevo Código
                         </button>
@@ -151,21 +1105,71 @@
 
 {% block extra_js %}
 <script>
+// Aplicar fondo con gradiente inmediatamente
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    document.documentElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    
+    // También aplicar al contenedor principal
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+        mainElement.style.background = 'transparent';
+        mainElement.style.minHeight = '100vh';
+    }
+    
+    // Aplicar a cualquier contenedor
+    const containers = document.querySelectorAll('.container');
+    containers.forEach(container => {
+        container.style.backgroundColor = 'transparent';
+    });
+});
+
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(function() {
         // Mostrar notificación de éxito
         const button = event.target.closest('button');
         const originalHTML = button.innerHTML;
         button.innerHTML = '<i class="fas fa-check"></i>';
-        button.classList.remove('btn-outline-secondary');
-        button.classList.add('btn-success');
+        button.style.background = '#48bb78';
+        
+        // Mostrar notificación toast
+        showToast('¡Código copiado al portapapeles!', 'success');
         
         setTimeout(() => {
             button.innerHTML = originalHTML;
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-secondary');
+            button.style.background = '#667eea';
         }, 2000);
+    }).catch(function() {
+        showToast('Error al copiar el código', 'error');
     });
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#48bb78' : '#e53e3e'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 500;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
 }
 
 function refreshQR() {

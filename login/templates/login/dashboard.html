@@ -512,6 +512,2121 @@
                 transform: scale(0.98);
             }
         }
+        
+        /* ===== RESPONSIVE DESIGN PARA CONFIGURACIONES ===== */
+        
+        /* Meta viewport y configuración global */
+        @media (max-width: 768px) {
+            .configuraciones-container {
+                padding: 0.5rem;
+            }
+            
+            /* Header responsivo */
+            .config-header {
+                margin-bottom: 1rem;
+            }
+            
+            .config-header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .config-header p {
+                font-size: 0.875rem;
+            }
+            
+            .config-header button {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* Formulario de perfil responsivo */
+        @media (max-width: 768px) {
+            .profile-form {
+                padding: 1rem;
+            }
+            
+            .profile-form .form-section {
+                margin-bottom: 1.5rem;
+            }
+            
+            /* Foto de perfil móvil */
+            .profile-photo-section {
+                text-align: center;
+                margin-bottom: 1.5rem;
+            }
+            
+            .profile-photo-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .profile-photo-preview {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .profile-photo-info {
+                text-align: center;
+            }
+            
+            /* Campos de formulario */
+            .form-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .form-field {
+                width: 100%;
+            }
+            
+            .form-field input,
+            .form-field select {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 16px; /* Previene zoom en iOS */
+                border-radius: 8px;
+            }
+            
+            .form-field label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+            
+            /* Botones de acción */
+            .form-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 1.5rem;
+            }
+            
+            .form-actions button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                border-radius: 8px;
+                min-height: 44px; /* Tamaño mínimo para touch */
+            }
+        }
+        
+        /* Sección 2FA responsiva */
+        @media (max-width: 768px) {
+            .twofa-section {
+                padding: 1rem;
+            }
+            
+            .twofa-content {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .twofa-icon {
+                width: 60px;
+                height: 60px;
+                margin: 0 auto;
+            }
+            
+            .twofa-info {
+                text-align: center;
+            }
+            
+            .twofa-info h4 {
+                font-size: 1.125rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .twofa-info p {
+                font-size: 0.875rem;
+                line-height: 1.5;
+            }
+            
+            .twofa-status-card {
+                padding: 1rem;
+                margin: 1rem 0;
+            }
+            
+            .twofa-status-card h5 {
+                font-size: 0.875rem;
+            }
+            
+            .twofa-status-card ul {
+                font-size: 0.8rem;
+            }
+            
+            .twofa-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 1rem;
+            }
+            
+            .twofa-actions button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                border-radius: 8px;
+                min-height: 44px;
+            }
+        }
+        
+        /* Tablet (768px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .configuraciones-container {
+                padding: 1rem;
+            }
+            
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            .profile-photo-container {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .twofa-content {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            
+            .twofa-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+        }
+        
+        /* Desktop (1025px+) */
+        @media (min-width: 1025px) {
+            .configuraciones-container {
+                padding: 1.5rem;
+            }
+            
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+            
+            .profile-photo-container {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .twofa-content {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            
+            .twofa-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+        }
+        
+        /* Mejoras de accesibilidad y usabilidad */
+        @media (max-width: 768px) {
+            /* Asegurar que los inputs sean fáciles de usar en móvil */
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            input[type="date"],
+            input[type="file"] {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                font-size: 16px; /* Previene zoom en iOS */
+            }
+            
+            /* Mejorar el contraste en pantallas pequeñas */
+            .form-field label {
+                color: #374151;
+                font-weight: 600;
+            }
+            
+            /* Asegurar que los botones sean fáciles de tocar */
+            button {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            
+            /* Mejorar el espaciado entre elementos táctiles */
+            .form-actions,
+            .twofa-actions {
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Optimizaciones para pantallas de alta densidad */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .profile-photo-preview img {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+        
+        /* Mejoras para dispositivos con orientación landscape */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .configuraciones-container {
+                padding: 0.5rem;
+            }
+            
+            .config-header {
+                margin-bottom: 0.75rem;
+            }
+            
+            .profile-form,
+            .twofa-section {
+                padding: 0.75rem;
+            }
+            
+            .form-actions,
+            .twofa-actions {
+                margin-top: 1rem;
+            }
+        }
+
+        /* ===== RESPONSIVE DESIGN PARA RESEÑAS ===== */
+        
+        /* Configuración global para reseñas */
+        @media (max-width: 768px) {
+            .resenas-container {
+                padding: 0.5rem;
+            }
+            
+            /* Header de reseñas responsivo */
+            .resenas-header {
+                margin-bottom: 1rem;
+            }
+            
+            .resenas-header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .resenas-header p {
+                font-size: 0.875rem;
+            }
+            
+            .resenas-header button {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* Filtros de reseñas responsivos */
+        @media (max-width: 768px) {
+            .filtros-section {
+                padding: 1rem;
+            }
+            
+            .filtros-header {
+                padding: 1rem;
+                margin-bottom: 0;
+            }
+            
+            .filtros-header h3 {
+                font-size: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            /* Estadísticas en móvil */
+            .estadisticas-mobile {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+                padding: 0.75rem;
+                background: #f8fafc;
+                border-radius: 8px;
+            }
+            
+            .estadistica-item {
+                text-align: center;
+                flex: 1;
+            }
+            
+            .estadistica-item .icono {
+                width: 32px;
+                height: 32px;
+                margin: 0 auto 0.25rem;
+            }
+            
+            .estadistica-item .numero {
+                font-size: 1.125rem;
+                font-weight: 700;
+            }
+            
+            .estadistica-item .label {
+                font-size: 0.75rem;
+                color: #6b7280;
+            }
+            
+            /* Grid de filtros en móvil */
+            .filtros-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .filtro-field {
+                width: 100%;
+            }
+            
+            .filtro-field label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+            
+            .filtro-field select {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 16px; /* Previene zoom en iOS */
+                border-radius: 8px;
+            }
+            
+            /* Botón limpiar filtros */
+            .btn-limpiar-filtros {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                margin-top: 1rem;
+            }
+        }
+        
+        /* Lista de reseñas responsiva */
+        @media (max-width: 768px) {
+            .lista-resenas {
+                padding: 1rem;
+            }
+            
+            .lista-resenas-header {
+                padding: 1rem;
+                margin-bottom: 0;
+            }
+            
+            .lista-resenas-header h3 {
+                font-size: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .lista-resenas-header button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+            }
+            
+            /* Contenido de reseñas */
+            .resenas-content {
+                padding: 1rem;
+            }
+            
+            /* Estado de carga */
+            .loading-state {
+                padding: 2rem 1rem;
+                text-align: center;
+            }
+            
+            .loading-state i {
+                width: 2rem;
+                height: 2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .loading-state p {
+                font-size: 0.875rem;
+            }
+        }
+        
+        /* Tarjetas de reseñas responsivas */
+        @media (max-width: 768px) {
+            .resena-card {
+                margin-bottom: 1rem;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+            
+            .resena-header {
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .resena-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .resena-titulo {
+                font-size: 1rem;
+                font-weight: 600;
+                line-height: 1.4;
+            }
+            
+            .resena-propiedad {
+                font-size: 0.875rem;
+                color: #6b7280;
+            }
+            
+            .resena-calificacion {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .resena-estrellas {
+                font-size: 1rem;
+            }
+            
+            .resena-estado {
+                padding: 0.25rem 0.75rem;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .resena-contenido {
+                padding: 1rem;
+            }
+            
+            .resena-texto {
+                font-size: 0.875rem;
+                line-height: 1.5;
+                margin-bottom: 1rem;
+            }
+            
+            .resena-metadata {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.75rem;
+                color: #6b7280;
+            }
+            
+            .resena-actions {
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                border-top: 1px solid #e5e7eb;
+            }
+            
+            .resena-actions button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                border-radius: 8px;
+                min-height: 44px;
+            }
+        }
+        
+        /* Paginación responsiva */
+        @media (max-width: 768px) {
+            .pagination {
+                padding: 1rem;
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .pagination button {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+                border-radius: 8px;
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            .pagination .page-info {
+                width: 100%;
+                text-align: center;
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        /* Tablet (768px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .resenas-container {
+                padding: 1rem;
+            }
+            
+            .filtros-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            .filtros-grid .filtro-field:last-child {
+                grid-column: 1 / -1;
+            }
+            
+            .estadisticas-mobile {
+                display: none;
+            }
+            
+            .resena-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+            
+            .resena-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+        }
+        
+        /* Desktop (1025px+) */
+        @media (min-width: 1025px) {
+            .resenas-container {
+                padding: 1.5rem;
+            }
+            
+            .filtros-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 2rem;
+            }
+            
+            .estadisticas-mobile {
+                display: none;
+            }
+            
+            .resena-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+            
+            .resena-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+        }
+        
+        /* Mejoras de accesibilidad y usabilidad para reseñas */
+        @media (max-width: 768px) {
+            /* Asegurar que los selects sean fáciles de usar en móvil */
+            select {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                font-size: 16px; /* Previene zoom en iOS */
+            }
+            
+            /* Mejorar el contraste en pantallas pequeñas */
+            .filtro-field label {
+                color: #374151;
+                font-weight: 600;
+            }
+            
+            /* Asegurar que los botones sean fáciles de tocar */
+            button {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            
+            /* Mejorar el espaciado entre elementos táctiles */
+            .resena-actions,
+            .filtros-grid {
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Optimizaciones para pantallas de alta densidad */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .resena-card img {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+        
+        /* Mejoras para dispositivos con orientación landscape */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .resenas-container {
+                padding: 0.5rem;
+            }
+            
+            .resenas-header {
+                margin-bottom: 0.75rem;
+            }
+            
+            .filtros-section,
+            .lista-resenas {
+                padding: 0.75rem;
+            }
+            
+            .resena-actions {
+                margin-top: 0.75rem;
+            }
+        }
+
+        /* ===== RESPONSIVE DESIGN PARA MODAL DE NUEVO USUARIO ===== */
+        
+        /* Configuración global para el modal de usuario */
+        @media (max-width: 768px) {
+            .modal-usuario-container {
+                padding: 0.5rem;
+            }
+            
+            .modal-usuario-content {
+                max-width: 95vw;
+                max-height: 95vh;
+                margin: 0.5rem;
+            }
+            
+            /* Header del modal responsivo */
+            .modal-usuario-header {
+                padding: 1rem;
+            }
+            
+            .modal-usuario-header h2 {
+                font-size: 1.25rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .modal-usuario-header p {
+                font-size: 0.875rem;
+            }
+            
+            .modal-usuario-header button {
+                width: 2rem;
+                height: 2rem;
+            }
+        }
+        
+        /* Tabs responsivos */
+        @media (max-width: 768px) {
+            .modal-usuario-tabs {
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .modal-usuario-tab {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                justify-content: center;
+            }
+            
+            .modal-usuario-tab i {
+                margin-right: 0.5rem;
+            }
+        }
+        
+        /* Formulario de crear usuario responsivo */
+        @media (max-width: 768px) {
+            .modal-usuario-form {
+                padding: 1rem;
+            }
+            
+            .modal-usuario-section {
+                margin-bottom: 1.5rem;
+            }
+            
+            .modal-usuario-section h3 {
+                font-size: 1.125rem;
+                margin-bottom: 1rem;
+            }
+            
+            /* Grid de campos en móvil */
+            .modal-usuario-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .modal-usuario-field {
+                width: 100%;
+            }
+            
+            .modal-usuario-field label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+            
+            .modal-usuario-field input,
+            .modal-usuario-field select {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 16px; /* Previene zoom en iOS */
+                border-radius: 8px;
+            }
+            
+            /* Foto de perfil móvil */
+            .modal-usuario-foto {
+                text-align: center;
+                margin: 1rem 0;
+            }
+            
+            .modal-usuario-foto-preview {
+                width: 100px;
+                height: 100px;
+                margin: 0 auto 1rem;
+            }
+            
+            .modal-usuario-foto-placeholder {
+                width: 100px;
+                height: 100px;
+                margin: 0 auto 1rem;
+            }
+            
+            /* Botones de acción */
+            .modal-usuario-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 1.5rem;
+            }
+            
+            .modal-usuario-actions button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                border-radius: 8px;
+                min-height: 44px; /* Tamaño mínimo para touch */
+            }
+        }
+        
+        /* Sección de gestionar usuarios responsiva */
+        @media (max-width: 768px) {
+            .modal-usuario-gestion {
+                padding: 1rem;
+            }
+            
+            .modal-usuario-gestion h3 {
+                font-size: 1.125rem;
+                margin-bottom: 1rem;
+            }
+            
+            .modal-usuario-gestion-header {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .modal-usuario-gestion-header p {
+                font-size: 0.875rem;
+                text-align: center;
+            }
+            
+            .modal-usuario-gestion-header button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+            }
+            
+            /* Lista de usuarios */
+            .modal-usuario-lista {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .modal-usuario-item {
+                border-radius: 12px;
+                overflow: hidden;
+                border: 1px solid #e5e7eb;
+            }
+            
+            .modal-usuario-item-header {
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .modal-usuario-item-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .modal-usuario-item-nombre {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+            
+            .modal-usuario-item-email {
+                font-size: 0.875rem;
+                color: #6b7280;
+            }
+            
+            .modal-usuario-item-actions {
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                border-top: 1px solid #e5e7eb;
+            }
+            
+            .modal-usuario-item-actions button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                border-radius: 8px;
+                min-height: 44px;
+            }
+        }
+        
+        /* Tablet (768px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .modal-usuario-container {
+                padding: 1rem;
+            }
+            
+            .modal-usuario-content {
+                max-width: 90vw;
+                margin: 1rem;
+            }
+            
+            .modal-usuario-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            .modal-usuario-tabs {
+                flex-direction: row;
+            }
+            
+            .modal-usuario-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+            
+            .modal-usuario-gestion-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .modal-usuario-item-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+            
+            .modal-usuario-item-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+        }
+        
+        /* Desktop (1025px+) */
+        @media (min-width: 1025px) {
+            .modal-usuario-container {
+                padding: 1.5rem;
+            }
+            
+            .modal-usuario-content {
+                max-width: 6xl;
+                margin: 1.5rem;
+            }
+            
+            .modal-usuario-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+            
+            .modal-usuario-tabs {
+                flex-direction: row;
+            }
+            
+            .modal-usuario-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+            
+            .modal-usuario-gestion-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .modal-usuario-item-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+            
+            .modal-usuario-item-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+        }
+        
+        /* Mejoras de accesibilidad y usabilidad para el modal de usuario */
+        @media (max-width: 768px) {
+            /* Asegurar que los inputs sean fáciles de usar en móvil */
+            .modal-usuario-field input,
+            .modal-usuario-field select {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                font-size: 16px; /* Previene zoom en iOS */
+            }
+            
+            /* Mejorar el contraste en pantallas pequeñas */
+            .modal-usuario-field label {
+                color: #374151;
+                font-weight: 600;
+            }
+            
+            /* Asegurar que los botones sean fáciles de tocar */
+            .modal-usuario-actions button,
+            .modal-usuario-item-actions button {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            
+            /* Mejorar el espaciado entre elementos táctiles */
+            .modal-usuario-actions,
+            .modal-usuario-item-actions {
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Optimizaciones para pantallas de alta densidad */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .modal-usuario-foto-preview img {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+        
+        /* Mejoras para dispositivos con orientación landscape */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .modal-usuario-container {
+                padding: 0.5rem;
+            }
+            
+            .modal-usuario-content {
+                max-height: 90vh;
+            }
+            
+            .modal-usuario-header {
+                padding: 0.75rem;
+            }
+            
+            .modal-usuario-form,
+            .modal-usuario-gestion {
+                padding: 0.75rem;
+            }
+            
+            .modal-usuario-section {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* ===== RESPONSIVE DESIGN PARA GESTIONAR PROPIEDADES ===== */
+        
+        /* Configuración global para gestionar propiedades */
+        @media (max-width: 768px) {
+            .propiedades-container {
+                padding: 0.5rem;
+            }
+            
+            /* Header de propiedades responsivo */
+            .propiedades-header {
+                margin-bottom: 1rem;
+            }
+            
+            .propiedades-header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .propiedades-header p {
+                font-size: 0.875rem;
+            }
+            
+            .propiedades-header-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 1rem;
+            }
+            
+            .propiedades-header-buttons button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                min-height: 44px;
+            }
+        }
+        
+        /* Tabla de propiedades responsiva */
+        @media (max-width: 768px) {
+            .propiedades-tabla {
+                padding: 1rem;
+            }
+            
+            .propiedades-tabla-header {
+                padding: 1rem;
+                margin-bottom: 0;
+            }
+            
+            .propiedades-tabla-header h3 {
+                font-size: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .propiedades-search {
+                width: 100%;
+                margin-top: 1rem;
+            }
+            
+            .propiedades-search input {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 16px; /* Previene zoom en iOS */
+                border-radius: 8px;
+            }
+            
+            /* Ocultar tabla en móvil y mostrar cards */
+            .propiedades-tabla-desktop {
+                display: none;
+            }
+            
+            .propiedades-cards-mobile {
+                display: block;
+            }
+            
+            /* Cards de propiedades en móvil */
+            .propiedad-card {
+                background: white;
+                border-radius: 12px;
+                border: 1px solid #e5e7eb;
+                margin-bottom: 1rem;
+                overflow: hidden;
+            }
+            
+            .propiedad-card-header {
+                padding: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .propiedad-card-imagen {
+                width: 60px;
+                height: 60px;
+                border-radius: 8px;
+                object-fit: cover;
+                flex-shrink: 0;
+            }
+            
+            .propiedad-card-imagen-placeholder {
+                width: 60px;
+                height: 60px;
+                background: #f3f4f6;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+            
+            .propiedad-card-info {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .propiedad-card-titulo {
+                font-size: 1rem;
+                font-weight: 600;
+                color: #111827;
+                margin-bottom: 0.25rem;
+                line-height: 1.4;
+            }
+            
+            .propiedad-card-metros {
+                font-size: 0.875rem;
+                color: #6b7280;
+                margin-bottom: 0.5rem;
+            }
+            
+            .propiedad-card-precio {
+                font-size: 1rem;
+                font-weight: 600;
+                color: #059669;
+            }
+            
+            .propiedad-card-body {
+                padding: 1rem;
+                border-top: 1px solid #e5e7eb;
+            }
+            
+            .propiedad-card-details {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+                margin-bottom: 1rem;
+            }
+            
+            .propiedad-card-detail {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
+            .propiedad-card-detail-label {
+                font-size: 0.75rem;
+                color: #6b7280;
+                font-weight: 500;
+            }
+            
+            .propiedad-card-detail-value {
+                font-size: 0.875rem;
+                color: #111827;
+                font-weight: 500;
+            }
+            
+            .propiedad-card-estado {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.25rem 0.75rem;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+            }
+            
+            .propiedad-card-estado.disponible {
+                background: #dcfce7;
+                color: #166534;
+            }
+            
+            .propiedad-card-estado.vendida {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+            
+            .propiedad-card-estado.reservada {
+                background: #fef3c7;
+                color: #92400e;
+            }
+            
+            .propiedad-card-actions {
+                display: flex;
+                gap: 0.75rem;
+                padding-top: 1rem;
+                border-top: 1px solid #e5e7eb;
+            }
+            
+            .propiedad-card-actions button,
+            .propiedad-card-actions a {
+                flex: 1;
+                padding: 0.75rem;
+                border-radius: 8px;
+                font-size: 0.875rem;
+                font-weight: 500;
+                text-align: center;
+                text-decoration: none;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            
+            .propiedad-card-actions .btn-ver {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+            
+            .propiedad-card-actions .btn-editar {
+                background: #fef3c7;
+                color: #92400e;
+            }
+            
+            .propiedad-card-actions .btn-eliminar {
+                background: #fee2e2;
+                color: #991b1b;
+            }
+        }
+        
+        /* Estado vacío responsivo */
+        @media (max-width: 768px) {
+            .propiedades-empty {
+                padding: 2rem 1rem;
+                text-align: center;
+            }
+            
+            .propiedades-empty i {
+                width: 3rem;
+                height: 3rem;
+                margin-bottom: 1rem;
+            }
+            
+            .propiedades-empty h3 {
+                font-size: 1.125rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .propiedades-empty p {
+                font-size: 0.875rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .propiedades-empty button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                min-height: 44px;
+            }
+        }
+        
+        /* Tablet (768px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .propiedades-container {
+                padding: 1rem;
+            }
+            
+            .propiedades-header-buttons {
+                flex-direction: row;
+                gap: 1rem;
+            }
+            
+            .propiedades-header-buttons button {
+                width: auto;
+                padding: 0.75rem 1.5rem;
+            }
+            
+            .propiedades-tabla-desktop {
+                display: table;
+            }
+            
+            .propiedades-cards-mobile {
+                display: none;
+            }
+            
+            /* Tabla optimizada para tablet */
+            .propiedades-tabla-desktop th,
+            .propiedades-tabla-desktop td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.875rem;
+            }
+            
+            .propiedades-tabla-desktop th:first-child,
+            .propiedades-tabla-desktop td:first-child {
+                width: 60px;
+            }
+            
+            .propiedades-tabla-desktop th:nth-child(2),
+            .propiedades-tabla-desktop td:nth-child(2) {
+                min-width: 150px;
+            }
+        }
+        
+        /* Desktop (1025px+) */
+        @media (min-width: 1025px) {
+            .propiedades-container {
+                padding: 1.5rem;
+            }
+            
+            .propiedades-header-buttons {
+                flex-direction: row;
+                gap: 1rem;
+            }
+            
+            .propiedades-header-buttons button {
+                width: auto;
+                padding: 0.75rem 1.5rem;
+            }
+            
+            .propiedades-tabla-desktop {
+                display: table;
+            }
+            
+            .propiedades-cards-mobile {
+                display: none;
+            }
+        }
+        
+        /* Mejoras de accesibilidad y usabilidad para propiedades */
+        @media (max-width: 768px) {
+            /* Asegurar que los inputs sean fáciles de usar en móvil */
+            .propiedades-search input {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                font-size: 16px; /* Previene zoom en iOS */
+            }
+            
+            /* Mejorar el contraste en pantallas pequeñas */
+            .propiedad-card-detail-label {
+                color: #374151;
+                font-weight: 600;
+            }
+            
+            /* Asegurar que los botones sean fáciles de tocar */
+            .propiedades-header-buttons button,
+            .propiedad-card-actions button,
+            .propiedad-card-actions a {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            
+            /* Mejorar el espaciado entre elementos táctiles */
+            .propiedades-header-buttons,
+            .propiedad-card-actions {
+                gap: 0.75rem;
+            }
+        }
+        
+        /* Optimizaciones para pantallas de alta densidad */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .propiedad-card-imagen {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+        
+        /* Mejoras para dispositivos con orientación landscape */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .propiedades-container {
+                padding: 0.5rem;
+            }
+            
+            .propiedades-header {
+                margin-bottom: 0.75rem;
+            }
+            
+            .propiedades-tabla {
+                padding: 0.75rem;
+            }
+            
+            .propiedad-card {
+                margin-bottom: 0.75rem;
+            }
+            
+            .propiedad-card-header {
+                padding: 0.75rem;
+            }
+            
+            .propiedad-card-body {
+                padding: 0.75rem;
+            }
+        }
+
+        /* ===== RESPONSIVE DESIGN PARA MODAL DE NUEVA PROPIEDAD ===== */
+        
+        /* Configuración global para el modal de nueva propiedad */
+        @media (max-width: 768px) {
+            .modal-propiedad-container {
+                padding: 0.5rem;
+            }
+            
+            .modal-propiedad-content {
+                max-width: 95vw;
+                max-height: 95vh;
+                margin: 0.5rem;
+            }
+            
+            /* Header del modal responsivo */
+            .modal-propiedad-header {
+                padding: 1rem;
+            }
+            
+            .modal-propiedad-header h2 {
+                font-size: 1.25rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .modal-propiedad-header p {
+                font-size: 0.875rem;
+            }
+            
+            .modal-propiedad-header button {
+                width: 2rem;
+                height: 2rem;
+            }
+        }
+        
+        /* Formulario de nueva propiedad responsivo */
+        @media (max-width: 768px) {
+            .modal-propiedad-form {
+                padding: 1rem;
+            }
+            
+            .modal-propiedad-section {
+                margin-bottom: 1.5rem;
+            }
+            
+            .modal-propiedad-section h3 {
+                font-size: 1.125rem;
+                margin-bottom: 1rem;
+            }
+            
+            /* Grid de campos en móvil */
+            .modal-propiedad-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .modal-propiedad-grid-2 {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .modal-propiedad-grid-3 {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .modal-propiedad-field {
+                width: 100%;
+            }
+            
+            .modal-propiedad-field label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+                display: block;
+            }
+            
+            .modal-propiedad-field input,
+            .modal-propiedad-field select,
+            .modal-propiedad-field textarea {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 16px; /* Previene zoom en iOS */
+                border-radius: 8px;
+            }
+            
+            /* Campos con iconos */
+            .modal-propiedad-field .relative {
+                position: relative;
+            }
+            
+            .modal-propiedad-field .relative input {
+                padding-left: 2.5rem;
+            }
+            
+            .modal-propiedad-field .relative .absolute {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                left: 0.75rem;
+                color: #6b7280;
+                font-size: 0.875rem;
+            }
+            
+            .modal-propiedad-field .relative .absolute.right-0 {
+                left: auto;
+                right: 0.75rem;
+            }
+            
+            /* Botones de acción */
+            .modal-propiedad-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-top: 1.5rem;
+            }
+            
+            .modal-propiedad-actions button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                border-radius: 8px;
+                min-height: 44px; /* Tamaño mínimo para touch */
+            }
+        }
+        
+        /* Sección de imágenes responsiva */
+        @media (max-width: 768px) {
+            .modal-propiedad-imagenes {
+                margin-bottom: 1.5rem;
+            }
+            
+            .modal-propiedad-imagenes h3 {
+                font-size: 1.125rem;
+                margin-bottom: 1rem;
+            }
+            
+            .modal-propiedad-imagen-field {
+                margin-bottom: 1rem;
+            }
+            
+            .modal-propiedad-imagen-field label {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .modal-propiedad-imagen-field input[type="file"] {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 16px;
+                border-radius: 8px;
+            }
+            
+            /* Área de upload */
+            .modal-propiedad-upload-area {
+                padding: 1.5rem;
+                text-align: center;
+                border-radius: 12px;
+            }
+            
+            .modal-propiedad-upload-area i {
+                width: 3rem;
+                height: 3rem;
+                margin-bottom: 1rem;
+            }
+            
+            .modal-propiedad-upload-area h6 {
+                font-size: 0.875rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .modal-propiedad-upload-area p {
+                font-size: 0.75rem;
+                margin-bottom: 1rem;
+            }
+            
+            .modal-propiedad-upload-area button {
+                width: 100%;
+                padding: 0.875rem;
+                font-size: 0.875rem;
+                min-height: 44px;
+            }
+            
+            /* Grid de preview de fotos */
+            .modal-propiedad-fotos-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+                margin-top: 1rem;
+            }
+            
+            .modal-propiedad-foto-preview {
+                position: relative;
+                border-radius: 8px;
+                overflow: hidden;
+                aspect-ratio: 1;
+            }
+            
+            .modal-propiedad-foto-preview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .modal-propiedad-foto-remove {
+                position: absolute;
+                top: 0.25rem;
+                right: 0.25rem;
+                background: rgba(239, 68, 68, 0.9);
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 1.5rem;
+                height: 1.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                cursor: pointer;
+            }
+            
+            /* Info box */
+            .modal-propiedad-info-box {
+                padding: 1rem;
+                margin-top: 1rem;
+                border-radius: 8px;
+            }
+            
+            .modal-propiedad-info-box i {
+                width: 1.25rem;
+                height: 1.25rem;
+                margin-right: 0.75rem;
+            }
+            
+            .modal-propiedad-info-box p {
+                font-size: 0.875rem;
+                line-height: 1.5;
+            }
+        }
+        
+        /* Sección de amenidades responsiva */
+        @media (max-width: 768px) {
+            .modal-propiedad-amenidades {
+                margin-bottom: 1.5rem;
+            }
+            
+            .modal-propiedad-amenidades label {
+                font-size: 1rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .modal-propiedad-amenidades p {
+                font-size: 0.875rem;
+                margin-bottom: 1rem;
+            }
+            
+            .modal-propiedad-amenidades-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .modal-propiedad-amenidad-item {
+                padding: 1rem;
+                border-radius: 8px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .modal-propiedad-amenidad-item input[type="checkbox"] {
+                width: 1.25rem;
+                height: 1.25rem;
+                margin-right: 0.75rem;
+            }
+            
+            .modal-propiedad-amenidad-item label {
+                font-size: 0.875rem;
+                margin-bottom: 0;
+                flex: 1;
+            }
+            
+            .modal-propiedad-amenidad-item i {
+                margin-right: 0.5rem;
+                font-size: 1rem;
+            }
+        }
+        
+        /* Tablet (768px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .modal-propiedad-container {
+                padding: 1rem;
+            }
+            
+            .modal-propiedad-content {
+                max-width: 90vw;
+                margin: 1rem;
+            }
+            
+            .modal-propiedad-grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            .modal-propiedad-grid-3 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            .modal-propiedad-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+            
+            .modal-propiedad-amenidades-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .modal-propiedad-fotos-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+            }
+        }
+        
+        /* Desktop (1025px+) */
+        @media (min-width: 1025px) {
+            .modal-propiedad-container {
+                padding: 1.5rem;
+            }
+            
+            .modal-propiedad-content {
+                max-width: 6xl;
+                margin: 1.5rem;
+            }
+            
+            .modal-propiedad-grid-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+            
+            .modal-propiedad-grid-3 {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 2rem;
+            }
+            
+            .modal-propiedad-actions {
+                flex-direction: row;
+                gap: 1rem;
+            }
+            
+            .modal-propiedad-amenidades-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .modal-propiedad-fotos-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+            }
+        }
+        
+        /* Mejoras de accesibilidad y usabilidad para el modal de propiedad */
+        @media (max-width: 768px) {
+            /* Asegurar que los inputs sean fáciles de usar en móvil */
+            .modal-propiedad-field input,
+            .modal-propiedad-field select,
+            .modal-propiedad-field textarea {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                font-size: 16px; /* Previene zoom en iOS */
+            }
+            
+            /* Mejorar el contraste en pantallas pequeñas */
+            .modal-propiedad-field label {
+                color: #374151;
+                font-weight: 600;
+            }
+            
+            /* Asegurar que los botones sean fáciles de tocar */
+            .modal-propiedad-actions button,
+            .modal-propiedad-upload-area button,
+            .modal-propiedad-foto-remove {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            
+            /* Mejorar el espaciado entre elementos táctiles */
+            .modal-propiedad-actions,
+            .modal-propiedad-amenidades-grid {
+                gap: 0.75rem;
+            }
+            
+            /* Checkboxes más grandes para touch */
+            .modal-propiedad-amenidad-item input[type="checkbox"] {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                width: 1.5rem;
+                height: 1.5rem;
+                border: 2px solid #d1d5db;
+                border-radius: 4px;
+                background: white;
+                position: relative;
+                cursor: pointer;
+            }
+            
+            .modal-propiedad-amenidad-item input[type="checkbox"]:checked {
+                background: #3b82f6;
+                border-color: #3b82f6;
+            }
+            
+            .modal-propiedad-amenidad-item input[type="checkbox"]:checked::after {
+                content: '✓';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: white;
+                font-size: 0.875rem;
+                font-weight: bold;
+            }
+        }
+        
+        /* Optimizaciones para pantallas de alta densidad */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .modal-propiedad-foto-preview img {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+        
+        /* Mejoras para dispositivos con orientación landscape */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .modal-propiedad-container {
+                padding: 0.5rem;
+            }
+            
+            .modal-propiedad-content {
+                max-height: 90vh;
+            }
+            
+            .modal-propiedad-header {
+                padding: 0.75rem;
+            }
+            
+            .modal-propiedad-form {
+                padding: 0.75rem;
+            }
+            
+            .modal-propiedad-section {
+                margin-bottom: 1rem;
+            }
+            
+            .modal-propiedad-upload-area {
+                padding: 1rem;
+            }
+        }
+
+        /* ===== MODAL DE INFORMACIÓN 2FA ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 500px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-title i {
+            margin-right: 0.75rem;
+            font-size: 1.75rem;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .modal-text {
+            color: #374151;
+            line-height: 1.7;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-features {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .modal-features h4 {
+            color: #1f2937;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .modal-features h4 i {
+            color: #667eea;
+            margin-right: 0.5rem;
+        }
+        
+        .modal-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .modal-features li {
+            padding: 0.5rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+            color: #4b5563;
+        }
+        
+        .modal-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #22c55e;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .modal-btn i {
+            margin-right: 0.5rem;
+        }
+        
+        /* Responsive para el modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95vw;
+                margin: 1rem;
+            }
+            
+            .modal-header {
+                padding: 1.5rem;
+            }
+            
+            .modal-title {
+                font-size: 1.25rem;
+            }
+            
+            .modal-body {
+                padding: 1.5rem;
+            }
+            
+            .modal-footer {
+                padding: 1rem 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .modal-header {
+                padding: 1rem;
+            }
+            
+            .modal-title {
+                font-size: 1.1rem;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+            
+            .modal-features {
+                padding: 1rem;
+            }
+        }
     </style>
     
     <!-- Optimized initialization script -->
@@ -952,9 +3067,9 @@
                 </div>
                 
                 <!-- Contenido de Gestión de Propiedades (oculto por defecto) -->
-                <div id="gestion-propiedades-content" class="hidden">
+                <div id="gestion-propiedades-content" class="hidden propiedades-container">
                     <!-- Header de Gestión -->
-                    <div class="mb-6">
+                    <div class="mb-6 propiedades-header">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900 mb-2">
@@ -962,7 +3077,7 @@
                                 </h1>
                                 <p class="text-gray-600">Administra todas las propiedades del catálogo</p>
                             </div>
-                            <div class="mt-4 sm:mt-0 flex gap-2">
+                            <div class="mt-4 sm:mt-0 flex gap-2 propiedades-header-buttons">
                                 <button id="btn-volver-inicio-gestion" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
                                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
                                     Volver al Inicio
@@ -976,8 +3091,8 @@
                     </div>
 
                     <!-- Tabla de Propiedades -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                        <div class="p-6 border-b border-gray-200">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 propiedades-tabla">
+                        <div class="p-6 border-b border-gray-200 propiedades-tabla-header">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900 flex items-center">
@@ -985,7 +3100,7 @@
                                         Lista de Propiedades (<span id="propiedades-count">{{ total_propiedades|default:"0" }}</span>)
                                     </h3>
                                 </div>
-                                <div class="mt-4 sm:mt-0">
+                                <div class="mt-4 sm:mt-0 propiedades-search">
                                     <div class="relative">
                                         <input type="text" id="searchInput" placeholder="Buscar propiedades..." 
                                                class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -996,7 +3111,7 @@
                         </div>
                         
                         <div class="overflow-x-auto">
-                            <table class="w-full" id="propertiesTable">
+                            <table class="w-full propiedades-tabla-desktop" id="propertiesTable">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imagen</th>
@@ -1077,7 +3192,7 @@
                                     </tr>
                                     {% empty %}
                                     <tr>
-                                        <td colspan="8" class="px-6 py-12 text-center">
+                                        <td colspan="8" class="px-6 py-12 text-center propiedades-empty">
                                             <div class="text-gray-500">
                                                 <i data-lucide="home" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
                                                 <h3 class="text-lg font-medium text-gray-900 mb-2">No hay propiedades registradas</h3>
@@ -1093,13 +3208,18 @@
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <!-- Cards móviles (ocultas por defecto, se muestran en móvil) -->
+                        <div class="propiedades-cards-mobile" id="propertiesCardsMobile" style="display: none;">
+                            <!-- Las cards se generarán dinámicamente aquí -->
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Contenido de Configuraciones (oculto por defecto) -->
-                <div id="configuraciones-content" class="hidden">
+                <div id="configuraciones-content" class="hidden configuraciones-container">
                     <!-- Header de Configuraciones -->
-                    <div class="mb-6">
+                    <div class="mb-6 config-header">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <h1 class="text-2xl font-bold text-gray-900 mb-2">
@@ -1125,7 +3245,7 @@
                             </h3>
                         </div>
                         
-                        <div class="p-6">
+                        <div class="p-6 profile-form">
                             <!-- DEBUG: Datos del usuario -->
                             <!-- Nombre: {{ user.admincredentials.nombre|default:"No definido" }} -->
                             <!-- Apellido: {{ user.admincredentials.apellido|default:"No definido" }} -->
@@ -1136,16 +3256,16 @@
                                 {% csrf_token %}
                                 
                                 <!-- Foto de Perfil -->
-                                <div class="mb-8">
+                                <div class="mb-8 form-section profile-photo-section">
                                     <label class="block text-sm font-semibold text-gray-700 mb-4">
                                         <i data-lucide="camera" class="w-4 h-4 mr-2 text-blue-600"></i>
                                         Foto de Perfil
                                     </label>
                                     
-                                    <div class="flex items-center space-x-6">
+                                    <div class="flex items-center space-x-6 profile-photo-container">
                                         <!-- Preview de la foto actual -->
                                         <div class="relative">
-                                            <div id="foto-perfil-preview" class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
+                                            <div id="foto-perfil-preview" class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden profile-photo-preview">
                                                 {% if user.admincredentials.foto_perfil %}
                                                     <img src="{{ user.admincredentials.foto_perfil.url }}" alt="Foto de perfil" class="w-full h-full object-cover">
                                                 {% else %}
@@ -1157,7 +3277,7 @@
                                             </button>
                                         </div>
                                         
-                                        <div class="flex-1">
+                                        <div class="flex-1 profile-photo-info">
                                             <input type="file" id="foto-perfil-input" name="foto_perfil" accept="image/*" class="hidden">
                                             <div class="text-sm text-gray-600">
                                                 <p class="font-medium">Cambiar foto de perfil</p>
@@ -1168,8 +3288,8 @@
                                 </div>
 
                                 <!-- Información Personal -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    <div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 form-grid">
+                                    <div class="form-field">
                                         <label for="nombre" class="block text-sm font-semibold text-gray-700 mb-2">
                                             Nombre
                                         </label>
@@ -1178,7 +3298,7 @@
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                     
-                                    <div>
+                                    <div class="form-field">
                                         <label for="apellido" class="block text-sm font-semibold text-gray-700 mb-2">
                                             Apellido
                                         </label>
@@ -1189,7 +3309,7 @@
                                 </div>
 
                                 <!-- Email (solo lectura) -->
-                                <div class="mb-6">
+                                <div class="mb-6 form-section">
                                     <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
                                         <i data-lucide="mail" class="w-4 h-4 mr-2 text-blue-600"></i>
                                         Correo Electrónico
@@ -1202,8 +3322,8 @@
                                 </div>
 
                                 <!-- Información Adicional -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    <div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 form-grid">
+                                    <div class="form-field">
                                         <label for="telefono" class="block text-sm font-semibold text-gray-700 mb-2">
                                             <i data-lucide="phone" class="w-4 h-4 mr-2 text-blue-600"></i>
                                             Teléfono
@@ -1213,7 +3333,7 @@
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     </div>
                                     
-                                    <div>
+                                    <div class="form-field">
                                         <label for="fecha_nacimiento" class="block text-sm font-semibold text-gray-700 mb-2">
                                             <i data-lucide="calendar" class="w-4 h-4 mr-2 text-blue-600"></i>
                                             Fecha de Nacimiento
@@ -1225,7 +3345,7 @@
                                 </div>
 
                                 <!-- Botones de Acción -->
-                                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                <div class="flex flex-col sm:flex-row gap-4 justify-end form-actions">
                                     <button type="button" id="cancelar-config" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
                                         <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                                         Cancelar
@@ -1253,17 +3373,17 @@
                             </h3>
                         </div>
                         
-                        <div class="p-6">
+                        <div class="p-6 twofa-section">
                             {% if user.admincredentials.two_factor_enabled %}
                                 <!-- Estado: 2FA Habilitado -->
-                                <div class="flex items-start space-x-4">
+                                <div class="flex items-start space-x-4 twofa-content">
                                     <div class="flex-shrink-0">
-                                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center twofa-icon">
                                             <i data-lucide="shield-check" class="w-6 h-6 text-green-600"></i>
                                         </div>
                                     </div>
                                     
-                                    <div class="flex-1">
+                                    <div class="flex-1 twofa-info">
                                         <h4 class="text-lg font-semibold text-gray-900 mb-2">
                                             ✅ 2FA Habilitado
                                         </h4>
@@ -1272,7 +3392,7 @@
                                             Cada vez que inicies sesión necesitarás tu contraseña y un código de Google Authenticator.
                                         </p>
                                         
-                                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 twofa-status-card">
                                             <div class="flex items-start">
                                                 <i data-lucide="check-circle" class="w-5 h-5 text-green-600 mr-3 mt-0.5"></i>
                                                 <div>
@@ -1286,7 +3406,7 @@
                                             </div>
                                         </div>
                                         
-                                        <div class="flex flex-col sm:flex-row gap-3">
+                                        <div class="flex flex-col sm:flex-row gap-3 twofa-actions">
                                             <button type="button" id="btn-desactivar-2fa" 
                                                     class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center">
                                                 <i data-lucide="shield-x" class="w-4 h-4 mr-2"></i>
@@ -1303,14 +3423,14 @@
                                 </div>
                             {% else %}
                                 <!-- Estado: 2FA No Habilitado -->
-                                <div class="flex items-start space-x-4">
+                                <div class="flex items-start space-x-4 twofa-content">
                                     <div class="flex-shrink-0">
-                                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center twofa-icon">
                                             <i data-lucide="shield" class="w-6 h-6 text-orange-600"></i>
                                         </div>
                                     </div>
                                     
-                                    <div class="flex-1">
+                                    <div class="flex-1 twofa-info">
                                         <h4 class="text-lg font-semibold text-gray-900 mb-2">
                                             Protege tu cuenta con 2FA
                                         </h4>
@@ -1319,7 +3439,7 @@
                                             Necesitarás tu contraseña y un código generado por tu dispositivo móvil para iniciar sesión.
                                         </p>
                                         
-                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 twofa-status-card">
                                             <div class="flex items-start">
                                                 <i data-lucide="info" class="w-5 h-5 text-blue-600 mr-3 mt-0.5"></i>
                                                 <div>
@@ -1333,7 +3453,7 @@
                                             </div>
                                         </div>
                                         
-                                        <div class="flex flex-col sm:flex-row gap-3">
+                                        <div class="flex flex-col sm:flex-row gap-3 twofa-actions">
                                             <button type="button" id="btn-configurar-2fa" 
                                                     class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center">
                                                 <i data-lucide="shield-check" class="w-4 h-4 mr-2"></i>
@@ -1355,9 +3475,9 @@
                 </div>
                 
                 <!-- Contenido de Gestión de Reseñas (oculto por defecto) -->
-                <div id="gestion-resenas-content" class="hidden">
+                <div id="gestion-resenas-content" class="hidden resenas-container">
                     <!-- Header de Gestión de Reseñas -->
-                    <div class="mb-4 sm:mb-6">
+                    <div class="mb-4 sm:mb-6 resenas-header">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                             <div class="mb-3 sm:mb-0">
                                 <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
@@ -1377,15 +3497,15 @@
 
                     <!-- Filtros de Reseñas -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6">
-                        <div class="p-4 sm:p-6 border-b border-gray-200">
+                        <div class="p-4 sm:p-6 border-b border-gray-200 filtros-header">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <h3 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center mb-3 sm:mb-0">
                                     <i data-lucide="filter" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600"></i>
                                     Filtros
                                 </h3>
                                 
-                                <!-- Estadísticas pequeñas -->
-                                <div class="flex items-center space-x-4 sm:space-x-6">
+                                <!-- Estadísticas pequeñas (desktop/tablet) -->
+                                <div class="hidden sm:flex items-center space-x-4 sm:space-x-6">
                                     <!-- En Espera -->
                                     <div class="flex items-center">
                                         <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center mr-1.5">
@@ -1420,10 +3540,35 @@
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- Estadísticas móviles -->
+                            <div class="sm:hidden estadisticas-mobile">
+                                <div class="estadistica-item">
+                                    <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center icono">
+                                        <i data-lucide="clock" class="w-3 h-3 text-yellow-600"></i>
+                                    </div>
+                                    <div class="numero" id="resenasEsperaMobile">{{ resenas_espera|default:"0" }}</div>
+                                    <div class="label">Espera</div>
+                                </div>
+                                <div class="estadistica-item">
+                                    <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center icono">
+                                        <i data-lucide="check-circle" class="w-3 h-3 text-green-600"></i>
+                                    </div>
+                                    <div class="numero" id="resenasAceptadasMobile">{{ resenas_aceptadas|default:"0" }}</div>
+                                    <div class="label">Aceptadas</div>
+                                </div>
+                                <div class="estadistica-item">
+                                    <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center icono">
+                                        <i data-lucide="x-circle" class="w-3 h-3 text-red-600"></i>
+                                    </div>
+                                    <div class="numero" id="resenasRechazadasMobile">{{ resenas_rechazadas|default:"0" }}</div>
+                                    <div class="label">Rechazadas</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="p-4 sm:p-6">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                                <div>
+                        <div class="p-4 sm:p-6 filtros-section">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 filtros-grid">
+                                <div class="filtro-field">
                                     <label for="filtro-estado" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">Estado</label>
                                     <select id="filtro-estado" class="w-full px-3 py-2 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base">
                                         <option value="todos">Todos los estados</option>
@@ -1432,7 +3577,7 @@
                                         <option value="rechazada">Rechazadas</option>
                                     </select>
                                 </div>
-                                <div>
+                                <div class="filtro-field">
                                     <label for="filtro-propiedad" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">Propiedad</label>
                                     <select id="filtro-propiedad" class="w-full px-3 py-2 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base">
                                         <option value="todas">Todas las propiedades</option>
@@ -1441,7 +3586,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div class="sm:col-span-2 lg:col-span-1">
+                                <div class="filtro-field sm:col-span-2 lg:col-span-1">
                                     <label for="filtro-calificacion" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-1 sm:mb-2">Calificación</label>
                                     <select id="filtro-calificacion" class="w-full px-3 py-2 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base">
                                         <option value="todas">Todas las calificaciones</option>
@@ -1456,7 +3601,7 @@
                             
                             <!-- Botón para limpiar filtros -->
                             <div class="mt-4 flex justify-end">
-                                <button id="btn-limpiar-filtros" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm">
+                                <button id="btn-limpiar-filtros" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors text-sm btn-limpiar-filtros">
                                     <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                                     Limpiar Filtros
                                 </button>
@@ -1465,8 +3610,8 @@
                     </div>
 
                     <!-- Lista de Reseñas -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                        <div class="p-4 sm:p-6 border-b border-gray-200">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 lista-resenas">
+                        <div class="p-4 sm:p-6 border-b border-gray-200 lista-resenas-header">
                             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                 <div class="mb-3 sm:mb-0">
                                     <h3 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center">
@@ -1483,8 +3628,8 @@
                             </div>
                         </div>
                         
-                        <div id="resenas-list" class="p-4 sm:p-6">
-                            <div class="text-center py-6 sm:py-8 text-gray-500">
+                        <div id="resenas-list" class="p-4 sm:p-6 resenas-content">
+                            <div class="text-center py-6 sm:py-8 text-gray-500 loading-state">
                                 <i data-lucide="star" class="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300"></i>
                                 <p class="text-sm sm:text-base">Cargando reseñas...</p>
                             </div>
@@ -1500,10 +3645,10 @@
     <div id="modal-nueva-propiedad" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
         <!-- Font Awesome para el modal -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+        <div class="flex items-center justify-center min-h-screen p-4 modal-propiedad-container">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden modal-propiedad-content">
                 <!-- Header del Modal -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-blue-600 text-white">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-blue-600 text-white modal-propiedad-header">
                     <div>
                         <h2 class="text-xl font-bold">Crear Nueva Propiedad</h2>
                         <p class="text-blue-100">Agrega una nueva propiedad al catálogo inmobiliario</p>
@@ -1515,7 +3660,7 @@
         
                 <!-- Contenido del Modal -->
                 <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
-                    <div class="p-6">
+                    <div class="p-6 modal-propiedad-form">
                         <!-- Messages -->
                         <div id="modal-messages" class="hidden"></div>
 
@@ -1523,8 +3668,8 @@
                             {% csrf_token %}
                             
                             <!-- Título y Descripción -->
-                            <div class="grid grid-cols-1 gap-6 mb-6">
-                                <div>
+                            <div class="grid grid-cols-1 gap-6 mb-6 modal-propiedad-grid">
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.titulo.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.titulo.label }}
                                     </label>
@@ -1536,9 +3681,9 @@
                                             {% endfor %}
                                         </div>
                                     {% endif %}
-    </div>
+                                </div>
 
-                                <div>
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.descripcion.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.descripcion.label }}
                                     </label>
@@ -1554,8 +3699,8 @@
                             </div>
 
                             <!-- Precio, Tipo y Operación -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                                <div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 modal-propiedad-grid-3">
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.precio.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.precio.label }}
                                     </label>
@@ -1574,7 +3719,7 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div>
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.tipo.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.tipo.label }}
                                     </label>
@@ -1588,7 +3733,7 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div>
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.operacion.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.operacion.label }}
                                     </label>
@@ -1604,8 +3749,8 @@
                             </div>
 
                             <!-- Estado y Ubicación -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                <div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 modal-propiedad-grid-2">
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.estado.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.estado.label }}
                                     </label>
@@ -1619,7 +3764,7 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div>
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.ubicacion.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.ubicacion.label }}
                                     </label>
@@ -1635,8 +3780,8 @@
                             </div>
 
                             <!-- Características -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                                <div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 modal-propiedad-grid-3">
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.metros_cuadrados.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.metros_cuadrados.label }}
                                     </label>
@@ -1655,7 +3800,7 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div>
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.habitaciones.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.habitaciones.label }}
                                     </label>
@@ -1669,7 +3814,7 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div>
+                                <div class="modal-propiedad-field">
                                     <label for="{{ form.banos.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.banos.label }}
                                     </label>
@@ -1685,14 +3830,14 @@
                             </div>
 
                             <!-- Imágenes -->
-                            <div class="mb-6">
+                            <div class="mb-6 modal-propiedad-imagenes">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                     <i data-lucide="image" class="w-5 h-5 mr-2 text-blue-600"></i>
                                     Imágenes de la Propiedad
                                 </h3>
                                 
                                 <!-- Imagen Principal -->
-                                <div class="mb-4">
+                                <div class="mb-4 modal-propiedad-imagen-field">
                                     <label for="{{ form.imagen_principal.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.imagen_principal.label }}
                                         <span class="text-red-500">*</span>
@@ -1708,7 +3853,7 @@
                                 </div>
                                 
                                 <!-- Imagen Secundaria -->
-                                <div class="mb-4">
+                                <div class="mb-4 modal-propiedad-imagen-field">
                                     <label for="{{ form.imagen_secundaria.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.imagen_secundaria.label }}
                                     </label>
@@ -1731,7 +3876,7 @@
                                         <i data-lucide="images" class="w-4 h-4 mr-2 text-blue-600"></i>
                                         Fotos Adicionales
                                     </label>
-                                    <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer" id="uploadArea">
+                                    <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer modal-propiedad-upload-area" id="uploadArea">
                                         <div class="upload-content">
                                             <i data-lucide="upload" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
                                             <h6 class="text-gray-600 mb-2">Arrastra y suelta fotos aquí o haz clic para seleccionar</h6>
@@ -1750,11 +3895,11 @@
                                             <i data-lucide="images" class="w-4 h-4 mr-2 text-blue-600"></i>
                                             Fotos seleccionadas:
                                         </h6>
-                                        <div id="fotos-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                                        <div id="fotos-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 modal-propiedad-fotos-grid"></div>
                                     </div>
                                 </div>
                                 
-                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 modal-propiedad-info-box">
                                     <div class="flex items-start">
                                         <i data-lucide="info" class="w-5 h-5 text-blue-600 mr-3 mt-0.5"></i>
                                         <div>
@@ -1767,16 +3912,16 @@
                             </div>
 
                             <!-- Amenidades -->
-                            <div class="mb-6">
+                            <div class="mb-6 modal-propiedad-amenidades">
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     <i data-lucide="check-circle" class="w-4 h-4 mr-2 text-blue-600"></i>
                                     Amenidades Incluidas
                                 </label>
                                 <p class="text-gray-600 text-sm mb-4">Selecciona las amenidades que incluye esta propiedad:</p>
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 modal-propiedad-amenidades-grid">
                                     {% for amenidad in amenidades %}
-                                    <div class="amenidad-checkbox bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-blue-50 hover:border-blue-300 transition-all cursor-pointer">
+                                    <div class="amenidad-checkbox bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-blue-50 hover:border-blue-300 transition-all cursor-pointer modal-propiedad-amenidad-item">
                                         <input type="checkbox" name="amenidades" value="{{ amenidad.id }}" id="id_amenidades_{{ forloop.counter0 }}" class="form-check-input">
                                         <label class="form-check-label cursor-pointer ml-3" for="id_amenidades_{{ forloop.counter0 }}">
                                             <i class="fas mr-2 text-blue-600" data-icon="{{ amenidad.icono }}"></i>
@@ -1796,7 +3941,7 @@
                             </div>
 
                             <!-- Submit Buttons -->
-                            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                            <div class="flex flex-col sm:flex-row gap-4 justify-end modal-propiedad-actions">
                                 <button type="button" id="cancelar-modal" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
                                     <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                                     Cancelar
@@ -1815,10 +3960,10 @@
 
     <!-- Modal Nuevo Usuario Administrativo -->
     <div id="modal-nuevo-usuario" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+        <div class="flex items-center justify-center min-h-screen p-4 modal-usuario-container">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden modal-usuario-content">
                 <!-- Header del Modal -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-green-600 text-white">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-green-600 text-white modal-usuario-header">
                     <div>
                         <h2 class="text-xl font-bold">Gestión de Usuarios Administrativos</h2>
                         <p class="text-green-100">Crea y administra usuarios del sistema</p>
@@ -1832,12 +3977,12 @@
                 <div class="overflow-y-auto max-h-[calc(90vh-120px)]">
                     <div class="p-6">
                         <!-- Tabs -->
-                        <div class="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
-                            <button id="tab-crear-usuario" class="flex-1 py-2 px-4 text-sm font-medium rounded-md bg-green-600 text-white transition-colors">
+                        <div class="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg modal-usuario-tabs">
+                            <button id="tab-crear-usuario" class="flex-1 py-2 px-4 text-sm font-medium rounded-md bg-green-600 text-white transition-colors modal-usuario-tab">
                                 <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
                                 Crear Usuario
                             </button>
-                            <button id="tab-gestionar-usuarios" class="flex-1 py-2 px-4 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-200 transition-colors">
+                            <button id="tab-gestionar-usuarios" class="flex-1 py-2 px-4 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-200 transition-colors modal-usuario-tab">
                                 <i data-lucide="users" class="w-4 h-4 mr-2"></i>
                                 Gestionar Usuarios
                             </button>
@@ -1845,7 +3990,7 @@
 
                         <!-- Tab: Crear Usuario -->
                           <!-- Tab: Crear Usuario -->
-                        <div id="content-crear-usuario">
+                        <div id="content-crear-usuario" class="modal-usuario-form">
                             <!-- Messages -->
                             <div id="modal-messages-usuario" class="hidden"></div>
 
@@ -1853,14 +3998,14 @@
                                 {% csrf_token %}
                                 
                                 <!-- Información Personal -->
-                                <div class="mb-6">
+                                <div class="mb-6 modal-usuario-section">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                         <i data-lucide="user" class="w-5 h-5 mr-2 text-green-600"></i>
                                         Información Personal
                                     </h3>
                                     
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 modal-usuario-grid">
+                                        <div class="modal-usuario-field">
                                             <label for="nombre_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
                                                 Nombre
                                             </label>
@@ -1869,7 +4014,7 @@
                                                    placeholder="Ingresa el nombre" required>
                                         </div>
                                         
-                                        <div>
+                                        <div class="modal-usuario-field">
                                             <label for="apellido_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
                                                 Apellido
                                             </label>
@@ -1879,8 +4024,8 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                                        <div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 modal-usuario-grid">
+                                        <div class="modal-usuario-field">
                                             <label for="telefono_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
                                                 Teléfono
                                             </label>
@@ -1889,7 +4034,7 @@
                                                    placeholder="+52-1-33-12345678">
                                         </div>
                                         
-                                        <div>
+                                        <div class="modal-usuario-field">
                                             <label for="fecha_nacimiento_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
                                                 Fecha de Nacimiento
                                             </label>
@@ -1898,18 +4043,18 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="mt-4">
+                                    <div class="mt-4 modal-usuario-foto">
                                         <label for="foto_perfil_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
                                             Foto de Perfil
                                         </label>
                                         
                                         <!-- Preview de la foto -->
                                         <div class="text-center mb-3">
-                                            <div id="foto-preview-usuario" class="hidden">
+                                            <div id="foto-preview-usuario" class="hidden modal-usuario-foto-preview">
                                                 <img id="foto-preview-img-usuario" src="" alt="Preview" class="rounded-full border-4 border-green-500 mx-auto" style="width: 120px; height: 120px; object-fit: cover;">
                                                 <p class="text-gray-600 text-sm mt-2">Vista previa de la foto de perfil</p>
                                             </div>
-                                            <div id="foto-placeholder-usuario" class="border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mx-auto" style="width: 120px; height: 120px;">
+                                            <div id="foto-placeholder-usuario" class="border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mx-auto modal-usuario-foto-placeholder" style="width: 120px; height: 120px;">
                                                 <i data-lucide="camera" class="w-8 h-8 text-gray-400"></i>
                                             </div>
                                         </div>
@@ -1920,14 +4065,14 @@
                                 </div>
                                 
                                 <!-- Información de Acceso -->
-                                <div class="mb-6">
+                                <div class="mb-6 modal-usuario-section">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                         <i data-lucide="lock" class="w-5 h-5 mr-2 text-green-600"></i>
                                         Información de Acceso
                                     </h3>
                                     
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 modal-usuario-grid">
+                                        <div class="modal-usuario-field">
                                             <label for="email_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
                                                 Correo Electrónico
                                             </label>
@@ -1936,7 +4081,7 @@
                                                    placeholder="usuario@email.com" required>
                                         </div>
                                         
-                                        <div>
+                                        <div class="modal-usuario-field">
                                             <label for="password_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
                                                 Contraseña
                                             </label>
@@ -1946,7 +4091,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="mt-4">
+                                    <div class="mt-4 modal-usuario-field">
                                         <label for="confirmar_password_usuario" class="block text-sm font-semibold text-gray-700 mb-2">
                                             Confirmar Contraseña
                                         </label>
@@ -1957,7 +4102,7 @@
                                 </div>
 
                                 <!-- Submit Buttons -->
-                                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                                <div class="flex flex-col sm:flex-row gap-4 justify-end modal-usuario-actions">
                                     <button type="button" id="cancelar-modal-usuario" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
                                         <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                                         Cancelar
@@ -1971,7 +4116,7 @@
                         </div>
 
                         <!-- Tab: Gestionar Usuarios -->
-                        <div id="content-gestionar-usuarios" class="hidden">
+                        <div id="content-gestionar-usuarios" class="hidden modal-usuario-gestion">
                             <div class="mb-4">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                     <i data-lucide="users" class="w-5 h-5 mr-2 text-blue-600"></i>
@@ -1982,7 +4127,7 @@
                                 <div id="usuarios-messages" class="hidden mb-4"></div>
                                 
                                 <!-- Botón para refrescar -->
-                                <div class="flex justify-between items-center mb-4">
+                                <div class="flex justify-between items-center mb-4 modal-usuario-gestion-header">
                                     <p class="text-sm text-gray-600">Gestiona los usuarios administrativos del sistema</p>
                                     <button id="btn-refrescar-usuarios" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
                                         <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
@@ -1992,7 +4137,7 @@
                             </div>
                             
                             <!-- Lista de usuarios -->
-                            <div id="usuarios-list" class="space-y-4">
+                            <div id="usuarios-list" class="space-y-4 modal-usuario-lista">
                                 <!-- Los usuarios se cargarán aquí dinámicamente -->
                                 <div class="text-center py-8 text-gray-500">
                                     <i data-lucide="users" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
@@ -2318,7 +4463,7 @@
                     // Actualizar el total en el dashboard
                     actualizarTotalResenas(data.estadisticas.total);
                     
-                    // Actualizar los contadores individuales en la vista de reseñas
+                    // Actualizar los contadores individuales en la vista de reseñas (desktop/tablet)
                     const esperaElement = document.getElementById('resenasEspera');
                     const aceptadasElement = document.getElementById('resenasAceptadas');
                     const rechazadasElement = document.getElementById('resenasRechazadas');
@@ -2326,6 +4471,15 @@
                     if (esperaElement) esperaElement.textContent = data.estadisticas.en_espera || 0;
                     if (aceptadasElement) aceptadasElement.textContent = data.estadisticas.aceptadas || 0;
                     if (rechazadasElement) rechazadasElement.textContent = data.estadisticas.rechazadas || 0;
+                    
+                    // Actualizar los contadores móviles
+                    const esperaElementMobile = document.getElementById('resenasEsperaMobile');
+                    const aceptadasElementMobile = document.getElementById('resenasAceptadasMobile');
+                    const rechazadasElementMobile = document.getElementById('resenasRechazadasMobile');
+                    
+                    if (esperaElementMobile) esperaElementMobile.textContent = data.estadisticas.en_espera || 0;
+                    if (aceptadasElementMobile) aceptadasElementMobile.textContent = data.estadisticas.aceptadas || 0;
+                    if (rechazadasElementMobile) rechazadasElementMobile.textContent = data.estadisticas.rechazadas || 0;
                     
                     console.log('Estadísticas de reseñas cargadas:', data.estadisticas);
                 }
@@ -4134,7 +6288,133 @@
             }
         }
 
-        // Función para búsqueda
+        // Función para generar cards móviles
+        function generateMobileCards() {
+            const table = document.getElementById('propertiesTable');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = tbody.getElementsByTagName('tr');
+            const cardsContainer = document.getElementById('propertiesCardsMobile');
+            
+            if (!cardsContainer) return;
+            
+            cardsContainer.innerHTML = '';
+            
+            for (let row of rows) {
+                if (row.style.display === 'none') continue;
+                
+                const propiedadId = row.getAttribute('data-propiedad-id');
+                if (!propiedadId) continue;
+                
+                // Extraer datos de la fila
+                const imagenCell = row.querySelector('td:nth-child(1)');
+                const tituloCell = row.querySelector('td:nth-child(2)');
+                const tipoCell = row.querySelector('td:nth-child(3)');
+                const precioCell = row.querySelector('td:nth-child(4)');
+                const estadoCell = row.querySelector('td:nth-child(5)');
+                const ubicacionCell = row.querySelector('td:nth-child(6)');
+                const fechaCell = row.querySelector('td:nth-child(7)');
+                const accionesCell = row.querySelector('td:nth-child(8)');
+                
+                // Extraer información
+                const imagen = imagenCell.querySelector('img');
+                const titulo = tituloCell.querySelector('.text-sm.font-medium').textContent;
+                const metros = tituloCell.querySelector('.text-sm.text-gray-500').textContent;
+                const precio = precioCell.textContent;
+                const estado = estadoCell.querySelector('span').textContent;
+                const estadoClass = estadoCell.querySelector('span').classList.contains('bg-green-100') ? 'disponible' : 
+                                  estadoCell.querySelector('span').classList.contains('bg-red-100') ? 'vendida' : 'reservada';
+                const ubicacion = ubicacionCell.textContent;
+                const fecha = fechaCell.textContent;
+                
+                // Extraer enlaces de acciones
+                const verLink = accionesCell.querySelector('a[href*="detalle"]');
+                const editarLink = accionesCell.querySelector('a[href*="editar"]');
+                const eliminarBtn = accionesCell.querySelector('button[onclick*="confirmarEliminar"]');
+                
+                // Crear card
+                const card = document.createElement('div');
+                card.className = 'propiedad-card';
+                card.setAttribute('data-propiedad-id', propiedadId);
+                
+                card.innerHTML = `
+                    <div class="propiedad-card-header">
+                        ${imagen ? 
+                            `<img src="${imagen.src}" alt="${titulo}" class="propiedad-card-imagen">` :
+                            `<div class="propiedad-card-imagen-placeholder">
+                                <i data-lucide="home" class="w-6 h-6 text-gray-400"></i>
+                            </div>`
+                        }
+                        <div class="propiedad-card-info">
+                            <div class="propiedad-card-titulo">${titulo}</div>
+                            <div class="propiedad-card-metros">${metros}</div>
+                            <div class="propiedad-card-precio">${precio}</div>
+                        </div>
+                    </div>
+                    <div class="propiedad-card-body">
+                        <div class="propiedad-card-details">
+                            <div class="propiedad-card-detail">
+                                <div class="propiedad-card-detail-label">Tipo</div>
+                                <div class="propiedad-card-detail-value">${tipoCell.textContent}</div>
+                            </div>
+                            <div class="propiedad-card-detail">
+                                <div class="propiedad-card-detail-label">Estado</div>
+                                <div class="propiedad-card-detail-value">
+                                    <span class="propiedad-card-estado ${estadoClass}">${estado}</span>
+                                </div>
+                            </div>
+                            <div class="propiedad-card-detail">
+                                <div class="propiedad-card-detail-label">Ubicación</div>
+                                <div class="propiedad-card-detail-value">${ubicacion}</div>
+                            </div>
+                            <div class="propiedad-card-detail">
+                                <div class="propiedad-card-detail-label">Fecha</div>
+                                <div class="propiedad-card-detail-value">${fecha}</div>
+                            </div>
+                        </div>
+                        <div class="propiedad-card-actions">
+                            ${verLink ? `<a href="${verLink.href}" class="btn-ver">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                Ver
+                            </a>` : ''}
+                            ${editarLink ? `<a href="${editarLink.href}" class="btn-editar">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                                Editar
+                            </a>` : ''}
+                            ${eliminarBtn ? `<button type="button" class="btn-eliminar" onclick="${eliminarBtn.getAttribute('onclick')}">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                Eliminar
+                            </button>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                cardsContainer.appendChild(card);
+            }
+            
+            // Recrear iconos de Lucide
+            lucide.createIcons();
+        }
+        
+        // Función para alternar entre tabla y cards según el tamaño de pantalla
+        function toggleTableCards() {
+            const table = document.getElementById('propertiesTable');
+            const cardsContainer = document.getElementById('propertiesCardsMobile');
+            
+            if (!table || !cardsContainer) return;
+            
+            if (window.innerWidth <= 768) {
+                // Móvil: mostrar cards, ocultar tabla
+                table.style.display = 'none';
+                cardsContainer.style.display = 'block';
+                generateMobileCards();
+            } else {
+                // Desktop/Tablet: mostrar tabla, ocultar cards
+                table.style.display = 'table';
+                cardsContainer.style.display = 'none';
+            }
+        }
+        
+        // Función para búsqueda (actualizada para funcionar con cards y tabla)
         function initSearch() {
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
@@ -4152,6 +6432,11 @@
                         } else {
                             row.style.display = 'none';
                         }
+                    }
+                    
+                    // Actualizar cards móviles si están visibles
+                    if (window.innerWidth <= 768) {
+                        generateMobileCards();
                     }
                     
                     // Actualizar contador
@@ -4177,6 +6462,13 @@
                 UsuarioModalManager.init();
                 PropertyManager.init();
                 ConfigManager.init();
+                
+                // Inicializar funciones responsivas
+                initSearch();
+                toggleTableCards();
+                
+                // Escuchar cambios de tamaño de ventana
+                window.addEventListener('resize', toggleTableCards);
                 
                 // Asegurar que la fecha se actualice después de la inicialización
                 setTimeout(() => {
@@ -4325,8 +6617,8 @@
                 const btnInfo2FA = document.getElementById('btn-info-2fa');
                 if (btnInfo2FA) {
                     btnInfo2FA.addEventListener('click', function() {
-                        // Mostrar información adicional sobre 2FA
-                        alert('La autenticación de dos factores (2FA) es una medida de seguridad que requiere dos formas de verificación para acceder a tu cuenta. Esto hace que sea mucho más difícil para los atacantes acceder a tu información personal, incluso si conocen tu contraseña.');
+                        // Mostrar modal de información 2FA
+                        showModal2FA();
                     });
                 }
                 
@@ -4606,7 +6898,7 @@
                         // Actualizar el total en el dashboard
                         actualizarTotalResenas(data.estadisticas.total);
                         
-                        // Actualizar los contadores individuales en la vista de reseñas
+                        // Actualizar los contadores individuales en la vista de reseñas (desktop/tablet)
                         const esperaElement = document.getElementById('resenasEspera');
                         const aceptadasElement = document.getElementById('resenasAceptadas');
                         const rechazadasElement = document.getElementById('resenasRechazadas');
@@ -4614,6 +6906,15 @@
                         if (esperaElement) esperaElement.textContent = data.estadisticas.en_espera || 0;
                         if (aceptadasElement) aceptadasElement.textContent = data.estadisticas.aceptadas || 0;
                         if (rechazadasElement) rechazadasElement.textContent = data.estadisticas.rechazadas || 0;
+                        
+                        // Actualizar los contadores móviles
+                        const esperaElementMobile = document.getElementById('resenasEsperaMobile');
+                        const aceptadasElementMobile = document.getElementById('resenasAceptadasMobile');
+                        const rechazadasElementMobile = document.getElementById('resenasRechazadasMobile');
+                        
+                        if (esperaElementMobile) esperaElementMobile.textContent = data.estadisticas.en_espera || 0;
+                        if (aceptadasElementMobile) aceptadasElementMobile.textContent = data.estadisticas.aceptadas || 0;
+                        if (rechazadasElementMobile) rechazadasElementMobile.textContent = data.estadisticas.rechazadas || 0;
                     }
                     
                     if (data.resenas.length === 0) {
@@ -5680,6 +7981,79 @@
             setTimeout(updateDateElements, 500);
             setTimeout(updateDateElements, 1000);
         })();
+        
+        // ===== FUNCIONES DEL MODAL 2FA =====
+        function showModal2FA() {
+            const modal = document.getElementById('modal-2fa-info');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+            }
+        }
+        
+        function closeModal2FA() {
+            const modal = document.getElementById('modal-2fa-info');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = ''; // Restaurar scroll del body
+            }
+        }
+        
+        // Cerrar modal al hacer clic fuera del contenido
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('modal-2fa-info');
+            if (modal && event.target === modal) {
+                closeModal2FA();
+            }
+        });
+        
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal2FA();
+            }
+        });
     </script>
+    
+    <!-- Modal de Información 2FA -->
+    <div id="modal-2fa-info" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeModal2FA()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2 class="modal-title">
+                    <i class="fas fa-shield-alt"></i>
+                    Autenticación de Dos Factores (2FA)
+                </h2>
+            </div>
+            <div class="modal-body">
+                <p class="modal-text">
+                    La autenticación de dos factores (2FA) es una medida de seguridad que requiere dos formas de verificación para acceder a tu cuenta. Esto hace que sea mucho más difícil para los atacantes acceder a tu información personal, incluso si conocen tu contraseña.
+                </p>
+                
+                <div class="modal-features">
+                    <h4>
+                        <i class="fas fa-check-circle"></i>
+                        Beneficios de 2FA
+                    </h4>
+                    <ul>
+                        <li>Protección adicional contra accesos no autorizados</li>
+                        <li>Seguridad mejorada para tu información personal</li>
+                        <li>Protección incluso si tu contraseña es comprometida</li>
+                        <li>Cumplimiento con estándares de seguridad modernos</li>
+                        <li>Paz mental al saber que tu cuenta está protegida</li>
+                    </ul>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal2FA()">
+                    <i class="fas fa-check"></i>
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
