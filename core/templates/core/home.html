@@ -60,8 +60,7 @@
                 <p class="prop-sub">Descubre nuestras mejores opciones de alquiler y alquiler temporal</p>
                 
                 <!-- Botón Dividido para Alternar entre Alquiler y Alquiler Temporal -->
-                <div class="text-center mb-4">
-                    <div class="btn-group-toggle" role="group" aria-label="Tipo de alquiler">
+                <div class="btn-group-toggle" role="group" aria-label="Tipo de alquiler" style="background: none !important; border: none !important; box-shadow: none !important;">
                         <input type="radio" class="btn-check" name="tipo-alquiler" id="btn-alquiler-temporal" value="alquiler_temporal" checked>
                         <label class="btn btn-outline-primary" for="btn-alquiler-temporal">
                             <i class="fas fa-calendar-alt me-2"></i>Alquiler Temporal
@@ -71,14 +70,13 @@
                         <label class="btn btn-outline-primary" for="btn-alquiler">
                             <i class="fas fa-home me-2"></i>Alquiler
                         </label>
-                    </div>
                 </div>
         
         {% if hay_propiedades_alquiler %}
         <!-- Catálogo de Propiedades en Alquiler -->
-        <div class="row" id="propiedades-alquiler-container">
+        <div class="row justify-content-center" id="propiedades-alquiler-container">
             <!-- Propiedades de Alquiler -->
-            <div id="propiedades-alquiler" class="row w-100">
+            <div id="propiedades-alquiler" class="row w-100 justify-content-center">
                 {% for propiedad in propiedades_alquiler %}
                     {% if propiedad.operacion == 'alquiler' %}
                     <div class="col-md-6 mb-4">
@@ -133,7 +131,7 @@
             </div>
             
             <!-- Propiedades de Alquiler Temporal -->
-            <div id="propiedades-alquiler-temporal" class="row w-100" style="display: none;">
+            <div id="propiedades-alquiler-temporal" class="row w-100 justify-content-center" style="display: none;">
                 {% for propiedad in propiedades_alquiler %}
                     {% if propiedad.operacion == 'alquiler_temporal' %}
                     <div class="col-md-6 mb-4">
@@ -460,7 +458,812 @@
         </section>
 
 <style>
+/* ========================================
+   RESPONSIVE DESIGN PARA HOME - MOBILE FIRST
+   ======================================== */
 
+/* Estilos base para el carrusel hero */
+.hero-carousel-section {
+    position: relative;
+    height: 70vh;
+    min-height: 500px;
+    overflow: hidden;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.carousel-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.carousel-item.active {
+    opacity: 1;
+}
+
+.carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.carousel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-content {
+    text-align: center;
+    color: white;
+    max-width: 800px;
+    padding: 0 2rem;
+}
+
+.carousel-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+    line-height: 1.2;
+}
+
+.carousel-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    line-height: 1.4;
+}
+
+.carousel-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.carousel-buttons .btn {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.carousel-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+/* Estilos para la sección de propiedades en alquiler */
+.prop-title-sec {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+}
+
+/* Centrado de propiedades */
+#propiedades-alquiler-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#propiedades-alquiler,
+#propiedades-alquiler-temporal {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.prop-sub {
+    font-size: 1.2rem;
+    color: #6c757d;
+    text-align: center;
+    margin-bottom: 3rem;
+    line-height: 1.5;
+}
+
+.property-card {
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.property-card .card-img-top {
+    transition: transform 0.3s ease;
+}
+
+.property-card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.property-card .card-body {
+    padding: 1.5rem;
+}
+
+.property-card .card-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.property-card .card-subtitle {
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.property-card .card-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #495057;
+}
+
+.property-card .btn {
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.property-card .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+
+.empty-state {
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.empty-state i {
+    color: #dee2e6;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    color: #6c757d;
+    line-height: 1.5;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Botón de ver todas las propiedades */
+.btn-outline-success {
+    border-width: 2px;
+    font-weight: 600;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(40,167,69,0.3);
+}
+
+/* Estilos para botones de alternancia de tipo de alquiler */
+.btn-group-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.btn-group-toggle .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid #0d6efd;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    min-width: 180px;
+    position: relative;
+    background: white;
+    color: #0d6efd;
+    margin: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-group-toggle .btn:first-child {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-right: 1px solid #0d6efd;
+}
+
+.btn-group-toggle .btn:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-left: 1px solid #0d6efd;
+}
+
+.btn-group-toggle .btn:hover {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+}
+
+.btn-group-toggle .btn-check:checked + .btn {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-group-toggle .btn-check:checked + .btn:hover {
+    background-color: #0b5ed7;
+    color: white;
+    border-color: #0b5ed7;
+}
+
+.btn-group-toggle .btn i {
+    margin-right: 0.5rem;
+}
+
+/* ========================================
+   MEDIA QUERIES RESPONSIVAS
+   ======================================== */
+
+/* Extra Large devices (1200px and up) */
+@media (min-width: 1200px) {
+    .carousel-title {
+        font-size: 4rem;
+    }
+    
+    .carousel-subtitle {
+        font-size: 1.4rem;
+    }
+    
+    .prop-title-sec {
+        font-size: 3.2rem;
+    }
+    
+    .prop-sub {
+        font-size: 1.3rem;
+    }
+}
+
+/* Large devices (992px and up) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .hero-carousel-section {
+        height: 65vh;
+        min-height: 450px;
+    }
+    
+    .carousel-title {
+        font-size: 3.2rem;
+    }
+    
+    .carousel-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .carousel-buttons .btn {
+        padding: 0.9rem 1.8rem;
+        font-size: 1rem;
+    }
+    
+    .prop-title-sec {
+        font-size: 2.6rem;
+    }
+    
+    .prop-sub {
+        font-size: 1.1rem;
+    }
+}
+
+/* Medium devices (768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .hero-carousel-section {
+        height: 60vh;
+        min-height: 400px;
+    }
+    
+    .carousel-title {
+        font-size: 2.8rem;
+        margin-bottom: 1.2rem;
+    }
+    
+    .carousel-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .carousel-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .carousel-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 0.8rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .prop-title-sec {
+        font-size: 2.4rem;
+    }
+    
+    .prop-sub {
+        font-size: 1rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .property-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .property-card .card-title {
+        font-size: 1.2rem;
+    }
+}
+
+/* Small devices (576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .hero-carousel-section {
+        height: 55vh;
+        min-height: 350px;
+    }
+    
+    .carousel-content {
+        padding: 0 1.5rem;
+    }
+    
+    .carousel-title {
+        font-size: 2.4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .carousel-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.8rem;
+    }
+    
+    .carousel-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.7rem;
+    }
+    
+    .carousel-buttons .btn {
+        width: 100%;
+        max-width: 280px;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .carousel-indicators {
+        bottom: 1.5rem;
+    }
+    
+    .indicator {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .prop-title-sec {
+        font-size: 2.2rem;
+    }
+    
+    .prop-sub {
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+    }
+    
+    .property-card .card-body {
+        padding: 1rem;
+    }
+    
+    .property-card .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .property-card .card-text {
+        font-size: 0.9rem;
+    }
+    
+    .empty-state {
+        padding: 2.5rem 1.5rem;
+    }
+    
+    .empty-state h4 {
+        font-size: 1.3rem;
+    }
+    
+    .empty-state p {
+        font-size: 0.95rem;
+    }
+    
+    .btn-outline-success {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+    
+    .btn-group-toggle {
+        margin-bottom: 1.5rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .btn-group-toggle .btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+        min-width: 160px;
+        margin: 0;
+    }
+}
+
+/* Extra small devices (less than 576px) */
+@media (max-width: 575.98px) {
+    .hero-carousel-section {
+        height: 50vh;
+        min-height: 300px;
+    }
+    
+    .carousel-content {
+        padding: 0 1rem;
+    }
+    
+    .carousel-title {
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+        line-height: 1.1;
+    }
+    
+    .carousel-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.3;
+    }
+    
+    .carousel-buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    
+    .carousel-buttons .btn {
+        width: 100%;
+        max-width: 250px;
+        padding: 0.7rem 1rem;
+        font-size: 0.85rem;
+        min-width: auto;
+    }
+    
+    .carousel-indicators {
+        bottom: 1rem;
+        gap: 0.8rem;
+    }
+    
+    .indicator {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .prop-title-sec {
+        font-size: 1.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .prop-sub {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .property-card .card-body {
+        padding: 0.8rem;
+    }
+    
+    .property-card .card-title {
+        font-size: 1rem;
+    }
+    
+    .property-card .card-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .property-card .card-text {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .property-card .btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-state h4 {
+        font-size: 1.1rem;
+    }
+    
+    .empty-state p {
+        font-size: 0.9rem;
+    }
+    
+    .btn-outline-success {
+        padding: 0.7rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-group-toggle {
+        margin-bottom: 1.5rem;
+        max-width: 350px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .btn-group-toggle .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        min-width: auto;
+        margin: 0;
+    }
+}
+
+/* Móviles muy pequeños (menos de 400px) */
+@media (max-width: 400px) {
+    .carousel-title {
+        font-size: 1.7rem;
+    }
+    
+    .carousel-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .carousel-buttons .btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .prop-title-sec {
+        font-size: 1.6rem;
+    }
+    
+    .prop-sub {
+        font-size: 0.85rem;
+    }
+    
+    .property-card .card-body {
+        padding: 0.7rem;
+    }
+    
+    .property-card .card-title {
+        font-size: 0.95rem;
+    }
+    
+    .property-card .card-text {
+        font-size: 0.8rem;
+    }
+    
+    .empty-state {
+        padding: 1.5rem 0.8rem;
+    }
+    
+    .empty-state i {
+        font-size: 2.5rem;
+    }
+    
+    .empty-state h4 {
+        font-size: 1rem;
+    }
+    
+    .empty-state p {
+        font-size: 0.85rem;
+    }
+    
+    .btn-group-toggle {
+        max-width: 300px;
+    }
+    
+    .btn-group-toggle .btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        margin: 0;
+    }
+}
+
+/* Landscape orientation para móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero-carousel-section {
+        height: 80vh;
+        min-height: 250px;
+    }
+    
+    .carousel-title {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .carousel-subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .carousel-buttons {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+    
+    .carousel-buttons .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        min-width: 120px;
+    }
+}
+
+/* ========================================
+   MEJORAS PARA DISPOSITIVOS TÁCTILES
+   ======================================== */
+
+/* Aumentar área de toque para botones en móviles */
+@media (max-width: 768px) {
+    .carousel-buttons .btn,
+    .btn-group-toggle .btn,
+    .btn-outline-success,
+    .property-card .btn {
+        min-height: 44px; /* Tamaño mínimo recomendado para touch */
+        touch-action: manipulation;
+    }
+    
+    /* Mejorar contraste y visibilidad en móviles */
+    .carousel-overlay {
+        background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4));
+    }
+    
+    .carousel-title,
+    .carousel-subtitle {
+        text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+    }
+    
+    /* Mejorar espaciado entre elementos táctiles */
+    .property-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-group-toggle {
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Optimizaciones para pantallas de alta densidad */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .carousel-image,
+    .property-card .card-img-top {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Prevenir zoom en inputs en iOS */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    select,
+    textarea,
+    input[type="text"],
+    input[type="password"],
+    input[type="datetime"],
+    input[type="datetime-local"],
+    input[type="date"],
+    input[type="month"],
+    input[type="time"],
+    input[type="week"],
+    input[type="number"],
+    input[type="email"],
+    input[type="url"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="color"] {
+        font-size: 16px;
+    }
+}
+
+/* Mejorar rendimiento en dispositivos móviles */
+@media (max-width: 768px) {
+    .carousel-item,
+    .property-card,
+    .testimonial-card {
+        will-change: transform;
+    }
+    
+    .carousel-overlay {
+        will-change: auto;
+    }
+}
+
+/* Estilos para modo oscuro (si el dispositivo lo soporta) */
+@media (prefers-color-scheme: dark) {
+    .empty-state {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+    }
+    
+    .empty-state h4,
+    .empty-state p {
+        color: #adb5bd;
+    }
+}
 
 /* Estilos responsivos para la sección de testimonios */
 .testimonials-section {
@@ -1182,6 +1985,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const contenedorAlquiler = document.getElementById('propiedades-alquiler');
     const contenedorAlquilerTemporal = document.getElementById('propiedades-alquiler-temporal');
     
+    // Verificar que los elementos existen antes de continuar
+    if (!btnAlquiler || !btnAlquilerTemporal || !contenedorAlquiler || !contenedorAlquilerTemporal) {
+        console.warn('Elementos de alternancia de alquiler no encontrados');
+        return;
+    }
+    
     // Función para mostrar propiedades de alquiler
     function mostrarAlquiler() {
         contenedorAlquiler.style.display = 'flex';
@@ -1219,8 +2028,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Event listeners para touch en dispositivos móviles
+    btnAlquiler.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        this.checked = true;
+        mostrarAlquiler();
+    });
+    
+    btnAlquilerTemporal.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        this.checked = true;
+        mostrarAlquilerTemporal();
+    });
+    
     // Mostrar alquiler temporal por defecto al cargar la página
     mostrarAlquilerTemporal();
+    
+    // Función para manejar cambios de orientación
+    function handleOrientationChange() {
+        // Pequeño delay para que se complete la rotación
+        setTimeout(() => {
+            // Reajustar contenedores si es necesario
+            if (window.innerWidth <= 768) {
+                contenedorAlquiler.style.display = contenedorAlquiler.style.display === 'flex' ? 'flex' : 'none';
+                contenedorAlquilerTemporal.style.display = contenedorAlquilerTemporal.style.display === 'flex' ? 'flex' : 'none';
+            }
+        }, 100);
+    }
+    
+    // Escuchar cambios de orientación
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
 });
 </script>
 
@@ -1229,11 +2067,21 @@ document.addEventListener('DOMContentLoaded', function() {
 let currentPosition = 0;
 let testimonialsPerView = 3; // Por defecto 3 en desktop
 let totalTestimonials = 0;
+let isAnimating = false;
 
 document.addEventListener('DOMContentLoaded', function() {
+    const track = document.getElementById('testimonialsTrack');
+    if (!track) {
+        console.warn('Carrusel de testimonios no encontrado');
+        return;
+    }
+    
     totalTestimonials = document.querySelectorAll('.testimonial-item').length;
     updateTestimonialsPerView();
     updateNavigationButtons();
+    
+    // Inicializar posición
+    updateTestimonialsDisplay();
 });
 
 // Función para detectar el tamaño de pantalla y ajustar testimonios por vista
@@ -1261,9 +2109,18 @@ function updateTestimonialsPerView() {
 }
 
 function moveTestimonials(direction) {
+    if (isAnimating) return;
+    
     const track = document.getElementById('testimonialsTrack');
-    const itemWidth = document.querySelector('.testimonial-item').offsetWidth;
-    const gap = window.innerWidth <= 767 ? 16 : 32; // Gap más pequeño en móviles
+    if (!track) return;
+    
+    const testimonialItem = document.querySelector('.testimonial-item');
+    if (!testimonialItem) return;
+    
+    isAnimating = true;
+    
+    const itemWidth = testimonialItem.offsetWidth;
+    const gap = window.innerWidth <= 767 ? 16 : 32;
     const totalItemWidth = itemWidth + gap;
     
     if (direction === 'right' && currentPosition < totalTestimonials - testimonialsPerView) {
@@ -1276,11 +2133,21 @@ function moveTestimonials(direction) {
     track.style.transform = `translateX(${translateX}px)`;
     
     updateNavigationButtons();
+    
+    // Resetear flag de animación después de la transición
+    setTimeout(() => {
+        isAnimating = false;
+    }, 500);
 }
 
 function updateTestimonialsDisplay() {
     const track = document.getElementById('testimonialsTrack');
-    const itemWidth = document.querySelector('.testimonial-item').offsetWidth;
+    if (!track) return;
+    
+    const testimonialItem = document.querySelector('.testimonial-item');
+    if (!testimonialItem) return;
+    
+    const itemWidth = testimonialItem.offsetWidth;
     const gap = window.innerWidth <= 767 ? 16 : 32;
     const totalItemWidth = itemWidth + gap;
     
@@ -1292,28 +2159,84 @@ function updateNavigationButtons() {
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     
+    if (!prevBtn || !nextBtn) return;
+    
     // Botón anterior
     if (currentPosition === 0) {
         prevBtn.disabled = true;
         prevBtn.style.opacity = '0.5';
+        prevBtn.style.cursor = 'not-allowed';
     } else {
         prevBtn.disabled = false;
         prevBtn.style.opacity = '1';
+        prevBtn.style.cursor = 'pointer';
     }
     
     // Botón siguiente
     if (currentPosition >= totalTestimonials - testimonialsPerView) {
         nextBtn.disabled = true;
         nextBtn.style.opacity = '0.5';
+        nextBtn.style.cursor = 'not-allowed';
     } else {
         nextBtn.disabled = false;
         nextBtn.style.opacity = '1';
+        nextBtn.style.cursor = 'pointer';
     }
 }
 
+// Función para manejar touch/swipe en móviles
+let touchStartX = 0;
+let touchEndX = 0;
+
+function handleTouchStart(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}
+
+function handleTouchEnd(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // Swipe izquierda - siguiente
+            moveTestimonials('right');
+        } else {
+            // Swipe derecha - anterior
+            moveTestimonials('left');
+        }
+    }
+}
+
+// Agregar event listeners para touch
+document.addEventListener('DOMContentLoaded', function() {
+    const track = document.getElementById('testimonialsTrack');
+    if (track) {
+        track.addEventListener('touchstart', handleTouchStart, { passive: true });
+        track.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+});
+
 // Escuchar cambios de tamaño de ventana
+let resizeTimeout;
 window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
     updateTestimonialsPerView();
+        updateTestimonialsDisplay();
+    }, 250);
+});
+
+// Escuchar cambios de orientación
+window.addEventListener('orientationchange', function() {
+    setTimeout(() => {
+        updateTestimonialsPerView();
+        updateTestimonialsDisplay();
+    }, 500);
 });
 </script>
 
