@@ -1,0 +1,155 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Deshabilitar 2FA - Tienda Inmobiliaria{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Deshabilitar Autenticación de Dos Factores
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Advertencia -->
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-shield-alt me-2"></i>Advertencia de Seguridad</h5>
+                        <p class="mb-0">
+                            Al deshabilitar 2FA, tu cuenta será menos segura. Solo necesitarás tu correo y contraseña para acceder.
+                        </p>
+                    </div>
+
+                    <!-- Información actual -->
+                    <div class="mb-4">
+                        <h5>Estado Actual de 2FA</h5>
+                        <div class="d-flex align-items-center">
+                            {% if credenciales.two_factor_enabled %}
+                                <span class="badge bg-success me-2">
+                                    <i class="fas fa-check me-1"></i>
+                                    Habilitado
+                                </span>
+                                <span class="text-success">2FA está activo en tu cuenta</span>
+                            {% else %}
+                                <span class="badge bg-secondary me-2">
+                                    <i class="fas fa-times me-1"></i>
+                                    Deshabilitado
+                                </span>
+                                <span class="text-muted">2FA no está activo</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Códigos de respaldo restantes -->
+                    {% if credenciales.two_factor_enabled and credenciales.backup_codes %}
+                    <div class="mb-4">
+                        <h5>Códigos de Respaldo Restantes</h5>
+                        <p class="text-muted">Tienes {{ credenciales.backup_codes|length }} códigos de respaldo disponibles:</p>
+                        <div class="row">
+                            {% for code in credenciales.backup_codes %}
+                                <div class="col-md-6 mb-2">
+                                    <code class="bg-light p-2 rounded d-block text-center">{{ code }}</code>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Formulario de confirmación -->
+                    {% if credenciales.two_factor_enabled %}
+                    <form method="post" id="disable2FAForm">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <h5>Confirmar Deshabilitación</h5>
+                            <p>Para deshabilitar 2FA, confirma que entiendes las implicaciones de seguridad:</p>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="understandRisks" required>
+                                <label class="form-check-label" for="understandRisks">
+                                    Entiendo que deshabilitar 2FA reducirá la seguridad de mi cuenta
+                                </label>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="confirmDisable" required>
+                                <label class="form-check-label" for="confirmDisable">
+                                    Confirmo que quiero deshabilitar la autenticación de dos factores
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg" id="disableBtn" disabled>
+                                <i class="fas fa-times me-2"></i>
+                                Deshabilitar 2FA
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="text-center">
+                        <p class="text-muted">2FA ya está deshabilitado en tu cuenta.</p>
+                        <a href="{% url 'login:setup_2fa' %}" class="btn btn-primary">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            Configurar 2FA
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Botones de navegación -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'login:dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Volver al Dashboard
+                            </a>
+                            {% if credenciales.two_factor_enabled %}
+                            <a href="{% url 'login:setup_2fa' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>
+                                Reconfigurar 2FA
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const understandRisks = document.getElementById('understandRisks');
+    const confirmDisable = document.getElementById('confirmDisable');
+    const disableBtn = document.getElementById('disableBtn');
+    
+    function updateButtonState() {
+        if (understandRisks && confirmDisable && disableBtn) {
+            disableBtn.disabled = !(understandRisks.checked && confirmDisable.checked);
+        }
+    }
+    
+    if (understandRisks) {
+        understandRisks.addEventListener('change', updateButtonState);
+    }
+    
+    if (confirmDisable) {
+        confirmDisable.addEventListener('change', updateButtonState);
+    }
+    
+    // Confirmación adicional al enviar
+    const form = document.getElementById('disable2FAForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('¿Estás completamente seguro de que quieres deshabilitar 2FA? Esta acción no se puede deshacer fácilmente.')) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

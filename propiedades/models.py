@@ -69,6 +69,24 @@ class Propiedad(models.Model):
     # Agregar campo para amenidades
     amenidades = models.ManyToManyField(Amenidad, blank=True, verbose_name="Amenidades incluidas")
     
+    # Campos de coordenadas geográficas
+    latitud = models.DecimalField(
+        max_digits=10, 
+        decimal_places=7, 
+        blank=True, 
+        null=True, 
+        help_text='Coordenada de latitud (ej: -38.9516)',
+        verbose_name='Latitud'
+    )
+    longitud = models.DecimalField(
+        max_digits=10, 
+        decimal_places=7, 
+        blank=True, 
+        null=True, 
+        help_text='Coordenada de longitud (ej: -68.0591)',
+        verbose_name='Longitud'
+    )
+    
     class Meta:
         verbose_name = "Propiedad"
         verbose_name_plural = "Propiedades"

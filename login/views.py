@@ -6,9 +6,15 @@ from django.contrib.auth.models import User
 from propiedades.models import Propiedad
 from propiedades.forms import PropiedadForm
 from django.http import JsonResponse
-from .models import AdminCredentials
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils import timezone
+from .models import AdminCredentials, PasswordResetCode
 from .forms import AdminCredentialsForm, NuevoUsuarioAdminForm
-from django.contrib.auth.hashers import check_password
+from .forms_2fa import TwoFactorVerifyForm, BackupCodeForm
+from .forms_password_reset import PasswordResetRequestForm, PasswordResetVerifyForm
+from django.contrib.auth.hashers import check_password, make_password
 import time
 
 def configurar_admin(request):
@@ -54,7 +60,7 @@ def configurar_admin(request):
     return render(request, 'login/configurar_admin.html', context)
 
 def admin_login(request):
-    """Vista de login para administradores con credenciales seguras"""
+    """Vista de login para administradores con credenciales seguras y 2FA"""
     # Si el usuario ya está autenticado, redirigir al dashboard
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('login:dashboard')
@@ -67,6 +73,8 @@ def admin_login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
+        totp_code = request.POST.get('totp_code')
+        backup_code = request.POST.get('backup_code')
         
         try:
             # Buscar credenciales
@@ -74,30 +82,31 @@ def admin_login(request):
             
             # Verificar contraseña
             if check_password(password, credenciales.password):
-                # Buscar o crear usuario
-                try:
-                    user = User.objects.get(username=email)
-                except User.DoesNotExist:
-                    # Crear usuario si no existe
-                    user = User.objects.create_user(
-                        username=email,
-                        email=email,
-                        password=password,
-                        first_name=credenciales.nombre or 'Administrador',
-                        last_name=credenciales.apellido or '',
-                        is_staff=True,
-                        is_superuser=True
-                    )
-                    
-                    # Vincular el AdminCredentials con el User
-                    credenciales.user = user
-                    credenciales.save()
-                
-                # Autenticar al usuario
-                login(request, user)
-                nombre_completo = credenciales.get_nombre_completo()
-                messages.success(request, f'¡Bienvenido, {nombre_completo}!')
-                return redirect('login:dashboard')
+                # Si 2FA está habilitado, verificar código
+                if credenciales.two_factor_enabled:
+                    if totp_code:
+                        # Verificar código TOTP
+                        if credenciales.verify_totp(totp_code):
+                            return complete_login(request, credenciales)
+                        else:
+                            messages.error(request, 'Código de verificación incorrecto.')
+                    elif backup_code:
+                        # Verificar código de respaldo
+                        if credenciales.verify_backup_code(backup_code.upper()):
+                            return complete_login(request, credenciales)
+                        else:
+                            messages.error(request, 'Código de respaldo incorrecto o ya utilizado.')
+                    else:
+                        messages.error(request, 'Se requiere código de verificación de 2FA.')
+                        return render(request, 'login/admin_login.html', {
+                            'email': email,
+                            'password': password,
+                            'show_2fa': True,
+                            'credenciales': credenciales
+                        })
+                else:
+                    # Sin 2FA, proceder con login normal
+                    return complete_login(request, credenciales)
             else:
                 messages.error(request, 'Correo o contraseña incorrectos.')
                 
@@ -107,6 +116,130 @@ def admin_login(request):
             messages.error(request, f'Error en el sistema: {str(e)}')
     
     return render(request, 'login/admin_login.html')
+
+def complete_login(request, credenciales):
+    """Completa el proceso de login después de verificar credenciales y 2FA"""
+    try:
+        # Buscar o crear usuario
+        try:
+            user = User.objects.get(username=credenciales.email)
+        except User.DoesNotExist:
+            # Crear usuario si no existe
+            user = User.objects.create_user(
+                username=credenciales.email,
+                email=credenciales.email,
+                password=credenciales.password,
+                first_name=credenciales.nombre or 'Administrador',
+                last_name=credenciales.apellido or '',
+                is_staff=True,
+                is_superuser=True
+            )
+            
+            # Vincular el AdminCredentials con el User
+            credenciales.user = user
+            credenciales.save()
+        
+        # Autenticar al usuario
+        login(request, user)
+        nombre_completo = credenciales.get_nombre_completo()
+        messages.success(request, f'¡Bienvenido, {nombre_completo}!')
+        return redirect('login:dashboard')
+        
+    except Exception as e:
+        messages.error(request, f'Error al completar el login: {str(e)}')
+        return redirect('login:admin_login')
+
+@login_required
+def setup_2fa(request):
+    """Vista para configurar 2FA"""
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para acceder a esta página.')
+        return redirect('core:home')
+    
+    try:
+        credenciales = request.user.admincredentials
+    except AdminCredentials.DoesNotExist:
+        messages.error(request, 'No se encontraron credenciales de administrador.')
+        return redirect('login:admin_login')
+    
+    # Generar QR code si no existe
+    if not credenciales.totp_secret:
+        credenciales.generate_totp_secret()
+        credenciales.save()
+    
+    if request.method == 'POST':
+        from .forms_2fa import TwoFactorSetupForm
+        form = TwoFactorSetupForm(request.POST)
+        
+        if form.is_valid():
+            totp_code = form.cleaned_data['totp_code']
+            
+            # Verificar el código TOTP
+            if credenciales.verify_totp(totp_code):
+                # Habilitar 2FA
+                credenciales.enable_2fa()
+                messages.success(request, '¡2FA habilitado exitosamente!')
+                return redirect('login:2fa_success')
+            else:
+                messages.error(request, 'Código de verificación incorrecto. Intenta de nuevo.')
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+    else:
+        from .forms_2fa import TwoFactorSetupForm
+        form = TwoFactorSetupForm()
+    
+    qr_code = credenciales.get_qr_code()
+    totp_uri = credenciales.get_totp_uri()
+    
+    context = {
+        'form': form,
+        'qr_code': qr_code,
+        'totp_uri': totp_uri,
+        'credenciales': credenciales
+    }
+    
+    return render(request, 'login/setup_2fa.html', context)
+
+@login_required
+def disable_2fa(request):
+    """Vista para deshabilitar 2FA"""
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para acceder a esta página.')
+        return redirect('core:home')
+    
+    try:
+        credenciales = request.user.admincredentials
+    except AdminCredentials.DoesNotExist:
+        messages.error(request, 'No se encontraron credenciales de administrador.')
+        return redirect('login:admin_login')
+    
+    if request.method == 'POST':
+        credenciales.disable_2fa()
+        messages.success(request, '2FA deshabilitado exitosamente.')
+        return redirect('login:dashboard')
+    
+    return render(request, 'login/disable_2fa.html', {'credenciales': credenciales})
+
+@login_required
+def two_factor_success(request):
+    """Vista de éxito después de configurar 2FA"""
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permisos para acceder a esta página.')
+        return redirect('core:home')
+    
+    try:
+        credenciales = request.user.admincredentials
+        backup_codes = credenciales.backup_codes
+    except AdminCredentials.DoesNotExist:
+        messages.error(request, 'No se encontraron credenciales de administrador.')
+        return redirect('login:admin_login')
+    
+    context = {
+        'credenciales': credenciales,
+        'backup_codes': backup_codes
+    }
+    
+    return render(request, 'login/2fa_success.html', context)
 
 @login_required
 def dashboard(request):
@@ -131,7 +264,11 @@ def dashboard(request):
     
     # Importar el formulario para el modal
     from propiedades.forms import PropiedadForm
+    from propiedades.models import Amenidad
     form = PropiedadForm()
+    
+    # Obtener amenidades para el template
+    amenidades = Amenidad.objects.all().order_by('nombre')
     
     # Obtener estadísticas de clics
     from propiedades.models import ClickPropiedad
@@ -227,6 +364,7 @@ def dashboard(request):
         'clicks_por_mes': clicks_por_mes,
         'clicks_por_propiedad': clicks_por_propiedad_json,
         'form': form,
+        'amenidades': amenidades,
     }
     
     return render(request, 'login/dashboard.html', context)
@@ -969,3 +1107,141 @@ def rechazar_resena(request, resena_id):
             return JsonResponse({'success': False, 'message': f'Error al rechazar reseña: {str(e)}'})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+
+
+# ========================================
+# VISTAS PARA RECUPERACIÓN DE CONTRASEÑA
+# ========================================
+
+def password_reset_request(request):
+    """Vista para solicitar recuperación de contraseña"""
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('login:dashboard')
+    
+    if request.method == 'POST':
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            
+            try:
+                # Generar código de recuperación
+                reset_code = PasswordResetCode.generate_code(email)
+                
+                # Enviar email con el código
+                send_password_reset_email(email, reset_code.code)
+                
+                messages.success(request, f'Se ha enviado un código de verificación a {email}. Revisa tu correo electrónico.')
+                return redirect('login:password_reset_verify', email=email)
+                
+            except Exception as e:
+                messages.error(request, f'Error al enviar el email: {str(e)}')
+    else:
+        form = PasswordResetRequestForm()
+    
+    return render(request, 'login/password_reset_request.html', {'form': form})
+
+
+def password_reset_verify(request, email):
+    """Vista para verificar código y cambiar contraseña"""
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('login:dashboard')
+    
+    # Verificar que existe un código válido para este email
+    try:
+        reset_code = PasswordResetCode.objects.filter(email=email, used=False).first()
+        if not reset_code or not reset_code.is_valid():
+            messages.error(request, 'El código de recuperación ha expirado o no es válido.')
+            return redirect('login:password_reset_request')
+    except Exception:
+        messages.error(request, 'Error al verificar el código.')
+        return redirect('login:password_reset_request')
+    
+    if request.method == 'POST':
+        form = PasswordResetVerifyForm(request.POST)
+        if form.is_valid():
+            code = form.cleaned_data['code']
+            new_password = form.cleaned_data['new_password']
+            
+            # Verificar el código
+            if reset_code.code == code:
+                try:
+                    # Obtener las credenciales del administrador
+                    credenciales = AdminCredentials.objects.get(email=email, activo=True)
+                    
+                    # Actualizar la contraseña
+                    credenciales.password = make_password(new_password)
+                    credenciales.save()
+                    
+                    # Marcar el código como usado
+                    reset_code.mark_as_used()
+                    
+                    # Actualizar la contraseña del usuario Django si existe
+                    try:
+                        user = User.objects.get(username=email)
+                        user.set_password(new_password)
+                        user.save()
+                    except User.DoesNotExist:
+                        pass
+                    
+                    messages.success(request, 'Contraseña actualizada exitosamente. Ahora puedes iniciar sesión.')
+                    return redirect('login:admin_login')
+                    
+                except AdminCredentials.DoesNotExist:
+                    messages.error(request, 'No se encontraron credenciales para este email.')
+                except Exception as e:
+                    messages.error(request, f'Error al actualizar la contraseña: {str(e)}')
+            else:
+                messages.error(request, 'Código de verificación incorrecto.')
+    else:
+        form = PasswordResetVerifyForm()
+    
+    context = {
+        'form': form,
+        'email': email,
+        'expires_at': reset_code.expires_at
+    }
+    
+    return render(request, 'login/password_reset_verify.html', context)
+
+
+def send_password_reset_email(email, code):
+    """Envía email con código de recuperación"""
+    subject = 'Recuperación de Contraseña - Tienda Inmobiliaria'
+    
+    # Crear el contenido del email
+    html_content = render_to_string('login/emails/password_reset.html', {
+        'email': email,
+        'code': code,
+        'site_name': 'Tienda Inmobiliaria'
+    })
+    
+    text_content = f"""
+    Recuperación de Contraseña - Tienda Inmobiliaria
+    
+    Hola,
+    
+    Has solicitado recuperar tu contraseña de administrador.
+    
+    Tu código de verificación es: {code}
+    
+    Este código expira en 1 hora.
+    
+    Si no solicitaste este cambio, ignora este email.
+    
+    Saludos,
+    Equipo de Tienda Inmobiliaria
+    """
+    
+    try:
+        send_mail(
+            subject=subject,
+            message=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            html_message=html_content,
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Error enviando email: {e}")
+        return False

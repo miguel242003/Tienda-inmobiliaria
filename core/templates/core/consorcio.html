@@ -14,175 +14,60 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
     <style>
-        /* CSS de navegación optimizado para velocidad */
-        body .responsive-nav {
-            transition: none !important;
-            background-color: white !important;
-            padding: 15px 0 !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 1000 !important;
+        /* ===== RESET Y CONFIGURACIÓN BASE ===== */
+        * {
+            box-sizing: border-box;
         }
         
-        body .nav-item {
-            text-decoration: none !important;
-            color: #333 !important;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-            font-weight: 300 !important;
-            font-size: 14px !important;
-            letter-spacing: 2px !important;
-            text-transform: uppercase !important;
-            padding: 10px 20px !important;
-            transition: all 0.05s ease-out !important;
-            position: relative !important;
-            border-radius: 20px !important;
-        }
-        
-        body .nav-item:hover {
-            color: #2B55A2 !important;
-            background-color: rgba(43, 85, 162, 0.1) !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 2px 8px rgba(43, 85, 162, 0.15) !important;
-        }
-        
-        body .nav-item::before {
-            content: '' !important;
-            position: absolute !important;
-            bottom: -2px !important;
-            left: 50% !important;
-            width: 0 !important;
-            height: 2px !important;
-            background: linear-gradient(90deg, #2B55A2, #3498db) !important;
-            transition: width 0.05s ease-out !important;
-            transform: translateX(-50%) !important;
-        }
-        
-        body .nav-item:hover::before {
-            width: 80% !important;
-        }
-        
-        body .nav-item.active {
-            background-color: rgba(43, 85, 162, 0.15) !important;
-            color: #2B55A2 !important;
-            font-weight: 600 !important;
-            transition: none !important;
-        }
-        
-        body .nav-item.active::before {
-            width: 80% !important;
-            transition: none !important;
-        }
-        
-        /* Prevenir transiciones en el enlace activo */
-        body .nav-item.active:hover {
-            transform: none !important;
-            box-shadow: none !important;
-            transition: none !important;
-        }
-        
-        body {
-            scroll-behavior: smooth !important;
-        }
-        
-        /* Estilos para el botón de asesor */
-        .btn-primary:hover {
-            background: #1e3a8a !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(43, 85, 162, 0.4) !important;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .consorcio-title {
-                font-size: 3rem !important;
-            }
-            .consorcio-subtitle {
-                font-size: 1.8rem !important;
-            }
-        }
-        
-        @media (max-width: 992px) {
-            .consorcio-title {
-                font-size: 2.5rem !important;
-            }
-            .consorcio-subtitle {
-                font-size: 1.5rem !important;
-            }
-            .consorcio-highlight-text {
-                font-size: 1.2rem !important;
-            }
-            .consorcio-main-content {
-                padding: 30px !important;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .consorcio-title {
-                font-size: 2rem !important;
-            }
-            .consorcio-subtitle {
-                font-size: 1.3rem !important;
-            }
-            .consorcio-highlight-text {
-                font-size: 1.1rem !important;
-            }
-            .consorcio-main-content {
-                padding: 20px !important;
-            }
-            .consorcio-description h4 {
-                font-size: 1.1rem !important;
-            }
-            .consorcio-benefits h4 {
-                font-size: 1.1rem !important;
-            }
-            .consorcio-benefits div[style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
-            }
-            .btn-primary {
-                padding: 12px 25px !important;
-                font-size: 1rem !important;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .consorcio-title {
-                font-size: 1.8rem !important;
-            }
-            .consorcio-subtitle {
-                font-size: 1.2rem !important;
-            }
-            .consorcio-highlight-text {
-                font-size: 1rem !important;
-            }
-            .consorcio-main-content {
-                padding: 15px !important;
-            }
-            .consorcio-description p {
-                font-size: 0.9rem !important;
-            }
-            .consorcio-description h4 {
-                font-size: 1rem !important;
-            }
-            .consorcio-benefits h4 {
-                font-size: 1rem !important;
-            }
-            .btn-primary {
-                padding: 10px 20px !important;
-                font-size: 0.9rem !important;
-            }
-        }
         body {
             margin: 0;
             padding: 0;
             font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
         
-
+        /* ===== NAVEGACIÓN RESPONSIVA ===== */
+        .responsive-nav {
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
         
+        .nav-item {
+            text-decoration: none;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: 300;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            border-radius: 20px;
+        }
+        
+        .nav-item:hover {
+            color: #2B55A2;
+            background-color: rgba(43, 85, 162, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(43, 85, 162, 0.15);
+        }
+        
+        .nav-item.active {
+            background-color: rgba(43, 85, 162, 0.15);
+            color: #2B55A2;
+            font-weight: 600;
+        }
+        
+        /* ===== SECCIÓN PRINCIPAL DEL CONSORCIO ===== */
         .consorcio-hero-section {
             position: relative;
-            min-height: 600px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -194,6 +79,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            background: url('/static/images/Fondo Consorcio 1.jpg') center/cover no-repeat;
             z-index: 1;
         }
         
@@ -203,78 +89,50 @@
             left: 0;
             width: 100%;
             height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.4) 100%);
             z-index: 2;
         }
         
-                 /* Redes sociales en la mejor ubicación */
-         .consorcio-social-optimal {
-             position: absolute;
-             top: 20px;
-             right: 20px;
-             z-index: 150;
-         }
-         
-         .social-icons-container {
-             display: flex;
-             flex-direction: column;
-             gap: 12px;
-             align-items: center;
-         }
-         
-         .social-icon-optimal {
-             color: rgba(255, 255, 255, 0.9);
-             font-size: 1.3rem;
-             text-decoration: none;
-             transition: all 0.3s ease;
-             background: rgba(0, 0, 0, 0.4);
-             padding: 10px;
-             border-radius: 50%;
-             width: 45px;
-             height: 45px;
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             backdrop-filter: blur(10px);
-             border: 1px solid rgba(255, 255, 255, 0.2);
-         }
-         
-         .social-icon-optimal:hover {
-             color: white;
-             background: rgba(0, 0, 0, 0.6);
-             transform: scale(1.1);
-             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-         }
-         
-         /* Responsive para redes sociales */
-         @media (max-width: 1200px) {
-             .consorcio-social-optimal {
-                 top: 15px;
-                 right: 15px;
-             }
-             
-             .social-icon-optimal {
-                 width: 40px;
-                 height: 40px;
-                 font-size: 1.2rem;
-             }
-         }
-         
-         @media (max-width: 992px) {
-             .consorcio-social-optimal {
-                 position: relative;
-                 top: auto;
-                 right: auto;
-                 margin: 20px 0;
-                 order: -1;
-             }
-             
-             .social-icons-container {
-                 flex-direction: row;
-                 justify-content: center;
-                 gap: 20px;
-             }
-         }
+        /* ===== REDES SOCIALES ===== */
+        .consorcio-social-optimal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 150;
+        }
         
+        .social-icons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .social-icon-optimal {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.3rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .social-icon-optimal:hover {
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* ===== CONTENIDO PRINCIPAL ===== */
         .consorcio-content {
             position: relative;
             z-index: 10;
@@ -282,11 +140,89 @@
             display: flex;
             align-items: center;
             padding: 30px 0;
-            min-height: 600px;
+            min-height: 100vh;
         }
         
-
+        /* ===== CUADRADO DE PRESUPUESTO ===== */
+        .consorcio-budget-container {
+            position: absolute;
+            top: 18%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 100;
+            width: 300px;
+        }
         
+        .consorcio-budget-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .consorcio-budget-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a252f;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .consorcio-budget-text {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        
+        .consorcio-budget-btn {
+            background: linear-gradient(135deg, #2B55A2, #3498db);
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(43, 85, 162, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.3px;
+            width: 100%;
+            color: white;
+        }
+        
+        .consorcio-budget-btn:hover {
+            background: linear-gradient(135deg, #1e3a8a, #2980b9);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(43, 85, 162, 0.4);
+            color: white;
+        }
+        
+        /* ===== WRAPPER PRINCIPAL ===== */
+        .consorcio-main-wrapper {
+            margin-right: 320px;
+            margin-left: 0;
+        }
+        
+        .consorcio-main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 20px;
+            min-height: 500px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .consorcio-main-content {
+            padding: 40px;
+        }
+        
+        /* ===== TIPOGRAFÍA ===== */
         .consorcio-title {
             font-size: 3.2rem;
             font-weight: 800;
@@ -331,102 +267,564 @@
         }
         
         .consorcio-description h4 {
-            color: #1a252f !important;
-            font-weight: 700 !important;
-            margin-bottom: 12px !important;
-            font-size: 1.25rem !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-        
-
-        
-        /* Wrapper principal para evitar superposición */
-        .consorcio-main-wrapper {
-            margin-right: 320px !important;
-            margin-left: 0 !important;
-        }
-        
-        @media (max-width: 1200px) {
-            .consorcio-main-wrapper {
-                margin-right: 10px !important;
-                margin-left: 0 !important;
-            }
-        }
-        
-        @media (max-width: 992px) {
-            .consorcio-main-wrapper {
-                margin-right: 0 !important;
-                margin-left: 0 !important;
-            }
-        }
-        
-        /* Cuadrado de presupuesto alineado con el cuadrado principal */
-        .consorcio-budget-container {
-            position: absolute;
-            top: 18%;
-            right: 400px;
-            transform: translateY(-50%);
-            z-index: 100;
-            width: 300px;
-        }
-        
-        .consorcio-budget-box {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 25px;
-            text-align: center;
-        }
-        
-        .consorcio-budget-title {
-            font-size: 1.4rem;
-            font-weight: 700;
             color: #1a252f;
-            margin-bottom: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 1.25rem;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
-        .consorcio-budget-text {
-            font-size: 0.95rem;
+        /* ===== PASOS DEL PROCESO ===== */
+        .process-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .process-step:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+        }
+        
+        .process-step-number {
+            background: linear-gradient(135deg, #2B55A2, #3498db);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: 700;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3);
+            font-size: 1rem;
+        }
+        
+        .process-step-text {
+            font-weight: 500;
             color: #2c3e50;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            font-weight: 400;
+            font-size: 1rem;
+            line-height: 1.4;
         }
         
-        .consorcio-budget-btn {
-            background: linear-gradient(135deg, #2B55A2, #3498db) !important;
-            border: none !important;
-            padding: 12px 25px !important;
-            font-size: 1rem !important;
-            font-weight: 600 !important;
-            border-radius: 10px !important;
-            text-decoration: none !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 4px 15px rgba(43, 85, 162, 0.3) !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-            letter-spacing: 0.3px !important;
-            width: 100% !important;
+        /* ===== BENEFICIOS ===== */
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12));
+            border-radius: 12px;
+            height: 100%;
+            border: 1px solid rgba(43, 85, 162, 0.15);
+            box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
         }
         
-        .consorcio-budget-btn:hover {
-            background: linear-gradient(135deg, #1e3a8a, #2980b9) !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(43, 85, 162, 0.4) !important;
+        .benefit-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(43, 85, 162, 0.2);
         }
         
-        /* Responsive para el cuadrado de presupuesto */
-        @media (max-width: 1200px) {
+        .benefit-icon {
+            color: #2B55A2;
+            font-size: 1.8rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .benefit-text {
+            font-weight: 600;
+            color: #1a252f;
+            font-size: 1.05rem;
+            line-height: 1.3;
+        }
+        
+        /* ===== FOOTER ===== */
+        footer {
+            position: relative;
+            z-index: 1000;
+            background-color: #212529;
+            color: white;
+            width: 100%;
+            display: block;
+        }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        
+        /* Ultra Large Screens (>4K, ≥3200px) */
+        @media (min-width: 3200px) {
+            .consorcio-hero-section {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+            .consorcio-content {
+                min-height: 100vh;
+                padding: 5px 0;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+            }
+            .consorcio-title {
+                font-size: 2.5rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.5rem;
+            }
+            .consorcio-highlight-text {
+                font-size: 1rem;
+            }
+            .consorcio-main-content {
+                padding: 25px;
+            }
+            .consorcio-main-wrapper {
+                margin-right: 200px;
+                max-width: 700px;
+            }
             .consorcio-budget-container {
                 width: 280px;
-                right: 15px;
-                top: 15px;
+                right: 0px;
+                top: 10%;
+            }
+            .consorcio-budget-box {
+                padding: 18px;
+            }
+            .consorcio-budget-title {
+                font-size: 1.3rem;
+            }
+            .consorcio-budget-text {
+                font-size: 0.9rem;
+            }
+            .consorcio-description h4 {
+                font-size: 1rem;
+            }
+            .consorcio-description p {
+                font-size: 0.9rem;
+            }
+            .process-step {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+            .process-step-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+            .process-step-text {
+                font-size: 0.9rem;
+            }
+            .benefit-item {
+                padding: 12px;
+                margin-bottom: 8px;
+            }
+            .benefit-icon {
+                font-size: 1.3rem;
+            }
+            .benefit-text {
+                font-size: 0.95rem;
             }
         }
         
-        @media (max-width: 992px) {
+        /* 4K Screens (2560px - 3199px) */
+        @media (min-width: 2560px) and (max-width: 3199px) {
+            .consorcio-hero-section {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+            }
+            .consorcio-content {
+                min-height: 100vh;
+                padding: 10px 0;
+                display: flex;
+                align-items: flex-start;
+                justify-content: center;
+            }
+            .consorcio-title {
+                font-size: 3rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.8rem;
+            }
+            .consorcio-highlight-text {
+                font-size: 1.1rem;
+            }
+            .consorcio-main-content {
+                padding: 30px;
+            }
+            .consorcio-main-wrapper {
+                margin-right: 200px;
+                max-width: 900px;
+            }
+            .consorcio-budget-container {
+                width: 320px;
+                right: 0px;
+                top: 15%;
+            }
+            .consorcio-budget-box {
+                padding: 20px;
+            }
+            .consorcio-budget-title {
+                font-size: 1.4rem;
+            }
+            .consorcio-budget-text {
+                font-size: 0.95rem;
+            }
+            .consorcio-description h4 {
+                font-size: 1.1rem;
+            }
+            .consorcio-description p {
+                font-size: 0.95rem;
+            }
+            .process-step {
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+            .process-step-number {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            .process-step-text {
+                font-size: 0.95rem;
+            }
+            .benefit-item {
+                padding: 15px;
+                margin-bottom: 10px;
+            }
+            .benefit-icon {
+                font-size: 1.5rem;
+            }
+            .benefit-text {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Desktop Large (≥1400px) */
+        @media (min-width: 1400px) and (max-width: 2559px) {
+            .consorcio-title {
+                font-size: 3.5rem;
+            }
+            .consorcio-subtitle {
+                font-size: 2rem;
+            }
+            .consorcio-main-content {
+                padding: 50px;
+            }
+        }
+        
+        /* Desktop (≥1200px) */
+        @media (min-width: 1200px) and (max-width: 1399px) {
+            .consorcio-title {
+                font-size: 3.2rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.8rem;
+            }
+            .consorcio-main-content {
+                padding: 40px;
+            }
+        }
+        
+        /* Laptop Small (1024px - 1199px) */
+        @media (min-width: 1024px) and (max-width: 1199px) {
+            .consorcio-title {
+                font-size: 2.8rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.6rem;
+            }
+            .consorcio-highlight-text {
+                font-size: 1.2rem;
+            }
+            .consorcio-main-content {
+                padding: 35px;
+            }
+            .consorcio-main-wrapper {
+                margin-right: auto;
+                margin-left: auto;
+                order: 2;
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                max-width: 800px;
+            }
+            .consorcio-main-container {
+                max-width: 800px;
+                width: 100%;
+            }
+            .consorcio-budget-container {
+                position: relative;
+                top: auto;
+                right: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 30px;
+                order: 1;
+            }
+            .consorcio-social-optimal {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+                order: 0;
+            }
+            .social-icons-container {
+                flex-direction: row;
+                justify-content: center;
+                gap: 20px;
+            }
+            .social-icon-optimal {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Tablet Large (992px - 1023px) */
+        @media (min-width: 992px) and (max-width: 1023px) {
+            .consorcio-title {
+                font-size: 2.8rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.6rem;
+            }
+            .consorcio-highlight-text {
+                font-size: 1.2rem;
+            }
+            .consorcio-main-content {
+                padding: 35px;
+            }
+            .consorcio-main-wrapper {
+                margin-right: auto;
+                margin-left: auto;
+                order: 2;
+                display: flex;
+                justify-content: center;
+                width: 100%;
+                max-width: 800px;
+            }
+            .consorcio-main-container {
+                max-width: 800px;
+                width: 100%;
+            }
+            .consorcio-budget-container {
+                position: relative;
+                top: auto;
+                right: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 30px;
+                order: 1;
+            }
+            .consorcio-social-optimal {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+                order: 0;
+            }
+            .social-icons-container {
+                flex-direction: row;
+                justify-content: center;
+                gap: 20px;
+            }
+            .social-icon-optimal {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* Tablet (768px - 991px) */
+        @media (min-width: 768px) and (max-width: 991px) {
+            .consorcio-hero-section {
+                min-height: auto;
+            }
+            .consorcio-content {
+                min-height: auto;
+                padding: 20px 0;
+            }
+            .consorcio-title {
+                font-size: 2.5rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.5rem;
+            }
+            .consorcio-highlight-text {
+                font-size: 1.1rem;
+            }
+            .consorcio-main-content {
+                padding: 30px;
+            }
+            .consorcio-main-wrapper {
+                margin-right: 0;
+                margin-left: 0;
+            }
+            .consorcio-budget-container {
+                position: relative;
+                top: auto;
+                right: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 30px;
+                order: -1;
+            }
+            .consorcio-social-optimal {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px 0;
+                order: -2;
+            }
+            .social-icons-container {
+                flex-direction: row;
+                justify-content: center;
+                gap: 20px;
+            }
+            .consorcio-description h4 {
+                font-size: 1.2rem;
+            }
+            .process-step {
+                padding: 12px;
+            }
+            .process-step-number {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            .benefit-item {
+                padding: 18px;
+            }
+            .benefit-icon {
+                font-size: 1.6rem;
+            }
+        }
+        
+        /* Mobile Large (576px - 767px) */
+        @media (min-width: 576px) and (max-width: 767px) {
+            .consorcio-hero-section {
+                min-height: auto;
+            }
+            .consorcio-content {
+                min-height: auto;
+                padding: 15px 0;
+            }
+            .consorcio-title {
+                font-size: 2.2rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.4rem;
+            }
+            .consorcio-highlight-text {
+                font-size: 1.1rem;
+            }
+            .consorcio-main-content {
+                padding: 25px;
+            }
+            .consorcio-main-wrapper {
+                margin-right: 0;
+                margin-left: 0;
+            }
+            .consorcio-budget-container {
+                position: relative;
+                top: auto;
+                right: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 25px;
+                order: -1;
+            }
+            .consorcio-budget-box {
+                padding: 20px;
+            }
+            .consorcio-budget-title {
+                font-size: 1.3rem;
+            }
+            .consorcio-budget-text {
+                font-size: 0.9rem;
+            }
+            .consorcio-social-optimal {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 15px 0;
+                order: -2;
+            }
+            .social-icons-container {
+                flex-direction: row;
+                justify-content: center;
+                gap: 15px;
+            }
+            .social-icon-optimal {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+            .consorcio-description h4 {
+                font-size: 1.1rem;
+            }
+            .consorcio-description p {
+                font-size: 1rem;
+            }
+            .process-step {
+                padding: 10px;
+                margin-bottom: 12px;
+            }
+            .process-step-number {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+            .process-step-text {
+                font-size: 0.95rem;
+            }
+            .benefit-item {
+                padding: 15px;
+                margin-bottom: 12px;
+            }
+            .benefit-icon {
+                font-size: 1.5rem;
+            }
+            .benefit-text {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Mobile (≤575px) */
+        @media (max-width: 575px) {
+            .consorcio-hero-section {
+                min-height: auto;
+            }
+            .consorcio-content {
+                min-height: auto;
+                padding: 10px 0;
+            }
+            .consorcio-title {
+                font-size: 1.8rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.2rem;
+            }
+            .consorcio-highlight-text {
+                font-size: 1rem;
+            }
+            .consorcio-main-content {
+                padding: 20px;
+            }
+            .consorcio-main-wrapper {
+                margin-right: 0;
+                margin-left: 0;
+            }
             .consorcio-budget-container {
                 position: relative;
                 top: auto;
@@ -436,45 +834,171 @@
                 margin-bottom: 20px;
                 order: -1;
             }
-            
-            .consorcio-budget-box {
-                padding: 20px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .consorcio-budget-container {
-                margin-bottom: 15px;
-            }
-            
             .consorcio-budget-box {
                 padding: 18px;
             }
-            
             .consorcio-budget-title {
                 font-size: 1.2rem;
             }
-            
             .consorcio-budget-text {
+                font-size: 0.85rem;
+            }
+            .consorcio-budget-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            .consorcio-social-optimal {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 15px 0;
+                order: -2;
+            }
+            .social-icons-container {
+                flex-direction: row;
+                justify-content: center;
+                gap: 12px;
+            }
+            .social-icon-optimal {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+                padding: 8px;
+            }
+            .consorcio-description h4 {
+                font-size: 1rem;
+            }
+            .consorcio-description p {
+                font-size: 0.9rem;
+            }
+            .process-step {
+                padding: 8px;
+                margin-bottom: 10px;
+            }
+            .process-step-number {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+            .process-step-text {
+                font-size: 0.9rem;
+            }
+            .benefit-item {
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+            .benefit-icon {
+                font-size: 1.4rem;
+            }
+            .benefit-text {
+                font-size: 0.95rem;
+            }
+            .nav-item {
+                font-size: 12px;
+                padding: 8px 15px;
+            }
+        }
+        
+        /* Mobile Extra Small (≤400px) */
+        @media (max-width: 400px) {
+            .consorcio-title {
+                font-size: 1.6rem;
+            }
+            .consorcio-subtitle {
+                font-size: 1.1rem;
+            }
+            .consorcio-highlight-text {
+                font-size: 0.95rem;
+            }
+            .consorcio-main-content {
+                padding: 15px;
+            }
+            .consorcio-budget-box {
+                padding: 15px;
+            }
+            .consorcio-budget-title {
+                font-size: 1.1rem;
+            }
+            .consorcio-budget-text {
+                font-size: 0.8rem;
+            }
+            .consorcio-budget-btn {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+            .social-icon-optimal {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+                padding: 6px;
+            }
+            .consorcio-description h4 {
+                font-size: 0.95rem;
+            }
+            .consorcio-description p {
+                font-size: 0.85rem;
+            }
+            .process-step {
+                padding: 6px;
+                margin-bottom: 8px;
+            }
+            .process-step-number {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+            .process-step-text {
+                font-size: 0.85rem;
+            }
+            .benefit-item {
+                padding: 10px;
+                margin-bottom: 8px;
+            }
+            .benefit-icon {
+                font-size: 1.3rem;
+            }
+            .benefit-text {
                 font-size: 0.9rem;
             }
         }
-
-        /* Asegurar que el footer sea visible */
-        footer {
-            position: relative !important;
-            z-index: 1000 !important;
-            background-color: #212529 !important;
-            color: white !important;
-            width: 100% !important;
-            display: block !important;
+        
+        /* Utilidades responsivas adicionales */
+        .d-mobile-none {
+            display: block;
         }
         
-
+        .d-mobile-block {
+            display: none;
+        }
         
-
+        @media (max-width: 767px) {
+            .d-mobile-none {
+                display: none;
+            }
+            .d-mobile-block {
+                display: block;
+            }
+        }
         
-
+        /* Mejoras de accesibilidad táctil */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-item {
+                padding: 12px 20px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            .consorcio-budget-btn {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .social-icon-optimal {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -537,8 +1061,8 @@
 
 <!-- Fondo con imagen y overlay -->
 <div class="consorcio-hero-section">
-    <div class="consorcio-background" style="background: url('/static/images/Fondo Consorcio 1.jpg') center/cover no-repeat; min-height: 600px;"></div>
-    <div class="consorcio-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.4) 100%); z-index: 1;"></div>
+    <div class="consorcio-background"></div>
+    <div class="consorcio-overlay"></div>
     
          <!-- Redes sociales en esquina superior derecha -->
      <div class="consorcio-social-optimal">
@@ -553,7 +1077,7 @@
     <div class="consorcio-content">
     <div class="container">
         <div class="row">
-            <!-- Cuadrado de presupuesto en esquina superior derecha -->
+            <!-- Cuadrado de presupuesto - aparece arriba en laptops -->
             <div class="consorcio-budget-container">
                 <div class="consorcio-budget-box">
                     <h3 class="consorcio-budget-title">Presupuesto</h3>
@@ -566,8 +1090,8 @@
             
             <!-- Columna principal -->
             <div class="col-lg-10 col-xl-8 consorcio-main-wrapper">
-                <div class="consorcio-main-container" style="background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); margin-bottom: 20px; min-height: 500px; backdrop-filter: blur(10px);">
-                    <div class="consorcio-main-content" style="padding: 20px;">
+                <div class="consorcio-main-container">
+                    <div class="consorcio-main-content">
                         <!-- 1. Encabezado claro -->
                         <h1 class="consorcio-title">Consorcio Inmobiliario</h1>
                         <h2 class="consorcio-subtitle">Financiamiento en Consorcio</h2>
@@ -578,68 +1102,73 @@
                         
                         <!-- 2. Explicación sencilla -->
                         <div class="consorcio-description">
-                            <h4 style="color: #2c3e50; font-size: 1.3rem; font-weight: 600; margin-bottom: 15px;">¿Qué es un Consorcio Inmobiliario?</h4>
+                            <h4>¿Qué es un Consorcio Inmobiliario?</h4>
                             <p>Un consorcio inmobiliario es la unión de personas que se organizan para comprar una propiedad de forma compartida. Cada participante aporta una cuota mensual hasta completar el valor total de la propiedad, y al finalizar el período, uno de los participantes se adjudica la propiedad.</p>
                             
                             <!-- Sección de dos columnas: Cómo funciona y Beneficios -->
                             <div class="row g-4">
                                 <!-- Columna izquierda: Cómo funciona -->
                                 <div class="col-md-6">
-                                    <h4 style="color: #2c3e50; font-size: 1.3rem; font-weight: 600; margin: 25px 0 15px 0;">¿Cómo funciona?</h4>
+                                    <h4>¿Cómo funciona?</h4>
                                     <div class="row g-3">
                                         <div class="col-12">
-                                            <div style="display: flex; align-items: center; margin-bottom: 5px; padding: 4px 0;">
-                                                <div style="background: linear-gradient(135deg, #2B55A2, #3498db); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3); font-size: 0.9rem;">1</div>
-                                                <span style="font-weight: 500; color: #2c3e50; font-size: 1rem;">Te inscribes en el consorcio y comienzas a pagar cuotas mensuales</span>
+                                            <div class="process-step">
+                                                <div class="process-step-number" aria-label="Paso 1">1</div>
+                                                <span class="process-step-text">Te inscribes en el consorcio y comienzas a pagar cuotas mensuales</span>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <div style="display: flex; align-items: center; margin-bottom: 8px; padding: 4px 0;">
-                                                <div style="background: linear-gradient(135deg, #2B55A2, #3498db); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3); font-size: 0.9rem;">2</div>
-                                                <span style="font-weight: 500; color: #2c3e50; font-size: 1rem;">Participas en sorteos mensuales para la adjudicación</span>
+                                            <div class="process-step">
+                                                <div class="process-step-number" aria-label="Paso 2">2</div>
+                                                <span class="process-step-text">Participas en sorteos mensuales para la adjudicación</span>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <div style="display: flex; align-items: center; margin-bottom: 8px; padding: 4px 0;">
-                                                <div style="background: linear-gradient(135deg, #2B55A2, #3498db); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3); font-size: 0.9rem;">3</div>
-                                                <span style="font-weight: 500; color: #2c3e50; font-size: 1rem;">Si ganas el sorteo, te adjudicas la propiedad</span>
-                                </div>
-                            </div>
-                                        <div class="col-12">
-                                            <div style="display: flex; align-items: center; margin-bottom: 12px; padding: 4px 0;">
-                                                <div style="background: linear-gradient(135deg, #2B55A2, #3498db); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: 700; flex-shrink: 0; box-shadow: 0 2px 8px rgba(43, 85, 162, 0.3); font-size: 0.9rem;">4</div>
-                                                <span style="font-weight: 500; color: #2c3e50; font-size: 1rem;">Si no ganas, continúas hasta el próximo sorteo</span>
+                                            <div class="process-step">
+                                                <div class="process-step-number" aria-label="Paso 3">3</div>
+                                                <span class="process-step-text">Si ganas el sorteo, te adjudicas la propiedad</span>
                                             </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="process-step">
+                                                <div class="process-step-number" aria-label="Paso 4">4</div>
+                                                <span class="process-step-text">Si no ganas, continúas hasta el próximo sorteo</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        
+                                
                                 <!-- Columna derecha: Beneficios destacados -->
                                 <div class="col-md-6">
-                                    <h4 style="color: #1a252f !important; font-size: 1.3rem !important; font-weight: 700 !important; margin: 25px 0 15px 0 !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">Beneficios Destacados</h4>
+                                    <h4>Beneficios Destacados</h4>
                                     <div class="row g-3">
                                         <div class="col-12">
-                                            <div style="display: flex; align-items: center; padding: 18px; background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12)); border-radius: 12px; height: 100%; border: 1px solid rgba(43, 85, 162, 0.15); box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1); transition: all 0.3s ease;">
-                                                <i class="fas fa-home" style="color: #2B55A2; font-size: 1.6rem; margin-right: 15px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);"></i>
-                                                <span style="font-weight: 600; color: #1a252f; font-size: 1.05rem; line-height: 1.3;">Sin necesidad de hipotecario</span>
+                                            <div class="benefit-item">
+                                                <i class="fas fa-home benefit-icon" aria-hidden="true"></i>
+                                                <span class="benefit-text">Sin necesidad de hipotecario</span>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <div style="display: flex; align-items: center; padding: 18px; background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12)); border-radius: 12px; height: 100%; border: 1px solid rgba(43, 85, 162, 0.15); box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1); transition: all 0.3s ease;">
-                                                <i class="fas fa-coins" style="color: #2B55A2; font-size: 1.6rem; margin-right: 15px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);"></i>
-                                                <span style="font-weight: 600; color: #1a252f; font-size: 1.05rem; line-height: 1.3;">Inversión en cuotas accesibles</span>
+                                            <div class="benefit-item">
+                                                <i class="fas fa-coins benefit-icon" aria-hidden="true"></i>
+                                                <span class="benefit-text">Inversión en cuotas accesibles</span>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <div style="display: flex; align-items: center; padding: 18px; background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12)); border-radius: 12px; height: 100%; border: 1px solid rgba(43, 85, 162, 0.15); box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1); transition: all 0.3s ease;">
-                                                <i class="fas fa-trophy" style="color: #2B55A2; font-size: 1.6rem; margin-right: 15px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);"></i>
-                                                <span style="font-weight: 600; color: #1a252f; font-size: 1.05rem; line-height: 1.3;">Posibilidad de adjudicación anticipada</span>
+                                            <div class="benefit-item">
+                                                <i class="fas fa-trophy benefit-icon" aria-hidden="true"></i>
+                                                <span class="benefit-text">Posibilidad de adjudicación anticipada</span>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <div style="display: flex; align-items: center; padding: 18px; background: linear-gradient(135deg, rgba(43, 85, 162, 0.08), rgba(52, 152, 219, 0.12)); border-radius: 12px; height: 100%; border: 1px solid rgba(43, 85, 162, 0.15); box-shadow: 0 2px 8px rgba(43, 85, 162, 0.1); transition: all 0.3s ease;">
-                                                <i class="fas fa-shield-alt" style="color: #2B55A2; font-size: 1.6rem; margin-right: 15px; flex-shrink: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);"></i>
-                                                <span style="font-weight: 600; color: #1a252f; font-size: 1.05rem; line-height: 1.3;">Seguridad y respaldo de la inmobiliaria</span>
+                                            <div class="benefit-item">
+                                                <i class="fas fa-shield-alt benefit-icon" aria-hidden="true"></i>
+                                                <span class="benefit-text">Seguridad y respaldo de la inmobiliaria</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -658,7 +1187,7 @@
 </div>
 
 <!-- Pie de Página -->
-<footer class="bg-dark text-light py-4" style="margin-top: 0;">
+<footer class="bg-dark text-light py-4">
     <div class="container">
         <div class="row">
             <div class="col-md-4">
@@ -700,62 +1229,44 @@
 <script src="{% static 'js/main.js' %}"></script>
 
 <script>
-// Navegación ultra optimizada para velocidad máxima
+// Navegación responsiva
 document.addEventListener('DOMContentLoaded', function() {
     const navItems = document.querySelectorAll('.nav-item');
     
     navItems.forEach(item => {
-        // Efecto de click instantáneo
         item.addEventListener('click', function(e) {
-            // Si es el enlace activo (CONSORCIO), hacer scroll instantáneo
+            // Si es el enlace activo (CONSORCIO), hacer scroll suave
             if (this.classList.contains('active')) {
                 e.preventDefault();
                 
-                // Scroll instantáneo sin animación para máxima velocidad
                 const consorcioContent = document.querySelector('.consorcio-content');
                 if (consorcioContent) {
                     const navHeight = 60;
                     const extraOffset = -60;
                     const targetPosition = consorcioContent.offsetTop - navHeight - extraOffset;
                     
-                    // Scroll instantáneo sin 'smooth' para velocidad máxima
-                    window.scrollTo(0, targetPosition);
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
                 }
                 return false;
             }
-            
-            // Efectos visuales mínimos para enlaces no activos
-            this.style.transition = 'all 0.05s ease-out';
-            this.style.transform = 'translateY(-1px)';
-            this.style.backgroundColor = 'rgba(43, 85, 162, 0.15)';
-            
-            // Restaurar instantáneamente
-            setTimeout(() => {
-                this.style.transform = '';
-                this.style.backgroundColor = '';
-            }, 50);
         });
-        
-        // Prevenir hover en enlace activo
-        if (item.classList.contains('active')) {
-            item.addEventListener('mouseenter', function(e) {
-                e.preventDefault();
-                return false;
-            });
-        }
     });
     
-    // Scroll instantáneo para carga directa
+    // Scroll automático para carga directa
     if (window.location.pathname.includes('consorcio')) {
-        // Sin delay para máxima velocidad
         const consorcioContent = document.querySelector('.consorcio-content');
         if (consorcioContent) {
             const navHeight = 60;
             const extraOffset = -60;
             const targetPosition = consorcioContent.offsetTop - navHeight - extraOffset;
             
-            // Scroll instantáneo al cargar
-            window.scrollTo(0, targetPosition);
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
         }
     }
 });

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Mensaje Recibido</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .success-box {
+            background-color: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .success-box h2 {
+            color: #155724;
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .success-box p {
+            margin: 0;
+            color: #155724;
+            font-weight: 500;
+        }
+        
+        .message-details {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .message-details h3 {
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        
+        .detail-item {
+            margin-bottom: 15px;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: #495057;
+            font-size: 14px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            font-size: 16px;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-weight: 500;
+        }
+        
+        .message-content {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .message-content h4 {
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .message-text {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-style: italic;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .footer p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .contact-info {
+            background-color: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .contact-info h4 {
+            color: #0d47a1;
+            margin: 0 0 10px 0;
+            font-weight: bold;
+        }
+        
+        .contact-info p {
+            margin: 0;
+            color: #0d47a1;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .message-details {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>✅ Mensaje Recibido</h1>
+            <p>{{ site_name }} - Sistema de Contacto</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="success-box">
+                <h2>¡Gracias por contactarnos!</h2>
+                <p>Hemos recibido tu mensaje y te contactaremos pronto</p>
+            </div>
+
+            <!-- Detalles del mensaje -->
+            <div class="message-details">
+                <h3>📋 Detalles de tu Consulta</h3>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Nombre</div>
+                    <div class="detail-value">{{ contact_submission.nombre }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">{{ contact_submission.email }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Teléfono</div>
+                    <div class="detail-value">{{ contact_submission.telefono|default:"No proporcionado" }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Asunto</div>
+                    <div class="detail-value">{{ contact_submission.get_asunto_display }}</div>
+                </div>
+                
+                <div class="detail-item">
+                    <div class="detail-label">Fecha de Envío</div>
+                    <div class="detail-value">{{ fecha_corregida|date:"d/m/Y H:i" }}</div>
+                </div>
+                
+                {% if contact_submission.fecha_entrada %}
+                <div class="detail-item">
+                    <div class="detail-label">Fecha de Entrada</div>
+                    <div class="detail-value">{{ contact_submission.fecha_entrada|date:"d/m/Y" }} - 13:00 PM</div>
+                </div>
+                {% endif %}
+                
+                {% if contact_submission.fecha_salida %}
+                <div class="detail-item">
+                    <div class="detail-label">Fecha de Salida</div>
+                    <div class="detail-value">{{ contact_submission.fecha_salida|date:"d/m/Y" }} - 10:00 AM</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Contenido del mensaje -->
+            <div class="message-content">
+                <h4>💬 Tu Mensaje</h4>
+                <div class="message-text">
+                    {{ contact_submission.mensaje|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Información de contacto -->
+            <div class="contact-info">
+                <h4>📞 ¿Necesitas contactarnos urgentemente?</h4>
+                <p>Puedes llamarnos directamente o visitar nuestras oficinas</p>
+            </div>
+
+            <p style="margin-top: 30px; text-align: center; color: #6c757d; font-size: 14px;">
+                <strong>Próximos pasos:</strong> Revisaremos tu consulta y te contactaremos en las próximas 24 horas.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                <strong>Equipo de Atención al Cliente</strong><br>
+                {{ site_name }}<br>
+                <em>Este es un mensaje automático - No responder a este email</em>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Ignorar archivos HTML con plantillas Django
+**/*.html
+**/templates/**
+**/static/**
+
+# Ignorar archivos de Python
+**/*.py
+**/__pycache__/
+**/migrations/
+**/venv/
+**/env/

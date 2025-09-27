@@ -24,4 +24,13 @@ urlpatterns = [
     path('aprobar-resena/<int:resena_id>/', views.aprobar_resena, name='aprobar_resena'),
     path('rechazar-resena/<int:resena_id>/', views.rechazar_resena, name='rechazar_resena'),
     path('eliminar-resena/', views.eliminar_resena, name='eliminar_resena'),
+    
+    # URLs para 2FA
+    path('setup-2fa/', views.setup_2fa, name='setup_2fa'),
+    path('disable-2fa/', views.disable_2fa, name='disable_2fa'),
+    path('2fa-success/', views.two_factor_success, name='2fa_success'),
+    
+    # URLs para recuperación de contraseña
+    path('password-reset/', views.password_reset_request, name='password_reset_request'),
+    path('password-reset-verify/<str:email>/', views.password_reset_verify, name='password_reset_verify'),
 ]

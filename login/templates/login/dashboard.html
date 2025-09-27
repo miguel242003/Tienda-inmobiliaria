@@ -1,5 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
+<!-- eslint-disable -->
+<!-- @typescript-eslint/disable -->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -1066,7 +1068,7 @@
                                                     <i data-lucide="edit" class="w-4 h-4"></i>
                                                 </a>
                                                 <button type="button" class="text-red-600 hover:text-red-900" 
-                                                        onclick="confirmarEliminar({{ propiedad.id }}, '{{ propiedad.titulo }}')" 
+                                                        onclick="confirmarEliminar({{ propiedad.id }}, '{{ propiedad.titulo|escapejs }}')" 
                                                         title="Eliminar">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                 </button>
@@ -1237,126 +1239,119 @@
                         </div>
                     </div>
 
-                    <!-- Sección de Cambio de Contraseña -->
+                    <!-- Tarjeta de Configuración 2FA -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 mt-6">
                         <div class="p-6 border-b border-gray-200">
                             <h3 class="text-lg font-semibold text-gray-900 flex items-center">
-                                <i data-lucide="lock" class="w-5 h-5 mr-2 text-blue-600"></i>
-                                Cambiar Contraseña
+                                {% if user.admincredentials.two_factor_enabled %}
+                                    <i data-lucide="shield-check" class="w-5 h-5 mr-2 text-green-600"></i>
+                                    Autenticación de Dos Factores (2FA) - Activo
+                                {% else %}
+                                    <i data-lucide="shield" class="w-5 h-5 mr-2 text-orange-600"></i>
+                                    Autenticación de Dos Factores (2FA)
+                                {% endif %}
                             </h3>
                         </div>
                         
                         <div class="p-6">
-                            <!-- Messages para cambio de contraseña -->
-                            <div id="password-messages" class="hidden mb-4"></div>
-                            
-                            <form id="cambiar-password-form" method="post">
-                                {% csrf_token %}
-                                
-                                <!-- Contraseña Actual -->
-                                <div class="mb-6">
-                                    <label for="password_actual" class="block text-sm font-semibold text-gray-700 mb-2">
-                                        <i data-lucide="key" class="w-4 h-4 mr-2 text-blue-600"></i>
-                                        Contraseña Actual
-                                    </label>
-                                    <div class="relative">
-                                        <input type="password" id="password_actual" name="password_actual" 
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
-                                               placeholder="Ingresa tu contraseña actual" required>
-                                        <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('password_actual')">
-                                            <i data-lucide="eye" class="w-4 h-4 text-gray-400"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Nueva Contraseña -->
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                                    <div>
-                                        <label for="nueva_password" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            <i data-lucide="lock" class="w-4 h-4 mr-2 text-blue-600"></i>
-                                            Nueva Contraseña
-                                        </label>
-                                        <div class="relative">
-                                            <input type="password" id="nueva_password" name="nueva_password" 
-                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
-                                                   placeholder="Ingresa nueva contraseña" required>
-                                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('nueva_password')">
-                                                <i data-lucide="eye" class="w-4 h-4 text-gray-400"></i>
-                                            </button>
+                            {% if user.admincredentials.two_factor_enabled %}
+                                <!-- Estado: 2FA Habilitado -->
+                                <div class="flex items-start space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i data-lucide="shield-check" class="w-6 h-6 text-green-600"></i>
                                         </div>
                                     </div>
                                     
-                                    <div>
-                                        <label for="confirmar_nueva_password" class="block text-sm font-semibold text-gray-700 mb-2">
-                                            <i data-lucide="lock" class="w-4 h-4 mr-2 text-blue-600"></i>
-                                            Confirmar Nueva Contraseña
-                                        </label>
-                                        <div class="relative">
-                                            <input type="password" id="confirmar_nueva_password" name="confirmar_nueva_password" 
-                                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10"
-                                                   placeholder="Confirma nueva contraseña" required>
-                                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePasswordVisibility('confirmar_nueva_password')">
-                                                <i data-lucide="eye" class="w-4 h-4 text-gray-400"></i>
+                                    <div class="flex-1">
+                                        <h4 class="text-lg font-semibold text-gray-900 mb-2">
+                                            ✅ 2FA Habilitado
+                                        </h4>
+                                        <p class="text-gray-600 mb-4">
+                                            Tu cuenta está protegida con autenticación de dos factores. 
+                                            Cada vez que inicies sesión necesitarás tu contraseña y un código de Google Authenticator.
+                                        </p>
+                                        
+                                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                            <div class="flex items-start">
+                                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 mr-3 mt-0.5"></i>
+                                                <div>
+                                                    <h5 class="text-sm font-semibold text-green-800 mb-1">Estado de Seguridad</h5>
+                                                    <ul class="text-sm text-green-700 space-y-1">
+                                                        <li>• 2FA activo y funcionando</li>
+                                                        <li>• Códigos de respaldo disponibles</li>
+                                                        <li>• Cuenta protegida contra accesos no autorizados</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex flex-col sm:flex-row gap-3">
+                                            <button type="button" id="btn-desactivar-2fa" 
+                                                    class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center">
+                                                <i data-lucide="shield-x" class="w-4 h-4 mr-2"></i>
+                                                Desactivar 2FA
+                                            </button>
+                                            
+                                            <button type="button" id="btn-ver-codigos-respaldo" 
+                                                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                                                <i data-lucide="key" class="w-4 h-4 mr-2"></i>
+                                                Ver Códigos de Respaldo
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Opción de Recuperación por SMS -->
-                                <div class="mb-6">
-                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                                        <div class="flex items-start">
-                                            <i data-lucide="smartphone" class="w-5 h-5 text-yellow-600 mr-3 mt-0.5"></i>
-                                            <div class="flex-1">
-                                                <h4 class="text-sm font-semibold text-yellow-800 mb-2">¿No recuerdas tu contraseña actual?</h4>
-                                                <p class="text-sm text-yellow-700 mb-3">
-                                                    Te enviaremos un código de verificación al número: 
-                                                    <strong>{{ user.admincredentials.telefono|default:"No registrado" }}</strong>
-                                                </p>
-                                                <button type="button" id="btn-enviar-sms" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-sm">
-                                                    <i data-lucide="send" class="w-4 h-4 mr-2"></i>
-                                                    Enviar Código por SMS
-                                                </button>
+                            {% else %}
+                                <!-- Estado: 2FA No Habilitado -->
+                                <div class="flex items-start space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                            <i data-lucide="shield" class="w-6 h-6 text-orange-600"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex-1">
+                                        <h4 class="text-lg font-semibold text-gray-900 mb-2">
+                                            Protege tu cuenta con 2FA
+                                        </h4>
+                                        <p class="text-gray-600 mb-4">
+                                            La autenticación de dos factores añade una capa extra de seguridad a tu cuenta. 
+                                            Necesitarás tu contraseña y un código generado por tu dispositivo móvil para iniciar sesión.
+                                        </p>
+                                        
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                                            <div class="flex items-start">
+                                                <i data-lucide="info" class="w-5 h-5 text-blue-600 mr-3 mt-0.5"></i>
+                                                <div>
+                                                    <h5 class="text-sm font-semibold text-blue-800 mb-1">¿Cómo funciona?</h5>
+                                                    <ul class="text-sm text-blue-700 space-y-1">
+                                                        <li>• Descarga Google Authenticator en tu móvil</li>
+                                                        <li>• Escanea el código QR que te proporcionaremos</li>
+                                                        <li>• Usa el código de 6 dígitos para completar el login</li>
+                                                    </ul>
+                                                </div>
                                             </div>
+                                        </div>
+                                        
+                                        <div class="flex flex-col sm:flex-row gap-3">
+                                            <button type="button" id="btn-configurar-2fa" 
+                                                    class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center">
+                                                <i data-lucide="shield-check" class="w-4 h-4 mr-2"></i>
+                                                Configurar 2FA
+                                            </button>
+                                            
+                                            <button type="button" id="btn-info-2fa" 
+                                                    class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center">
+                                                <i data-lucide="help-circle" class="w-4 h-4 mr-2"></i>
+                                                Más información
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Campo para código SMS (oculto inicialmente) -->
-                                <div id="sms-verification-section" class="mb-6 hidden">
-                                    <label for="codigo_sms" class="block text-sm font-semibold text-gray-700 mb-2">
-                                        <i data-lucide="message-square" class="w-4 h-4 mr-2 text-blue-600"></i>
-                                        Código de Verificación SMS
-                                    </label>
-                                    <div class="flex items-center space-x-3">
-                                        <input type="text" id="codigo_sms" name="codigo_sms" 
-                                               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                               placeholder="Ingresa el código de 6 dígitos" maxlength="6">
-                                        <button type="button" id="btn-verificar-sms" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                                            <i data-lucide="check" class="w-4 h-4 mr-2"></i>
-                                            Verificar
-                                        </button>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-2">
-                                        <i data-lucide="clock" class="w-3 h-3 mr-1"></i>
-                                        El código expira en <span id="sms-timer">5:00</span>
-                                    </p>
-                                </div>
-
-                                <!-- Botones de Acción -->
-                                <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                                    <button type="button" id="cancelar-password" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
-                                        <i data-lucide="x" class="w-4 h-4 mr-2"></i>
-                                        Cancelar
-                                    </button>
-                                    <button type="submit" id="btn-cambiar-password" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" disabled>
-                                        <i data-lucide="key" class="w-4 h-4 mr-2"></i>
-                                        Cambiar Contraseña
-                                    </button>
-                                </div>
-                            </form>
+                            {% endif %}
                         </div>
                     </div>
+
                 </div>
                 
                 <!-- Contenido de Gestión de Reseñas (oculto por defecto) -->
@@ -1503,6 +1498,8 @@
 
     <!-- Modal Nueva Propiedad -->
     <div id="modal-nueva-propiedad" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <!-- Font Awesome para el modal -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
                 <!-- Header del Modal -->
@@ -1778,12 +1775,12 @@
                                 <p class="text-gray-600 text-sm mb-4">Selecciona las amenidades que incluye esta propiedad:</p>
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {% for amenidad in form.amenidades %}
+                                    {% for amenidad in amenidades %}
                                     <div class="amenidad-checkbox bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-blue-50 hover:border-blue-300 transition-all cursor-pointer">
-                                        {{ amenidad }}
-                                        <label class="form-check-label cursor-pointer ml-3" for="{{ amenidad.id_for_label }}">
-                                            <i class="fas {{ amenidad.data.attrs.icono|default:'fa-check' }} mr-2 text-blue-600"></i>
-                                            {{ amenidad.choice_label }}
+                                        <input type="checkbox" name="amenidades" value="{{ amenidad.id }}" id="id_amenidades_{{ forloop.counter0 }}" class="form-check-input">
+                                        <label class="form-check-label cursor-pointer ml-3" for="id_amenidades_{{ forloop.counter0 }}">
+                                            <i class="fas mr-2 text-blue-600" data-icon="{{ amenidad.icono }}"></i>
+                                            {{ amenidad.nombre }}
                                         </label>
                                     </div>
                                     {% endfor %}
@@ -1847,6 +1844,7 @@
                         </div>
 
                         <!-- Tab: Crear Usuario -->
+                          <!-- Tab: Crear Usuario -->
                         <div id="content-crear-usuario">
                             <!-- Messages -->
                             <div id="modal-messages-usuario" class="hidden"></div>
@@ -2454,11 +2452,11 @@
                 
                 // Datos desde Django
                 this.datosPropiedades = {
-                'todas': { 
-                    total: {{ total_clicks|default:"0" }}, 
-                    datos: [{% for mes_data in clicks_por_mes %}{{ mes_data.clicks }}{% if not forloop.last %},{% endif %}{% endfor %}] 
-                }
-            };
+                    'todas': { 
+                        total: {{ total_clicks|default:"0" }}, 
+                        datos: [{% for mes_data in clicks_por_mes %}{{ mes_data.clicks }}{% if not forloop.last %},{% endif %}{% endfor %}] 
+                    }
+                };
             
                 // Agregar datos de propiedades individuales usando JSON seguro
                 try {
@@ -2468,9 +2466,9 @@
                     console.log('Tipo de datos:', typeof datosPropiedadesRaw);
                     console.log('Claves disponibles:', Object.keys(datosPropiedadesRaw));
                     
-            {% for propiedad in todas_propiedades %}
+                    {% for propiedad in todas_propiedades %}
                     const datosPropiedad_{{ propiedad.id }} = datosPropiedadesRaw && datosPropiedadesRaw['{{ propiedad.id }}'] ? datosPropiedadesRaw['{{ propiedad.id }}'] : null;
-                    console.log(`Datos raw para propiedad {{ propiedad.id }} ({{ propiedad.titulo }}):`, datosPropiedad_{{ propiedad.id }});
+                    console.log(`Datos raw para propiedad {{ propiedad.id }} ({{ propiedad.titulo|escapejs }}):`, datosPropiedad_{{ propiedad.id }});
                     if (datosPropiedad_{{ propiedad.id }}) {
                         console.log(`  - Total: ${datosPropiedad_{{ propiedad.id }}.clicks_totales}`);
                         console.log(`  - Por mes: ${JSON.stringify(datosPropiedad_{{ propiedad.id }}.clicks_por_mes)}`);
@@ -2480,7 +2478,7 @@
                         total: datosPropiedad_{{ propiedad.id }} ? datosPropiedad_{{ propiedad.id }}.clicks_totales : 0,
                         datos: datosPropiedad_{{ propiedad.id }} ? datosPropiedad_{{ propiedad.id }}.clicks_por_mes : [0,0,0,0,0,0,0,0,0,0,0,0]
                     };
-                    console.log(`Datos finales para propiedad {{ propiedad.id }} ({{ propiedad.titulo }}):`, this.datosPropiedades['{{ propiedad.id }}']);
+                    console.log(`Datos finales para propiedad {{ propiedad.id }} ({{ propiedad.titulo|escapejs }}):`, this.datosPropiedades['{{ propiedad.id }}']);
                     console.log(`  - Total final: ${this.datosPropiedades['{{ propiedad.id }}'].total}`);
                     console.log(`  - Datos finales: ${JSON.stringify(this.datosPropiedades['{{ propiedad.id }}'].datos)}`);
             {% endfor %}
@@ -2570,7 +2568,7 @@
                     if (propiedad !== 'todas') {
                         const datosTodas = this.datosPropiedades['todas'];
                         const sonIguales = JSON.stringify(datos.datos) === JSON.stringify(datosTodas.datos);
-                        console.log(`¿Los datos de ${propiedad} son iguales a "todas"? ${sonIguales ? 'SÍ' : 'NO'}`);
+                        console.log(`Los datos de ${propiedad} son iguales a "todas"? ${sonIguales ? 'SI' : 'NO'}`);
                         if (sonIguales) {
                             console.log('PROBLEMA: Los datos son idénticos a "todas las propiedades"');
                         }
@@ -3145,17 +3143,16 @@
                 const iconColor = type === 'success' ? 'text-green-600' : 'text-red-600';
                 const icon = type === 'success' ? 'check-circle' : 'alert-circle';
                 
-                this.messagesContainer.innerHTML = `
-                    <div class="border rounded-lg p-4 ${bgColor} flex items-start">
-                        <i data-lucide="${icon}" class="w-5 h-5 ${iconColor} mr-3 mt-0.5"></i>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium">${message}</p>
-                        </div>
-                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                `;
+                this.messagesContainer.innerHTML = 
+                    '<div class="border rounded-lg p-4 ' + bgColor + ' flex items-start">' +
+                        '<i data-lucide="' + icon + '" class="w-5 h-5 ' + iconColor + ' mr-3 mt-0.5"></i>' +
+                        '<div class="flex-1">' +
+                            '<p class="text-sm font-medium">' + message + '</p>' +
+                        '</div>' +
+                        '<button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">' +
+                            '<i data-lucide="x" class="w-4 h-4"></i>' +
+                        '</button>' +
+                    '</div>';
                 this.messagesContainer.classList.remove('hidden');
                 // Recrear iconos de Lucide
                 lucide.createIcons();
@@ -3257,7 +3254,7 @@
                             if (result.errors) {
                                 let errorMessage = result.message || 'Por favor corrige los siguientes errores:';
                                 for (const [field, errors] of Object.entries(result.errors)) {
-                                    errorMessage += `\n• ${field}: ${errors.join(', ')}`;
+                                    errorMessage += `\n- ${field}: ${errors.join(', ')}`;
                                 }
                                 this.showMessage(errorMessage, 'danger');
                             } else {
@@ -3485,17 +3482,16 @@
                 const iconColor = type === 'success' ? 'text-green-600' : 'text-red-600';
                 const icon = type === 'success' ? 'check-circle' : 'alert-circle';
                 
-                this.messagesContainer.innerHTML = `
-                    <div class="border rounded-lg p-4 ${bgColor} flex items-start">
-                        <i data-lucide="${icon}" class="w-5 h-5 ${iconColor} mr-3 mt-0.5"></i>
-                        <div class="flex-1">
-                            <p class="text-sm font-medium">${message}</p>
-                        </div>
-                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                `;
+                this.messagesContainer.innerHTML = 
+                    '<div class="border rounded-lg p-4 ' + bgColor + ' flex items-start">' +
+                        '<i data-lucide="' + icon + '" class="w-5 h-5 ' + iconColor + ' mr-3 mt-0.5"></i>' +
+                        '<div class="flex-1">' +
+                            '<p class="text-sm font-medium">' + message + '</p>' +
+                        '</div>' +
+                        '<button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">' +
+                            '<i data-lucide="x" class="w-4 h-4"></i>' +
+                        '</button>' +
+                    '</div>';
                 this.messagesContainer.classList.remove('hidden');
                 // Recrear iconos de Lucide
                 lucide.createIcons();
@@ -3521,7 +3517,6 @@
                         }
                     });
                 }
-                
                 // Validación antes de enviar (solo para nueva propiedad)
                 if (this.form.id === 'crearPropiedadForm') {
                     this.form.addEventListener('submit', (e) => {
@@ -3630,18 +3625,17 @@
                     reader.onload = (e) => {
                         const col = document.createElement('div');
                         col.className = 'col-span-1';
-                        col.innerHTML = `
-                            <div class="foto-preview-item">
-                                <button type="button" class="foto-preview-remove" onclick="PropertyModalManager.removeFotoPreview(${index})">
-                                    <i data-lucide="x" class="w-3 h-3"></i>
-                                </button>
-                                <img src="${e.target.result}" alt="Preview ${index + 1}" class="w-full h-32 object-cover rounded">
-                                <div class="foto-preview-info">
-                                    <small class="text-gray-600">${file.name}</small>
-                                    <small class="text-gray-500 block">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
-                                </div>
-                            </div>
-                        `;
+                        col.innerHTML = 
+                            '<div class="foto-preview-item">' +
+                                '<button type="button" class="foto-preview-remove" onclick="PropertyModalManager.removeFotoPreview(' + index + ')">' +
+                                    '<i data-lucide="x" class="w-3 h-3"></i>' +
+                                '</button>' +
+                                '<img src="' + e.target.result + '" alt="Preview ' + (index + 1) + '" class="w-full h-32 object-cover rounded">' +
+                                '<div class="foto-preview-info">' +
+                                    '<small class="text-gray-600">' + file.name + '</small>' +
+                                    '<small class="text-gray-500 block">' + (file.size / 1024 / 1024).toFixed(2) + ' MB</small>' +
+                                '</div>' +
+                            '</div>';
                         gridDiv.appendChild(col);
                         // Recrear iconos de Lucide
                         lucide.createIcons();
@@ -3721,7 +3715,7 @@
                             if (result.errors) {
                                 let errorMessage = result.message || 'Por favor corrige los siguientes errores:';
                                 for (const [field, errors] of Object.entries(result.errors)) {
-                                    errorMessage += `\n• ${field}: ${errors.join(', ')}`;
+                                    errorMessage += `\n- ${field}: ${errors.join(', ')}`;
                                 }
                                 this.showMessage(errorMessage, 'danger');
                             } else {
@@ -3885,17 +3879,16 @@
             const iconColor = tipo === 'success' ? 'text-green-600' : 'text-red-600';
             const icon = tipo === 'success' ? 'check-circle' : 'alert-circle';
             
-            messagesContainer.innerHTML = `
-                <div class="border rounded-lg p-4 ${bgColor} flex items-start">
-                    <i data-lucide="${icon}" class="w-5 h-5 ${iconColor} mr-3 mt-0.5"></i>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium">${mensaje}</p>
-                    </div>
-                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">
-                        <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
-                </div>
-            `;
+            messagesContainer.innerHTML = 
+                '<div class="border rounded-lg p-4 ' + bgColor + ' flex items-start">' +
+                    '<i data-lucide="' + icon + '" class="w-5 h-5 ' + iconColor + ' mr-3 mt-0.5"></i>' +
+                    '<div class="flex-1">' +
+                        '<p class="text-sm font-medium">' + mensaje + '</p>' +
+                    '</div>' +
+                    '<button type="button" onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-400 hover:text-gray-600">' +
+                        '<i data-lucide="x" class="w-4 h-4"></i>' +
+                    '</button>' +
+                '</div>';
             messagesContainer.classList.remove('hidden');
             lucide.createIcons();
             
@@ -4318,6 +4311,51 @@
                         updateSidebarState('dashboard');
                     });
                 }
+                
+                // Event listener para botón de configurar 2FA
+                const btnConfigurar2FA = document.getElementById('btn-configurar-2fa');
+                if (btnConfigurar2FA) {
+                    btnConfigurar2FA.addEventListener('click', function() {
+                        // Redirigir a la página de configuración 2FA
+                        window.location.href = '/login/setup-2fa';
+                    });
+                }
+                
+                // Event listener para botón de información 2FA
+                const btnInfo2FA = document.getElementById('btn-info-2fa');
+                if (btnInfo2FA) {
+                    btnInfo2FA.addEventListener('click', function() {
+                        // Mostrar información adicional sobre 2FA
+                        alert('La autenticación de dos factores (2FA) es una medida de seguridad que requiere dos formas de verificación para acceder a tu cuenta. Esto hace que sea mucho más difícil para los atacantes acceder a tu información personal, incluso si conocen tu contraseña.');
+                    });
+                }
+                
+                // Event listener para botón de desactivar 2FA
+                const btnDesactivar2FA = document.getElementById('btn-desactivar-2fa');
+                if (btnDesactivar2FA) {
+                    btnDesactivar2FA.addEventListener('click', function() {
+                        // Confirmar desactivación
+                        if (confirm('¿Estás seguro de que quieres desactivar la autenticación de dos factores? Esto reducirá la seguridad de tu cuenta.')) {
+                            // Redirigir a la página de desactivación 2FA
+                            window.location.href = '/login/disable-2fa';
+                        }
+                    });
+                }
+                
+                // Event listener para botón de ver códigos de respaldo
+                const btnVerCodigosRespaldo = document.getElementById('btn-ver-codigos-respaldo');
+                if (btnVerCodigosRespaldo) {
+                    btnVerCodigosRespaldo.addEventListener('click', function() {
+                        // Mostrar códigos de respaldo (esto requeriría una implementación adicional)
+                        alert('Los códigos de respaldo te permiten acceder a tu cuenta si pierdes tu dispositivo móvil. Guárdalos en un lugar seguro. Esta funcionalidad se implementará próximamente.');
+                    });
+                }
+                
+                // Asignar iconos dinámicamente a las amenidades
+                document.querySelectorAll('[data-icon]').forEach(function(element) {
+                    const iconClass = element.getAttribute('data-icon');
+                    element.classList.add(iconClass);
+                });
                 
                 console.log('Dashboard inicializado correctamente');
             } catch (error) {

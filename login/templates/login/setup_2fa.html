@@ -1,0 +1,194 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Configurar 2FA - Tienda Inmobiliaria{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Configurar Autenticación de Dos Factores (2FA)
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Paso 1: Instrucciones -->
+                    <div class="step mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-primary rounded-circle me-3">1</span>
+                            <h4 class="mb-0">Instalar Google Authenticator</h4>
+                        </div>
+                        <div class="ms-5">
+                            <p>Descarga e instala Google Authenticator en tu dispositivo móvil:</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" 
+                                       target="_blank" class="btn btn-outline-success w-100 mb-2">
+                                        <i class="fab fa-google-play me-2"></i>
+                                        Android
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="https://apps.apple.com/app/google-authenticator/id388497605" 
+                                       target="_blank" class="btn btn-outline-primary w-100 mb-2">
+                                        <i class="fab fa-apple me-2"></i>
+                                        iOS
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 2: Escanear QR -->
+                    <div class="step mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-primary rounded-circle me-3">2</span>
+                            <h4 class="mb-0">Escanear Código QR</h4>
+                        </div>
+                        <div class="ms-5">
+                            <p>Usa Google Authenticator para escanear este código QR:</p>
+                            <div class="text-center">
+                                <div class="qr-container p-3 bg-light rounded">
+                                    <img src="data:image/png;base64,{{ qr_code }}" 
+                                         alt="Código QR para 2FA" 
+                                         class="img-fluid"
+                                         style="max-width: 200px;">
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    Si no puedes escanear el código, usa esta clave manual:
+                                </small>
+                                <div class="mt-2">
+                                    <code class="bg-light p-2 rounded">{{ credenciales.totp_secret }}</code>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2" 
+                                            onclick="copyToClipboard('{{ credenciales.totp_secret }}')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paso 3: Verificar -->
+                    <div class="step mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-primary rounded-circle me-3">3</span>
+                            <h4 class="mb-0">Verificar Configuración</h4>
+                        </div>
+                        <div class="ms-5">
+                            <p>Ingresa el código de 6 dígitos que aparece en Google Authenticator:</p>
+                            
+                            
+                            <form method="post" id="setup2FAForm">
+                                {% csrf_token %}
+                                
+                                <!-- Mostrar mensajes -->
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                
+                                <div class="row justify-content-center">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="id_totp_code" class="form-label">Código de 6 dígitos:</label>
+                                            {{ form.totp_code }}
+                                            {% if form.totp_code.errors %}
+                                                <div class="text-danger">
+                                                    {% for error in form.totp_code.errors %}
+                                                        <small>{{ error }}</small>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-success btn-lg">
+                                                <i class="fas fa-check me-2"></i>
+                                                Verificar y Habilitar 2FA
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Información adicional -->
+                    <div class="alert alert-info">
+                        <h5><i class="fas fa-info-circle me-2"></i>Información Importante</h5>
+                        <ul class="mb-0">
+                            <li>Una vez habilitado, necesitarás un código de Google Authenticator para cada login</li>
+                            <li>Recibirás códigos de respaldo que puedes usar si pierdes tu dispositivo</li>
+                            <li>Guarda los códigos de respaldo en un lugar seguro</li>
+                            <li>Puedes deshabilitar 2FA en cualquier momento desde tu perfil</li>
+                        </ul>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'login:dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Cancelar
+                        </a>
+                        <button type="button" class="btn btn-outline-info" onclick="refreshQR()">
+                            <i class="fas fa-sync-alt me-2"></i>
+                            Generar Nuevo Código
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Mostrar notificación de éxito
+        const button = event.target.closest('button');
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.classList.remove('btn-outline-secondary');
+        button.classList.add('btn-success');
+        
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
+}
+
+function refreshQR() {
+    if (confirm('¿Estás seguro de que quieres generar un nuevo código QR? Esto invalidará el código anterior.')) {
+        window.location.reload();
+    }
+}
+
+// Auto-focus en el campo de código
+document.addEventListener('DOMContentLoaded', function() {
+    const codeInput = document.getElementById('id_totp_code');
+    if (codeInput) {
+        codeInput.focus();
+        
+        // Auto-submit cuando se ingresen 6 dígitos
+        codeInput.addEventListener('input', function() {
+            if (this.value.length === 6) {
+                setTimeout(() => {
+                    document.getElementById('setup2FAForm').submit();
+                }, 500);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

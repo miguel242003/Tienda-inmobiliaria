@@ -71,6 +71,47 @@ def detalle_propiedad(request, propiedad_id):
     """Vista para mostrar el detalle de una propiedad"""
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     
+    # Procesar formulario de contacto si es POST
+    if request.method == 'POST':
+        from core.forms import ContactSubmissionForm
+        from core.models import ContactSubmission
+        from core.views import send_contact_confirmation_email, send_contact_notification_email
+        
+        form = ContactSubmissionForm(request.POST)
+        if form.is_valid():
+            try:
+                # Guardar el mensaje de contacto
+                contact_submission = form.save()
+                
+                # Agregar información de la propiedad al mensaje
+                mensaje_original = contact_submission.mensaje
+                mensaje_con_propiedad = f"{mensaje_original}\n\n--- Información de la Propiedad ---\nID: {propiedad.id}\nTítulo: {propiedad.titulo}"
+                contact_submission.mensaje = mensaje_con_propiedad
+                contact_submission.save()
+                
+                # Enviar email de confirmación al usuario
+                send_contact_confirmation_email(contact_submission)
+                
+                # Enviar email de notificación al administrador
+                send_contact_notification_email(contact_submission)
+                
+                messages.success(
+                    request, 
+                    '¡Mensaje enviado exitosamente! Hemos recibido tu consulta y te contactaremos pronto.'
+                )
+                return redirect('propiedades:detalle', propiedad_id=propiedad.id)
+                
+            except Exception as e:
+                messages.error(
+                    request, 
+                    f'Error al enviar el mensaje: {str(e)}. Por favor intenta nuevamente o contacta directamente con nosotros.'
+                )
+        else:
+            # Mostrar errores del formulario
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    
     # Obtener propiedades relacionadas
     propiedades_relacionadas = Propiedad.objects.filter(
         tipo=propiedad.tipo,
@@ -94,13 +135,28 @@ def detalle_propiedad(request, propiedad_id):
         promedio_calificacion = 0.0
         total_resenas_aprobadas = 0
     
+    # Importar el formulario de contacto
+    from core.forms import ContactSubmissionForm
+    
+    # Crear formulario con datos iniciales de la propiedad
+    initial_data = {
+        'asunto': 'alquiler',  # Pre-seleccionar "Alquiler"
+        'mensaje': f'Hola, me interesa alquilar la propiedad "{propiedad.titulo}". '
+                  f'¿Podrían contactarme para coordinar una visita y conocer más detalles sobre el alquiler? '
+                  f'Entrada: 13:00 PM, Salida: 10:00 AM. '
+                  f'Gracias.'
+    }
+    
+    form = ContactSubmissionForm(initial=initial_data)
+    
     context = {
         'propiedad': propiedad,
         'propiedades_relacionadas': propiedades_relacionadas,
         'titulo_pagina': propiedad.titulo,
         'resenas_aprobadas': resenas_aprobadas,
         'promedio_calificacion': promedio_calificacion,
-        'total_resenas_aprobadas': total_resenas_aprobadas
+        'total_resenas_aprobadas': total_resenas_aprobadas,
+        'contact_form': form
     }
     return render(request, 'propiedades/detalle_propiedad.html', context)
 
@@ -267,9 +323,12 @@ def crear_propiedad(request):
     else:
         form = PropiedadForm()
     
+    from .models import Amenidad
+    
     context = {
         'form': form,
-        'titulo_pagina': 'Crear Nueva Propiedad'
+        'titulo_pagina': 'Crear Nueva Propiedad',
+        'amenidades': Amenidad.objects.all()
     }
     return render(request, 'propiedades/crear_propiedad.html', context)
 

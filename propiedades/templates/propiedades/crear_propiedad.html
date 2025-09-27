@@ -309,13 +309,13 @@
                                 <p class="text-muted small mb-3">Selecciona las amenidades que incluye esta propiedad:</p>
                                 
                                 <div class="row">
-                                    {% for amenidad in form.amenidades %}
+                                    {% for amenidad in amenidades %}
                                     <div class="col-md-6 col-lg-4 mb-2">
                                         <div class="form-check amenidad-checkbox">
-                                            {{ amenidad }}
-                                            <label class="form-check-label" for="{{ amenidad.id_for_label }}">
-                                                <i class="fas {{ amenidad.data.attrs.icono|default:'fa-check' }} me-2 text-primary"></i>
-                                                {{ amenidad.choice_label }}
+                                            <input type="checkbox" name="amenidades" value="{{ amenidad.id }}" id="id_amenidades_{{ forloop.counter0 }}" class="form-check-input">
+                                            <label class="form-check-label" for="id_amenidades_{{ forloop.counter0 }}">
+                                                <i class="fas me-2 text-primary" data-icon="{{ amenidad.icono }}"></i>
+                                                {{ amenidad.nombre }}
                                             </label>
                                         </div>
                                     </div>
@@ -712,6 +712,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         e.preventDefault();
+    });
+    
+    // Asignar iconos dinámicamente a las amenidades
+    document.querySelectorAll('[data-icon]').forEach(function(element) {
+        const iconClass = element.getAttribute('data-icon');
+        element.classList.add(iconClass);
     });
 });
 </script>

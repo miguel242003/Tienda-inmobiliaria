@@ -136,9 +136,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internacionalización
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ar'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 USE_I18N = True
 
@@ -162,3 +162,13 @@ MEDIA_ROOT = BASE_DIR.parent / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Configuración de Gmail SMTP para envío de emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'xmiguelastorgax@gmail.com'  # ← Cambia por tu email de Gmail
+EMAIL_HOST_PASSWORD = 'gsam eenf yjvg bzeu'  # ← Cambia por la contraseña de aplicación de Gmail
+DEFAULT_FROM_EMAIL = 'Tienda Inmobiliaria <xmiguelastorgax@gmail.com>'  # ← Cambia por tu email
+ADMIN_EMAIL = 'xmiguelastorgax@gmail.com'  # ← Email del administrador para notificaciones

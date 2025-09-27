@@ -5,618 +5,1350 @@
 
 {% block extra_css %}
 <style>
-/* ===== DISEÑO PROFESIONAL "SOBRE NOSOTROS" ===== */
+/* ===== DISEÑO PROFESIONAL "SOBRE NOSOTROS" - TOTALMENTE RESPONSIVO ===== */
 
-/* Sección principal */
+/* ===== VARIABLES CSS ===== */
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #e67e22;
+  --text-color: #34495e;
+  --light-bg: #f5f5f5;
+  --white: #ffffff;
+  --shadow: 0 12px 30px rgba(0,0,0,.12);
+  --shadow-hover: 0 16px 35px rgba(0,0,0,.15);
+  --transition: all 0.3s ease;
+  --border-radius: 0px;
+  --font-family: 'Times New Roman', serif;
+}
+
+/* ===== RESET Y BASE ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== SECCIÓN PRINCIPAL - MOBILE FIRST ===== */
 .about-main-section {
-  background: white !important;
-  padding: 60px 0 !important;
-  width: 100% !important;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
+  background: var(--white);
+  padding: 20px 0;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
 }
 
 .about-container {
-  padding: 0 20px !important;
+  padding: 0 16px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .about-content {
-  max-width: 800px !important;
-  margin: 0 auto !important;
+  background: var(--light-bg);
+  padding: 20px;
+  margin: 0;
+  width: 100%;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
 }
 
 .about-title {
-  font-family: 'Times New Roman', serif !important;
-  color: #2c3e50 !important;
-  font-size: 2.5rem !important;
-  font-weight: bold !important;
-  margin-bottom: 1rem !important;
-  text-align: left !important;
+  font-family: var(--font-family);
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 0.8rem;
+  text-align: left;
+  line-height: 1.2;
+  word-wrap: break-word;
 }
 
 .about-subtitle {
-  color: #e67e22 !important;
-  font-style: italic !important;
-  font-family: 'Times New Roman', serif !important;
-  font-size: 1.2rem !important;
-  margin-bottom: 1rem !important;
-  text-align: left !important;
+  color: var(--secondary-color);
+  font-style: italic;
+  font-family: var(--font-family);
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  text-align: left;
+  word-wrap: break-word;
 }
 
 .about-description {
-  color: #34495e !important;
-  line-height: 1.6 !important;
-  font-size: 1rem !important;
-  margin-bottom: 2rem !important;
-  text-align: left !important;
+  color: var(--text-color);
+  line-height: 1.5;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  word-wrap: break-word;
 }
 
 .about-item {
-  margin-bottom: 2rem !important;
+  margin-bottom: 1.5rem;
 }
 
 .about-item-content {
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 1rem !important;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
 .about-item-icon {
-  color: #2c3e50 !important;
-  font-size: 1.5rem !important;
-  margin-top: 0.2rem !important;
-  flex-shrink: 0 !important;
-  width: 24px !important;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  width: 20px;
+  min-width: 20px;
 }
 
 .about-item-text {
-  flex: 1 !important;
+  flex: 1;
+  min-width: 0;
 }
 
 .about-item-title {
-  color: #2c3e50 !important;
-  font-weight: bold !important;
-  font-size: 1.2rem !important;
-  margin-bottom: 0.5rem !important;
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+  word-wrap: break-word;
 }
 
 .about-item-description {
-  color: #34495e !important;
-  line-height: 1.6 !important;
-  font-size: 1rem !important;
-  margin: 0 !important;
-}
-
-/* ===== DISEÑO RESPONSIVO COMPLETO ===== */
-
-/* MOBILE FIRST - Base para móviles */
-.about-main-section {
-  background: white !important;
-  padding: 20px 0 !important;
-  width: 100% !important;
-  margin: 0 auto !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.about-container {
-  padding: 0 16px !important;
-}
-
-.about-content {
-  background: #f5f5f5 !important;
-  padding: 20px !important;
-  margin: 0 !important;
-  width: 100% !important;
-}
-
-.about-title {
-  font-family: 'Times New Roman', serif !important;
-  color: #2c3e50 !important;
-  font-size: 1.8rem !important;
-  font-weight: bold !important;
-  margin-bottom: 0.8rem !important;
-  text-align: left !important;
-  line-height: 1.2 !important;
-}
-
-.about-subtitle {
-  color: #e67e22 !important;
-  font-style: italic !important;
-  font-family: 'Times New Roman', serif !important;
-  font-size: 1rem !important;
-  margin-bottom: 0.8rem !important;
-  text-align: left !important;
-}
-
-.about-description {
-  color: #34495e !important;
-  line-height: 1.5 !important;
-  font-size: 0.9rem !important;
-  margin-bottom: 1.5rem !important;
-  text-align: left !important;
-}
-
-.about-item {
-  margin-bottom: 1.5rem !important;
-}
-
-.about-item-content {
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: 0.8rem !important;
-}
-
-.about-item-icon {
-  color: #2c3e50 !important;
-  font-size: 1.2rem !important;
-  margin-top: 0.1rem !important;
-  flex-shrink: 0 !important;
-  width: 20px !important;
-}
-
-.about-item-text {
-  flex: 1 !important;
-}
-
-.about-item-title {
-  color: #2c3e50 !important;
-  font-weight: bold !important;
-  font-size: 1rem !important;
-  margin-bottom: 0.4rem !important;
-}
-
-.about-item-description {
-  color: #34495e !important;
-  line-height: 1.5 !important;
-  font-size: 0.85rem !important;
-  margin: 0 !important;
+  color: var(--text-color);
+  line-height: 1.5;
+  font-size: 0.85rem;
+  margin: 0;
+  word-wrap: break-word;
 }
 
 /* Imagen móvil */
 .about-main-section::after {
-  content: '' !important;
-  background-image: url('{% static "images/imgsobrenostros2.jpg" %}') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  width: 100% !important;
-  height: 200px !important;
-  object-fit: cover !important;
-  margin-top: 0 !important;
+  content: '';
+  background-image: url('{% static "images/imgsobrenostros2.jpg" %}');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 200px;
+  margin-top: 0;
+  display: block;
 }
 
-/* TABLET - 576px a 767px */
+/* ===== BREAKPOINTS RESPONSIVOS ===== */
+
+/* EXTRA SMALL DEVICES (320px - 575px) */
+@media screen and (min-width: 320px) and (max-width: 575px) {
+  .about-container {
+    padding: 0 12px;
+  }
+  
+  .about-content {
+    padding: 16px;
+  }
+  
+  .about-title {
+    font-size: 1.6rem;
+  }
+  
+  .about-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .about-description {
+    font-size: 0.85rem;
+  }
+  
+  .about-item-icon {
+    font-size: 1.1rem;
+    width: 18px;
+    min-width: 18px;
+  }
+  
+  .about-item-title {
+    font-size: 0.95rem;
+  }
+  
+  .about-item-description {
+    font-size: 0.8rem;
+  }
+  
+  .about-main-section::after {
+    height: 180px;
+  }
+}
+
+/* SMALL DEVICES (576px - 767px) */
 @media screen and (min-width: 576px) and (max-width: 767px) {
   .about-main-section {
-    padding: 30px 0 !important;
+    padding: 30px 0;
   }
   
   .about-container {
-    padding: 0 24px !important;
+    padding: 0 24px;
   }
   
   .about-content {
-    padding: 30px !important;
+    padding: 30px;
   }
   
   .about-title {
-    font-size: 2.2rem !important;
+    font-size: 2.2rem;
   }
   
   .about-subtitle {
-    font-size: 1.1rem !important;
+    font-size: 1.1rem;
   }
   
   .about-description {
-    font-size: 1rem !important;
+    font-size: 1rem;
   }
   
   .about-item-icon {
-    font-size: 1.4rem !important;
-    width: 22px !important;
+    font-size: 1.4rem;
+    width: 22px;
+    min-width: 22px;
   }
   
   .about-item-title {
-    font-size: 1.1rem !important;
+    font-size: 1.1rem;
   }
   
   .about-item-description {
-    font-size: 0.9rem !important;
+    font-size: 0.9rem;
   }
   
   .about-main-section::after {
-    height: 250px !important;
+    height: 250px;
   }
 }
 
-/* TABLET LARGE - 768px a 991px */
+/* MEDIUM DEVICES (768px - 991px) */
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .about-main-section {
-    padding: 40px 0 !important;
+    padding: 40px 0;
   }
   
   .about-container {
-    padding: 0 32px !important;
+    padding: 0 32px;
   }
   
   .about-content {
-    padding: 40px !important;
+    padding: 40px;
   }
   
   .about-title {
-    font-size: 2.5rem !important;
+    font-size: 2.5rem;
   }
   
   .about-subtitle {
-    font-size: 1.2rem !important;
+    font-size: 1.2rem;
   }
   
   .about-description {
-    font-size: 1.1rem !important;
+    font-size: 1.1rem;
   }
   
   .about-item-icon {
-    font-size: 1.5rem !important;
-    width: 24px !important;
+    font-size: 1.5rem;
+    width: 24px;
+    min-width: 24px;
   }
   
   .about-item-title {
-    font-size: 1.2rem !important;
+    font-size: 1.2rem;
   }
   
   .about-item-description {
-    font-size: 1rem !important;
+    font-size: 1rem;
   }
   
   .about-main-section::after {
-    height: 300px !important;
+    height: 300px;
   }
 }
 
-/* DESKTOP SMALL - 992px a 1199px */
+/* LARGE DEVICES (992px - 1199px) */
 @media screen and (min-width: 992px) and (max-width: 1199px) {
   .about-main-section {
-    padding: 50px 0 !important;
+    padding: 50px 0;
   }
   
   .about-container {
-    padding: 0 40px !important;
+    padding: 0 40px;
   }
   
   .about-content {
-    padding: 50px !important;
+    padding: 50px;
   }
   
   .about-title {
-    font-size: 2.8rem !important;
+    font-size: 2.8rem;
   }
   
   .about-subtitle {
-    font-size: 1.3rem !important;
+    font-size: 1.3rem;
   }
   
   .about-description {
-    font-size: 1.1rem !important;
+    font-size: 1.1rem;
   }
   
   .about-item-icon {
-    font-size: 1.6rem !important;
-    width: 24px !important;
+    font-size: 1.6rem;
+    width: 24px;
+    min-width: 24px;
   }
   
   .about-item-title {
-    font-size: 1.3rem !important;
+    font-size: 1.3rem;
   }
   
   .about-item-description {
-    font-size: 1.05rem !important;
+    font-size: 1.05rem;
   }
   
   .about-main-section::after {
-    height: 350px !important;
+    height: 350px;
   }
 }
 
-/* DESKTOP LARGE - 1200px y más */
+/* EXTRA LARGE DEVICES (1200px y más) */
 @media screen and (min-width: 1200px) {
   .about-main-section {
-    background: white !important;
-    padding: 0 !important;
-    width: 100% !important;
-    max-width: 1400px !important;
-    margin: 60px auto !important;
-    display: grid !important;
-    grid-template-columns: 50% 50% !important;
-    gap: 0 !important;
-    height: 600px !important;
+    background: var(--white);
+    padding: 0;
+    width: 100%;
+    max-width: 1400px;
+    margin: 60px auto;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 0;
+    height: 600px;
+    min-height: 600px;
   }
   
   .about-container {
-    padding: 0 !important;
-    height: 100% !important;
-    display: contents !important;
+    padding: 0;
+    height: 100%;
+    display: contents;
   }
   
   .about-content {
-    background: #f5f5f5 !important;
-    padding: 48px !important;
-    max-width: none !important;
-    margin: 0 !important;
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
+    background: var(--light-bg);
+    padding: 48px;
+    max-width: none;
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 0;
   }
   
   .about-title {
-    font-size: 48px !important;
-    margin-bottom: 16px !important;
+    font-size: 48px;
+    margin-bottom: 16px;
   }
   
   .about-subtitle {
-    font-size: 18px !important;
-    margin-bottom: 16px !important;
+    font-size: 18px;
+    margin-bottom: 16px;
   }
   
   .about-description {
-    font-size: 16px !important;
-    line-height: 1.6 !important;
-    margin-bottom: 32px !important;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 32px;
   }
   
   .about-item {
-    margin-bottom: 20px !important;
+    margin-bottom: 20px;
   }
   
   .about-item-content {
-    gap: 16px !important;
+    gap: 16px;
   }
   
   .about-item-icon {
-    font-size: 24px !important;
-    width: 24px !important;
-    margin-top: 0 !important;
+    font-size: 24px;
+    width: 24px;
+    min-width: 24px;
+    margin-top: 0;
   }
   
   .about-item-title {
-    font-size: 18px !important;
-    margin-bottom: 8px !important;
+    font-size: 18px;
+    margin-bottom: 8px;
   }
   
   .about-item-description {
-    font-size: 15px !important;
-    line-height: 1.6 !important;
+    font-size: 15px;
+    line-height: 1.6;
   }
   
   /* Imagen derecha */
   .about-main-section::after {
-    content: '' !important;
-    background-image: url('{% static "images/imgsobrenostros2.jpg" %}') !important;
-    background-size: cover !important;
-    background-position: center !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    content: '';
+    background-image: url('{% static "images/imgsobrenostros2.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 }
 
-/* ===== SECCIÓN NUESTROS VALORES - NUEVO DISEÑO ===== */
+/* ===== DISPOSITIVOS ESPECIALES ===== */
+
+/* LANDSCAPE ORIENTATION */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .about-main-section {
+    padding: 15px 0;
+  }
+  
+  .about-content {
+    padding: 15px;
+  }
+  
+  .about-title {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .about-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .about-description {
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .about-item {
+    margin-bottom: 1rem;
+  }
+  
+  .about-main-section::after {
+    height: 150px;
+  }
+}
+
+/* ULTRA WIDE SCREENS (1920px+) */
+@media screen and (min-width: 1920px) {
+  .about-main-section {
+    max-width: 1600px;
+    height: 700px;
+    min-height: 700px;
+  }
+  
+  .about-content {
+    padding: 60px;
+  }
+  
+  .about-title {
+    font-size: 56px;
+  }
+  
+  .about-subtitle {
+    font-size: 20px;
+  }
+  
+  .about-description {
+    font-size: 18px;
+  }
+  
+  .about-item-icon {
+    font-size: 28px;
+    width: 28px;
+    min-width: 28px;
+  }
+  
+  .about-item-title {
+    font-size: 20px;
+  }
+  
+  .about-item-description {
+    font-size: 17px;
+  }
+}
+
+/* FOLDABLE DEVICES */
+@media screen and (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  .about-main-section {
+    padding: 30px 0;
+  }
+  
+  .about-content {
+    padding: 30px;
+  }
+  
+  .about-title {
+    font-size: 2.2rem;
+  }
+  
+  .about-main-section::after {
+    height: 280px;
+  }
+}
+
+/* ===== ACCESIBILIDAD ===== */
+
+/* HIGH CONTRAST MODE */
+@media (prefers-contrast: high) {
+  .about-title,
+  .about-item-title {
+    color: #000000;
+  }
+  
+  .about-subtitle {
+    color: #cc5500;
+  }
+  
+  .about-description,
+  .about-item-description {
+    color: #000000;
+  }
+  
+  .about-content {
+    background: #ffffff;
+    border: 2px solid #000000;
+  }
+}
+
+/* REDUCED MOTION */
+@media (prefers-reduced-motion: reduce) {
+  .about-main-section,
+  .about-content,
+  .about-item-content {
+    transition: none;
+  }
+}
+
+/* PRINT STYLES */
+@media print {
+  .about-main-section {
+    background: white;
+    padding: 20px 0;
+    display: block;
+    height: auto;
+    min-height: auto;
+  }
+  
+  .about-content {
+    background: white;
+    box-shadow: none;
+    padding: 20px;
+  }
+  
+  .about-main-section::after {
+    display: none;
+  }
+  
+  .about-title,
+  .about-item-title {
+    color: black;
+  }
+  
+  .about-subtitle {
+    color: #666;
+  }
+  
+  .about-description,
+  .about-item-description {
+    color: black;
+  }
+}
+
+/* ===== SECCIÓN NUESTROS VALORES - TOTALMENTE RESPONSIVO MEJORADO ===== */
 
 /* Título de la sección */
 .values-title-section {
-  background: #2c3e50 !important;
-  padding: 20px 0 !important;
-  text-align: center !important;
-  width: 100% !important;
-  max-width: 1400px !important;
-  margin: 170px auto 0 !important;
+  background: var(--primary-color);
+  padding: 20px 0;
+  text-align: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 100px auto 0;
 }
 
 .values-title-section h2 {
-  color: white !important;
-  font-size: 2.5rem !important;
-  font-weight: bold !important;
-  margin: 0 !important;
-  font-family: 'Times New Roman', serif !important;
+  color: var(--white);
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+  font-family: var(--font-family);
+  word-wrap: break-word;
+  padding: 0 16px;
 }
 
 /* Sección hero con imagen de fondo */
 .values-hero-section {
-  position: relative !important;
-  background: url('{% static "images/imgtrabajadores.jpg" %}') center 70%/cover no-repeat !important;
-  min-height: 450px !important;
-  display: flex !important;
-  align-items: flex-end !important;
-  overflow: visible !important;
-  width: 100% !important;
-  max-width: 1400px !important;
-  margin: 0 auto !important;
+  position: relative;
+  background: url('{% static "images/imgtrabajadores.jpg" %}') center 70%/cover no-repeat;
+  min-height: 350px;
+  display: flex;
+  align-items: flex-end;
+  overflow: visible;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* Degradado sutil abajo para legibilidad */
 .values-degradado {
-  content: '' !important;
-  position: absolute !important;
-  inset: 0 !important;
-  background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,.15) 90%) !important;
-  pointer-events: none !important;
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,.15) 90%);
+  pointer-events: none;
 }
 
 /* Contenedor de tarjetas */
 .values-cards-container {
-  position: relative !important;
-  width: 100% !important;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 48px 20px !important;
-  display: flex !important;
-  gap: 24px !important;
-  justify-content: center !important;
-  align-items: flex-end !important;
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 15px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: center;
+  justify-items: center;
 }
 
 /* Tarjetas individuales */
 .value-card-alt {
-  background: #ffffff !important;
-  border-radius: 0px !important;
-  box-shadow: 0 12px 30px rgba(0,0,0,.12) !important;
-  padding: 28px 22px !important;
-  text-align: center !important;
-  width: 250px !important;
-  transition: all 0.3s ease !important;
-}
-
-/* Alturas diferentes para las tarjetas */
-.value-card-alt:nth-child(1) {
-  transform: translateY(160px) !important;
-}
-
-.value-card-alt:nth-child(2) {
-  transform: translateY(110px) !important;
-}
-
-.value-card-alt:nth-child(3) {
-  transform: translateY(160px) !important;
-}
-
-.value-card-alt:nth-child(4) {
-  transform: translateY(110px) !important;
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 20px 18px;
+  text-align: center;
+  width: 100%;
+  max-width: 300px;
+  transition: var(--transition);
+  transform: translateY(0);
+  position: relative;
+  z-index: 2;
 }
 
 .value-card-alt:hover {
-  transform: translateY(calc(var(--original-y, 0px) - 10px)) !important;
-  box-shadow: 0 16px 35px rgba(0,0,0,.15) !important;
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
 }
 
 /* Ícono circular */
 .value-icon-alt {
-  width: 72px !important;
-  height: 72px !important;
-  margin: 0 auto 14px !important;
-  border-radius: 50% !important;
-  display: grid !important;
-  place-items: center !important;
-  background: #d9e8f6 !important;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #d9e8f6;
+  transition: var(--transition);
+}
+
+.value-card-alt:hover .value-icon-alt {
+  background: var(--secondary-color);
+  transform: scale(1.05);
 }
 
 .value-icon-alt i {
-  font-size: 34px !important;
-  color: #333 !important;
+  font-size: 28px;
+  color: #333;
+  transition: var(--transition);
+}
+
+.value-card-alt:hover .value-icon-alt i {
+  color: var(--white);
 }
 
 /* Título de la tarjeta */
 .value-title-alt {
-  font-size: 22px !important;
-  font-weight: 700 !important;
-  margin: 8px 0 8px !important;
-  color: #1f2937 !important;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 8px 0 8px;
+  color: #1f2937;
+  word-wrap: break-word;
+  transition: var(--transition);
+}
+
+.value-card-alt:hover .value-title-alt {
+  color: var(--primary-color);
 }
 
 /* Descripción de la tarjeta */
 .value-desc-alt {
-  color: #5b6573 !important;
-  font-size: 15px !important;
-  margin: 0 0 14px !important;
-  line-height: 1.5 !important;
+  color: #5b6573;
+  font-size: 14px;
+  margin: 0 0 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  transition: var(--transition);
 }
 
-/* ===== DISEÑO RESPONSIVO ===== */
+.value-card-alt:hover .value-desc-alt {
+  color: var(--text-color);
+}
 
-/* Tablet (768px - 1199px) */
-@media screen and (max-width: 1199px) and (min-width: 768px) {
+/* ===== BREAKPOINTS RESPONSIVOS PARA VALORES ===== */
+
+/* EXTRA SMALL DEVICES (320px - 575px) */
+@media screen and (min-width: 320px) and (max-width: 575px) {
+  .values-title-section {
+    margin: 60px auto 0;
+    padding: 15px 0;
+  }
+  
   .values-title-section h2 {
-    font-size: 2rem !important;
+    font-size: 1.4rem;
+    padding: 0 12px;
   }
   
   .values-hero-section {
-    min-height: 400px !important;
+    min-height: 280px;
   }
   
   .values-cards-container {
-    padding: 40px 20px !important;
-    gap: 20px !important;
-    flex-wrap: wrap !important;
-    justify-content: center !important;
+    padding: 20px 12px;
+    gap: 16px;
+    grid-template-columns: 1fr;
   }
   
   .value-card-alt {
-    width: 220px !important;
+    padding: 18px 16px;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .value-icon-alt {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 12px;
+  }
+  
+  .value-icon-alt i {
+    font-size: 22px;
+  }
+  
+  .value-title-alt {
+    font-size: 16px;
+    margin: 6px 0 6px;
+  }
+  
+  .value-desc-alt {
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0 0 12px;
+  }
+}
+
+/* SMALL DEVICES (576px - 767px) */
+@media screen and (min-width: 576px) and (max-width: 767px) {
+  .values-title-section {
+    margin: 80px auto 0;
+    padding: 18px 0;
+  }
+  
+  .values-title-section h2 {
+    font-size: 1.6rem;
+    padding: 0 20px;
+  }
+  
+  .values-hero-section {
+    min-height: 320px;
+  }
+  
+  .values-cards-container {
+    padding: 25px 20px;
+    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 600px;
+  }
+  
+  .value-card-alt {
+    padding: 20px 18px;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .value-icon-alt {
+    width: 55px;
+    height: 55px;
+    margin-bottom: 14px;
+  }
+  
+  .value-icon-alt i {
+    font-size: 24px;
+  }
+  
+  .value-title-alt {
+    font-size: 17px;
+    margin: 8px 0 8px;
+  }
+  
+  .value-desc-alt {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 14px;
+  }
+}
+
+/* MEDIUM DEVICES (768px - 991px) */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .values-title-section {
+    margin: 100px auto 0;
+    padding: 20px 0;
+  }
+  
+  .values-title-section h2 {
+    font-size: 1.9rem;
+    padding: 0 24px;
+  }
+  
+  .values-hero-section {
+    min-height: 380px;
+  }
+  
+  .values-cards-container {
+    padding: 35px 24px;
+    gap: 24px;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 700px;
+    align-items: start;
+  }
+  
+  .value-card-alt {
+    width: 100%;
+    max-width: 100%;
+    padding: 24px 20px;
+    transform: translateY(0);
   }
   
   .value-card-alt:nth-child(1),
   .value-card-alt:nth-child(3) {
-    transform: translateY(120px) !important;
+    transform: translateY(120px);
   }
   
   .value-card-alt:nth-child(2),
   .value-card-alt:nth-child(4) {
-    transform: translateY(80px) !important;
-  }
-  
-  .value-icon-alt {
-    width: 65px !important;
-    height: 65px !important;
-  }
-  
-  .value-icon-alt i {
-    font-size: 30px !important;
-  }
-  
-  .value-title-alt {
-    font-size: 20px !important;
-  }
-  
-  .value-desc-alt {
-    font-size: 14px !important;
-  }
-}
-
-/* Mobile (<768px) */
-@media screen and (max-width: 767px) {
-  .values-title-section {
-    margin: 100px auto 0 !important;
-  }
-  
-  .values-title-section h2 {
-    font-size: 1.8rem !important;
-  }
-  
-  .values-hero-section {
-    min-height: 350px !important;
-  }
-  
-  .values-cards-container {
-    padding: 30px 15px !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 20px !important;
-  }
-  
-  .value-card-alt {
-    width: 100% !important;
-    max-width: 300px !important;
-    transform: translateY(0) !important;
+    transform: translateY(80px);
   }
   
   .value-card-alt:hover {
-    transform: translateY(-5px) !important;
+    transform: translateY(calc(var(--original-y, 0px) - 8px));
   }
   
   .value-icon-alt {
-    width: 60px !important;
-    height: 60px !important;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 16px;
   }
   
   .value-icon-alt i {
-    font-size: 28px !important;
+    font-size: 26px;
   }
   
   .value-title-alt {
-    font-size: 18px !important;
+    font-size: 18px;
+    margin: 10px 0 10px;
   }
   
   .value-desc-alt {
-    font-size: 14px !important;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 16px;
+  }
+}
+
+/* ASUS ZENBOOK FOLD OPTIMIZATION (850px - 900px) */
+@media screen and (min-width: 850px) and (max-width: 900px) {
+  .values-title-section {
+    margin: 80px auto 0;
+    padding: 18px 0;
+  }
+  
+  .values-title-section h2 {
+    font-size: 1.7rem;
+    padding: 0 20px;
+  }
+  
+  .values-hero-section {
+    min-height: 300px;
+  }
+  
+  .values-cards-container {
+    padding: 20px 16px;
+    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 500px;
+    align-items: start;
+  }
+  
+  .value-card-alt {
+    width: 100%;
+    max-width: 100%;
+    padding: 18px 16px;
+    transform: translateY(0);
+  }
+  
+  .value-card-alt:nth-child(1),
+  .value-card-alt:nth-child(3) {
+    transform: translateY(50px);
+  }
+  
+  .value-card-alt:nth-child(2),
+  .value-card-alt:nth-child(4) {
+    transform: translateY(30px);
+  }
+  
+  .value-card-alt:hover {
+    transform: translateY(calc(var(--original-y, 0px) - 5px));
+  }
+  
+  .value-icon-alt {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 12px;
+  }
+  
+  .value-icon-alt i {
+    font-size: 22px;
+  }
+  
+  .value-title-alt {
+    font-size: 16px;
+    margin: 6px 0 6px;
+  }
+  
+  .value-desc-alt {
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 0 0 12px;
+  }
+}
+
+
+/* LARGE DEVICES (992px - 1199px) */
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .values-title-section {
+    margin: 120px auto 0;
+    padding: 22px 0;
+  }
+  
+  .values-title-section h2 {
+    font-size: 2.1rem;
+    padding: 0 28px;
+  }
+  
+  .values-hero-section {
+    min-height: 420px;
+  }
+  
+  .values-cards-container {
+    padding: 40px 28px;
+    gap: 28px;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 1000px;
+    align-items: end;
+  }
+  
+  .value-card-alt {
+    width: 100%;
+    max-width: 100%;
+    padding: 26px 22px;
+  }
+  
+  .value-card-alt:nth-child(1),
+  .value-card-alt:nth-child(3) {
+    transform: translateY(140px);
+  }
+  
+  .value-card-alt:nth-child(2),
+  .value-card-alt:nth-child(4) {
+    transform: translateY(100px);
+  }
+  
+  .value-card-alt:hover {
+    transform: translateY(calc(var(--original-y, 0px) - 10px));
+  }
+  
+  .value-icon-alt {
+    width: 65px;
+    height: 65px;
+    margin-bottom: 18px;
+  }
+  
+  .value-icon-alt i {
+    font-size: 28px;
+  }
+  
+  .value-title-alt {
+    font-size: 19px;
+    margin: 12px 0 12px;
+  }
+  
+  .value-desc-alt {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 18px;
+  }
+}
+
+/* EXTRA LARGE DEVICES (1200px y más) */
+@media screen and (min-width: 1200px) {
+  .values-title-section {
+    margin: 150px auto 0;
+    padding: 24px 0;
+  }
+  
+  .values-title-section h2 {
+    font-size: 2.4rem;
+    padding: 0 32px;
+  }
+  
+  .values-hero-section {
+    min-height: 450px;
+  }
+  
+  .values-cards-container {
+    padding: 50px 32px;
+    gap: 32px;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 1200px;
+    align-items: end;
+  }
+  
+  .value-card-alt {
+    width: 100%;
+    max-width: 100%;
+    padding: 30px 24px;
+  }
+  
+  .value-card-alt:nth-child(1) {
+    transform: translateY(160px);
+  }
+  
+  .value-card-alt:nth-child(2) {
+    transform: translateY(110px);
+  }
+  
+  .value-card-alt:nth-child(3) {
+    transform: translateY(160px);
+  }
+  
+  .value-card-alt:nth-child(4) {
+    transform: translateY(110px);
+  }
+  
+  .value-card-alt:hover {
+    transform: translateY(calc(var(--original-y, 0px) - 12px));
+  }
+  
+  .value-icon-alt {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 20px;
+  }
+  
+  .value-icon-alt i {
+    font-size: 32px;
+  }
+  
+  .value-title-alt {
+    font-size: 20px;
+    margin: 14px 0 14px;
+  }
+  
+  .value-desc-alt {
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+}
+
+/* ULTRA WIDE SCREENS (1920px+) */
+@media screen and (min-width: 1920px) {
+  .values-title-section {
+    margin: 180px auto 0;
+    padding: 28px 0;
+  }
+  
+  .values-title-section h2 {
+    font-size: 2.8rem;
+    padding: 0 40px;
+  }
+  
+  .values-hero-section {
+    min-height: 500px;
+  }
+  
+  .values-cards-container {
+    padding: 60px 40px;
+    gap: 40px;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 1400px;
+    align-items: end;
+  }
+  
+  .value-card-alt {
+    width: 100%;
+    max-width: 100%;
+    padding: 35px 28px;
+  }
+  
+  .value-card-alt:nth-child(1),
+  .value-card-alt:nth-child(3) {
+    transform: translateY(180px);
+  }
+  
+  .value-card-alt:nth-child(2),
+  .value-card-alt:nth-child(4) {
+    transform: translateY(130px);
+  }
+  
+  .value-card-alt:hover {
+    transform: translateY(calc(var(--original-y, 0px) - 15px));
+  }
+  
+  .value-icon-alt {
+    width: 75px;
+    height: 75px;
+    margin-bottom: 22px;
+  }
+  
+  .value-icon-alt i {
+    font-size: 35px;
+  }
+  
+  .value-title-alt {
+    font-size: 22px;
+    margin: 16px 0 16px;
+  }
+  
+  .value-desc-alt {
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 0 22px;
+  }
+}
+
+/* LANDSCAPE ORIENTATION */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .values-title-section {
+    margin: 40px auto 0;
+    padding: 12px 0;
+  }
+  
+  .values-title-section h2 {
+    font-size: 1.3rem;
+    padding: 0 16px;
+  }
+  
+  .values-hero-section {
+    min-height: 220px;
+  }
+  
+  .values-cards-container {
+    padding: 20px 16px;
+    gap: 16px;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 100%;
+    align-items: center;
+  }
+  
+  .value-card-alt {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px 14px;
+    transform: translateY(0);
+  }
+  
+  .value-icon-alt {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+  
+  .value-icon-alt i {
+    font-size: 18px;
+  }
+  
+  .value-title-alt {
+    font-size: 13px;
+    margin: 4px 0 4px;
+  }
+  
+  .value-desc-alt {
+    font-size: 11px;
+    line-height: 1.3;
+    margin: 0 0 8px;
+  }
+}
+
+/* FOLDABLE DEVICES */
+@media screen and (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  .values-title-section {
+    margin: 100px auto 0;
+    padding: 20px 0;
+  }
+  
+  .values-title-section h2 {
+    font-size: 1.8rem;
+    padding: 0 24px;
+  }
+  
+  .values-hero-section {
+    min-height: 360px;
+  }
+  
+  .values-cards-container {
+    padding: 30px 24px;
+    gap: 24px;
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 700px;
+    align-items: start;
+  }
+  
+  .value-card-alt {
+    width: 100%;
+    max-width: 100%;
+    padding: 22px 20px;
+  }
+  
+  .value-card-alt:nth-child(1),
+  .value-card-alt:nth-child(3) {
+    transform: translateY(100px);
+  }
+  
+  .value-card-alt:nth-child(2),
+  .value-card-alt:nth-child(4) {
+    transform: translateY(60px);
+  }
+  
+  .value-icon-alt {
+    width: 58px;
+    height: 58px;
+    margin-bottom: 15px;
+  }
+  
+  .value-icon-alt i {
+    font-size: 25px;
+  }
+  
+  .value-title-alt {
+    font-size: 17px;
+    margin: 9px 0 9px;
+  }
+  
+  .value-desc-alt {
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 0 0 15px;
+  }
+}
+
+/* ===== ACCESIBILIDAD PARA VALORES ===== */
+
+/* HIGH CONTRAST MODE */
+@media (prefers-contrast: high) {
+  .values-title-section {
+    background: #000000;
+  }
+  
+  .values-title-section h2 {
+    color: #ffffff;
+  }
+  
+  .value-card-alt {
+    background: #ffffff;
+    border: 2px solid #000000;
+  }
+  
+  .value-title-alt {
+    color: #000000;
+  }
+  
+  .value-desc-alt {
+    color: #000000;
+  }
+  
+  .value-icon-alt {
+    background: #f0f0f0;
+    border: 2px solid #000000;
+  }
+  
+  .value-icon-alt i {
+    color: #000000;
+  }
+}
+
+/* REDUCED MOTION */
+@media (prefers-reduced-motion: reduce) {
+  .value-card-alt {
+    transition: none;
+  }
+  
+  .value-card-alt:hover {
+    transform: none;
+  }
+}
+
+/* PRINT STYLES */
+@media print {
+  .values-title-section {
+    background: white;
+    margin: 50px auto 0;
+  }
+  
+  .values-title-section h2 {
+    color: black;
+  }
+  
+  .values-hero-section {
+    background: none;
+    min-height: auto;
+  }
+  
+  .values-degradado {
+    display: none;
+  }
+  
+  .values-cards-container {
+    padding: 20px 0;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .value-card-alt {
+    background: white;
+    box-shadow: none;
+    border: 1px solid #ccc;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .value-title-alt {
+    color: black;
+  }
+  
+  .value-desc-alt {
+    color: black;
   }
 }
 
@@ -627,88 +1359,91 @@
 {% block content %}
 
 <!-- Company Story -->
-<section class="about-main-section">
+<main class="about-main-section" role="main" aria-label="Información sobre la empresa">
     <div class="about-container">
-        <div class="about-content">
-            <h1 class="about-title">Sobre nosotros</h1>
-            <h3 class="about-subtitle">Nuestra misión y metas</h3>
+        <article class="about-content">
+            <header>
+                <h1 class="about-title">Sobre nosotros</h1>
+                <h2 class="about-subtitle">Nuestra misión y metas</h2>
+            </header>
+            
             <p class="about-description">Fundada en 2009, nuestra empresa ha sido líder en el sector inmobiliario, ayudando a miles de familias a encontrar su hogar ideal. Nuestro compromiso con la excelencia y la satisfacción del cliente nos ha convertido en una de las inmobiliarias más confiables del mercado.</p>
             
-            <div class="about-item">
+            <section class="about-item" aria-labelledby="mision-title">
                 <div class="about-item-content">
-                    <i class="fas fa-flag about-item-icon"></i>
+                    <i class="fas fa-flag about-item-icon" aria-hidden="true"></i>
                     <div class="about-item-text">
-                        <h4 class="about-item-title">Misión</h4>
+                        <h3 class="about-item-title" id="mision-title">Misión</h3>
                         <p class="about-item-description">Facilitar el proceso de compra, venta y alquiler de propiedades, brindando un servicio personalizado y profesional que satisfaga las necesidades de nuestros clientes, garantizando transparencia y confianza en cada transacción.</p>
-                            </div>
-                            </div>
-                        </div>
+                    </div>
+                </div>
+            </section>
                         
-            <div class="about-item">
+            <section class="about-item" aria-labelledby="vision-title">
                 <div class="about-item-content">
-                    <i class="fas fa-eye about-item-icon"></i>
+                    <i class="fas fa-eye about-item-icon" aria-hidden="true"></i>
                     <div class="about-item-text">
-                        <h4 class="about-item-title">Visión</h4>
+                        <h3 class="about-item-title" id="vision-title">Visión</h3>
                         <p class="about-item-description">Ser la inmobiliaria líder en el mercado, reconocida por la excelencia en el servicio, la innovación tecnológica y el compromiso con la satisfacción total del cliente, contribuyendo al desarrollo de comunidades prósperas.</p>
-                            </div>
-                            </div>
-                        </div>
+                    </div>
+                </div>
+            </section>
                         
-            <div class="about-item">
+            <section class="about-item" aria-labelledby="historia-title">
                 <div class="about-item-content">
-                    <i class="fas fa-file-alt about-item-icon"></i>
+                    <i class="fas fa-file-alt about-item-icon" aria-hidden="true"></i>
                     <div class="about-item-text">
-                        <h4 class="about-item-title">Historia</h4>
+                        <h3 class="about-item-title" id="historia-title">Historia</h3>
                         <p class="about-item-description">Contamos con un equipo de profesionales altamente capacitados que conocen el mercado local y están comprometidos con brindar el mejor servicio a nuestros clientes. Más de 15 años de experiencia nos respaldan.</p>
-                            </div>
-                            </div>
-            </div>
-        </div>
+                    </div>
+                </div>
+            </section>
+        </article>
     </div>
-</section>
+</main>
 
 <!-- Nuestros Valores -->
-<div class="values-title-section">
+<section class="values-title-section" aria-label="Título de la sección de valores">
     <h2>Nuestros Valores</h2>
-</div>
+</section>
 
-<section class="values-hero-section">
-    <div class="values-degradado"></div>
+<section class="values-hero-section" aria-label="Valores corporativos de la empresa">
+    <div class="values-degradado" aria-hidden="true"></div>
     
-    <div class="values-cards-container">
+    <div class="values-cards-container" role="list" aria-label="Lista de valores corporativos">
         <!-- Tarjeta 1: Confianza -->
-        <article class="value-card-alt">
-            <div class="value-icon-alt">
+        <article class="value-card-alt" role="listitem" aria-labelledby="confianza-title">
+            <div class="value-icon-alt" aria-hidden="true">
                 <i class="fas fa-chess-knight"></i>
             </div>
-            <h4 class="value-title-alt">Confianza</h4>
+            <h3 class="value-title-alt" id="confianza-title">Confianza</h3>
             <p class="value-desc-alt">Brindamos un servicio transparente y seguro, generando tranquilidad en cada decisión inmobiliaria.</p>
         </article>
 
         <!-- Tarjeta 2: Compromiso -->
-        <article class="value-card-alt">
-            <div class="value-icon-alt">
+        <article class="value-card-alt" role="listitem" aria-labelledby="compromiso-title">
+            <div class="value-icon-alt" aria-hidden="true">
                 <i class="fas fa-bullhorn"></i>
             </div>
-            <h4 class="value-title-alt">Compromiso</h4>
+            <h3 class="value-title-alt" id="compromiso-title">Compromiso</h3>
             <p class="value-desc-alt">Acompañamos a nuestros clientes en todo el proceso, asegurando un trato cercano y responsable.</p>
         </article>
 
         <!-- Tarjeta 3: Experiencia -->
-        <article class="value-card-alt">
-            <div class="value-icon-alt">
+        <article class="value-card-alt" role="listitem" aria-labelledby="experiencia-title">
+            <div class="value-icon-alt" aria-hidden="true">
                 <i class="fas fa-gem"></i>
             </div>
-            <h4 class="value-title-alt">Experiencia</h4>
+            <h3 class="value-title-alt" id="experiencia-title">Experiencia</h3>
             <p class="value-desc-alt">Contamos con un equipo profesional y años de trayectoria en el mercado inmobiliario.</p>
         </article>
 
         <!-- Tarjeta 4: Innovación -->
-        <article class="value-card-alt">
-            <div class="value-icon-alt">
+        <article class="value-card-alt" role="listitem" aria-labelledby="innovacion-title">
+            <div class="value-icon-alt" aria-hidden="true">
                 <i class="fas fa-user"></i>
             </div>
-            <h4 class="value-title-alt">Innovación</h4>
+            <h3 class="value-title-alt" id="innovacion-title">Innovación</h3>
             <p class="value-desc-alt">Incorporamos tecnología y soluciones modernas para hacer más simple y eficiente cada gestión.</p>
         </article>
     </div>

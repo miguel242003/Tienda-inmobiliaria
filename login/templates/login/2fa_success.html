@@ -1,0 +1,231 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}2FA Configurado Exitosamente - Tienda Inmobiliaria{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        ¡2FA Configurado Exitosamente!
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Mensaje de éxito -->
+                    <div class="text-center mb-4">
+                        <i class="fas fa-shield-alt text-success" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-success">Autenticación de Dos Factores Habilitada</h4>
+                        <p class="text-muted">Tu cuenta ahora está protegida con la máxima seguridad</p>
+                    </div>
+
+                    <!-- Códigos de respaldo -->
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-key me-2"></i>Códigos de Respaldo</h5>
+                        <p class="mb-3">
+                            <strong>¡IMPORTANTE!</strong> Guarda estos códigos en un lugar seguro. 
+                            Los necesitarás si pierdes tu dispositivo o no tienes acceso a Google Authenticator.
+                        </p>
+                        
+                        <div class="row">
+                            {% for code in backup_codes %}
+                                <div class="col-md-6 col-lg-4 mb-2">
+                                    <div class="bg-light p-2 rounded text-center">
+                                        <code class="fw-bold">{{ code }}</code>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button class="btn btn-outline-warning btn-sm" onclick="printCodes()">
+                                <i class="fas fa-print me-1"></i>
+                                Imprimir Códigos
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="downloadCodes()">
+                                <i class="fas fa-download me-1"></i>
+                                Descargar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Información de seguridad -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        Cómo usar 2FA
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <ol class="mb-0 small">
+                                        <li>Abre Google Authenticator</li>
+                                        <li>Busca "Tienda Inmobiliaria"</li>
+                                        <li>Ingresa el código de 6 dígitos</li>
+                                        <li>¡Listo! Acceso seguro garantizado</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Códigos de Respaldo
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="mb-0 small">
+                                        <li>Cada código solo se puede usar una vez</li>
+                                        <li>Guárdalos en un lugar seguro</li>
+                                        <li>No los compartas con nadie</li>
+                                        <li>Puedes generar nuevos si es necesario</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Próximos pasos -->
+                    <div class="mt-4">
+                        <h5>Próximos Pasos</h5>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-mobile-alt text-primary me-2"></i>
+                                        Probar el Login
+                                    </h6>
+                                    <small class="text-muted">Recomendado</small>
+                                </div>
+                                <p class="mb-1">Cierra sesión y prueba el login con 2FA para asegurarte de que todo funciona correctamente.</p>
+                            </div>
+                            
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-shield-alt text-success me-2"></i>
+                                        Configuración Completa
+                                    </h6>
+                                    <small class="text-success">Opcional</small>
+                                </div>
+                                <p class="mb-1">Tu cuenta ya está protegida. Puedes continuar usando el sistema normalmente.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'login:dashboard' %}" class="btn btn-primary">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Ir al Dashboard
+                            </a>
+                            
+                            <div>
+                                <a href="{% url 'login:admin_login' %}" class="btn btn-outline-primary me-2">
+                                    <i class="fas fa-sign-in-alt me-2"></i>
+                                    Probar Login
+                                </a>
+                                <a href="{% url 'login:disable_2fa' %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-cog me-2"></i>
+                                    Configuración 2FA
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para imprimir códigos -->
+<div class="modal fade" id="printModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Códigos de Respaldo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="printContent">
+                <h6>Tienda Inmobiliaria - Códigos de Respaldo 2FA</h6>
+                <p><strong>Cuenta:</strong> {{ credenciales.email }}</p>
+                <p><strong>Fecha:</strong> {% now "d/m/Y H:i" %}</p>
+                <hr>
+                <div class="row">
+                    {% for code in backup_codes %}
+                        <div class="col-6 mb-2">
+                            <code class="bg-light p-2 rounded d-block text-center">{{ code }}</code>
+                        </div>
+                    {% endfor %}
+                </div>
+                <hr>
+                <p class="small text-muted">
+                    <strong>Instrucciones:</strong> Guarda este documento en un lugar seguro. 
+                    Cada código solo se puede usar una vez. Si pierdes este documento, 
+                    contacta al administrador del sistema.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function printCodes() {
+    const modal = new bootstrap.Modal(document.getElementById('printModal'));
+    modal.show();
+}
+
+function downloadCodes() {
+    const codes = [
+        {% for code in backup_codes %}
+            "{{ code }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    const content = `Tienda Inmobiliaria - Códigos de Respaldo 2FA
+Cuenta: {{ credenciales.email }}
+Fecha: ${new Date().toLocaleString()}
+
+Códigos de Respaldo:
+${codes.map((code, index) => `${index + 1}. ${code}`).join('\n')}
+
+Instrucciones:
+- Guarda este archivo en un lugar seguro
+- Cada código solo se puede usar una vez
+- Si pierdes este archivo, contacta al administrador del sistema
+- No compartas estos códigos con nadie
+`;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `codigos-respaldo-2fa-{{ credenciales.email|slice:":10" }}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// Auto-focus en el primer botón
+document.addEventListener('DOMContentLoaded', function() {
+    const firstButton = document.querySelector('.btn-primary');
+    if (firstButton) {
+        firstButton.focus();
+    }
+});
+</script>
+{% endblock %}
