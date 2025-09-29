@@ -3,6 +3,7 @@
 
 {% block title %}{{ propiedad.titulo }} - Tienda Inmobiliaria{% endblock %}
 
+
 {% block content %}
 <!-- Property Detail Header -->
 <section class="property-header py-4">
@@ -134,8 +135,8 @@
                             
                             <!-- Key Features -->
                             <div class="key-features mb-4">
-                                <div class="row">
-                                    <div class="col-md-6">
+                                <div class="row justify-content-end">
+                                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
                                         <div class="feature-card">
                                             <div class="feature-icon">
                                                 <i class="fas fa-bolt"></i>
@@ -146,7 +147,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
                                         <div class="feature-card">
                                             <div class="feature-icon">
                                                 <i class="fas fa-star"></i>
@@ -158,8 +159,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-6">
+                                <div class="row justify-content-end mt-3">
+                                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
                                         <div class="feature-card">
                                             <div class="feature-icon">
                                                 <i class="fas fa-check-circle"></i>
@@ -179,7 +180,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-lg-6 col-md-6 col-sm-12 mb-3">
                                         <div class="feature-card">
                                             <div class="feature-icon">
                                                 <i class="fas fa-lock"></i>
@@ -195,7 +196,7 @@
                             
                                                          <!-- What's Included -->
                              <div class="whats-included">
-                                 <h4 class="section-title">Qué está incluido</h4>
+                                 <h4 class="section-title">Qué está incluido:</h4>
                                  {% if propiedad.amenidades.exists %}
                                      <div class="amenities-grid">
                                          {% for amenidad in propiedad.amenidades.all %}
@@ -240,7 +241,7 @@
                             
                             <!-- Property Description -->
                             <div class="property-description mt-5">
-                                <h4 class="section-title">Descripción del predio</h4>
+                                <h4 class="section-title">Descripción de la propiedad:</h4>
                                 <div class="description-content">
                                     {% if propiedad.descripcion %}
                                         {{ propiedad.descripcion|linebreaks }}
@@ -252,7 +253,7 @@
                             
                             <!-- Property Features Grid -->
                             <div class="property-features mt-5">
-                                <h4 class="section-title">Características de la Propiedad</h4>
+                                <h4 class="section-title">Características de la Propiedad:</h4>
                                 <div class="features-grid">
                                     <div class="feature-item">
                                         <div class="feature-icon">
@@ -293,27 +294,31 @@
                                              <p>{{ propiedad.ubicacion }}</p>
                                          </div>
                                      </div>
-                                     <div class="location-item">
-                                         <i class="fas fa-city"></i>
-                                         <div>
-                                             <strong>Ciudad:</strong>
-                                             <p>{{ propiedad.ubicacion|truncatechars:30 }}</p>
-                                         </div>
-                                     </div>
-                                     <div class="location-item">
-                                         <i class="fas fa-road"></i>
-                                         <div>
-                                             <strong>Acceso:</strong>
-                                             <p>Fácil acceso por carretera principal</p>
-                                         </div>
-                                     </div>
+                                    <div class="location-item">
+                                        <i class="fas fa-city"></i>
+                                        <div>
+                                            <strong>Ciudad:</strong>
+                                            <p>{% if propiedad.ciudad %}{{ propiedad.ciudad }}{% else %}{{ propiedad.ubicacion|truncatechars:30 }}{% endif %}</p>
+                                        </div>
+                                    </div>
+                                    <div class="location-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <div>
+                                            <strong>Lugares Cercanos:</strong>
+                                            <p>{% if propiedad.lugares_cercanos %}{{ propiedad.lugares_cercanos }}{% else %}Centros comerciales, restaurantes y servicios a pocos minutos{% endif %}</p>
+                                        </div>
+                                    </div>
                                  </div>
-                                 <div class="location-map-placeholder">
-                                     <div class="map-container">
-                                         <i class="fas fa-map fa-3x text-muted"></i>
-                                         <p class="text-muted">Mapa de ubicación próximamente disponible</p>
-                                     </div>
-                                 </div>
+                                <div class="location-map-container">
+                                    {% if propiedad.latitud and propiedad.longitud %}
+                                        <div id="map" class="property-map"></div>
+                                    {% else %}
+                                        <div class="map-container">
+                                            <i class="fas fa-map fa-3x text-muted"></i>
+                                            <p class="text-muted">Coordenadas de ubicación no disponibles</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
                              </div>
                          </div>
                         
@@ -483,7 +488,9 @@
                         </div>
                         
                         <div class="form-group mb-3">
-                            <label for="{{ contact_form.telefono.id_for_label }}" class="form-label">{{ contact_form.telefono.label }}</label>
+                            <label for="{{ contact_form.telefono.id_for_label }}" class="form-label">
+                                {{ contact_form.telefono.label }} <span class="required">*</span>
+                            </label>
                             {{ contact_form.telefono }}
                             {% if contact_form.telefono.errors %}
                                 <div class="invalid-feedback d-block">
@@ -494,12 +501,92 @@
                             {% endif %}
                         </div>
                         
+                        <!-- Fechas de estadía con calendario -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        Selecciona tus fechas <span class="required">*</span>
+                                    </label>
+                                    
+                                    <!-- Botón para mostrar/ocultar calendario -->
+                                    <div class="calendar-toggle-container mb-3">
+                                        <button type="button" class="btn btn-outline-primary calendar-toggle-btn" id="toggleCalendar">
+                                            <i class="fas fa-calendar-alt me-2"></i>
+                                            <span id="toggleText">Seleccionar fechas</span>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Campos de fecha (siempre visibles) -->
+                                    <div class="date-fields-container">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="date-input-group">
+                                                    <label class="date-label">Check-in:</label>
+                                                    <input type="text" class="date-display" id="fecha_entrada_display" readonly placeholder="Selecciona fecha">
+                                                    <input type="hidden" id="fecha_entrada" name="fecha_entrada" required>
+                                                    <small class="time-info">
+                                                        <i class="fas fa-clock me-1"></i>13:00 PM
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="date-input-group">
+                                                    <label class="date-label">Check-out:</label>
+                                                    <input type="text" class="date-display" id="fecha_salida_display" readonly placeholder="Selecciona fecha">
+                                                    <input type="hidden" id="fecha_salida" name="fecha_salida" required>
+                                                    <small class="time-info">
+                                                        <i class="fas fa-clock me-1"></i>10:00 AM
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Calendario (oculto inicialmente) -->
+                                    <div class="calendar-container" id="calendarContainer" style="display: none;">
+                                        <div class="calendar-wrapper">
+                                            <div class="calendar-header">
+                                                <button type="button" class="calendar-nav-btn" id="prevMonth">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                </button>
+                                                <h4 class="calendar-month-year" id="currentMonthYear"></h4>
+                                                <button type="button" class="calendar-nav-btn" id="nextMonth">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                            <div class="calendar-grid" id="calendarGrid">
+                                                <!-- Se llena dinámicamente con JavaScript -->
+                                            </div>
+                                            <div class="calendar-footer">
+                                                <button type="button" class="btn btn-success calendar-save-btn" id="saveCalendarBtn">
+                                                    <i class="fas fa-check me-2"></i>
+                                                    Guardar Fechas
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="form-group mb-3">
                             <label for="{{ contact_form.asunto.id_for_label }}" class="form-label">
                                 {{ contact_form.asunto.label }} <span class="required">*</span>
                             </label>
-                            {{ contact_form.asunto }}
+                            {% if propiedad.operacion == 'alquiler_temporal' %}
+                                <input type="text" class="form-control" id="{{ contact_form.asunto.id_for_label }}" name="{{ contact_form.asunto.name }}" value="Alquiler Temporal" readonly required>
+                                <input type="hidden" name="{{ contact_form.asunto.name }}" value="alquiler_temporal">
+                            {% elif propiedad.operacion == 'alquiler' %}
+                                <input type="text" class="form-control" id="{{ contact_form.asunto.id_for_label }}" name="{{ contact_form.asunto.name }}" value="Alquiler" readonly required>
+                                <input type="hidden" name="{{ contact_form.asunto.name }}" value="alquiler">
+                            {% elif propiedad.operacion == 'venta' %}
+                                <input type="text" class="form-control" id="{{ contact_form.asunto.id_for_label }}" name="{{ contact_form.asunto.name }}" value="Venta" readonly required>
+                                <input type="hidden" name="{{ contact_form.asunto.name }}" value="venta">
+                            {% else %}
+                                <input type="text" class="form-control" id="{{ contact_form.asunto.id_for_label }}" name="{{ contact_form.asunto.name }}" value="Consulta General" readonly required>
+                                <input type="hidden" name="{{ contact_form.asunto.name }}" value="consulta_general">
+                            {% endif %}
                             {% if contact_form.asunto.errors %}
                                 <div class="invalid-feedback d-block">
                                     {% for error in contact_form.asunto.errors %}
@@ -877,7 +964,11 @@
     box-shadow: 0 0 20px rgba(52, 152, 219, 0.6);
 }
 
-/* Responsive para el visor de imágenes */
+/* ========================================
+   OPTIMIZACIÓN DE GALERÍA RESPONSIVA
+   ======================================== */
+
+/* Visor de imágenes optimizado para táctiles */
 @media (max-width: 768px) {
     .image-viewer-close {
         top: 15px;
@@ -885,11 +976,21 @@
         font-size: 32px;
         width: 50px;
         height: 50px;
+        z-index: 1001;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 50%;
+        color: white;
     }
     
     .image-viewer-nav {
         padding: 15px 10px;
         font-size: 20px;
+        z-index: 1001;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 50%;
+        color: white;
+        min-width: 50px;
+        min-height: 50px;
     }
     
     .image-viewer-prev {
@@ -903,7 +1004,10 @@
     .image-viewer-counter {
         bottom: 80px;
         font-size: 16px;
-        padding: 8px 16px;
+        padding: 12px 24px;
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 25px;
+        color: white;
     }
     
     .image-viewer-thumbnails {
@@ -914,6 +1018,14 @@
     .image-viewer-thumbnails img {
         width: 60px;
         height: 45px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        transition: border-color 0.3s ease;
+    }
+    
+    .image-viewer-thumbnails img:hover,
+    .image-viewer-thumbnails img.active {
+        border-color: #3498db;
     }
 }
 
@@ -924,11 +1036,19 @@
         font-size: 28px;
         width: 45px;
         height: 45px;
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 50%;
+        color: white;
     }
     
     .image-viewer-nav {
         padding: 12px 8px;
         font-size: 18px;
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 50%;
+        color: white;
+        min-width: 45px;
+        min-height: 45px;
     }
     
     .image-viewer-prev {
@@ -942,7 +1062,10 @@
     .image-viewer-counter {
         bottom: 70px;
         font-size: 14px;
-        padding: 6px 12px;
+        padding: 10px 20px;
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 20px;
+        color: white;
     }
     
     .image-viewer-thumbnails {
@@ -953,6 +1076,14 @@
     .image-viewer-thumbnails img {
         width: 50px;
         height: 38px;
+        border-radius: 4px;
+        border: 2px solid transparent;
+        transition: border-color 0.3s ease;
+    }
+    
+    .image-viewer-thumbnails img:hover,
+    .image-viewer-thumbnails img.active {
+        border-color: #3498db;
     }
 }
 
@@ -1051,18 +1182,37 @@
     line-height: 1.6;
 }
 
-.property-info span {
-    display: inline-block;
-    margin: 0 15px;
-    padding: 8px 16px;
+/* Tarjetas de detalles de propiedad centralizadas */
+.property-detail-card {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    border-radius: 25px;
     backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    min-width: 200px;
+    justify-content: center;
 }
 
-   .property-info i {
-      color: #3498db;
-  }
+.property-detail-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.property-detail-card i {
+    color: #3498db;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.property-detail-card span {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
 
 /* Grid especial para la distribución de fotos */
 .gallery-grid-special {
@@ -1182,11 +1332,18 @@
         margin-bottom: 10px;
     }
     
-    .property-info span {
-        display: block;
-        margin: 8px 0;
+    .property-detail-card {
+        min-width: 150px;
+        padding: 10px 16px;
+        margin: 5px;
+    }
+    
+    .property-detail-card span {
+        font-size: 0.9rem;
+    }
+    
+    .property-detail-card i {
         font-size: 1rem;
-        padding: 6px 12px;
     }
     
     .gallery-close {
@@ -1209,13 +1366,17 @@
         margin-bottom: 8px;
     }
     
-    .property-info {
-        font-size: 0.9rem;
+    .property-detail-card {
+        min-width: 120px;
+        padding: 8px 12px;
+        margin: 3px;
     }
     
-    .property-info span {
-        padding: 5px 10px;
-        margin: 5px 0;
+    .property-detail-card span {
+        font-size: 0.8rem;
+    }
+    
+    .property-detail-card i {
         font-size: 0.9rem;
     }
     
@@ -1249,9 +1410,14 @@
         font-size: 2.2rem;
     }
     
-    .property-info span {
-        margin: 0 10px;
-        padding: 6px 14px;
+    .property-detail-card {
+        min-width: 180px;
+        padding: 10px 18px;
+        margin: 5px;
+    }
+    
+    .property-detail-card span {
+        font-size: 0.95rem;
     }
 }
 
@@ -1482,6 +1648,15 @@
     margin: 30px 0;
 }
 
+/* Alineación a la derecha y responsividad */
+.key-features .row {
+    margin-right: 0;
+}
+
+.key-features .row.justify-content-end {
+    justify-content: flex-end !important;
+}
+
 .feature-card {
     display: flex;
     align-items: flex-start;
@@ -1491,37 +1666,117 @@
     border-radius: 12px;
     height: 100%;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
 }
 
 .feature-card:hover {
     background: #e9ecef;
     transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-   .feature-icon {
-      width: 50px;
-      height: 50px;
-      background: linear-gradient(135deg, #3498db, #2980b9);
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      flex-shrink: 0;
-      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-  }
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
 
 .feature-content h5 {
     color: #212529;
     font-weight: 600;
     margin-bottom: 8px;
+    font-size: 1.1rem;
 }
 
 .feature-content p {
     color: #6c757d;
     margin: 0;
     font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Responsividad mejorada para las tarjetas */
+@media (max-width: 991px) {
+    .key-features .row.justify-content-end {
+        justify-content: center !important;
+    }
+    
+    .feature-card {
+        padding: 18px;
+    }
+    
+    .feature-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+    
+    .feature-content h5 {
+        font-size: 1rem;
+    }
+    
+    .feature-content p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .key-features .row.justify-content-end {
+        justify-content: center !important;
+    }
+    
+    .feature-card {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        margin: 0 auto;
+    }
+    
+    .feature-content h5 {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+    }
+    
+    .feature-content p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .feature-card {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .feature-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+    
+    .feature-content h5 {
+        font-size: 0.9rem;
+    }
+    
+    .feature-content p {
+        font-size: 0.75rem;
+    }
 }
 
 /* Estilos para las amenidades */
@@ -1716,17 +1971,90 @@
     margin: 0;
 }
 
-.location-map-placeholder {
+.location-map-container {
     background: #f8f9fa;
-    border-radius: 12px;
-    padding: 40px;
+    border-radius: 8px;
+    padding: 20px;
     text-align: center;
     border: 2px dashed #dee2e6;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.property-map {
+    height: 300px;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.map-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
 }
 
 .map-container i {
     color: #6c757d;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    font-size: 2rem !important;
+}
+
+.map-container p {
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* Responsive para el mapa */
+@media (max-width: 768px) {
+    .location-map-container {
+        padding: 15px;
+        max-width: 100%;
+        margin: 0 10px;
+    }
+    
+    .property-map {
+        height: 250px;
+    }
+    
+    .map-container {
+        height: 250px;
+    }
+    
+    .map-container i {
+        font-size: 1.5rem !important;
+        margin-bottom: 8px;
+    }
+    
+    .map-container p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .location-map-container {
+        padding: 12px;
+        margin: 0 5px;
+    }
+    
+    .property-map {
+        height: 200px;
+    }
+    
+    .map-container {
+        height: 200px;
+    }
+    
+    .map-container i {
+        font-size: 1.2rem !important;
+        margin-bottom: 6px;
+    }
+    
+    .map-container p {
+        font-size: 0.75rem;
+    }
 }
 
 /* Estilos para la pestaña de reseñas */
@@ -2009,6 +2337,929 @@
     min-height: 100px;
 }
 
+/* Estilos para campos de fecha */
+.form-text {
+    color: #6c757d;
+    font-size: 0.8rem;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.form-text i {
+    color: #3498db;
+    font-size: 0.9rem;
+}
+
+/* Mejoras para campos de fecha */
+input[type="date"] {
+    position: relative;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    color: #3498db;
+    background: none;
+    cursor: pointer;
+}
+
+input[type="date"]:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Responsive para campos de fecha */
+@media (max-width: 767px) {
+    .form-text {
+        font-size: 0.75rem;
+    }
+    
+    .form-text i {
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================
+   ESTILOS DEL CALENDARIO
+   ======================================== */
+
+.calendar-toggle-container {
+    text-align: center;
+}
+
+.calendar-toggle-btn {
+    background: #3498db;
+    color: white;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+}
+
+.calendar-toggle-btn:hover {
+    background: #2980b9;
+    border-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.calendar-toggle-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+}
+
+.date-fields-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 15px;
+}
+
+.date-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.date-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.date-display {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    padding: 10px 15px;
+    text-align: center;
+    font-weight: 500;
+    color: #495057;
+    width: 100%;
+    margin-bottom: 6px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.date-display:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.time-info {
+    color: #6c757d;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.time-info i {
+    color: #3498db;
+}
+
+.calendar-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e9ecef;
+    overflow: hidden;
+    margin-top: 10px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.calendar-footer {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.calendar-save-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-save-btn:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.calendar-save-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+}
+
+.calendar-save-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.calendar-save-btn i {
+    font-size: 0.9rem;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+.calendar-wrapper {
+    padding: 15px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 5px;
+}
+
+.calendar-nav-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+}
+
+.calendar-nav-btn:hover {
+    background: #2980b9;
+    transform: scale(1.1);
+}
+
+.calendar-month-year {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    margin-bottom: 15px;
+}
+
+.calendar-day-header {
+    background: #f8f9fa;
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 8px 4px;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.calendar-day {
+    background: white;
+    border: 1px solid #e9ecef;
+    color: #495057;
+    padding: 8px 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background: #e3f2fd;
+    border-color: #3498db;
+    transform: scale(1.05);
+}
+
+.calendar-day.disabled {
+    background: #f8f9fa;
+    color: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.calendar-day.disabled:hover {
+    background: #f8f9fa;
+    transform: none;
+}
+
+.calendar-day.today {
+    background: #fff3cd;
+    border-color: #ffc107;
+    color: #856404;
+    font-weight: 600;
+}
+
+.calendar-day.selected {
+    background: #3498db;
+    color: white;
+    border-color: #2980b9;
+    font-weight: 600;
+}
+
+.calendar-day.in-range {
+    background: #e3f2fd;
+    border-color: #3498db;
+    color: #1976d2;
+}
+
+.calendar-day.check-in {
+    background: #28a745;
+    color: white;
+    border-color: #1e7e34;
+    font-weight: 600;
+}
+
+.calendar-day.check-out {
+    background: #dc3545;
+    color: white;
+    border-color: #c82333;
+    font-weight: 600;
+}
+
+.date-selection-info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.selected-dates {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.date-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 130px;
+}
+
+.date-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+}
+
+.date-display {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    padding: 8px 12px;
+    text-align: center;
+    font-weight: 500;
+    color: #495057;
+    width: 100%;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.date-display:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.time-info {
+    color: #6c757d;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.time-info i {
+    color: #3498db;
+}
+
+/* Responsive para el calendario */
+@media (max-width: 768px) {
+    .calendar-toggle-btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .date-fields-container {
+        padding: 15px;
+    }
+    
+    .date-display {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .calendar-wrapper {
+        padding: 12px;
+    }
+    
+    .calendar-header {
+        margin-bottom: 12px;
+    }
+    
+    .calendar-nav-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+    }
+    
+    .calendar-month-year {
+        font-size: 0.9rem;
+    }
+    
+    .calendar-day {
+        padding: 6px 3px;
+        font-size: 0.75rem;
+    }
+    
+    .calendar-day-header {
+        padding: 6px 3px;
+        font-size: 0.75rem;
+    }
+    
+    .calendar-footer {
+        padding: 8px 12px;
+        justify-content: center;
+    }
+    
+    .calendar-save-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        width: 100%;
+        max-width: 160px;
+        min-height: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .calendar-toggle-btn {
+        padding: 8px 16px;
+        font-size: 0.8rem;
+        width: 100%;
+    }
+    
+    .date-fields-container {
+        padding: 12px;
+    }
+    
+    .date-display {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .date-label {
+        font-size: 0.8rem;
+    }
+    
+    .time-info {
+        font-size: 0.75rem;
+    }
+    
+    .calendar-wrapper {
+        padding: 8px;
+    }
+    
+    .calendar-day {
+        padding: 4px 2px;
+        font-size: 0.7rem;
+    }
+    
+    .calendar-day-header {
+        padding: 4px 2px;
+        font-size: 0.7rem;
+    }
+    
+    .calendar-nav-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 9px;
+    }
+    
+    .calendar-month-year {
+        font-size: 0.8rem;
+    }
+    
+    .calendar-footer {
+        padding: 8px 10px;
+        justify-content: center;
+    }
+    
+    .calendar-save-btn {
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        width: 100%;
+        min-height: 32px;
+    }
+}
+
+/* ========================================
+   CAMPO ASUNTO AUTOMÁTICO
+   ======================================== */
+
+.form-control[readonly] {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    color: #495057;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.form-control[readonly]:focus {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   RESPONSIVE GENERAL - OPTIMIZACIÓN COMPLETA
+   ======================================== */
+
+/* ========================================
+   BREAKPOINTS PRINCIPALES
+   ======================================== */
+
+/* Desktop Large (1200px+) - Mantener diseño original */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+}
+
+/* Desktop Medium (992px - 1199px) */
+@media (max-width: 1199px) and (min-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+    
+    .property-title {
+        font-size: 1.8rem;
+    }
+    
+    .compact-price-amount {
+        font-size: 1.6rem;
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
+    .container {
+        max-width: 720px;
+    }
+    
+    .property-content {
+        padding: 2rem 0;
+    }
+    
+    .property-title {
+        font-size: 1.6rem;
+    }
+    
+    .compact-price-amount {
+        font-size: 1.4rem;
+    }
+    
+    .property-main-image img,
+    .property-secondary-image img {
+        height: 250px;
+        object-fit: cover;
+    }
+    
+    .property-tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .tab-button {
+        flex: 1;
+        min-width: 120px;
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Mobile Large (576px - 767px) */
+@media (max-width: 767px) and (min-width: 576px) {
+    .container {
+        max-width: 540px;
+        padding: 0 15px;
+    }
+    
+    .property-content {
+        padding: 1.5rem 0;
+    }
+    
+    .property-header {
+        padding: 1rem 0;
+    }
+    
+    .breadcrumb {
+        font-size: 0.85rem;
+    }
+    
+    .property-title {
+        font-size: 1.4rem;
+        line-height: 1.3;
+    }
+    
+    .compact-price-amount {
+        font-size: 1.2rem;
+    }
+    
+    .property-main-image img,
+    .property-secondary-image img {
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .property-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .tab-button {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .tab-content {
+        padding: 1rem;
+    }
+    
+    .summary-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .stat-item {
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile Small (max-width: 575px) */
+@media (max-width: 575px) {
+    .container {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+    
+    .property-content {
+        padding: 1rem 0;
+    }
+    
+    .property-header {
+        padding: 0.75rem 0;
+    }
+    
+    .breadcrumb {
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .property-title {
+        font-size: 1.2rem;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+    }
+    
+    .compact-price-amount {
+        font-size: 1.1rem;
+    }
+    
+    .compact-price-label {
+        font-size: 0.7rem;
+    }
+    
+    .compact-price-period {
+        font-size: 0.7rem;
+    }
+    
+    .property-main-image img,
+    .property-secondary-image img {
+        height: 180px;
+        object-fit: cover;
+    }
+    
+    .property-tabs {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .tab-button {
+        width: 100%;
+        font-size: 0.85rem;
+        padding: 0.6rem 0.8rem;
+    }
+    
+    .tab-content {
+        padding: 0.75rem;
+    }
+    
+    .summary-stats {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .stat-item {
+        font-size: 0.8rem;
+    }
+}
+
+/* ========================================
+   OPTIMIZACIÓN DE IMÁGENES RESPONSIVAS
+   ======================================== */
+
+/* Asegurar que las imágenes sean responsivas */
+.property-main-image img,
+.property-secondary-image img,
+.gallery-item img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    object-fit: cover;
+}
+
+/* ========================================
+   OPTIMIZACIÓN DE FORMULARIOS RESPONSIVOS
+   ======================================== */
+
+/* Formulario de contacto responsivo */
+@media (max-width: 767px) {
+    .contact-form {
+        padding: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+    
+    .form-control {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+    }
+    
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    .char-counter {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .contact-form {
+        padding: 0.75rem;
+    }
+    
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+    
+    .form-label {
+        font-size: 0.85rem;
+    }
+    
+    .form-control {
+        font-size: 0.85rem;
+        padding: 0.6rem;
+    }
+    
+    .btn {
+        font-size: 0.85rem;
+        padding: 0.6rem 1.2rem;
+        width: 100%;
+    }
+    
+    .char-counter {
+        font-size: 0.7rem;
+    }
+}
+
+/* ========================================
+   OPTIMIZACIÓN DE BOTONES TÁCTILES
+   ======================================== */
+
+/* Botones más grandes para dispositivos táctiles */
+@media (max-width: 767px) {
+    .btn {
+        min-height: 44px; /* Tamaño mínimo recomendado para táctil */
+        min-width: 44px;
+    }
+    
+    .tab-button {
+        min-height: 48px;
+    }
+    
+    .photos-count-btn {
+        min-height: 40px;
+        font-size: 0.9rem;
+    }
+    
+    .calendar-toggle-btn {
+        min-height: 48px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 575px) {
+    .btn {
+        min-height: 48px;
+        font-size: 0.9rem;
+    }
+    
+    .tab-button {
+        min-height: 52px;
+    }
+    
+    .photos-count-btn {
+        min-height: 44px;
+        font-size: 0.85rem;
+    }
+}
+
+/* ========================================
+   PREVENCIÓN DE DESBORDAMIENTO HORIZONTAL
+   ======================================== */
+
+/* Asegurar que no haya desbordamiento */
+* {
+    box-sizing: border-box;
+}
+
+.container,
+.container-fluid {
+    overflow-x: hidden;
+}
+
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.col,
+[class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+@media (max-width: 575px) {
+    .col,
+    [class*="col-"] {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+}
+
+/* ========================================
+   OPTIMIZACIÓN DE TEXTO RESPONSIVO
+   ======================================== */
+
+/* Tamaños de fuente responsivos */
+@media (max-width: 767px) {
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.3rem; }
+    h3 { font-size: 1.2rem; }
+    h4 { font-size: 1.1rem; }
+    h5 { font-size: 1rem; }
+    h6 { font-size: 0.9rem; }
+    
+    .section-title {
+        font-size: 1.2rem;
+    }
+    
+    .property-description {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 575px) {
+    h1 { font-size: 1.3rem; }
+    h2 { font-size: 1.2rem; }
+    h3 { font-size: 1.1rem; }
+    h4 { font-size: 1rem; }
+    h5 { font-size: 0.9rem; }
+    h6 { font-size: 0.8rem; }
+    
+    .section-title {
+        font-size: 1.1rem;
+    }
+    
+    .property-description {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+}
+
 /* ========================================
    VALIDACIONES DEL FORMULARIO DE CONSULTA
    ======================================== */
@@ -2031,6 +3282,77 @@
     font-size: 0.875rem;
     margin-top: 0.25rem;
     font-weight: 500;
+}
+
+/* ========================================
+   VALIDACIONES VISUALES MEJORADAS
+   ======================================== */
+
+/* Iconos de validación */
+.contact-form .form-control.is-invalid {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.4.4.4-.4'/%3e%3cpath d='m5.8 8.4.4-.4.4.4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem 1rem;
+}
+
+.contact-form .form-control.is-valid {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73.94-.94 1.88-1.88L6.73 2.3l.94.94L4.12 6.7z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem 1rem;
+}
+
+/* Mensajes de error mejorados */
+.field-error-message {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.field-error-message::before {
+    content: "⚠️";
+    font-size: 0.75rem;
+}
+
+/* Error general del formulario */
+.form-general-error {
+    border-left: 4px solid #dc3545;
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    animation: shake 0.5s ease-in-out;
+}
+
+.form-general-error i {
+    color: #721c24;
+}
+
+/* Animaciones */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes validPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+@keyframes invalidShake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* Aplicar animaciones */
+.contact-form .form-control.is-valid {
+    animation: validPulse 0.3s ease-in-out;
+}
+
+.contact-form .form-control.is-invalid {
+    animation: invalidShake 0.5s ease-in-out;
 }
 
 /* Mensaje de error del formulario */
@@ -2754,20 +4076,20 @@ function verGaleríaCompleta() {
             
             <!-- Información de la propiedad arriba -->
             <div class="gallery-header mb-4">
-                <h3 class="text-white mb-2">${fotosData.titulo}</h3>
-                <div class="property-info text-white-50">
-                    <span class="me-3">
-                        <i class="fas fa-users me-1"></i>
-                        Capacidad para ${fotosData.capacidad} personas
-                    </span>
-                    <span class="me-3">
-                        <i class="fas fa-bed me-1"></i>
-                        ${fotosData.habitaciones} dormitorios, ${fotosData.banos} baños
-                    </span>
-                    <span>
-                        <i class="fas fa-vector-square me-1"></i>
-                        ${fotosData.metros} metros cuadrados
-                    </span>
+                <h3 class="text-white mb-4 text-center">${fotosData.titulo}</h3>
+                <div class="property-info text-white-50 d-flex justify-content-center flex-wrap gap-3">
+                    <div class="property-detail-card">
+                        <i class="fas fa-users me-2"></i>
+                        <span>Capacidad para ${fotosData.capacidad} personas</span>
+                    </div>
+                    <div class="property-detail-card">
+                        <i class="fas fa-bed me-2"></i>
+                        <span>${fotosData.habitaciones} dormitorios, ${fotosData.banos} baños</span>
+                    </div>
+                    <div class="property-detail-card">
+                        <i class="fas fa-vector-square me-2"></i>
+                        <span>${fotosData.metros} metros cuadrados</span>
+                    </div>
                 </div>
             </div>
             
@@ -2946,21 +4268,108 @@ function validatePropertyContactField(field) {
             } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
                 isValid = false;
                 errorMessage = 'Por favor ingresa un correo electrónico válido.';
+            } else {
+                // Validar que no sea un email temporal o desechable
+                const disposableDomains = ['10minutemail.com', 'tempmail.org', 'guerrillamail.com', 'mailinator.com'];
+                const domain = value.split('@')[1].toLowerCase();
+                if (disposableDomains.includes(domain)) {
+                    isValid = false;
+                    errorMessage = 'No se permiten correos electrónicos temporales.';
+                }
+                
+                // Validar que no tenga caracteres consecutivos sospechosos
+                if (/(.)\1{3,}/.test(value)) {
+                    isValid = false;
+                    errorMessage = 'El correo electrónico contiene caracteres repetidos no válidos.';
+                }
             }
         }
         
         // Validación de teléfono
-        else if (fieldName === 'telefono' && value) {
-            const cleanPhone = value.replace(/[^\d+]/g, '');
-            if (cleanPhone.length < 8) {
+        else if (fieldName === 'telefono') {
+            if (!value) {
                 isValid = false;
-                errorMessage = 'El teléfono debe tener al menos 8 dígitos.';
-            } else if (cleanPhone.length > 15) {
+                errorMessage = 'El teléfono es obligatorio.';
+            } else {
+                const cleanPhone = value.replace(/[^\d+]/g, '');
+                if (cleanPhone.length < 8) {
+                    isValid = false;
+                    errorMessage = 'El teléfono debe tener al menos 8 dígitos.';
+                } else if (cleanPhone.length > 15) {
+                    isValid = false;
+                    errorMessage = 'El teléfono no puede exceder los 15 dígitos.';
+                } else if (!/^\+?[0-9]+$/.test(cleanPhone)) {
+                    isValid = false;
+                    errorMessage = 'El teléfono solo puede contener números y opcionalmente un + al inicio.';
+                }
+            }
+        }
+        
+        // Validación de fecha de entrada
+        else if (fieldName === 'fecha_entrada') {
+            if (!value) {
                 isValid = false;
-                errorMessage = 'El teléfono no puede exceder los 15 dígitos.';
-            } else if (!/^\+?[0-9]+$/.test(cleanPhone)) {
+                errorMessage = 'La fecha de entrada es obligatoria.';
+            } else {
+                const entrada = new Date(value);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                
+                if (entrada < hoy) {
+                    isValid = false;
+                    errorMessage = 'La fecha de entrada no puede ser anterior a hoy.';
+                } else {
+                    // Validar que no sea más de 1 año en el futuro
+                    const maxDate = new Date();
+                    maxDate.setFullYear(maxDate.getFullYear() + 1);
+                    if (entrada > maxDate) {
+                        isValid = false;
+                        errorMessage = 'La fecha de entrada no puede ser más de 1 año en el futuro.';
+                    }
+                }
+            }
+        }
+        
+        // Validación de fecha de salida
+        else if (fieldName === 'fecha_salida') {
+            if (!value) {
                 isValid = false;
-                errorMessage = 'El teléfono solo puede contener números y opcionalmente un + al inicio.';
+                errorMessage = 'La fecha de salida es obligatoria.';
+            } else {
+                const salida = new Date(value);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                
+                if (salida < hoy) {
+                    isValid = false;
+                    errorMessage = 'La fecha de salida no puede ser anterior a hoy.';
+                } else {
+                    // Validar que no sea más de 1 año en el futuro
+                    const maxDate = new Date();
+                    maxDate.setFullYear(maxDate.getFullYear() + 1);
+                    if (salida > maxDate) {
+                        isValid = false;
+                        errorMessage = 'La fecha de salida no puede ser más de 1 año en el futuro.';
+                    } else {
+                        // Validar que la fecha de salida sea posterior a la de entrada
+                        const fechaEntrada = document.getElementById('fecha_entrada').value;
+                        if (fechaEntrada) {
+                            const entrada = new Date(fechaEntrada);
+                            if (salida <= entrada) {
+                                isValid = false;
+                                errorMessage = 'La fecha de salida debe ser posterior a la fecha de entrada.';
+                            } else {
+                                // Validar que no sea más de 30 días después de la entrada
+                                const diffTime = salida - entrada;
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                if (diffDays > 30) {
+                                    isValid = false;
+                                    errorMessage = 'La estadía no puede ser mayor a 30 días.';
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         
@@ -2986,6 +4395,21 @@ function validatePropertyContactField(field) {
             } else if (!value.trim()) {
                 isValid = false;
                 errorMessage = 'El mensaje no puede estar vacío.';
+            } else {
+                // Validar que no contenga solo espacios o caracteres especiales
+                const cleanMessage = value.trim().replace(/[^\w\s]/g, '');
+                if (cleanMessage.length < 5) {
+                    isValid = false;
+                    errorMessage = 'El mensaje debe contener al menos 5 caracteres válidos.';
+                }
+                
+                // Validar que no contenga spam o contenido inapropiado
+                const spamWords = ['spam', 'promoción', 'oferta', 'descuento', 'gratis', 'urgente'];
+                const lowerMessage = value.toLowerCase();
+                if (spamWords.some(word => lowerMessage.includes(word))) {
+                    isValid = false;
+                    errorMessage = 'El mensaje contiene palabras no permitidas.';
+                }
             }
         }
         
@@ -3012,15 +4436,81 @@ function validatePropertyContactForm() {
     const form = document.getElementById('propertyContactForm');
     const inputs = form.querySelectorAll('input, select, textarea');
     let isFormValid = true;
+    let errorCount = 0;
     
     inputs.forEach(input => {
         validatePropertyContactField(input);
         if (input.classList.contains('is-invalid')) {
             isFormValid = false;
+            errorCount++;
         }
     });
     
+    // Validaciones adicionales del formulario completo
+    if (isFormValid) {
+        // Verificar que las fechas sean consistentes
+        const fechaEntrada = document.getElementById('fecha_entrada').value;
+        const fechaSalida = document.getElementById('fecha_salida').value;
+        
+        if (fechaEntrada && fechaSalida) {
+            const entrada = new Date(fechaEntrada);
+            const salida = new Date(fechaSalida);
+            
+            if (salida <= entrada) {
+                isFormValid = false;
+                showFormError('Las fechas seleccionadas no son válidas. La fecha de salida debe ser posterior a la de entrada.');
+            }
+        }
+        
+        // Verificar que el mensaje no sea demasiado repetitivo
+        const mensaje = document.getElementById('mensaje').value;
+        if (mensaje) {
+            const words = mensaje.toLowerCase().split(/\s+/);
+            const wordCount = {};
+            words.forEach(word => {
+                wordCount[word] = (wordCount[word] || 0) + 1;
+            });
+            
+            const maxRepetition = Math.max(...Object.values(wordCount));
+            if (maxRepetition > words.length * 0.3) {
+                isFormValid = false;
+                showFormError('El mensaje contiene demasiadas repeticiones de palabras.');
+            }
+        }
+    }
+    
+    // Mostrar resumen de errores si los hay
+    if (!isFormValid) {
+        showFormError(`Por favor corrige los ${errorCount} error(es) antes de enviar el formulario.`);
+    }
+    
     return isFormValid;
+}
+
+// Función para mostrar errores del formulario completo
+function showFormError(message) {
+    // Remover error anterior si existe
+    const existingError = document.querySelector('.form-general-error');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Crear nuevo mensaje de error
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'form-general-error alert alert-danger mt-3';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        ${message}
+    `;
+    
+    // Insertar antes del botón de envío
+    const submitBtn = document.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.parentNode.insertBefore(errorDiv, submitBtn);
+        
+        // Scroll al error
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
 // Función para mostrar error general del formulario
@@ -3588,10 +5078,572 @@ async function handleResenaSubmit(event) {
         mostrarNotificacion('error', 'Error de conexión', 'No se pudo enviar la reseña. Por favor verifica tu conexión e intenta de nuevo.');
     }
 }
+
+// ========================================
+// SINCRONIZACIÓN DE FECHAS
+// ========================================
+
+// Función para sincronizar fechas
+function setupDateSync() {
+    const fechaEntrada = document.getElementById('fecha_entrada');
+    const fechaSalida = document.getElementById('fecha_salida');
+    
+    if (fechaEntrada && fechaSalida) {
+        // Cuando cambie la fecha de entrada, actualizar la fecha mínima de salida
+        fechaEntrada.addEventListener('change', function() {
+            const fechaEntradaValue = this.value;
+            if (fechaEntradaValue) {
+                // Establecer la fecha mínima de salida al día siguiente
+                const fechaMinima = new Date(fechaEntradaValue);
+                fechaMinima.setDate(fechaMinima.getDate() + 1);
+                fechaSalida.min = fechaMinima.toISOString().split('T')[0];
+                
+                // Si la fecha de salida actual es anterior a la nueva fecha mínima, limpiarla
+                if (fechaSalida.value && new Date(fechaSalida.value) <= new Date(fechaEntradaValue)) {
+                    fechaSalida.value = '';
+                }
+            }
+        });
+        
+        // Cuando cambie la fecha de salida, validar que sea posterior a la entrada
+        fechaSalida.addEventListener('change', function() {
+            const fechaEntradaValue = fechaEntrada.value;
+            const fechaSalidaValue = this.value;
+            
+            if (fechaEntradaValue && fechaSalidaValue) {
+                const entrada = new Date(fechaEntradaValue);
+                const salida = new Date(fechaSalidaValue);
+                
+                if (salida <= entrada) {
+                    this.setCustomValidity('La fecha de salida debe ser posterior a la fecha de entrada');
+                    this.reportValidity();
+                } else {
+                    this.setCustomValidity('');
+                }
+            }
+        });
+    }
+}
+
+// Inicializar sincronización de fechas cuando se carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    setupDateSync();
+    initializeCalendar();
+    setupCalendarToggle();
+});
+
+// ========================================
+// CALENDARIO INTERACTIVO
+// ========================================
+
+let currentDate = new Date();
+let selectedCheckIn = null;
+let selectedCheckOut = null;
+let isSelectingCheckIn = true;
+
+const months = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+
+const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+function initializeCalendar() {
+    const calendarGrid = document.getElementById('calendarGrid');
+    const currentMonthYear = document.getElementById('currentMonthYear');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    
+    if (!calendarGrid || !currentMonthYear || !prevMonthBtn || !nextMonthBtn) {
+        return;
+    }
+    
+    // Event listeners para navegación
+    prevMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
+    });
+    
+    nextMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
+    });
+    
+    // Renderizar calendario inicial
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const calendarGrid = document.getElementById('calendarGrid');
+    const currentMonthYear = document.getElementById('currentMonthYear');
+    
+    if (!calendarGrid || !currentMonthYear) return;
+    
+    // Limpiar grid
+    calendarGrid.innerHTML = '';
+    
+    // Actualizar título
+    currentMonthYear.textContent = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+    
+    // Agregar headers de días
+    daysOfWeek.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'calendar-day-header';
+        dayHeader.textContent = day;
+        calendarGrid.appendChild(dayHeader);
+    });
+    
+    // Obtener primer día del mes y número de días
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    // Agregar días vacíos al inicio
+    for (let i = 0; i < startingDayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day disabled';
+        calendarGrid.appendChild(emptyDay);
+    }
+    
+    // Agregar días del mes
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        dayElement.textContent = day;
+        
+        const currentDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+        
+        // Marcar día actual
+        if (currentDay.getTime() === today.getTime()) {
+            dayElement.classList.add('today');
+        }
+        
+        // Deshabilitar días pasados
+        if (currentDay < today) {
+            dayElement.classList.add('disabled');
+        } else {
+            // Agregar event listener para selección
+            dayElement.addEventListener('click', () => selectDate(currentDay, dayElement));
+            
+            // Aplicar estilos según selección
+            if (selectedCheckIn && currentDay.getTime() === selectedCheckIn.getTime()) {
+                dayElement.classList.add('check-in');
+            } else if (selectedCheckOut && currentDay.getTime() === selectedCheckOut.getTime()) {
+                dayElement.classList.add('check-out');
+            } else if (isInRange(currentDay)) {
+                dayElement.classList.add('in-range');
+            }
+        }
+        
+        calendarGrid.appendChild(dayElement);
+    }
+}
+
+function selectDate(date, element) {
+    if (isSelectingCheckIn) {
+        // Seleccionar check-in
+        selectedCheckIn = new Date(date);
+        selectedCheckOut = null; // Reset check-out
+        isSelectingCheckIn = false;
+        
+        // Actualizar display
+        updateDateDisplay();
+        renderCalendar(); // Re-render para actualizar estilos
+    } else {
+        // Seleccionar check-out
+        if (selectedCheckIn && date > selectedCheckIn) {
+            selectedCheckOut = new Date(date);
+            isSelectingCheckIn = true; // Reset para próxima selección
+            
+            // Actualizar display
+            updateDateDisplay();
+            renderCalendar(); // Re-render para actualizar estilos
+        } else if (selectedCheckIn && date <= selectedCheckIn) {
+            // Si selecciona una fecha anterior o igual, resetear
+            selectedCheckIn = new Date(date);
+            selectedCheckOut = null;
+            updateDateDisplay();
+            renderCalendar();
+        }
+    }
+}
+
+function isInRange(date) {
+    if (!selectedCheckIn || !selectedCheckOut) return false;
+    return date > selectedCheckIn && date < selectedCheckOut;
+}
+
+function updateDateDisplay() {
+    const checkInDisplay = document.getElementById('fecha_entrada_display');
+    const checkOutDisplay = document.getElementById('fecha_salida_display');
+    const checkInHidden = document.getElementById('fecha_entrada');
+    const checkOutHidden = document.getElementById('fecha_salida');
+    
+    if (selectedCheckIn) {
+        const checkInFormatted = formatDate(selectedCheckIn);
+        checkInDisplay.value = checkInFormatted;
+        checkInHidden.value = selectedCheckIn.toISOString().split('T')[0];
+    } else {
+        checkInDisplay.value = '';
+        checkInHidden.value = '';
+    }
+    
+    if (selectedCheckOut) {
+        const checkOutFormatted = formatDate(selectedCheckOut);
+        checkOutDisplay.value = checkOutFormatted;
+        checkOutHidden.value = selectedCheckOut.toISOString().split('T')[0];
+    } else {
+        checkOutDisplay.value = '';
+        checkOutHidden.value = '';
+    }
+}
+
+function formatDate(date) {
+    const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        weekday: 'long'
+    };
+    return date.toLocaleDateString('es-ES', options);
+}
+
+// ========================================
+// FUNCIONALIDAD DE MOSTRAR/OCULTAR CALENDARIO
+// ========================================
+
+function setupCalendarToggle() {
+    const toggleBtn = document.getElementById('toggleCalendar');
+    const calendarContainer = document.getElementById('calendarContainer');
+    const toggleText = document.getElementById('toggleText');
+    const saveBtn = document.getElementById('saveCalendarBtn');
+    
+    if (!toggleBtn || !calendarContainer || !toggleText) {
+        return;
+    }
+    
+    let isCalendarVisible = false;
+    
+    // Función para actualizar el estado del botón de guardar
+    function updateSaveButtonState() {
+        if (saveBtn) {
+            const hasCheckIn = selectedCheckIn !== null;
+            const hasCheckOut = selectedCheckOut !== null;
+            
+            if (hasCheckIn && hasCheckOut) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-check me-2"></i>Guardar Fechas';
+            } else if (hasCheckIn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-check me-2"></i>Guardar Check-in';
+            } else {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-clock me-2"></i>Selecciona fechas';
+            }
+        }
+    }
+    
+    // Event listener para el botón de guardar
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            if (selectedCheckIn && selectedCheckOut) {
+                // Ocultar calendario después de guardar
+                calendarContainer.style.display = 'none';
+                toggleText.textContent = 'Seleccionar fechas';
+                toggleBtn.innerHTML = '<i class="fas fa-calendar-alt me-2"></i><span>Seleccionar fechas</span>';
+                isCalendarVisible = false;
+                
+                // Mostrar mensaje de confirmación
+                showSaveConfirmation();
+            }
+        });
+    }
+    
+    toggleBtn.addEventListener('click', function() {
+        if (isCalendarVisible) {
+            // Ocultar calendario
+            calendarContainer.style.display = 'none';
+            toggleText.textContent = 'Seleccionar fechas';
+            toggleBtn.innerHTML = '<i class="fas fa-calendar-alt me-2"></i><span>Seleccionar fechas</span>';
+            isCalendarVisible = false;
+        } else {
+            // Mostrar calendario
+            calendarContainer.style.display = 'block';
+            toggleText.textContent = 'Ocultar calendario';
+            toggleBtn.innerHTML = '<i class="fas fa-times me-2"></i><span>Ocultar calendario</span>';
+            isCalendarVisible = true;
+            
+            // Re-renderizar calendario si es necesario
+            if (document.getElementById('calendarGrid').innerHTML === '') {
+                renderCalendar();
+            }
+            
+            // Actualizar estado del botón de guardar
+            updateSaveButtonState();
+        }
+    });
+    
+    // También permitir mostrar calendario al hacer clic en los campos de fecha
+    const fechaEntradaDisplay = document.getElementById('fecha_entrada_display');
+    const fechaSalidaDisplay = document.getElementById('fecha_salida_display');
+    
+    if (fechaEntradaDisplay) {
+        fechaEntradaDisplay.addEventListener('click', function() {
+            if (!isCalendarVisible) {
+                calendarContainer.style.display = 'block';
+                toggleText.textContent = 'Ocultar calendario';
+                toggleBtn.innerHTML = '<i class="fas fa-times me-2"></i><span>Ocultar calendario</span>';
+                isCalendarVisible = true;
+                
+                if (document.getElementById('calendarGrid').innerHTML === '') {
+                    renderCalendar();
+                }
+                
+                updateSaveButtonState();
+            }
+        });
+    }
+    
+    if (fechaSalidaDisplay) {
+        fechaSalidaDisplay.addEventListener('click', function() {
+            if (!isCalendarVisible) {
+                calendarContainer.style.display = 'block';
+                toggleText.textContent = 'Ocultar calendario';
+                toggleBtn.innerHTML = '<i class="fas fa-times me-2"></i><span>Ocultar calendario</span>';
+                isCalendarVisible = true;
+                
+                if (document.getElementById('calendarGrid').innerHTML === '') {
+                    renderCalendar();
+                }
+                
+                updateSaveButtonState();
+            }
+        });
+    }
+    
+    // Actualizar estado del botón cuando cambien las fechas
+    const originalUpdateDateDisplay = updateDateDisplay;
+    updateDateDisplay = function() {
+        originalUpdateDateDisplay();
+        updateSaveButtonState();
+    };
+}
+
+// Función para mostrar confirmación de guardado
+function showSaveConfirmation() {
+    // Crear notificación temporal
+    const notification = document.createElement('div');
+    notification.className = 'calendar-save-notification';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-check-circle me-2"></i>
+            Fechas guardadas correctamente
+        </div>
+    `;
+    
+    // Agregar estilos
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        z-index: 9999;
+        animation: slideInRight 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
 </script>
 
 <!-- Script de tracking de clics -->
 <script src="{% static 'js/tracking-clics.js' %}"></script>
+
+<!-- Leaflet CSS y JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+      crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+        crossorigin=""></script>
+
+<script>
+// Inicializar mapa de Leaflet
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== INICIANDO SCRIPT DEL MAPA ===');
+    console.log('Latitud:', {{ propiedad.latitud|default:"null" }});
+    console.log('Longitud:', {{ propiedad.longitud|default:"null" }});
+    console.log('¿Tiene coordenadas?', {{ propiedad.latitud|yesno:"true,false" }} && {{ propiedad.longitud|yesno:"true,false" }});
+    
+    {% if propiedad.latitud and propiedad.longitud %}
+    try {
+        // Coordenadas de la propiedad - convertir Decimal a float
+        const lat = parseFloat('{{ propiedad.latitud }}');
+        const lng = parseFloat('{{ propiedad.longitud }}');
+        
+        console.log('Coordenadas originales de BD:', '{{ propiedad.latitud }}', '{{ propiedad.longitud }}');
+        console.log('Coordenadas parseadas para mapa:', lat, lng);
+        console.log('¿Son números válidos?', !isNaN(lat), !isNaN(lng));
+        
+        // Verificar que las coordenadas coincidan exactamente
+        const expectedLat = -33.072423029334615;
+        const expectedLng = -71.42604034568514;
+        const latDiff = Math.abs(lat - expectedLat);
+        const lngDiff = Math.abs(lng - expectedLng);
+        
+        console.log('Coordenadas esperadas (Google Maps):', expectedLat, expectedLng);
+        console.log('Diferencia en latitud:', latDiff);
+        console.log('Diferencia en longitud:', lngDiff);
+        
+        if (latDiff > 0.000001 || lngDiff > 0.000001) {
+            console.warn('⚠️ Las coordenadas no coinciden exactamente con Google Maps');
+        } else {
+            console.log('✅ Las coordenadas coinciden exactamente con Google Maps');
+        }
+        
+        // Validar que las coordenadas estén en rangos válidos
+        if (isNaN(lat) || isNaN(lng)) {
+            console.error('❌ Coordenadas inválidas:', lat, lng);
+            return;
+        }
+        
+        if (lat < -90 || lat > 90) {
+            console.error('❌ Latitud fuera de rango:', lat);
+            return;
+        }
+        
+        if (lng < -180 || lng > 180) {
+            console.error('❌ Longitud fuera de rango:', lng);
+            return;
+        }
+        
+        // Validar que las coordenadas estén en Chile (aproximadamente)
+        if (lat < -56 || lat > -17 || lng < -76 || lng > -66) {
+            console.warn('⚠️ Las coordenadas parecen estar fuera de Chile:', lat, lng);
+            console.warn('⚠️ Rango esperado para Chile: Lat: -56 a -17, Lng: -76 a -66');
+        }
+        
+        // Verificar que el elemento del mapa existe
+        const mapElement = document.getElementById('map');
+        console.log('Elemento del mapa:', mapElement);
+        
+        if (!mapElement) {
+            console.error('❌ Elemento del mapa no encontrado!');
+            return;
+        }
+        
+        console.log('✅ Elemento del mapa encontrado, inicializando...');
+        
+        // Verificar que Leaflet esté disponible
+        if (typeof L === 'undefined') {
+            console.error('❌ Leaflet no está disponible!');
+            return;
+        }
+        
+        console.log('✅ Leaflet disponible, creando mapa...');
+        
+        // Inicializar el mapa con zoom apropiado para zona urbana
+        const map = L.map('map').setView([lat, lng], 17);
+        console.log('✅ Mapa creado en coordenadas:', [lat, lng]);
+        console.log('✅ Zoom nivel 17 para vista urbana detallada');
+        
+        // Verificar que el mapa se centró correctamente
+        const mapCenter = map.getCenter();
+        console.log('Centro del mapa:', mapCenter.lat, mapCenter.lng);
+        
+        // Agregar capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(map);
+        console.log('✅ Capa de tiles agregada');
+        
+        // Agregar marcador rojo más visible en la ubicación exacta
+        const redIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='background-color:#dc2626;width:24px;height:24px;border-radius:50%;border:4px solid white;box-shadow:0 4px 8px rgba(0,0,0,0.4);'></div>",
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+        
+        // Crear marcador con coordenadas exactas
+        const marker = L.marker([lat, lng], { icon: redIcon })
+            .addTo(map);
+        
+        // Agregar popup con información detallada
+        marker.bindPopup(`
+            <div style="text-align: center; min-width: 200px;">
+                <strong style="color: #1f2937;">{{ propiedad.titulo }}</strong><br>
+                <small style="color: #6b7280;">{{ propiedad.ubicacion }}</small><br>
+                <small style="color: #9ca3af;">Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}</small>
+            </div>
+        `);
+        
+        // Abrir popup automáticamente
+        marker.openPopup();
+        
+        console.log('✅ Marcador agregado en coordenadas exactas:', [lat, lng]);
+        console.log('✅ Marcador visible:', marker.isPopupOpen());
+        
+        // Ajustar el mapa cuando cambie el tamaño de la ventana
+        window.addEventListener('resize', function() {
+            setTimeout(function() {
+                map.invalidateSize();
+            }, 100);
+        });
+        
+        // Ajustar el mapa cuando se muestre la pestaña de ubicación
+        const locationTab = document.querySelector('a[href="#ubicacion"]');
+        if (locationTab) {
+            locationTab.addEventListener('click', function() {
+                setTimeout(function() {
+                    map.invalidateSize();
+                }, 300);
+            });
+        }
+        
+        // Verificar precisión del mapa
+        setTimeout(function() {
+            const currentCenter = map.getCenter();
+            const distance = map.distance([lat, lng], [currentCenter.lat, currentCenter.lng]);
+            console.log('✅ Distancia entre coordenadas objetivo y centro del mapa:', distance.toFixed(2), 'metros');
+            
+            if (distance > 100) {
+                console.warn('⚠️ El mapa puede no estar centrado correctamente. Distancia:', distance.toFixed(2), 'metros');
+                // Re-centrar el mapa si es necesario
+                map.setView([lat, lng], 16);
+                console.log('🔄 Mapa re-centrado');
+            }
+        }, 1000);
+        
+        console.log('✅ Mapa inicializado correctamente');
+        
+    } catch (error) {
+        console.error('❌ Error al inicializar el mapa:', error);
+    }
+    {% else %}
+    console.log('❌ No hay coordenadas disponibles para esta propiedad');
+    {% endif %}
+});
+</script>
+
 {% endblock %}
 
 

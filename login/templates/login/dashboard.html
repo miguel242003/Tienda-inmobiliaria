@@ -2170,8 +2170,78 @@
             }
         }
         
+        /* Estilos para la sección de coordenadas */
+        .modal-propiedad-coordenadas {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-propiedad-coordenadas label {
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .modal-propiedad-coordenadas p {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .modal-propiedad-coordenadas .modal-propiedad-field {
+            position: relative;
+        }
+        
+        .modal-propiedad-coordenadas .modal-propiedad-field .relative input {
+            padding-right: 3rem;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-propiedad-coordenadas .modal-propiedad-field .relative input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+        
+        .modal-propiedad-coordenadas .modal-propiedad-field .relative .absolute.right-0 {
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .modal-propiedad-coordenadas .text-gray-500.text-xs {
+            color: #6b7280;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            line-height: 1.4;
+        }
+        
         /* Sección de amenidades responsiva */
         @media (max-width: 768px) {
+            .modal-propiedad-coordenadas {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .modal-propiedad-coordenadas label {
+                font-size: 0.9rem;
+            }
+            
+            .modal-propiedad-coordenadas p {
+                font-size: 0.8rem;
+            }
+            
             .modal-propiedad-amenidades {
                 margin-bottom: 1.5rem;
             }
@@ -3816,6 +3886,39 @@
                                 </div>
                             </div>
 
+                            <!-- Ciudad y Lugares Cercanos -->
+                            <div class="grid grid-cols-1 gap-6 mb-6 modal-propiedad-grid">
+                                <div class="modal-propiedad-field">
+                                    <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.ciudad.label }}
+                                    </label>
+                                    {{ form.ciudad }}
+                                    {% if form.ciudad.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.ciudad.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <p class="text-gray-500 text-xs mt-1">{{ form.ciudad.help_text }}</p>
+                                </div>
+                                
+                                <div class="modal-propiedad-field">
+                                    <label for="{{ form.lugares_cercanos.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.lugares_cercanos.label }}
+                                    </label>
+                                    {{ form.lugares_cercanos }}
+                                    {% if form.lugares_cercanos.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.lugares_cercanos.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <p class="text-gray-500 text-xs mt-1">{{ form.lugares_cercanos.help_text }}</p>
+                                </div>
+                            </div>
+
                             <!-- Características -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 modal-propiedad-grid-3">
                                 <div class="modal-propiedad-field">
@@ -3975,6 +4078,57 @@
                                         {% endfor %}
                                     </div>
                                 {% endif %}
+                            </div>
+
+                            <!-- Coordenadas de Ubicación -->
+                            <div class="mb-6 modal-propiedad-coordenadas">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i data-lucide="map-pin" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                    Coordenadas de Ubicación
+                                </label>
+                                <p class="text-gray-600 text-sm mb-4">Ingresa las coordenadas exactas para mostrar la ubicación en el mapa:</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 modal-propiedad-grid-2">
+                                    <div class="modal-propiedad-field">
+                                        <label for="{{ form.latitud.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            {{ form.latitud.label }}
+                                        </label>
+                                        <div class="relative">
+                                            {{ form.latitud }}
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 text-sm">°N/S</span>
+                                            </div>
+                                        </div>
+                                        {% if form.latitud.errors %}
+                                            <div class="text-red-600 text-sm mt-1">
+                                                {% for error in form.latitud.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <p class="text-gray-500 text-xs mt-1">{{ form.latitud.help_text }}</p>
+                                    </div>
+                                    
+                                    <div class="modal-propiedad-field">
+                                        <label for="{{ form.longitud.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                            {{ form.longitud.label }}
+                                        </label>
+                                        <div class="relative">
+                                            {{ form.longitud }}
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 text-sm">°E/W</span>
+                                            </div>
+                                        </div>
+                                        {% if form.longitud.errors %}
+                                            <div class="text-red-600 text-sm mt-1">
+                                                {% for error in form.longitud.errors %}
+                                                    <p>{{ error }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <p class="text-gray-500 text-xs mt-1">{{ form.longitud.help_text }}</p>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Submit Buttons -->

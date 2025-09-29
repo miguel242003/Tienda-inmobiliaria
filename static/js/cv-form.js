@@ -75,9 +75,9 @@ class CVForm {
                 message: 'Por favor ingresa un email válido'
             },
             telefono: {
-                required: false,
-                pattern: /^[\+]?[0-9\s\-\(\)]{10,}$/,
-                message: 'Por favor ingresa un teléfono válido'
+                required: true,
+                pattern: /^[\+]?[0-9\s\-\(\)]{8,15}$/,
+                message: 'El teléfono es obligatorio y debe tener entre 8-15 dígitos'
             },
             posicion: {
                 required: true,

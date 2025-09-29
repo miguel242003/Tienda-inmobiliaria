@@ -8,7 +8,7 @@ class PropiedadForm(forms.ModelForm):
         model = Propiedad
         fields = [
             'titulo', 'descripcion', 'precio', 'tipo', 'operacion', 'estado',
-            'ubicacion', 'metros_cuadrados', 'habitaciones', 'banos',
+            'ubicacion', 'ciudad', 'lugares_cercanos', 'metros_cuadrados', 'habitaciones', 'banos',
             'imagen_principal', 'imagen_secundaria', 'amenidades',
             'latitud', 'longitud'
         ]
@@ -56,6 +56,19 @@ class PropiedadForm(forms.ModelForm):
                 'title': 'La ubicación debe tener entre 5 y 200 caracteres',
                 'required': True
             }),
+            'ciudad': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ciudad donde se encuentra la propiedad',
+                'maxlength': '100',
+                'title': 'Ciudad de la propiedad'
+            }),
+            'lugares_cercanos': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Describe los lugares cercanos (centros comerciales, restaurantes, servicios, etc.)',
+                'maxlength': '500',
+                'title': 'Lugares cercanos a la propiedad'
+            }),
             'metros_cuadrados': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': '1',
@@ -96,18 +109,18 @@ class PropiedadForm(forms.ModelForm):
             }),
             'latitud': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'step': '0.0000001',
+                'step': 'any',
                 'min': '-90',
                 'max': '90',
-                'placeholder': 'Ej: -38.9516',
+                'placeholder': 'Ej: -33.6914783645518',
                 'title': 'La latitud debe estar entre -90 y 90 grados'
             }),
             'longitud': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'step': '0.0000001',
+                'step': 'any',
                 'min': '-180',
                 'max': '180',
-                'placeholder': 'Ej: -68.0591',
+                'placeholder': 'Ej: -65.45524318970048',
                 'title': 'La longitud debe estar entre -180 y 180 grados'
             }),
         }
@@ -119,6 +132,8 @@ class PropiedadForm(forms.ModelForm):
             'operacion': 'Tipo de Operación',
             'estado': 'Estado',
             'ubicacion': 'Ubicación',
+            'ciudad': 'Ciudad',
+            'lugares_cercanos': 'Lugares Cercanos',
             'metros_cuadrados': 'Metros Cuadrados',
             'habitaciones': 'Habitaciones',
             'banos': 'Baños',
@@ -129,6 +144,8 @@ class PropiedadForm(forms.ModelForm):
             'longitud': 'Longitud',
         }
         help_texts = {
+            'ciudad': 'Ciudad donde se encuentra la propiedad',
+            'lugares_cercanos': 'Describe los lugares cercanos como centros comerciales, restaurantes, servicios, etc.',
             'latitud': 'Coordenada de latitud para mostrar en el mapa (ej: -38.9516)',
             'longitud': 'Coordenada de longitud para mostrar en el mapa (ej: -68.0591)',
             'amenidades': 'Seleccione las amenidades que incluye la propiedad',

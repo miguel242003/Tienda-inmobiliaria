@@ -7,13 +7,26 @@ class ContactSubmission(models.Model):
     """Modelo para almacenar envíos del formulario de contacto"""
     
     ASUNTO_CHOICES = [
+        ('', 'Selecciona un asunto'),
+        ('consulta_general', 'Consulta General'),
         ('alquiler', 'Alquiler'),
+        ('alquiler_temporal', 'Alquiler Temporal'),
+        ('venta', 'Venta'),
+        ('consorcio', 'Consorcio'),
+        ('tasacion', 'Tasación de Propiedad'),
+        ('inversion', 'Inversión Inmobiliaria'),
+        ('financiamiento', 'Financiamiento Hipotecario'),
+        ('administracion', 'Administración de Propiedades'),
+        ('legal', 'Asesoría Legal'),
+        ('mantenimiento', 'Mantenimiento y Reparaciones'),
+        ('seguros', 'Seguros Inmobiliarios'),
+        ('otro', 'Otro'),
     ]
     
     nombre = models.CharField(max_length=100, verbose_name="Nombre Completo")
     email = models.EmailField(verbose_name="Email")
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
-    asunto = models.CharField(max_length=20, choices=ASUNTO_CHOICES, verbose_name="Asunto")
+    asunto = models.CharField(max_length=30, choices=ASUNTO_CHOICES, verbose_name="Asunto")
     mensaje = models.TextField(verbose_name="Mensaje")
     fecha_envio = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Envío")
     

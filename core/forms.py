@@ -38,6 +38,7 @@ class CVSubmissionForm(forms.ModelForm):
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': '+5491123456789',
+                'required': True,
                 'pattern': '^\\+?[0-9\\s\\-\\(\\)]{8,15}$',
                 'title': 'Formato: +5491123456789 o 5491123456789 (8-15 dígitos)',
                 'minlength': '8',
@@ -82,6 +83,7 @@ class CVSubmissionForm(forms.ModelForm):
         # Marcar campos requeridos
         self.fields['nombre_completo'].required = True
         self.fields['email'].required = True
+        self.fields['telefono'].required = True
         self.fields['posicion_interes'].required = True
         self.fields['cv_file'].required = True
     
@@ -163,25 +165,26 @@ class CVSubmissionForm(forms.ModelForm):
         """Validación personalizada para el teléfono"""
         telefono = self.cleaned_data.get('telefono')
         
-        if telefono:  # Solo validar si se proporciona (es opcional)
-            # Limpiar el teléfono de espacios y caracteres especiales
-            telefono_limpio = re.sub(r'[^\d+]', '', telefono)
-            
-            # Validar longitud mínima
-            if len(telefono_limpio) < 8:
-                raise ValidationError('El teléfono debe tener al menos 8 dígitos.')
-            
-            # Validar longitud máxima
-            if len(telefono_limpio) > 15:
-                raise ValidationError('El teléfono no puede exceder los 15 dígitos.')
-            
-            # Validar que contenga solo números y opcionalmente un + al inicio
-            if not re.match(r'^\+?[0-9]+$', telefono_limpio):
-                raise ValidationError('El teléfono solo puede contener números y opcionalmente un + al inicio.')
-            
-            return telefono_limpio
+        if not telefono:
+            raise ValidationError('El teléfono es obligatorio.')
         
-        return telefono
+        # Limpiar el teléfono de espacios y caracteres especiales
+        import re
+        telefono_limpio = re.sub(r'[^\d+]', '', telefono)
+        
+        # Validar longitud mínima
+        if len(telefono_limpio) < 8:
+            raise ValidationError('El teléfono debe tener al menos 8 dígitos.')
+        
+        # Validar longitud máxima
+        if len(telefono_limpio) > 15:
+            raise ValidationError('El teléfono no puede exceder los 15 dígitos.')
+        
+        # Validar que contenga solo números y opcionalmente un + al inicio
+        if not re.match(r'^\+?[0-9]+$', telefono_limpio):
+            raise ValidationError('El teléfono solo puede contener números y opcionalmente un + al inicio.')
+        
+        return telefono_limpio
     
     def clean_posicion_interes(self):
         """Validación personalizada para la posición de interés"""
@@ -263,6 +266,7 @@ class ContactSubmissionForm(forms.ModelForm):
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': '+5491123456789',
+                'required': True,
                 'pattern': '^\\+?[0-9\\s\\-\\(\\)]{8,15}$',
                 'title': 'Formato: +5491123456789 o 5491123456789 (8-15 dígitos)',
                 'minlength': '8',
@@ -287,12 +291,13 @@ class ContactSubmissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
-        # No agregar opción vacía para el asunto, solo mostrar "Alquiler"
-        # self.fields['asunto'].choices = [('', 'Selecciona un asunto')] + list(self.fields['asunto'].choices)[1:]
+        # Las opciones del asunto ya incluyen la opción vacía en el modelo
+        # No necesitamos modificar las choices aquí
         
         # Marcar campos requeridos
         self.fields['nombre'].required = True
         self.fields['email'].required = True
+        self.fields['telefono'].required = True
         self.fields['asunto'].required = True
         self.fields['mensaje'].required = True
     
@@ -346,26 +351,26 @@ class ContactSubmissionForm(forms.ModelForm):
         """Validación personalizada para el teléfono"""
         telefono = self.cleaned_data.get('telefono')
         
-        if telefono:  # Solo validar si se proporciona (es opcional)
-            # Limpiar el teléfono de espacios y caracteres especiales
-            import re
-            telefono_limpio = re.sub(r'[^\d+]', '', telefono)
-            
-            # Validar longitud mínima
-            if len(telefono_limpio) < 8:
-                raise ValidationError('El teléfono debe tener al menos 8 dígitos.')
-            
-            # Validar longitud máxima
-            if len(telefono_limpio) > 15:
-                raise ValidationError('El teléfono no puede exceder los 15 dígitos.')
-            
-            # Validar que contenga solo números y opcionalmente un + al inicio
-            if not re.match(r'^\+?[0-9]+$', telefono_limpio):
-                raise ValidationError('El teléfono solo puede contener números y opcionalmente un + al inicio.')
-            
-            return telefono_limpio
+        if not telefono:
+            raise ValidationError('El teléfono es obligatorio.')
         
-        return telefono
+        # Limpiar el teléfono de espacios y caracteres especiales
+        import re
+        telefono_limpio = re.sub(r'[^\d+]', '', telefono)
+        
+        # Validar longitud mínima
+        if len(telefono_limpio) < 8:
+            raise ValidationError('El teléfono debe tener al menos 8 dígitos.')
+        
+        # Validar longitud máxima
+        if len(telefono_limpio) > 15:
+            raise ValidationError('El teléfono no puede exceder los 15 dígitos.')
+        
+        # Validar que contenga solo números y opcionalmente un + al inicio
+        if not re.match(r'^\+?[0-9]+$', telefono_limpio):
+            raise ValidationError('El teléfono solo puede contener números y opcionalmente un + al inicio.')
+        
+        return telefono_limpio
     
     def clean_asunto(self):
         """Validación personalizada para el asunto"""

@@ -51,6 +51,9 @@ class Propiedad(models.Model):
     operacion = models.CharField(max_length=20, choices=OPERACION_CHOICES, default='venta', verbose_name="Tipo de Operación")
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='disponible', verbose_name="Estado")
     ubicacion = models.CharField(max_length=300, verbose_name="Ubicación")
+    ciudad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Ciudad")
+    lugares_cercanos = models.TextField(blank=True, null=True, verbose_name="Lugares Cercanos", 
+                                       help_text="Describe los lugares cercanos como centros comerciales, restaurantes, servicios, etc.")
     metros_cuadrados = models.PositiveIntegerField(verbose_name="Metros Cuadrados")
     habitaciones = models.PositiveIntegerField(default=0, verbose_name="Habitaciones")
     banos = models.PositiveIntegerField(default=0, verbose_name="Baños")
@@ -71,19 +74,19 @@ class Propiedad(models.Model):
     
     # Campos de coordenadas geográficas
     latitud = models.DecimalField(
-        max_digits=10, 
-        decimal_places=7, 
+        max_digits=20, 
+        decimal_places=15, 
         blank=True, 
         null=True, 
-        help_text='Coordenada de latitud (ej: -38.9516)',
+        help_text='Coordenada de latitud (ej: -33.6914783645518)',
         verbose_name='Latitud'
     )
     longitud = models.DecimalField(
-        max_digits=10, 
-        decimal_places=7, 
+        max_digits=20, 
+        decimal_places=15, 
         blank=True, 
         null=True, 
-        help_text='Coordenada de longitud (ej: -68.0591)',
+        help_text='Coordenada de longitud (ej: -65.45524318970048)',
         verbose_name='Longitud'
     )
     

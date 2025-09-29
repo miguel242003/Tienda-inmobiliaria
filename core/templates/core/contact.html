@@ -511,6 +511,177 @@
     transition: all 0.2s ease;
 }
 
+/* Estilo específico para el select de asunto */
+.form-select#id_asunto {
+    /* Mantener el mismo estilo que otros selects */
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Estilo para las opciones del select */
+.form-select#id_asunto option {
+    padding: 8px 12px;
+    font-size: 1rem;
+    line-height: 1.4;
+    background-color: white;
+    color: var(--text-900);
+}
+
+/* Controlar la altura del dropdown del select */
+.form-select#id_asunto {
+    /* Mantener el comportamiento normal del select */
+    height: auto;
+    min-height: 48px;
+    /* Intentar limitar la altura del dropdown usando CSS personalizado */
+    background-size: 16px;
+    background-position: right 12px center;
+}
+
+/* Estilo para las opciones del select - intentar limitar altura */
+.form-select#id_asunto option {
+    /* Establecer altura fija para cada opción */
+    height: 48px;
+    line-height: 48px;
+    padding: 0 12px;
+    font-size: 1rem;
+    background-color: white;
+    color: var(--text-900);
+    display: block;
+}
+
+/* Nota: La limitación de altura del dropdown nativo del navegador es limitada.
+   Los navegadores modernos no permiten controlar completamente la altura del dropdown
+   usando solo CSS. Para un control total, se necesitaría un dropdown personalizado. */
+
+/* Estilo adicional para mejorar la apariencia en diferentes navegadores */
+.form-select#id_asunto::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-select#id_asunto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.form-select#id_asunto::-webkit-scrollbar-thumb {
+    background: var(--brand-600);
+    border-radius: 4px;
+}
+
+.form-select#id_asunto::-webkit-scrollbar-thumb:hover {
+    background: var(--brand-700);
+}
+
+/* Estilos para el dropdown personalizado */
+.custom-select-container {
+    position: relative;
+    width: 100%;
+}
+
+.custom-select-button {
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+.custom-select-button:hover {
+    border-color: var(--brand-600);
+}
+
+.custom-select-button:focus {
+    border-color: var(--brand-600);
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+    outline: none;
+}
+
+.custom-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    max-height: 144px; /* 3 opciones * 48px */
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.custom-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.2s ease;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.custom-option:last-child {
+    border-bottom: none;
+}
+
+.custom-option:hover {
+    background-color: #f8fafc;
+}
+
+.custom-option.selected {
+    background-color: var(--brand-600);
+    color: white;
+}
+
+/* Scrollbar personalizado para el dropdown */
+.custom-dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.custom-dropdown::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.custom-dropdown::-webkit-scrollbar-thumb {
+    background: var(--brand-600);
+    border-radius: 4px;
+}
+
+.custom-dropdown::-webkit-scrollbar-thumb:hover {
+    background: var(--brand-700);
+}
+
+/* Estilo para el dropdown cuando está abierto */
+.form-select#id_asunto:focus {
+    border-color: var(--brand-600);
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+    outline: none;
+    position: relative;
+    z-index: 1000;
+}
+
+/* Estilo para las opciones cuando están en hover */
+.form-select#id_asunto option:hover {
+    background-color: var(--brand-600);
+    color: white;
+}
+
+/* Estilo para la opción seleccionada */
+.form-select#id_asunto option:checked {
+    background-color: var(--brand-600);
+    color: white;
+}
+
 .form-control:focus, .form-select:focus {
     border-color: var(--brand-600);
     box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
@@ -1312,9 +1483,19 @@ function preselectAsunto() {
     const asunto = urlParams.get('asunto');
     
     if (asunto) {
-        const asuntoSelect = document.getElementById('asunto');
+        // Buscar el select original (oculto) o el dropdown personalizado
+        const asuntoSelect = document.getElementById('id_asunto');
         if (asuntoSelect) {
             asuntoSelect.value = asunto;
+            
+            // Si hay un dropdown personalizado, actualizarlo también
+            const customButton = document.querySelector('.custom-select-button');
+            if (customButton) {
+                const selectedOption = asuntoSelect.options[asuntoSelect.selectedIndex];
+                if (selectedOption) {
+                    customButton.textContent = selectedOption.text;
+                }
+            }
         }
     }
 }
@@ -1362,6 +1543,164 @@ function ajustarLineasAmarillas() {
     }
 }
 
+// Función para crear un dropdown personalizado para el asunto
+function setupAsuntoSelect() {
+    const asuntoSelect = document.getElementById('id_asunto');
+    if (!asuntoSelect) return;
+    
+    // Crear contenedor para el dropdown personalizado
+    const customSelectContainer = document.createElement('div');
+    customSelectContainer.className = 'custom-select-container';
+    customSelectContainer.style.position = 'relative';
+    customSelectContainer.style.width = '100%';
+    
+    // Crear el botón que simula el select
+    const customSelectButton = document.createElement('button');
+    customSelectButton.type = 'button';
+    customSelectButton.className = 'form-select custom-select-button';
+    customSelectButton.style.textAlign = 'left';
+    customSelectButton.style.cursor = 'pointer';
+    customSelectButton.style.position = 'relative';
+    customSelectButton.style.zIndex = '1';
+    
+    // Crear el dropdown personalizado
+    const customDropdown = document.createElement('div');
+    customDropdown.className = 'custom-dropdown';
+    customDropdown.style.display = 'none';
+    customDropdown.style.position = 'absolute';
+    customDropdown.style.top = '100%';
+    customDropdown.style.left = '0';
+    customDropdown.style.right = '0';
+    customDropdown.style.backgroundColor = 'white';
+    customDropdown.style.border = '1px solid var(--border)';
+    customDropdown.style.borderTop = 'none';
+    customDropdown.style.borderRadius = '0 0 12px 12px';
+    customDropdown.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+    customDropdown.style.maxHeight = '144px'; // 3 opciones * 48px
+    customDropdown.style.overflowY = 'auto';
+    customDropdown.style.zIndex = '1000';
+    
+    // Obtener las opciones del select original
+    const options = Array.from(asuntoSelect.options);
+    let selectedValue = asuntoSelect.value;
+    let selectedText = asuntoSelect.options[asuntoSelect.selectedIndex]?.text || 'Selecciona un asunto';
+    
+    // Verificar si hay un parámetro de asunto en la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlAsunto = urlParams.get('asunto');
+    if (urlAsunto && !selectedValue) {
+        // Si hay un asunto en la URL pero no está seleccionado, seleccionarlo
+        asuntoSelect.value = urlAsunto;
+        selectedValue = urlAsunto;
+        const urlOption = asuntoSelect.options[asuntoSelect.selectedIndex];
+        selectedText = urlOption ? urlOption.text : 'Selecciona un asunto';
+    }
+    
+    // Actualizar el texto del botón
+    customSelectButton.textContent = selectedText;
+    
+    // Crear opciones para el dropdown personalizado
+    options.forEach(option => {
+        if (option.value === '') return; // Saltar la opción vacía
+        
+        const customOption = document.createElement('div');
+        customOption.className = 'custom-option';
+        customOption.textContent = option.text;
+        customOption.style.padding = '12px 16px';
+        customOption.style.cursor = 'pointer';
+        customOption.style.borderBottom = '1px solid #f3f4f6';
+        customOption.style.transition = 'background-color 0.2s ease';
+        
+        // Marcar la opción seleccionada
+        if (option.value === selectedValue) {
+            customOption.style.backgroundColor = 'var(--brand-600)';
+            customOption.style.color = 'white';
+        }
+        
+        // Eventos para las opciones
+        customOption.addEventListener('mouseenter', function() {
+            if (option.value !== selectedValue) {
+                this.style.backgroundColor = '#f8fafc';
+            }
+        });
+        
+        customOption.addEventListener('mouseleave', function() {
+            if (option.value !== selectedValue) {
+                this.style.backgroundColor = 'white';
+            }
+        });
+        
+        customOption.addEventListener('click', function() {
+            // Actualizar el select original
+            asuntoSelect.value = option.value;
+            
+            // Actualizar el botón
+            customSelectButton.textContent = option.text;
+            selectedValue = option.value;
+            selectedText = option.text;
+            
+            // Actualizar estilos de las opciones
+            customDropdown.querySelectorAll('.custom-option').forEach(opt => {
+                opt.style.backgroundColor = 'white';
+                opt.style.color = 'var(--text-900)';
+            });
+            this.style.backgroundColor = 'var(--brand-600)';
+            this.style.color = 'white';
+            
+            // Cerrar el dropdown
+            customDropdown.style.display = 'none';
+            customSelectButton.setAttribute('aria-expanded', 'false');
+            
+            // Disparar evento de cambio
+            asuntoSelect.dispatchEvent(new Event('change'));
+            validateField(asuntoSelect);
+        });
+        
+        customDropdown.appendChild(customOption);
+    });
+    
+    // Eventos para el botón
+    customSelectButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isOpen = customDropdown.style.display !== 'none';
+        customDropdown.style.display = isOpen ? 'none' : 'block';
+        customSelectButton.setAttribute('aria-expanded', !isOpen);
+    });
+    
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!customSelectContainer.contains(e.target)) {
+            customDropdown.style.display = 'none';
+            customSelectButton.setAttribute('aria-expanded', 'false');
+        }
+    });
+    
+    // Reemplazar el select original
+    asuntoSelect.style.display = 'none';
+    customSelectContainer.appendChild(customSelectButton);
+    customSelectContainer.appendChild(customDropdown);
+    asuntoSelect.parentNode.insertBefore(customSelectContainer, asuntoSelect);
+    
+    // Mantener la funcionalidad del select original
+    asuntoSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        customSelectButton.textContent = selectedOption.text;
+        
+        // Actualizar estilos de las opciones
+        customDropdown.querySelectorAll('.custom-option').forEach((opt, index) => {
+            if (this.selectedIndex === index + 1) { // +1 porque saltamos la opción vacía
+                opt.style.backgroundColor = 'var(--brand-600)';
+                opt.style.color = 'white';
+            } else {
+                opt.style.backgroundColor = 'white';
+                opt.style.color = 'var(--text-900)';
+            }
+        });
+    });
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     initParallax();
@@ -1369,6 +1708,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupCharacterCounter();
     preselectAsunto();
     ajustarLineasAmarillas();
+    setupAsuntoSelect();
     
     // Auto-dismiss alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
