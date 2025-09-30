@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load l10n %}
 
 {% block title %}{{ propiedad.titulo }} - Tienda Inmobiliaria{% endblock %}
 
@@ -4636,6 +4637,15 @@ function showTab(tabName) {
     if (selectedButton) {
         selectedButton.classList.add('active');
     }
+    
+    // Si se abre la pestaña de ubicación, inicializar el mapa
+    if (tabName === 'ubicacion') {
+        setTimeout(function() {
+            if (typeof initializeMap === 'function') {
+                initializeMap();
+            }
+        }, 300);
+    }
 }
 
 // Variables globales para las fotos (se llenan desde Django)
@@ -6171,8 +6181,8 @@ function showSaveConfirmation() {
 // Inicializar mapa de Leaflet solo cuando se muestre la pestaña
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== INICIANDO SCRIPT DEL MAPA ===');
-    console.log('Latitud:', {{ propiedad.latitud|default:"null" }});
-    console.log('Longitud:', {{ propiedad.longitud|default:"null" }});
+    console.log('Latitud:', {{ propiedad.latitud|unlocalize|default:"null" }});
+    console.log('Longitud:', {{ propiedad.longitud|unlocalize|default:"null" }});
     console.log('¿Tiene coordenadas?', {{ propiedad.latitud|yesno:"true,false" }} && {{ propiedad.longitud|yesno:"true,false" }});
     
     {% if propiedad.latitud and propiedad.longitud %}
@@ -6204,29 +6214,13 @@ document.addEventListener('DOMContentLoaded', function() {
         mapInitialized = true;
         
     try {
-        // Coordenadas de la propiedad - usar las coordenadas exactas de OpenStreetMap
-        const lat = -33.07263513961475;
-        const lng = -71.42597461786004;
+        // Coordenadas de la propiedad - usar las coordenadas de la base de datos
+        const lat = {{ propiedad.latitud|unlocalize }};
+        const lng = {{ propiedad.longitud|unlocalize }};
         
-        console.log('Coordenadas originales de BD:', '{{ propiedad.latitud }}', '{{ propiedad.longitud }}');
+        console.log('Coordenadas originales de BD:', '{{ propiedad.latitud|unlocalize }}', '{{ propiedad.longitud|unlocalize }}');
         console.log('Coordenadas parseadas para mapa:', lat, lng);
         console.log('¿Son números válidos?', !isNaN(lat), !isNaN(lng));
-        
-        // Verificar que las coordenadas coincidan exactamente con OpenStreetMap
-        const expectedLat = -33.07263513961475;
-        const expectedLng = -71.42597461786004;
-        const latDiff = Math.abs(lat - expectedLat);
-        const lngDiff = Math.abs(lng - expectedLng);
-        
-        console.log('Coordenadas esperadas (OpenStreetMap):', expectedLat, expectedLng);
-        console.log('Diferencia en latitud:', latDiff);
-        console.log('Diferencia en longitud:', lngDiff);
-        
-        if (latDiff > 0.000001 || lngDiff > 0.000001) {
-            console.warn('⚠️ Las coordenadas no coinciden exactamente con OpenStreetMap');
-        } else {
-            console.log('✅ Las coordenadas coinciden exactamente con OpenStreetMap');
-        }
         
         // Validar que las coordenadas estén en rangos válidos
         if (isNaN(lat) || isNaN(lng)) {
@@ -6335,35 +6329,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Inicializar mapa cuando se haga clic en la pestaña de Ubicación
-    const locationTab = document.querySelector('a[href="#ubicacion"]');
+    const locationTab = document.querySelector('button[data-tab="ubicacion"]');
+    const ubicacionPane = document.getElementById('ubicacion');
+    
     if (locationTab) {
-        locationTab.addEventListener('click', function() {
-            console.log('👆 Click en pestaña de Ubicación');
-            // Esperar más tiempo para que la pestaña se muestre completamente
-            setTimeout(function() {
-                initializeMap();
-                // Forzar redibujado adicional después de inicializar
-                setTimeout(function() {
-                    if (map) {
-                        console.log('🔄 Forzando redibujado final...');
-                        map.invalidateSize();
-                        if (mapLayer) {
-                            mapLayer.redraw();
-                        }
-                    }
-                }, 500);
-            }, 300);
-        });
+        console.log('✅ Botón de ubicación encontrado, configurando listener');
         
         // También inicializar si la pestaña ya está activa al cargar
-        if (locationTab.classList.contains('active')) {
+        if (ubicacionPane && ubicacionPane.classList.contains('active')) {
             console.log('✅ Pestaña de Ubicación ya activa, iniciando mapa...');
-            setTimeout(initializeMap, 1000);
+            setTimeout(initializeMap, 500);
         }
     }
     
     // Como respaldo, observar cambios en el tab-pane de ubicación
-    const ubicacionPane = document.getElementById('ubicacion');
     if (ubicacionPane) {
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
