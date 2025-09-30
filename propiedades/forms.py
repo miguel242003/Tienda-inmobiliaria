@@ -60,14 +60,16 @@ class PropiedadForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Ciudad donde se encuentra la propiedad',
                 'maxlength': '100',
-                'title': 'Ciudad de la propiedad'
+                'title': 'Ciudad de la propiedad',
+                'required': True
             }),
             'lugares_cercanos': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Describe los lugares cercanos (centros comerciales, restaurantes, servicios, etc.)',
                 'maxlength': '500',
-                'title': 'Lugares cercanos a la propiedad'
+                'title': 'Lugares cercanos a la propiedad',
+                'required': True
             }),
             'metros_cuadrados': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -113,7 +115,8 @@ class PropiedadForm(forms.ModelForm):
                 'min': '-90',
                 'max': '90',
                 'placeholder': 'Ej: -33.6914783645518',
-                'title': 'La latitud debe estar entre -90 y 90 grados'
+                'title': 'La latitud debe estar entre -90 y 90 grados',
+                'required': True
             }),
             'longitud': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -121,7 +124,8 @@ class PropiedadForm(forms.ModelForm):
                 'min': '-180',
                 'max': '180',
                 'placeholder': 'Ej: -65.45524318970048',
-                'title': 'La longitud debe estar entre -180 y 180 grados'
+                'title': 'La longitud debe estar entre -180 y 180 grados',
+                'required': True
             }),
         }
         labels = {
@@ -252,18 +256,90 @@ class PropiedadForm(forms.ModelForm):
     def clean_latitud(self):
         """Validar que la latitud esté en el rango correcto"""
         latitud = self.cleaned_data.get('latitud')
-        if latitud is not None:
-            if latitud < -90 or latitud > 90:
-                raise forms.ValidationError('La latitud debe estar entre -90 y 90 grados.')
+        if latitud is None:
+            raise forms.ValidationError('La latitud es obligatoria.')
+        if latitud < -90 or latitud > 90:
+            raise forms.ValidationError('La latitud debe estar entre -90 y 90 grados.')
         return latitud
     
     def clean_longitud(self):
         """Validar que la longitud esté en el rango correcto"""
         longitud = self.cleaned_data.get('longitud')
-        if longitud is not None:
-            if longitud < -180 or longitud > 180:
-                raise forms.ValidationError('La longitud debe estar entre -180 y 180 grados.')
+        if longitud is None:
+            raise forms.ValidationError('La longitud es obligatoria.')
+        if longitud < -180 or longitud > 180:
+            raise forms.ValidationError('La longitud debe estar entre -180 y 180 grados.')
         return longitud
+    
+    def clean_ciudad(self):
+        """Validar la ciudad"""
+        ciudad = self.cleaned_data.get('ciudad')
+        if not ciudad or not ciudad.strip():
+            raise forms.ValidationError('La ciudad es obligatoria.')
+        
+        ciudad = ciudad.strip()
+        if len(ciudad) < 2:
+            raise forms.ValidationError('La ciudad debe tener al menos 2 caracteres.')
+        elif len(ciudad) > 100:
+            raise forms.ValidationError('La ciudad no puede tener más de 100 caracteres.')
+        # Validar que solo contenga letras, espacios y guiones
+        import re
+        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-]+$', ciudad):
+            raise forms.ValidationError('La ciudad solo puede contener letras, espacios y guiones.')
+        return ciudad
+    
+    def clean_lugares_cercanos(self):
+        """Validar los lugares cercanos"""
+        lugares = self.cleaned_data.get('lugares_cercanos')
+        if not lugares or not lugares.strip():
+            raise forms.ValidationError('Los lugares cercanos son obligatorios.')
+        
+        lugares = lugares.strip()
+        if len(lugares) < 10:
+            raise forms.ValidationError('Los lugares cercanos deben tener al menos 10 caracteres.')
+        elif len(lugares) > 500:
+            raise forms.ValidationError('Los lugares cercanos no pueden tener más de 500 caracteres.')
+        return lugares
+    
+    def clean_tipo(self):
+        """Validar que el tipo esté seleccionado"""
+        tipo = self.cleaned_data.get('tipo')
+        if not tipo:
+            raise forms.ValidationError('Debe seleccionar un tipo de propiedad.')
+        return tipo
+    
+    def clean_operacion(self):
+        """Validar que la operación esté seleccionada"""
+        operacion = self.cleaned_data.get('operacion')
+        if not operacion:
+            raise forms.ValidationError('Debe seleccionar un tipo de operación.')
+        return operacion
+    
+    def clean_estado(self):
+        """Validar que el estado esté seleccionado"""
+        estado = self.cleaned_data.get('estado')
+        if not estado:
+            raise forms.ValidationError('Debe seleccionar un estado.')
+        return estado
+    
+    def clean(self):
+        """Validaciones cruzadas entre campos"""
+        cleaned_data = super().clean()
+        latitud = cleaned_data.get('latitud')
+        longitud = cleaned_data.get('longitud')
+        
+        # Validar que las coordenadas estén dentro de Chile (aproximadamente)
+        if latitud is not None and longitud is not None:
+            if latitud < -56 or latitud > -17:
+                raise forms.ValidationError({
+                    'latitud': 'La latitud parece estar fuera de Chile. Verifique las coordenadas.'
+                })
+            if longitud < -76 or longitud > -66:
+                raise forms.ValidationError({
+                    'longitud': 'La longitud parece estar fuera de Chile. Verifique las coordenadas.'
+                })
+        
+        return cleaned_data
 
 
 class ResenaForm(forms.ModelForm):

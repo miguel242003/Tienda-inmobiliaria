@@ -3891,6 +3891,7 @@
                                 <div class="modal-propiedad-field">
                                     <label for="{{ form.ciudad.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.ciudad.label }}
+                                        <span class="text-red-500">*</span>
                                     </label>
                                     {{ form.ciudad }}
                                     {% if form.ciudad.errors %}
@@ -3906,6 +3907,7 @@
                                 <div class="modal-propiedad-field">
                                     <label for="{{ form.lugares_cercanos.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                         {{ form.lugares_cercanos.label }}
+                                        <span class="text-red-500">*</span>
                                     </label>
                                     {{ form.lugares_cercanos }}
                                     {% if form.lugares_cercanos.errors %}
@@ -4085,6 +4087,7 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     <i data-lucide="map-pin" class="w-4 h-4 mr-2 text-blue-600"></i>
                                     Coordenadas de Ubicación
+                                    <span class="text-red-500">*</span>
                                 </label>
                                 <p class="text-gray-600 text-sm mb-4">Ingresa las coordenadas exactas para mostrar la ubicación en el mapa:</p>
                                 
@@ -4092,6 +4095,7 @@
                                     <div class="modal-propiedad-field">
                                         <label for="{{ form.latitud.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                             {{ form.latitud.label }}
+                                            <span class="text-red-500">*</span>
                                         </label>
                                         <div class="relative">
                                             {{ form.latitud }}
@@ -4112,6 +4116,7 @@
                                     <div class="modal-propiedad-field">
                                         <label for="{{ form.longitud.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
                                             {{ form.longitud.label }}
+                                            <span class="text-red-500">*</span>
                                         </label>
                                         <div class="relative">
                                             {{ form.longitud }}
