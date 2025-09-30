@@ -269,27 +269,28 @@
                                 <!-- Campo oculto para fotos adicionales -->
                                 {{ form.fotos_adicionales }}
                                 
-                                <!-- Fotos Adicionales -->
+                                <!-- Fotos y Videos Adicionales -->
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">
-                                        <i class="fas fa-images me-2"></i>Fotos Adicionales
+                                        <i class="fas fa-photo-video me-2"></i>Fotos y Videos Adicionales
                                     </label>
                                     <div class="upload-area" id="uploadArea">
                                         <div class="upload-content">
                                             <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                            <h6 class="text-muted">Arrastra y suelta fotos aquí o haz clic para seleccionar</h6>
-                                            <p class="text-muted small">Máximo 10 fotos de 5MB cada una (JPG, PNG)</p>
-                                            <input type="file" id="fotosInput" multiple accept="image/*" class="d-none">
+                                            <h6 class="text-muted">Arrastra y suelta archivos aquí o haz clic para seleccionar</h6>
+                                            <p class="text-muted small">Máximo 10 archivos de 50MB cada uno</p>
+                                            <p class="text-muted small">Imágenes: JPG, PNG | Videos: MP4, AVI, MOV</p>
+                                            <input type="file" id="fotosInput" multiple accept="image/*,video/*" class="d-none">
                                             <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('fotosInput').click()">
-                                                <i class="fas fa-plus me-2"></i>Seleccionar Fotos
+                                                <i class="fas fa-plus me-2"></i>Seleccionar Archivos
                                             </button>
                                         </div>
                                     </div>
                                     
-                                    <!-- Preview de fotos seleccionadas -->
+                                    <!-- Preview de archivos seleccionados -->
                                     <div id="fotos-preview" class="mt-3" style="display: none;">
                                         <h6 class="mb-2 text-primary">
-                                            <i class="fas fa-images me-2"></i>Fotos seleccionadas:
+                                            <i class="fas fa-photo-video me-2"></i>Archivos seleccionados:
                                         </h6>
                                         <div id="fotos-grid" class="row g-2"></div>
                                     </div>
@@ -297,7 +298,7 @@
                                 
                                 <div class="alert alert-info mt-2">
                                     <i class="fas fa-info-circle me-2"></i>
-                                    <strong>Consejo:</strong> La imagen principal se mostrará en el home, la secundaria en el detalle, y las adicionales estarán disponibles en la galería completa.
+                                    <strong>Consejo:</strong> La imagen principal se mostrará en el home, la secundaria en el detalle. Los archivos adicionales (fotos y videos) estarán disponibles en la galería completa.
                                 </div>
                             </div>
 
@@ -594,24 +595,35 @@ document.addEventListener('DOMContentLoaded', function() {
         handleFiles(files);
     });
     
-    // Función para manejar archivos seleccionados
+    // Función para manejar archivos seleccionados (fotos y videos)
     function handleFiles(files) {
         const validFiles = Array.from(files).filter(file => {
-            // Validar tipo de archivo
-            if (!file.type.startsWith('image/')) {
-                alert(`El archivo ${file.name} no es una imagen válida.`);
+            // Validar tipo de archivo (imagen o video)
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+            const validVideoTypes = ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
+            
+            if (!isImage && !isVideo) {
+                alert(`El archivo ${file.name} no es una imagen o video válido.`);
                 return false;
             }
             
-            // Validar tamaño
-            if (file.size > 5 * 1024 * 1024) { // 5MB
-                alert(`La imagen ${file.name} excede el tamaño máximo de 5MB.`);
+            if (isVideo && !validVideoTypes.includes(file.type)) {
+                alert(`El formato de video ${file.name} no es compatible. Use MP4, AVI o MOV.`);
+                return false;
+            }
+            
+            // Validar tamaño (50MB para videos, 5MB para imágenes)
+            const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                const maxSizeMB = isVideo ? 50 : 5;
+                alert(`El archivo ${file.name} excede el tamaño máximo de ${maxSizeMB}MB.`);
                 return false;
             }
             
             // Validar cantidad máxima
-            if (fotosSeleccionadas.length + 1 > 10) {
-                alert('Puedes seleccionar máximo 10 fotos adicionales.');
+            if (fotosSeleccionadas.length >= 10) {
+                alert('Puedes seleccionar máximo 10 archivos adicionales.');
                 return false;
             }
             
@@ -623,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showFotosPreview();
     }
     
-    // Función para mostrar preview de fotos
+    // Función para mostrar preview de archivos (fotos y videos)
     function showFotosPreview() {
         const previewDiv = document.getElementById('fotos-preview');
         const gridDiv = document.getElementById('fotos-grid');
@@ -637,27 +649,50 @@ document.addEventListener('DOMContentLoaded', function() {
         gridDiv.innerHTML = '';
         
         fotosSeleccionadas.forEach((file, index) => {
-            const reader = new FileReader();
+            const isVideo = file.type.startsWith('video/');
+            const col = document.createElement('div');
+            col.className = 'col-md-3 col-sm-4 col-6';
             
-            reader.onload = function(e) {
-                const col = document.createElement('div');
-                col.className = 'col-md-3 col-sm-4 col-6';
+            if (isVideo) {
+                // Preview de video
+                const videoURL = URL.createObjectURL(file);
                 col.innerHTML = `
                     <div class="foto-preview-item">
                         <button type="button" class="foto-preview-remove" onclick="removeFotoPreview(${index})">
                             <i class="fas fa-times"></i>
                         </button>
-                        <img src="${e.target.result}" alt="Preview ${index + 1}" class="img-fluid rounded">
+                        <div style="position: relative; height: 120px; background: #000; display: flex; align-items: center; justify-content: center; border-radius: 8px 8px 0 0;">
+                            <video src="${videoURL}" style="max-width: 100%; max-height: 120px;" controls></video>
+                        </div>
                         <div class="foto-preview-info">
-                            <small class="text-muted">${file.name}</small>
+                            <small class="text-muted"><i class="fas fa-video me-1"></i>${file.name}</small>
                             <small class="text-muted d-block">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
                         </div>
                     </div>
                 `;
                 gridDiv.appendChild(col);
-            };
-            
-            reader.readAsDataURL(file);
+            } else {
+                // Preview de imagen
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    col.innerHTML = `
+                        <div class="foto-preview-item">
+                            <button type="button" class="foto-preview-remove" onclick="removeFotoPreview(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <img src="${e.target.result}" alt="Preview ${index + 1}" class="img-fluid rounded">
+                            <div class="foto-preview-info">
+                                <small class="text-muted"><i class="fas fa-image me-1"></i>${file.name}</small>
+                                <small class="text-muted d-block">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                            </div>
+                        </div>
+                    `;
+                    gridDiv.appendChild(col);
+                };
+                
+                reader.readAsDataURL(file);
+            }
         });
     }
     

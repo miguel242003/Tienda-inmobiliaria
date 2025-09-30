@@ -52,11 +52,11 @@
                                 </div>
                                 {% endif %}
                                 
-                                <!-- Botón Ver X Fotos -->
+                                <!-- Botón Ver X Archivos -->
                                 {% if propiedad.get_foto_principal or propiedad.get_foto_secundaria or propiedad.fotos.exists %}
                                 <div class="photos-count-badge">
                                     <button class="btn btn-primary btn-sm photos-count-btn" onclick="verGaleríaCompleta()">
-                                        <i class="fas fa-images me-2"></i>Ver {{ propiedad.fotos.count|add:2 }} fotos
+                                        <i class="fas fa-photo-video me-2"></i>Ver {{ propiedad.fotos.count|add:2 }} archivos
                                     </button>
                                 </div>
                                 {% endif %}
@@ -675,12 +675,16 @@
             <i class="fas fa-chevron-right"></i>
         </button>
         
-        <!-- Imagen actual -->
+        <!-- Imagen o Video actual -->
         <div class="image-viewer-image-container">
-            <img id="viewerImage" src="" alt="Imagen de la propiedad">
+            <img id="viewerImage" src="" alt="Imagen de la propiedad" style="display: none;">
+            <video id="viewerVideo" controls style="display: none; max-width: 90%; max-height: 80vh;">
+                <source src="" type="video/mp4">
+                Tu navegador no soporta videos.
+            </video>
         </div>
         
-        <!-- Contador de imágenes -->
+        <!-- Contador de archivos -->
         <div class="image-viewer-counter">
             <span id="currentImageIndex">1</span> de <span id="totalImages">1</span>
         </div>
@@ -4607,6 +4611,274 @@ input[type="date"]:focus {
         padding: 12px 15px;
     }
 }
+
+/* ========================================
+   RESPONSIVE: FORMULARIO DE CONTACTO Y AGENTE
+   ======================================== */
+
+/* Tablet (max-width: 991px) */
+@media (max-width: 991px) {
+    .agent-profile-card,
+    .whatsapp-contact-card,
+    .contact-form-card {
+        margin-bottom: 25px;
+    }
+}
+
+/* Mobile (max-width: 767px) */
+@media (max-width: 767px) {
+    .agent-profile-card {
+        padding: 20px;
+    }
+    
+    .agent-profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .agent-avatar {
+        margin: 0 auto;
+    }
+    
+    .agent-name {
+        font-size: 1.3rem;
+        text-align: center;
+    }
+    
+    .agent-type {
+        font-size: 0.85rem;
+        text-align: center;
+    }
+    
+    .agent-phone {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .phone-number {
+        font-size: 1.2rem;
+    }
+    
+    .phone-btn {
+        width: 100%;
+        padding: 10px 16px;
+    }
+    
+    /* WhatsApp Button */
+    .whatsapp-contact-card {
+        padding: 15px;
+    }
+    
+    .whatsapp-btn {
+        padding: 14px 18px;
+        font-size: 0.95rem;
+    }
+    
+    /* Contact Form */
+    .contact-form-card {
+        padding: 20px;
+    }
+    
+    .contact-form-title {
+        font-size: 1.2rem;
+        margin-bottom: 18px;
+    }
+    
+    .contact-form .form-label {
+        font-size: 0.85rem;
+    }
+    
+    .contact-form .form-control {
+        padding: 10px 13px;
+        font-size: 0.85rem;
+    }
+    
+    .calendar-toggle-btn {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .date-fields-container {
+        padding: 15px;
+    }
+    
+    .date-display {
+        font-size: 0.85rem;
+        padding: 9px 12px;
+    }
+    
+    .time-info {
+        font-size: 0.75rem;
+    }
+}
+
+/* Mobile Small (max-width: 575px) */
+@media (max-width: 575px) {
+    .agent-profile-card {
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .agent-avatar {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .agent-avatar-placeholder {
+        font-size: 1.8rem;
+    }
+    
+    .agent-name {
+        font-size: 1.2rem;
+    }
+    
+    .agent-type {
+        font-size: 0.8rem;
+    }
+    
+    .phone-number {
+        font-size: 1.1rem;
+    }
+    
+    .phone-btn {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+    }
+    
+    /* WhatsApp Button */
+    .whatsapp-contact-card {
+        padding: 12px;
+        border-radius: 10px;
+    }
+    
+    .whatsapp-btn {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    /* Contact Form */
+    .contact-form-card {
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .contact-form-title {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+    
+    .contact-form .form-label {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+    
+    .contact-form .form-control {
+        padding: 9px 11px;
+        font-size: 0.8rem;
+        border-radius: 6px;
+    }
+    
+    .contact-form textarea.form-control {
+        min-height: 90px;
+    }
+    
+    .contact-form .btn-primary {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .calendar-toggle-btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .date-fields-container {
+        padding: 12px;
+    }
+    
+    .date-label {
+        font-size: 0.85rem;
+    }
+    
+    .date-display {
+        font-size: 0.8rem;
+        padding: 8px 10px;
+    }
+    
+    .time-info {
+        font-size: 0.7rem;
+    }
+    
+    .calendar-wrapper {
+        padding: 10px;
+    }
+    
+    .calendar-save-btn {
+        padding: 8px 14px;
+        font-size: 0.75rem;
+        width: 100%;
+    }
+}
+
+/* Mobile Extra Small (max-width: 375px) */
+@media (max-width: 375px) {
+    .agent-profile-card,
+    .whatsapp-contact-card,
+    .contact-form-card {
+        padding: 12px;
+    }
+    
+    .agent-avatar {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .agent-avatar-placeholder {
+        font-size: 1.5rem;
+    }
+    
+    .agent-name {
+        font-size: 1.1rem;
+    }
+    
+    .agent-type {
+        font-size: 0.75rem;
+    }
+    
+    .phone-number {
+        font-size: 1rem;
+    }
+    
+    .whatsapp-btn {
+        padding: 11px 14px;
+        font-size: 0.85rem;
+    }
+    
+    .contact-form-title {
+        font-size: 1rem;
+    }
+    
+    .contact-form .form-label {
+        font-size: 0.75rem;
+    }
+    
+    .contact-form .form-control {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+    
+    .contact-form textarea.form-control {
+        min-height: 80px;
+    }
+    
+    .contact-form .btn-primary {
+        padding: 11px 14px;
+        font-size: 0.85rem;
+    }
+}
 </style>
 {% endblock %}
 
@@ -4648,7 +4920,7 @@ function showTab(tabName) {
     }
 }
 
-// Variables globales para las fotos (se llenan desde Django)
+// Variables globales para las fotos y videos (se llenan desde Django)
 const fotosData = {
     titulo: '{{ propiedad.titulo }}',
     capacidad: {{ propiedad.get_capacidad_personas }},
@@ -4658,10 +4930,11 @@ const fotosData = {
     fotoPrincipal: {% if propiedad.get_foto_principal %}'{{ propiedad.get_foto_principal.url }}'{% else %}null{% endif %},
     fotoSecundaria: {% if propiedad.get_foto_secundaria %}'{{ propiedad.get_foto_secundaria.url }}'{% else %}null{% endif %},
     fotosAdicionales: [
-        {% for foto in propiedad.fotos.all %}
+        {% for medio in propiedad.fotos.all %}
         {
-            url: '{{ foto.imagen.url }}',
-            descripcion: '{{ foto.descripcion|escapejs }}'
+            tipo: '{{ medio.tipo_medio }}',
+            url: '{% if medio.tipo_medio == "imagen" %}{{ medio.imagen.url }}{% elif medio.tipo_medio == "video" %}{{ medio.video.url }}{% endif %}',
+            descripcion: '{{ medio.descripcion|escapejs }}'
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
     ]
@@ -4808,22 +5081,46 @@ function verGaleríaCompleta() {
         `;
     }
     
-    // Agregar primera foto adicional (Top-Right - Exterior Patio)
+    // Agregar primer medio adicional (Top-Right - Exterior Patio)
     if (fotosData.fotosAdicionales.length >= 1) {
-        modalContent += `
-            <div class="gallery-item gallery-item-medium">
-                <img src="${fotosData.fotosAdicionales[0].url}" alt="${fotosData.fotosAdicionales[0].descripcion}" loading="lazy" onclick="openImageViewerFromGallery(2)" style="cursor: pointer;">
-            </div>
-        `;
+        const medio1 = fotosData.fotosAdicionales[0];
+        if (medio1.tipo === 'video') {
+            modalContent += `
+                <div class="gallery-item gallery-item-medium">
+                    <video controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <source src="${medio1.url}" type="video/mp4">
+                        Tu navegador no soporta videos.
+                    </video>
+                </div>
+            `;
+        } else {
+            modalContent += `
+                <div class="gallery-item gallery-item-medium">
+                    <img src="${medio1.url}" alt="${medio1.descripcion}" loading="lazy" onclick="openImageViewerFromGallery(2)" style="cursor: pointer;">
+                </div>
+            `;
+        }
     }
     
-    // Agregar segunda foto adicional (Bottom - Sunroom/Perspective)
+    // Agregar segundo medio adicional (Bottom - Sunroom/Perspective)
     if (fotosData.fotosAdicionales.length >= 2) {
-        modalContent += `
-            <div class="gallery-item gallery-item-wide">
-                <img src="${fotosData.fotosAdicionales[1].url}" alt="${fotosData.fotosAdicionales[1].descripcion}" loading="lazy" onclick="openImageViewerFromGallery(3)" style="cursor: pointer;">
-            </div>
-        `;
+        const medio2 = fotosData.fotosAdicionales[1];
+        if (medio2.tipo === 'video') {
+            modalContent += `
+                <div class="gallery-item gallery-item-wide">
+                    <video controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <source src="${medio2.url}" type="video/mp4">
+                        Tu navegador no soporta videos.
+                    </video>
+                </div>
+            `;
+        } else {
+            modalContent += `
+                <div class="gallery-item gallery-item-wide">
+                    <img src="${medio2.url}" alt="${medio2.descripcion}" loading="lazy" onclick="openImageViewerFromGallery(3)" style="cursor: pointer;">
+                </div>
+            `;
+        }
     }
     
     modalContent += `
@@ -5332,12 +5629,13 @@ let imagesArray = [];
 
 // Función para abrir el visor de imágenes
 function openImageViewer(index) {
-    // Crear array de todas las imágenes disponibles
+    // Crear array de todos los archivos disponibles (imágenes y videos)
     imagesArray = [];
     
     // Agregar imagen principal si existe
     if (fotosData.fotoPrincipal) {
         imagesArray.push({
+            tipo: 'imagen',
             url: fotosData.fotoPrincipal,
             descripcion: 'Imagen principal'
         });
@@ -5346,18 +5644,25 @@ function openImageViewer(index) {
     // Agregar imagen secundaria si existe
     if (fotosData.fotoSecundaria) {
         imagesArray.push({
+            tipo: 'imagen',
             url: fotosData.fotoSecundaria,
             descripcion: 'Imagen secundaria'
         });
     }
     
-    // Agregar fotos adicionales
+    // Agregar archivos adicionales (fotos y videos)
     if (fotosData.fotosAdicionales && fotosData.fotosAdicionales.length > 0) {
-        imagesArray = imagesArray.concat(fotosData.fotosAdicionales);
+        fotosData.fotosAdicionales.forEach(medio => {
+            imagesArray.push({
+                tipo: medio.tipo || 'imagen',
+                url: medio.url,
+                descripcion: medio.descripcion
+            });
+        });
     }
     
     if (imagesArray.length === 0) {
-        mostrarNotificacion('warning', 'Sin Imágenes', 'No hay imágenes disponibles para mostrar en la galería.');
+        mostrarNotificacion('warning', 'Sin Archivos', 'No hay archivos disponibles para mostrar en la galería.');
         return;
     }
     
@@ -5405,16 +5710,30 @@ function closeImageViewer() {
     document.removeEventListener('keydown', handleKeyPress);
 }
 
-// Función para cargar la imagen actual
+// Función para cargar la imagen o video actual
 function loadCurrentImage() {
     const viewerImage = document.getElementById('viewerImage');
+    const viewerVideo = document.getElementById('viewerVideo');
     const currentImageIndexSpan = document.getElementById('currentImageIndex');
     const totalImagesSpan = document.getElementById('totalImages');
     
     if (imagesArray.length > 0) {
-        const currentImage = imagesArray[currentImageIndex];
-        viewerImage.src = currentImage.url;
-        viewerImage.alt = currentImage.descripcion;
+        const currentMedia = imagesArray[currentImageIndex];
+        
+        // Ocultar ambos elementos
+        viewerImage.style.display = 'none';
+        viewerVideo.style.display = 'none';
+        
+        // Mostrar imagen o video según el tipo
+        if (currentMedia.tipo === 'video') {
+            viewerVideo.querySelector('source').src = currentMedia.url;
+            viewerVideo.load();
+            viewerVideo.style.display = 'block';
+        } else {
+            viewerImage.src = currentMedia.url;
+            viewerImage.alt = currentMedia.descripcion;
+            viewerImage.style.display = 'block';
+        }
         
         currentImageIndexSpan.textContent = currentImageIndex + 1;
         totalImagesSpan.textContent = imagesArray.length;
@@ -5445,31 +5764,72 @@ function createThumbnails() {
     const thumbnailsContainer = document.getElementById('imageThumbnails');
     thumbnailsContainer.innerHTML = '';
     
-    imagesArray.forEach((image, index) => {
-        const thumbnail = document.createElement('img');
-        thumbnail.src = image.url;
-        thumbnail.alt = image.descripcion;
-        thumbnail.onclick = () => {
-            currentImageIndex = index;
-            loadCurrentImage();
-        };
+    imagesArray.forEach((media, index) => {
+        const thumbContainer = document.createElement('div');
+        thumbContainer.style.position = 'relative';
+        thumbContainer.style.display = 'inline-block';
         
-        if (index === currentImageIndex) {
-            thumbnail.classList.add('active');
+        if (media.tipo === 'video') {
+            // Miniatura para video con ícono de play
+            const thumbnail = document.createElement('div');
+            thumbnail.style.width = '80px';
+            thumbnail.style.height = '60px';
+            thumbnail.style.background = '#000';
+            thumbnail.style.display = 'flex';
+            thumbnail.style.alignItems = 'center';
+            thumbnail.style.justifyContent = 'center';
+            thumbnail.style.cursor = 'pointer';
+            thumbnail.style.borderRadius = '4px';
+            thumbnail.style.border = '2px solid #fff';
+            thumbnail.innerHTML = '<i class="fas fa-play-circle" style="color: #fff; font-size: 24px;"></i>';
+            thumbnail.onclick = () => {
+                currentImageIndex = index;
+                loadCurrentImage();
+            };
+            
+            if (index === currentImageIndex) {
+                thumbnail.style.border = '2px solid #007bff';
+            }
+            
+            thumbContainer.appendChild(thumbnail);
+        } else {
+            // Miniatura para imagen
+            const thumbnail = document.createElement('img');
+            thumbnail.src = media.url;
+            thumbnail.alt = media.descripcion;
+            thumbnail.style.width = '80px';
+            thumbnail.style.height = '60px';
+            thumbnail.style.objectFit = 'cover';
+            thumbnail.style.cursor = 'pointer';
+            thumbnail.style.borderRadius = '4px';
+            thumbnail.style.border = '2px solid #fff';
+            thumbnail.onclick = () => {
+                currentImageIndex = index;
+                loadCurrentImage();
+            };
+            
+            if (index === currentImageIndex) {
+                thumbnail.style.border = '2px solid #007bff';
+            }
+            
+            thumbContainer.appendChild(thumbnail);
         }
         
-        thumbnailsContainer.appendChild(thumbnail);
+        thumbnailsContainer.appendChild(thumbContainer);
     });
 }
 
 // Función para actualizar la miniatura activa
 function updateActiveThumbnail() {
-    const thumbnails = document.querySelectorAll('.image-viewer-thumbnails img');
-    thumbnails.forEach((thumb, index) => {
-        if (index === currentImageIndex) {
-            thumb.classList.add('active');
-        } else {
-            thumb.classList.remove('active');
+    const thumbnailsContainer = document.getElementById('imageThumbnails');
+    const thumbContainers = thumbnailsContainer.querySelectorAll('div');
+    
+    thumbContainers.forEach((container, index) => {
+        const thumb = container.querySelector('img, div');
+        if (thumb && index === currentImageIndex) {
+            thumb.style.border = '2px solid #007bff';
+        } else if (thumb) {
+            thumb.style.border = '2px solid #fff';
         }
     });
 }

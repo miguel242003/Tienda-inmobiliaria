@@ -286,17 +286,31 @@ def crear_propiedad(request):
             # Guardar las amenidades (relación many-to-many)
             form.save_m2m()
             
-            # Manejar fotos adicionales si existen
-            fotos_adicionales = request.FILES.getlist('fotos_adicionales')
-            if fotos_adicionales:
+            # Manejar archivos adicionales (fotos y videos) si existen
+            archivos_adicionales = request.FILES.getlist('fotos_adicionales')
+            if archivos_adicionales:
                 from .models import FotoPropiedad
-                for i, foto in enumerate(fotos_adicionales):
-                    FotoPropiedad.objects.create(
-                        propiedad=propiedad,
-                        imagen=foto,
-                        orden=i + 1,
-                        descripcion=f"Foto {i + 1} de {propiedad.titulo}"
-                    )
+                for i, archivo in enumerate(archivos_adicionales):
+                    # Determinar si es imagen o video
+                    content_type = archivo.content_type
+                    es_video = content_type.startswith('video/')
+                    
+                    if es_video:
+                        FotoPropiedad.objects.create(
+                            propiedad=propiedad,
+                            tipo_medio='video',
+                            video=archivo,
+                            orden=i + 1,
+                            descripcion=f"Video {i + 1} de {propiedad.titulo}"
+                        )
+                    else:
+                        FotoPropiedad.objects.create(
+                            propiedad=propiedad,
+                            tipo_medio='imagen',
+                            imagen=archivo,
+                            orden=i + 1,
+                            descripcion=f"Foto {i + 1} de {propiedad.titulo}"
+                        )
             
             # Verificar si es una petición AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

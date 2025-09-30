@@ -182,26 +182,47 @@ class Propiedad(models.Model):
         return resultado
 
 class FotoPropiedad(models.Model):
-    """Modelo para almacenar múltiples fotos de una propiedad"""
+    """Modelo para almacenar múltiples fotos y videos de una propiedad"""
+    
+    TIPO_MEDIO_CHOICES = [
+        ('imagen', 'Imagen'),
+        ('video', 'Video'),
+    ]
+    
     propiedad = models.ForeignKey(
         Propiedad, 
         on_delete=models.CASCADE, 
         related_name='fotos',
         verbose_name="Propiedad"
     )
+    tipo_medio = models.CharField(
+        max_length=10,
+        choices=TIPO_MEDIO_CHOICES,
+        default='imagen',
+        verbose_name="Tipo de Medio"
+    )
     imagen = models.ImageField(
         upload_to='propiedades/fotos/', 
-        verbose_name="Imagen"
+        verbose_name="Imagen",
+        blank=True,
+        null=True
+    )
+    video = models.FileField(
+        upload_to='propiedades/videos/',
+        verbose_name="Video",
+        blank=True,
+        null=True,
+        help_text="Formato de video (MP4, AVI, MOV)"
     )
     descripcion = models.CharField(
         max_length=200, 
         blank=True, 
         null=True,
-        verbose_name="Descripción de la imagen"
+        verbose_name="Descripción del archivo"
     )
     orden = models.PositiveIntegerField(
         default=0,
-        verbose_name="Orden de la imagen"
+        verbose_name="Orden del archivo"
     )
     fecha_subida = models.DateTimeField(
         auto_now_add=True,
@@ -209,12 +230,21 @@ class FotoPropiedad(models.Model):
     )
     
     class Meta:
-        verbose_name = "Foto de Propiedad"
-        verbose_name_plural = "Fotos de Propiedades"
+        verbose_name = "Foto/Video de Propiedad"
+        verbose_name_plural = "Fotos/Videos de Propiedades"
         ordering = ['orden', 'fecha_subida']
     
     def __str__(self):
-        return f"Foto {self.orden} de {self.propiedad.titulo}"
+        tipo = "Foto" if self.tipo_medio == 'imagen' else "Video"
+        return f"{tipo} {self.orden} de {self.propiedad.titulo}"
+    
+    def get_archivo_url(self):
+        """Retorna la URL del archivo (imagen o video)"""
+        if self.tipo_medio == 'imagen' and self.imagen:
+            return self.imagen.url
+        elif self.tipo_medio == 'video' and self.video:
+            return self.video.url
+        return None
 
 class ClickPropiedad(models.Model):
     """Modelo para rastrear clics en botones 'Ver Detalle' de propiedades"""
