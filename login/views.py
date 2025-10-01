@@ -3,20 +3,25 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from propiedades.models import Propiedad
-from propiedades.forms import PropiedadForm
+from django.contrib.auth.hashers import check_password, make_password
 from django.http import JsonResponse
 from django.core.mail import send_mail
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django_ratelimit.decorators import ratelimit
+from django_ratelimit.exceptions import Ratelimited
+import bleach
 import re
+import time
+from propiedades.models import Propiedad
+from propiedades.forms import PropiedadForm
+from propiedades.validators import validar_imagen
 from .models import AdminCredentials, PasswordResetCode
 from .forms import AdminCredentialsForm, NuevoUsuarioAdminForm
 from .forms_2fa import TwoFactorVerifyForm, BackupCodeForm
 from .forms_password_reset import PasswordResetRequestForm, PasswordResetVerifyForm
-from django.contrib.auth.hashers import check_password, make_password
-import time
 
 def configurar_admin(request):
     """Vista para configurar credenciales del administrador (solo primera vez)"""
@@ -66,8 +71,16 @@ def configurar_admin(request):
     }
     return render(request, 'login/configurar_admin.html', context)
 
+@ratelimit(key='ip', rate='5/m', method='POST', block=True)
 def admin_login(request):
-    """Vista de login para administradores con credenciales seguras y 2FA"""
+    """
+    Vista de login para administradores con credenciales seguras y 2FA.
+    
+    🔒 SEGURIDAD:
+    - Rate limiting: Máximo 5 intentos por minuto por IP
+    - Validación y sanitización de inputs
+    - Protección contra ataques de fuerza bruta
+    """
     # Si el usuario ya está autenticado, redirigir al dashboard
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('login:dashboard')
@@ -78,10 +91,28 @@ def admin_login(request):
         return redirect('login:configurar_admin')
     
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        totp_code = request.POST.get('totp_code')
-        backup_code = request.POST.get('backup_code')
+        # 🔒 SEGURIDAD: Validar y sanitizar inputs
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError as DjangoValidationError
+        import bleach
+        
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        totp_code = request.POST.get('totp_code', '').strip()
+        backup_code = request.POST.get('backup_code', '').strip()
+        
+        # Validar email
+        try:
+            validate_email(email)
+            email = bleach.clean(email)  # Sanitizar
+        except DjangoValidationError:
+            messages.error(request, 'Email inválido.')
+            return render(request, 'login/admin_login.html')
+        
+        # Validar longitud de contraseña
+        if len(password) < 8:
+            messages.error(request, 'Credenciales inválidas.')
+            return render(request, 'login/admin_login.html')
         
         try:
             # Buscar credenciales
@@ -104,12 +135,12 @@ def admin_login(request):
                         else:
                             messages.error(request, 'Código de respaldo incorrecto o ya utilizado.')
                     else:
+                        # 🔒 SEGURIDAD: NO devolver password en el contexto
                         messages.error(request, 'Se requiere código de verificación de 2FA.')
                         return render(request, 'login/admin_login.html', {
                             'email': email,
-                            'password': password,
                             'show_2fa': True,
-                            'credenciales': credenciales
+                            'requires_2fa': True
                         })
                 else:
                     # Sin 2FA, proceder con login normal
@@ -637,8 +668,16 @@ def actualizar_perfil(request):
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 @login_required
+@ratelimit(key='user', rate='10/h', method='POST', block=True)
 def crear_nuevo_usuario_admin(request):
-    """Vista AJAX para crear un nuevo usuario administrativo"""
+    """
+    Vista AJAX para crear un nuevo usuario administrativo.
+    
+    🔒 SEGURIDAD:
+    - Rate limiting: Máximo 10 creaciones por hora por usuario
+    - Validación exhaustiva de todos los campos
+    - Protección contra spam de usuarios
+    """
     print(f"=== CREAR NUEVO USUARIO ADMIN - Usuario: {request.user.email} ===")
     print(f"Método: {request.method}")
     print(f"POST data: {request.POST}")

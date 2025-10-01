@@ -7,8 +7,11 @@ from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from django_ratelimit.decorators import ratelimit
 from .models import Propiedad, ClickPropiedad
 from .forms import PropiedadForm
+from .validators import validar_imagen, validar_video, validar_imagen_o_video
 import json
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
@@ -256,61 +259,110 @@ def upload_fotos_adicionales(request):
     
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
+@ratelimit(key='user', rate='20/h', method='POST', block=False)
 def crear_propiedad(request):
-    """Vista para crear una nueva propiedad"""
+    """
+    Vista para crear una nueva propiedad.
+    
+    🔒 SEGURIDAD:
+    - Rate limiting: Máximo 20 propiedades por hora por usuario
+    - Validación robusta de archivos con python-magic
+    - Verificación de tipo MIME real
+    """
+    # Verificar rate limit
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
+        return redirect('login:dashboard')
+    
     if request.method == 'POST':
         form = PropiedadForm(request.POST, request.FILES)
         if form.is_valid():
-            propiedad = form.save(commit=False)
-            
-            # Asignar el administrador actual a la propiedad
-            if hasattr(request, 'user') and request.user.is_authenticated:
-                # Buscar el AdminCredentials correspondiente al usuario
-                from login.models import AdminCredentials
-                try:
-                    admin_creds = AdminCredentials.objects.get(email=request.user.email)
-                    propiedad.administrador = admin_creds
-                except AdminCredentials.DoesNotExist:
-                    # Si no existe AdminCredentials, crear uno básico
-                    admin_creds = AdminCredentials.objects.create(
-                        nombre=request.user.first_name or 'Administrador',
-                        apellido=request.user.last_name or 'del Sistema',
-                        email=request.user.email,
-                        telefono='+52-1-33-00000000',
-                        password='temp_password_123'  # Contraseña temporal
-                    )
-                    propiedad.administrador = admin_creds
-            
-            propiedad.save()
-            
-            # Guardar las amenidades (relación many-to-many)
-            form.save_m2m()
-            
-            # Manejar archivos adicionales (fotos y videos) si existen
-            archivos_adicionales = request.FILES.getlist('fotos_adicionales')
-            if archivos_adicionales:
-                from .models import FotoPropiedad
-                for i, archivo in enumerate(archivos_adicionales):
-                    # Determinar si es imagen o video
-                    content_type = archivo.content_type
-                    es_video = content_type.startswith('video/')
-                    
-                    if es_video:
-                        FotoPropiedad.objects.create(
-                            propiedad=propiedad,
-                            tipo_medio='video',
-                            video=archivo,
-                            orden=i + 1,
-                            descripcion=f"Video {i + 1} de {propiedad.titulo}"
+            try:
+                # 🔒 VALIDAR IMÁGENES PRINCIPALES
+                if 'imagen_principal' in request.FILES:
+                    try:
+                        validar_imagen(request.FILES['imagen_principal'], max_mb=5)
+                    except ValidationError as e:
+                        messages.error(request, f'Imagen principal: {str(e)}')
+                        return render(request, 'propiedades/crear_propiedad.html', {
+                            'form': form,
+                            'titulo_pagina': 'Crear Nueva Propiedad',
+                            'amenidades': Amenidad.objects.all()
+                        })
+                
+                if 'imagen_secundaria' in request.FILES:
+                    try:
+                        validar_imagen(request.FILES['imagen_secundaria'], max_mb=5)
+                    except ValidationError as e:
+                        messages.error(request, f'Imagen secundaria: {str(e)}')
+                        return render(request, 'propiedades/crear_propiedad.html', {
+                            'form': form,
+                            'titulo_pagina': 'Crear Nueva Propiedad',
+                            'amenidades': Amenidad.objects.all()
+                        })
+                
+                propiedad = form.save(commit=False)
+                
+                # Asignar el administrador actual a la propiedad
+                if hasattr(request, 'user') and request.user.is_authenticated:
+                    # Buscar el AdminCredentials correspondiente al usuario
+                    from login.models import AdminCredentials
+                    try:
+                        admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                        propiedad.administrador = admin_creds
+                    except AdminCredentials.DoesNotExist:
+                        # Si no existe AdminCredentials, crear uno básico
+                        admin_creds = AdminCredentials.objects.create(
+                            nombre=request.user.first_name or 'Administrador',
+                            apellido=request.user.last_name or 'del Sistema',
+                            email=request.user.email,
+                            telefono='+52-1-33-00000000',
+                            password='temp_password_123'  # Contraseña temporal
                         )
-                    else:
-                        FotoPropiedad.objects.create(
-                            propiedad=propiedad,
-                            tipo_medio='imagen',
-                            imagen=archivo,
-                            orden=i + 1,
-                            descripcion=f"Foto {i + 1} de {propiedad.titulo}"
-                        )
+                        propiedad.administrador = admin_creds
+                
+                propiedad.save()
+                
+                # Guardar las amenidades (relación many-to-many)
+                form.save_m2m()
+                
+                # 🔒 VALIDAR Y MANEJAR archivos adicionales (fotos y videos)
+                archivos_adicionales = request.FILES.getlist('fotos_adicionales')
+                if archivos_adicionales:
+                    from .models import FotoPropiedad
+                    for i, archivo in enumerate(archivos_adicionales):
+                        try:
+                            # Validar archivo (imagen o video)
+                            archivo_validado, tipo = validar_imagen_o_video(archivo)
+                            
+                            if tipo == 'video':
+                                FotoPropiedad.objects.create(
+                                    propiedad=propiedad,
+                                    tipo_medio='video',
+                                    video=archivo_validado,
+                                    orden=i + 1,
+                                    descripcion=f"Video {i + 1} de {propiedad.titulo}"
+                                )
+                            else:  # imagen
+                                FotoPropiedad.objects.create(
+                                    propiedad=propiedad,
+                                    tipo_medio='imagen',
+                                    imagen=archivo_validado,
+                                    orden=i + 1,
+                                    descripcion=f"Foto {i + 1} de {propiedad.titulo}"
+                                )
+                        except ValidationError as e:
+                            # Registrar error pero continuar con otros archivos
+                            messages.warning(request, f'Archivo "{archivo.name}" no válido: {str(e)}')
+            
+            except Exception as e:
+                messages.error(request, f'Error al crear la propiedad: {str(e)}')
+                return render(request, 'propiedades/crear_propiedad.html', {
+                    'form': form,
+                    'titulo_pagina': 'Crear Nueva Propiedad',
+                    'amenidades': Amenidad.objects.all()
+                })
             
             # Verificar si es una petición AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

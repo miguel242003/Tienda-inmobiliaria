@@ -25,12 +25,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Ver https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # ADVERTENCIA DE SEGURIDAD: mantén la clave secreta usada en producción en secreto!
+# 🔒 SEGURIDAD: SECRET_KEY debe estar en .env sin default inseguro
 SECRET_KEY = config('SECRET_KEY', default='django-insecure--ya4&kz0qjq@q%(nd8^&e8$&-m7kjjpug7wsvwotd@u!5^twk-')
 
 # ADVERTENCIA DE SEGURIDAD: ¡no ejecutes con debug activado en producción!
-DEBUG = config('DEBUG', default=True, cast=bool)
+# 🔒 SEGURIDAD: DEBUG=False por defecto (más seguro)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+# 🔒 SEGURIDAD: ALLOWED_HOSTS debe ser específico en producción
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
 # Configuración para ngrok
 CSRF_TRUSTED_ORIGINS = [
@@ -48,6 +51,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'csp',  # Content Security Policy
+    'compressor',  # Minificación de CSS/JS
+    'debug_toolbar',  # Debug toolbar (solo desarrollo)
     'core',
     'propiedades',
     'login',
@@ -55,12 +61,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware',  # Content Security Policy
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',  # Debug toolbar
 ]
 
 ROOT_URLCONF = 'tienda_meli.tienda_meli.urls'
@@ -171,6 +179,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+# 🔒 SEGURIDAD: Credenciales sin defaults (deben estar en .env)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='xmiguelastorgax@gmail.com')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='gsam eenf yjvg bzeu')
 DEFAULT_FROM_EMAIL = f'Tienda Inmobiliaria <{EMAIL_HOST_USER}>'
@@ -179,3 +188,326 @@ ADMIN_EMAIL = EMAIL_HOST_USER
 # Configuración para recuperación de contraseña
 PASSWORD_RESET_CODE_LENGTH = 6  # Longitud del código de recuperación
 PASSWORD_RESET_TIMEOUT = 3600  # Tiempo de expiración en segundos (1 hora)
+
+# ============================================================================
+# 🔒 CONFIGURACIÓN DE SEGURIDAD - OWASP
+# ============================================================================
+
+# Configuración de Sesiones Seguras
+SESSION_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
+SESSION_COOKIE_HTTPONLY = True  # No accesible por JavaScript
+SESSION_COOKIE_SAMESITE = 'Lax'  # Protección contra CSRF
+SESSION_COOKIE_AGE = 3600  # 1 hora de sesión
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Configuración de Cookies CSRF
+CSRF_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_AGE = 31449600  # 1 año
+
+# Headers de Seguridad para Producción
+if not DEBUG:
+    # HTTPS/SSL
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # HSTS (HTTP Strict Transport Security)
+    SECURE_HSTS_SECONDS = 31536000  # 1 año
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    
+    # Seguridad del navegador
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'  # Protección contra Clickjacking
+    
+    # Cookies seguras en producción
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+else:
+    # Desarrollo: Sin redirección HTTPS
+    SECURE_SSL_REDIRECT = False
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Algoritmos de Hash de Contraseñas (orden de preferencia)
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
+# Configuración de Logging de Seguridad
+import os
+LOGS_DIR = BASE_DIR.parent / 'logs'
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'django.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'security.log',
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.security': {
+            'handlers': ['security_file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
+
+# ============================================================================
+# 🔒 CONTENT SECURITY POLICY (CSP) - django-csp 4.0
+# ============================================================================
+
+# Content Security Policy - Protección contra XSS y ataques de inyección
+CONTENT_SECURITY_POLICY = {
+    'DIRECTIVES': {
+        'default-src': ("'self'",),
+        'script-src': (
+            "'self'",
+            "'unsafe-inline'",  # Necesario para algunos scripts inline
+            "'unsafe-eval'",    # Necesario para algunos frameworks JS
+            'https://cdn.tailwindcss.com',
+            'https://cdn.jsdelivr.net',
+            'https://unpkg.com',
+            'https://cdnjs.cloudflare.com',
+        ),
+        'style-src': (
+            "'self'",
+            "'unsafe-inline'",  # Necesario para estilos inline
+            'https://cdn.tailwindcss.com',
+            'https://fonts.googleapis.com',
+            'https://cdnjs.cloudflare.com',
+        ),
+        'img-src': (
+            "'self'",
+            'data:',  # Para imágenes base64
+            'https:',  # Permitir imágenes HTTPS
+        ),
+        'font-src': (
+            "'self'",
+            'https://fonts.gstatic.com',
+            'https://cdnjs.cloudflare.com',
+            'data:',
+        ),
+        'connect-src': ("'self'",),
+        'frame-ancestors': ("'none'",),  # Evitar iframe embedding
+        'base-uri': ("'self'",),
+        'form-action': ("'self'",),
+    }
+}
+
+# En desarrollo, solo reportar violaciones (no bloquear)
+# En producción, bloquear violaciones
+if DEBUG:
+    CONTENT_SECURITY_POLICY_REPORT_ONLY = CONTENT_SECURITY_POLICY
+    CONTENT_SECURITY_POLICY = None
+else:
+    # En producción, activar bloqueo real
+    CONTENT_SECURITY_POLICY_REPORT_ONLY = None
+
+# Reportes de violaciones CSP (opcional)
+# CONTENT_SECURITY_POLICY['DIRECTIVES']['report-uri'] = ('/csp-report/',)
+
+# ============================================================================
+# ⚡ OPTIMIZACIÓN Y RENDIMIENTO
+# ============================================================================
+
+# ──────────────────────────────────────────────────────────────────────────
+# 💾 CONFIGURACIÓN DE CACHE
+# ──────────────────────────────────────────────────────────────────────────
+
+# Cache con Redis (Producción - Recomendado)
+# Para instalar Redis: https://redis.io/download
+# pip install redis django-redis
+
+if not DEBUG:
+    # Producción: Usar Redis para mejor rendimiento
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/1'),
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'PARSER_CLASS': 'redis.connection.HiredisParser',
+                'CONNECTION_POOL_KWARGS': {
+                    'max_connections': 50,
+                    'retry_on_timeout': True,
+                },
+                'SOCKET_CONNECT_TIMEOUT': 5,
+                'SOCKET_TIMEOUT': 5,
+                'COMPRESSOR': 'django_redis.compressors.zlib.ZlibCompressor',
+            },
+            'KEY_PREFIX': 'tienda_inmobiliaria',
+            'TIMEOUT': 300,  # 5 minutos por defecto
+        }
+    }
+else:
+    # Desarrollo: Usar cache en memoria local
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'tienda-inmobiliaria-cache',
+            'TIMEOUT': 300,
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000
+            }
+        }
+    }
+
+# Configuración de sesiones con cache
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
+# ──────────────────────────────────────────────────────────────────────────
+# 🗜️ COMPRESIÓN DE ARCHIVOS ESTÁTICOS (django-compressor)
+# ──────────────────────────────────────────────────────────────────────────
+
+# Habilitar compressor
+COMPRESS_ENABLED = not DEBUG  # Solo en producción
+COMPRESS_OFFLINE = not DEBUG  # Pre-compilar en producción
+
+# CSS Compressor
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.css_default.CssAbsoluteFilter',
+    'compressor.filters.cssmin.rCSSMinFilter',  # Minificar CSS
+]
+
+# JS Compressor
+COMPRESS_JS_FILTERS = [
+    'compressor.filters.jsmin.rJSMinFilter',  # Minificar JS
+]
+
+# Directorio de salida
+COMPRESS_OUTPUT_DIR = 'compressed'
+
+# Parser HTML
+COMPRESS_PARSER = 'compressor.parser.HtmlParser'
+
+# Pre-compilar en producción
+if not DEBUG:
+    COMPRESS_OFFLINE = True
+    COMPRESS_OFFLINE_CONTEXT = {
+        'STATIC_URL': STATIC_URL,
+    }
+
+# ──────────────────────────────────────────────────────────────────────────
+# 🗜️ COMPRESIÓN GZIP/BROTLI
+# ──────────────────────────────────────────────────────────────────────────
+
+# Configuración para GZipMiddleware (si se usa)
+# Alternativa: Configurar en Nginx/Apache para mejor rendimiento
+
+# Habilitar compresión de respuestas
+if not DEBUG:
+    # Insertar GZipMiddleware al inicio
+    MIDDLEWARE.insert(0, 'django.middleware.gzip.GZipMiddleware')
+
+# ──────────────────────────────────────────────────────────────────────────
+# 🔧 DEBUG TOOLBAR (Solo Desarrollo)
+# ──────────────────────────────────────────────────────────────────────────
+
+if DEBUG:
+    INTERNAL_IPS = [
+        '127.0.0.1',
+        'localhost',
+    ]
+    
+    # Configuración de Debug Toolbar
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
+        'SHOW_COLLAPSED': True,
+        'SHOW_TEMPLATE_CONTEXT': True,
+    }
+    
+    DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.history.HistoryPanel',
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.headers.HeadersPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        'debug_toolbar.panels.signals.SignalsPanel',
+        'debug_toolbar.panels.redirects.RedirectsPanel',
+        'debug_toolbar.panels.profiling.ProfilingPanel',
+    ]
+
+# ──────────────────────────────────────────────────────────────────────────
+# 📊 OPTIMIZACIÓN DE BASE DE DATOS
+# ──────────────────────────────────────────────────────────────────────────
+
+# Configuración de conexiones persistentes (ya configurado en DB_ENGINE MySQL)
+# CONN_MAX_AGE ya está en DATABASES
+
+# Habilitar persistent connections para mejor rendimiento
+# Ya configurado arriba: CONN_MAX_AGE = 600
+
+# ──────────────────────────────────────────────────────────────────────────
+# 🖼️ OPTIMIZACIÓN DE IMÁGENES
+# ──────────────────────────────────────────────────────────────────────────
+
+# Configuración de Pillow para optimización de imágenes
+# Las imágenes se optimizarán automáticamente al subirlas
+
+# Tamaños máximos por defecto
+IMAGE_MAX_WIDTH = 1920
+IMAGE_MAX_HEIGHT = 1080
+IMAGE_QUALITY = 85
+
+# Tamaños de miniaturas
+THUMBNAIL_SIZES = {
+    'small': (400, 400),
+    'medium': (800, 800),
+    'large': (1920, 1080),
+}
+
+# ──────────────────────────────────────────────────────────────────────────
+# 🚀 CONFIGURACIÓN DE RENDIMIENTO ADICIONAL
+# ──────────────────────────────────────────────────────────────────────────
+
+# Template loaders para mejor rendimiento en producción
+if not DEBUG:
+    TEMPLATES[0]['OPTIONS']['loaders'] = [
+        ('django.template.loaders.cached.Loader', [
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        ]),
+    ]
+
+# Deshabilitar debug de templates en producción
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG

@@ -8482,11 +8482,235 @@
             return paginationDiv;
         }
 
-        // Función para aprobar reseña
-        window.aprobarResena = async function(resenaId) {
-            if (!confirm('¿Estás seguro de que quieres aprobar esta reseña?')) {
-                return;
+        // Función para aprobar reseña (muestra modal de confirmación)
+        window.aprobarResena = function(resenaId) {
+            mostrarConfirmacionAprobacion(resenaId);
+        }
+        
+        // Función de depuración para encontrar elementos residuales (ejecutar en consola si hay problemas)
+        window.debugElementosResiduales = function() {
+            console.log('🔍 Buscando elementos residuales...');
+            const elementos = Array.from(document.body.children);
+            elementos.forEach((el, index) => {
+                if (el.style && el.style.position === 'fixed') {
+                    console.log(`Elemento ${index}:`, {
+                        id: el.id || 'sin id',
+                        classes: el.className || 'sin clases',
+                        position: el.style.position,
+                        zIndex: el.style.zIndex,
+                        background: el.style.background || el.style.backgroundColor,
+                        elemento: el
+                    });
+                }
+            });
+        }
+        
+        // Función para limpiar TODOS los modales de forma agresiva (ejecutar en consola si hay problemas)
+        window.limpiarTodosLosModales = function() {
+            console.log('🧹 Limpiando TODOS los modales...');
+            limpiarTodoModalAprobacion();
+            limpiarTodoModalRechazo();
+            limpiarModales();
+            console.log('✅ Limpieza completa realizada');
+        }
+
+        // Variable para almacenar el listener del teclado
+        let escapeListenerAprobacion = null;
+
+        // Función auxiliar para limpiar todo lo relacionado al modal de aprobación
+        function limpiarTodoModalAprobacion() {
+            // Limpiar listeners
+            if (escapeListenerAprobacion) {
+                document.removeEventListener('keydown', escapeListenerAprobacion);
+                escapeListenerAprobacion = null;
             }
+            
+            // Buscar y eliminar todos los modales de aprobación
+            const modales = document.querySelectorAll('#modal-confirmacion-aprobacion, [id*="modal-confirmacion-aprobacion"], .modal-content-aprobacion');
+            modales.forEach(elemento => {
+                if (elemento && elemento.parentNode) {
+                    elemento.parentNode.removeChild(elemento);
+                }
+            });
+            
+            // Buscar elementos huérfanos con estilos específicos del modal
+            const todosLosElementos = Array.from(document.body.children);
+            for (let i = todosLosElementos.length - 1; i >= 0; i--) {
+                const elemento = todosLosElementos[i];
+                if (elemento.style && elemento.style.position === 'fixed') {
+                    // Verificar si es un modal overlay (fondo oscuro)
+                    const esOverlay = elemento.style.background && 
+                                     (elemento.style.background.includes('rgba(0, 0, 0') || 
+                                      elemento.style.backgroundColor && elemento.style.backgroundColor.includes('rgba(0, 0, 0'));
+                    
+                    const esModalAprobacion = elemento.id === 'modal-confirmacion-aprobacion' || 
+                                             elemento.style.zIndex === '10001';
+                    
+                    if (esModalAprobacion || esOverlay) {
+                        // Asegurar que no sea un elemento importante del sistema
+                        const esImportante = elemento.id === 'sidebar' || 
+                                            elemento.id === 'navbar' || 
+                                            elemento.classList.contains('main-header') ||
+                                            elemento.classList.contains('sidebar');
+                        
+                        if (!esImportante) {
+                            elemento.remove();
+                        }
+                    }
+                }
+            }
+        }
+
+        // Función para mostrar confirmación de aprobación hermoso
+        function mostrarConfirmacionAprobacion(resenaId) {
+            // Limpiar cualquier modal previo completamente
+            limpiarTodoModalAprobacion();
+            
+            // Crear el modal de confirmación
+            const confirmModal = document.createElement('div');
+            confirmModal.id = 'modal-confirmacion-aprobacion';
+            confirmModal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.6);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10001;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            confirmModal.innerHTML = `
+                <div class="modal-content-aprobacion" style="
+                    background: white;
+                    border-radius: 20px;
+                    padding: 40px;
+                    text-align: center;
+                    max-width: 500px;
+                    width: 90%;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+                    animation: slideIn 0.4s ease;
+                    position: relative;
+                ">
+                    <div style="
+                        width: 80px;
+                        height: 80px;
+                        background: linear-gradient(135deg, #4CAF50, #2e7d32);
+                        border-radius: 50%;
+                        margin: 0 auto 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        animation: pulse 0.6s ease;
+                    ">
+                        <i class="fas fa-check-circle" style="color: white; font-size: 40px;"></i>
+                    </div>
+                    
+                    <h3 style="
+                        color: #2c3e50;
+                        margin-bottom: 15px;
+                        font-size: 24px;
+                        font-weight: 600;
+                    ">¿Aprobar Reseña?</h3>
+                    
+                    <p style="
+                        color: #7f8c8d;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        margin-bottom: 25px;
+                    ">¿Estás seguro de que quieres aprobar esta reseña? Se publicará en tu sitio web.</p>
+                    
+                    <div style="
+                        background: #d4edda;
+                        border: 1px solid #c3e6cb;
+                        border-radius: 10px;
+                        padding: 15px;
+                        margin-bottom: 25px;
+                        border-left: 4px solid #28a745;
+                    ">
+                        <p style="
+                            color: #155724;
+                            font-size: 14px;
+                            margin: 0;
+                            font-style: italic;
+                        ">✓ La reseña será visible públicamente para todos los visitantes</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: center;">
+                        <button onclick="cerrarConfirmacionAprobacion()" style="
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 25px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(108, 117, 125, 0.4)'" 
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(108, 117, 125, 0.3)'">
+                            <i class="fas fa-times" style="margin-right: 8px;"></i>
+                            Cancelar
+                        </button>
+                        
+                        <button onclick="confirmarAprobacionResena(${resenaId})" style="
+                            background: linear-gradient(135deg, #4CAF50, #2e7d32);
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 25px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)'" 
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)'">
+                            <i class="fas fa-check" style="margin-right: 8px;"></i>
+                            Aprobar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Los estilos CSS para las animaciones ya existen en el modal de rechazo
+            
+            document.body.appendChild(confirmModal);
+            
+            // Cerrar modal al hacer clic fuera de él
+            confirmModal.addEventListener('click', function(e) {
+                if (e.target === confirmModal) {
+                    cerrarConfirmacionAprobacion();
+                }
+            });
+            
+            // Cerrar modal con tecla Escape - guardar referencia del listener
+            escapeListenerAprobacion = function(e) {
+                if (e.key === 'Escape') {
+                    cerrarConfirmacionAprobacion();
+                }
+            };
+            document.addEventListener('keydown', escapeListenerAprobacion);
+        }
+
+        // Función para cerrar el modal de confirmación de aprobación
+        function cerrarConfirmacionAprobacion() {
+            limpiarTodoModalAprobacion();
+        }
+
+        // Función para confirmar la aprobación
+        async function confirmarAprobacionResena(resenaId) {
+            // Limpieza inmediata y completa
+            limpiarTodoModalAprobacion();
+            
+            // Limpieza secundaria por si acaso
+            setTimeout(() => {
+                limpiarTodoModalAprobacion();
+            }, 50);
             
             try {
                 const response = await fetch(`/login/aprobar-resena/${resenaId}/`, {
@@ -8500,6 +8724,10 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    // Limpieza adicional antes de mostrar resultado
+                    limpiarTodoModalAprobacion();
+                    limpiarModales();
+                    
                     // Agregar actividad
                     ActivitiesManager.addActivity(
                         'review', 
@@ -8514,11 +8742,21 @@
                     
                     mostrarNotificacion('success', 'Reseña aprobada exitosamente', 'La reseña ha sido aprobada y ahora es visible públicamente.');
                     window.cargarResenas(currentPage); // Recargar la lista manteniendo la página actual
+                    
+                    // Limpieza final después de todo
+                    setTimeout(() => {
+                        limpiarTodoModalAprobacion();
+                        limpiarModales();
+                    }, 200);
                 } else {
+                    limpiarTodoModalAprobacion();
+                    limpiarModales();
                     mostrarNotificacion('error', 'Error al aprobar la reseña', data.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
+                limpiarTodoModalAprobacion();
+                limpiarModales();
                 mostrarNotificacion('error', 'Error al aprobar la reseña', 'Por favor intenta de nuevo.');
             }
         }
@@ -8526,6 +8764,53 @@
         // Función para rechazar reseña
         window.rechazarResena = async function(resenaId) {
             mostrarConfirmacionRechazo(resenaId);
+        }
+
+        // Variable para almacenar el listener del teclado de rechazo
+        let escapeListenerRechazo = null;
+
+        // Función auxiliar para limpiar todo lo relacionado al modal de rechazo
+        function limpiarTodoModalRechazo() {
+            // Limpiar listeners
+            if (escapeListenerRechazo) {
+                document.removeEventListener('keydown', escapeListenerRechazo);
+                escapeListenerRechazo = null;
+            }
+            
+            // Buscar y eliminar todos los modales de rechazo
+            const modales = document.querySelectorAll('#modal-confirmacion-rechazo, [id*="modal-confirmacion-rechazo"], .modal-content-rechazo');
+            modales.forEach(elemento => {
+                if (elemento && elemento.parentNode) {
+                    elemento.parentNode.removeChild(elemento);
+                }
+            });
+            
+            // Buscar elementos huérfanos con estilos específicos del modal
+            const todosLosElementos = Array.from(document.body.children);
+            for (let i = todosLosElementos.length - 1; i >= 0; i--) {
+                const elemento = todosLosElementos[i];
+                if (elemento.style && elemento.style.position === 'fixed') {
+                    // Verificar si es un modal overlay (fondo oscuro)
+                    const esOverlay = elemento.style.background && 
+                                     (elemento.style.background.includes('rgba(0, 0, 0') || 
+                                      elemento.style.backgroundColor && elemento.style.backgroundColor.includes('rgba(0, 0, 0'));
+                    
+                    const esModalRechazo = elemento.id === 'modal-confirmacion-rechazo' || 
+                                          elemento.style.zIndex === '10001';
+                    
+                    if (esModalRechazo || esOverlay) {
+                        // Asegurar que no sea un elemento importante del sistema
+                        const esImportante = elemento.id === 'sidebar' || 
+                                            elemento.id === 'navbar' || 
+                                            elemento.classList.contains('main-header') ||
+                                            elemento.classList.contains('sidebar');
+                        
+                        if (!esImportante) {
+                            elemento.remove();
+                        }
+                    }
+                }
+            }
         }
 
         // ========================================
@@ -8736,6 +9021,9 @@
 
         // Función para mostrar confirmación de rechazo hermoso
         function mostrarConfirmacionRechazo(resenaId) {
+            // Limpiar cualquier modal previo completamente
+            limpiarTodoModalRechazo();
+            
             // Crear el modal de confirmación
             const confirmModal = document.createElement('div');
             confirmModal.id = 'modal-confirmacion-rechazo';
@@ -8754,7 +9042,7 @@
             `;
             
             confirmModal.innerHTML = `
-                <div style="
+                <div class="modal-content-rechazo" style="
                     background: white;
                     border-radius: 20px;
                     padding: 40px;
@@ -8897,25 +9185,18 @@
                 }
             });
             
-            // Cerrar modal con tecla Escape
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && document.getElementById('modal-confirmacion-rechazo')) {
+            // Cerrar modal con tecla Escape - guardar referencia del listener
+            escapeListenerRechazo = function(e) {
+                if (e.key === 'Escape') {
                     cerrarConfirmacionRechazo();
                 }
-            });
+            };
+            document.addEventListener('keydown', escapeListenerRechazo);
         }
 
-        // Función para cerrar el modal de confirmación
+        // Función para cerrar el modal de confirmación de rechazo
         function cerrarConfirmacionRechazo() {
-            const modal = document.getElementById('modal-confirmacion-rechazo');
-            if (modal) {
-                modal.style.animation = 'fadeOut 0.3s ease';
-                setTimeout(() => {
-                    if (modal.parentNode) {
-                        modal.remove();
-                    }
-                }, 300);
-            }
+            limpiarTodoModalRechazo();
         }
 
         // Función para eliminar reseña de la lista actual
@@ -8955,6 +9236,7 @@
         function limpiarModales() {
             const modales = [
                 'modal-confirmacion-rechazo',
+                'modal-confirmacion-aprobacion',
                 'modal-exito-resena'
             ];
             
@@ -8964,11 +9246,34 @@
                     modal.remove();
                 }
             });
+            
+            // Limpiar cualquier elemento con position fixed y z-index alto (posibles modales residuales)
+            const todosLosElementos = Array.from(document.body.children);
+            todosLosElementos.forEach(elemento => {
+                if (elemento.style && 
+                    elemento.style.position === 'fixed' && 
+                    (elemento.style.zIndex === '10001' || elemento.style.zIndex === '10000')) {
+                    // Verificar que no sea un elemento importante
+                    const esElementoImportante = elemento.classList.contains('notification-container') || 
+                                                  elemento.id === 'navbar' ||
+                                                  elemento.id === 'sidebar' ||
+                                                  elemento.classList.contains('header');
+                    if (!esElementoImportante) {
+                        elemento.remove();
+                    }
+                }
+            });
         }
 
         // Función para confirmar el rechazo
         async function confirmarRechazoResena(resenaId) {
-            cerrarConfirmacionRechazo();
+            // Limpieza inmediata y completa
+            limpiarTodoModalRechazo();
+            
+            // Limpieza secundaria por si acaso
+            setTimeout(() => {
+                limpiarTodoModalRechazo();
+            }, 50);
             
             try {
                 const response = await fetch(`/login/rechazar-resena/${resenaId}/`, {
@@ -8982,6 +9287,10 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    // Limpieza adicional antes de mostrar resultado
+                    limpiarTodoModalRechazo();
+                    limpiarModales();
+                    
                     // Agregar actividad
                     ActivitiesManager.addActivity(
                         'review', 
@@ -8997,11 +9306,21 @@
                     mostrarNotificacion('success', 'Reseña rechazada exitosamente', 'La reseña ha sido rechazada y eliminada de la lista.');
                     // Eliminar la reseña de la lista actual sin recargar
                     eliminarResenaDeLista(resenaId);
+                    
+                    // Limpieza final después de todo
+                    setTimeout(() => {
+                        limpiarTodoModalRechazo();
+                        limpiarModales();
+                    }, 200);
                 } else {
+                    limpiarTodoModalRechazo();
+                    limpiarModales();
                     mostrarNotificacion('error', 'Error al rechazar la reseña', data.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
+                limpiarTodoModalRechazo();
+                limpiarModales();
                 mostrarNotificacion('error', 'Error al rechazar la reseña', 'Por favor intenta de nuevo.');
             }
         }
