@@ -1,9 +1,14 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ titulo_pagina }} - Tienda Inmobiliaria</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="{% static 'images/logo/logo-gisa.jpeg' %}">
+    <link rel="shortcut icon" type="image/jpeg" href="{% static 'images/logo/logo-gisa.jpeg' %}">
     
     <!-- CDN de TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
