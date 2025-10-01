@@ -361,6 +361,7 @@
         </section>
 
         <!-- Sección de Testimonios de Clientes -->
+        {% if resenas_aprobadas %}
         <section class="testimonials-section">
           <div class="container py-5">
             <div class="row text-center mb-5">
@@ -403,43 +404,6 @@
                       </div>
                     </div>
                     {% endfor %}
-                  {% else %}
-                    <!-- Testimonios por defecto si no hay reseñas aprobadas -->
-                    <div class="testimonial-item">
-                      <div class="testimonial-card text-center">
-                        <div class="quote-mark mb-3">
-                          <i class="fas fa-quote-left testimonial-icon text-warning"></i>
-                        </div>
-                        <p class="testimonial-text text-white mb-3">
-                          "Excelente servicio y atención personalizada. Encontraron exactamente lo que estábamos buscando en tiempo récord. Altamente recomendados para cualquier transacción inmobiliaria."
-                        </p>
-                        <div class="client-name text-white fw-bold">- Marta & Jorge Rosales</div>
-                      </div>
-                    </div>
-
-                    <div class="testimonial-item">
-                      <div class="testimonial-card text-center">
-                        <div class="quote-mark mb-3">
-                          <i class="fas fa-quote-left testimonial-icon text-warning"></i>
-                        </div>
-                        <p class="testimonial-text text-white mb-3">
-                          "Profesionales muy serios y comprometidos. El proceso de alquiler fue transparente y sin complicaciones. Definitivamente volveré a confiar en ellos para futuras necesidades."
-                        </p>
-                        <div class="client-name text-white fw-bold">- María Rocha</div>
-                      </div>
-                    </div>
-
-                    <div class="testimonial-item">
-                      <div class="testimonial-card text-center">
-                        <div class="quote-mark mb-3">
-                          <i class="fas fa-quote-left testimonial-icon text-warning"></i>
-                        </div>
-                        <p class="testimonial-text text-white mb-3">
-                          "Increíble experiencia desde el primer contacto. Su conocimiento del mercado y atención al detalle nos ayudó a tomar la mejor decisión para nuestra inversión inmobiliaria."
-                        </p>
-                        <div class="client-name text-white fw-bold">- Pablo & Susana Naúm</div>
-                      </div>
-                    </div>
                   {% endif %}
                 </div>
               </div>
@@ -456,6 +420,7 @@
             </div>
           </div>
         </section>
+        {% endif %}
 
 <style>
 /* ========================================

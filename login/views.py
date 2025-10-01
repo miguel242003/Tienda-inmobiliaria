@@ -29,6 +29,8 @@ def configurar_admin(request):
         form = AdminCredentialsForm(request.POST, request.FILES)
         if form.is_valid():
             # Crear usuario administrador primero
+            user = None
+            credenciales = None
             try:
                 user = User.objects.create_user(
                     username=form.cleaned_data['email'],
@@ -49,7 +51,11 @@ def configurar_admin(request):
                 return redirect('login:admin_login')
                 
             except Exception as e:
-                credenciales.delete()
+                # Limpiar si algo salió mal
+                if credenciales and credenciales.pk:
+                    credenciales.delete()
+                if user and user.pk:
+                    user.delete()
                 messages.error(request, f'Error al crear usuario: {str(e)}')
     else:
         form = AdminCredentialsForm()
@@ -433,7 +439,32 @@ def editar_propiedad(request, propiedad_id):
     if request.method == 'POST':
         form = PropiedadForm(request.POST, request.FILES, instance=propiedad)
         if form.is_valid():
-            form.save()
+            propiedad = form.save(commit=False)
+            propiedad.save()
+            # Guardar las amenidades (relación many-to-many)
+            form.save_m2m()
+            
+            # Manejar eliminación de fotos adicionales
+            fotos_eliminar = request.POST.getlist('fotos_eliminar')
+            if fotos_eliminar:
+                from propiedades.models import FotoPropiedad
+                FotoPropiedad.objects.filter(id__in=fotos_eliminar, propiedad=propiedad).delete()
+            
+            # Manejar archivos adicionales (fotos y videos) nuevos
+            archivos_adicionales = request.FILES.getlist('fotos_adicionales')
+            if archivos_adicionales:
+                from propiedades.models import FotoPropiedad
+                for archivo in archivos_adicionales:
+                    # Determinar si es imagen o video
+                    tipo_medio = 'video' if archivo.content_type.startswith('video/') else 'imagen'
+                    
+                    foto_propiedad = FotoPropiedad(propiedad=propiedad, tipo_medio=tipo_medio)
+                    if tipo_medio == 'imagen':
+                        foto_propiedad.imagen = archivo
+                    else:
+                        foto_propiedad.video = archivo
+                    foto_propiedad.save()
+            
             messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
             return redirect('login:gestionar_propiedades')
         else:
@@ -441,10 +472,13 @@ def editar_propiedad(request, propiedad_id):
     else:
         form = PropiedadForm(instance=propiedad)
     
+    from propiedades.models import Amenidad
+    
     context = {
         'form': form,
         'propiedad': propiedad,
         'titulo_pagina': 'Editar Propiedad',
+        'amenidades': Amenidad.objects.all(),
     }
     return render(request, 'login/editar_propiedad.html', context)
 

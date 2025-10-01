@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+import pymysql
+
+# Instalar PyMySQL como reemplazo de MySQLdb
+pymysql.install_as_MySQLdb()
 
 # Construye rutas dentro del proyecto como BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Ver https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # ADVERTENCIA DE SEGURIDAD: mantén la clave secreta usada en producción en secreto!
-SECRET_KEY = 'django-insecure--ya4&kz0qjq@q%(nd8^&e8$&-m7kjjpug7wsvwotd@u!5^twk-'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure--ya4&kz0qjq@q%(nd8^&e8$&-m7kjjpug7wsvwotd@u!5^twk-')
 
 # ADVERTENCIA DE SEGURIDAD: ¡no ejecutes con debug activado en producción!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']  # Para desarrollo local - permite acceso desde cualquier IP
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
 # Configuración para ngrok
 CSRF_TRUSTED_ORIGINS = [
@@ -81,37 +86,35 @@ WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 # Base de datos
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Configuración de base de datos
-# Para desarrollo: SQLite (actual)
-# Para producción: MySQL (comentado abajo)
+# Configuración de base de datos con variables de entorno
+DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DB_ENGINE == 'django.db.backends.mysql':
+    # Configuración para PRODUCCIÓN con MySQL
+    DATABASES = {
+        'default': {
+            'ENGINE': DB_ENGINE,
+            'NAME': config('DB_NAME', default='tienda_inmobiliaria_prod'),
+            'USER': config('DB_USER', default='tienda_user'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                'sql_mode': 'traditional',
+            },
+            'CONN_MAX_AGE': 600,  # Reutilizar conexiones
+        }
     }
-}
-
-# Configuración para PRODUCCIÓN con MySQL
-# Descomenta y configura estas líneas cuando estés listo para producción:
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tienda_inmobiliaria_prod',
-        'USER': 'tu_usuario_mysql',
-        'PASSWORD': 'tu_contraseña_segura',
-        'HOST': 'localhost',  # o la IP de tu servidor
-        'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'sql_mode': 'traditional',
-        },
-        'CONN_MAX_AGE': 600,  # Reutilizar conexiones
+else:
+    # Configuración para DESARROLLO con SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
-"""
 
 
 # Validación de contraseñas
@@ -168,10 +171,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'xmiguelastorgax@gmail.com'  # ← Cambia por tu email de Gmail
-EMAIL_HOST_PASSWORD = 'gsam eenf yjvg bzeu'  # ← Cambia por la contraseña de aplicación de Gmail
-DEFAULT_FROM_EMAIL = 'Tienda Inmobiliaria <xmiguelastorgax@gmail.com>'  # ← Cambia por tu email
-ADMIN_EMAIL = 'xmiguelastorgax@gmail.com'  # ← Email del administrador para notificaciones
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='xmiguelastorgax@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='gsam eenf yjvg bzeu')
+DEFAULT_FROM_EMAIL = f'Tienda Inmobiliaria <{EMAIL_HOST_USER}>'
+ADMIN_EMAIL = EMAIL_HOST_USER
 
 # Configuración para recuperación de contraseña
 PASSWORD_RESET_CODE_LENGTH = 6  # Longitud del código de recuperación

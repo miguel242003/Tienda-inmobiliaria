@@ -3,25 +3,1095 @@
 
 {% block title %}{{ titulo_pagina }} - Dashboard{% endblock %}
 
+{% block extra_css %}
+{{ block.super }}
+<style>
+    /* Ocultar navegación y footer en esta vista */
+    .responsive-nav {
+        display: none !important;
+    }
+    
+    #main-footer {
+        display: none !important;
+    }
+    
+    /* Ajustar el main para ocupar toda la pantalla */
+    main {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        padding-bottom: 50px;
+    }
+
+    /* Header mejorado */
+    .edit-header {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .edit-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: headerShine 15s linear infinite;
+    }
+
+    @keyframes headerShine {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .edit-header .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Secciones del formulario */
+    .form-section {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .form-section:hover {
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        transform: translateY(-3px);
+    }
+
+    .section-title {
+        color: #1e40af;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #3b82f6;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title i {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Campos del formulario mejorados */
+    .form-control, .form-select {
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    /* Estilos para las amenidades */
+    .amenidad-checkbox {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border: 2px solid transparent;
+        border-radius: 15px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .amenidad-checkbox:hover {
+        background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+        border-color: #3b82f6;
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .amenidad-checkbox .form-check-input {
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+        margin: 0;
+        flex-shrink: 0;
+    }
+
+    .amenidad-checkbox .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    .amenidad-checkbox:has(.form-check-input:checked) {
+        background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+        border-color: #3b82f6;
+    }
+
+    .amenidad-checkbox:has(.form-check-input:checked) .form-check-label {
+        color: #1e40af;
+        font-weight: 700;
+    }
+
+    .amenidad-checkbox .form-check-label {
+        cursor: pointer;
+        margin: 0;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+    }
+
+    .amenidad-checkbox .form-check-label i {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: #3b82f6;
+        flex-shrink: 0;
+    }
+
+    /* Estilos para el área de upload */
+    .upload-area {
+        border: 3px dashed #3b82f6;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-area::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.15), transparent);
+        transform: rotate(45deg);
+        transition: all 0.6s ease;
+    }
+
+    .upload-area:hover::before {
+        top: 100%;
+        left: 100%;
+    }
+
+    .upload-area:hover {
+        border-color: #2563eb;
+        background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #3b82f6 100%);
+        transform: scale(1.02);
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+    }
+
+    .upload-area.dragover {
+        border-color: #10b981;
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        transform: scale(1.05);
+        box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+    }
+
+    .upload-content {
+        pointer-events: none;
+        position: relative;
+        z-index: 1;
+    }
+
+    .upload-content button {
+        pointer-events: all;
+    }
+
+    .upload-content i {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    /* Estilos para el preview de fotos adicionales */
+    .foto-preview-item {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: white;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .foto-preview-item:hover {
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        transform: translateY(-5px) rotate(2deg);
+    }
+
+    .foto-preview-item img {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+    }
+
+    .foto-preview-info {
+        padding: 10px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        text-align: center;
+    }
+
+    .foto-preview-info small {
+        font-size: 0.8rem;
+        line-height: 1.3;
+        color: #495057;
+        font-weight: 600;
+    }
+
+    .foto-preview-remove {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
+    }
+
+    .foto-preview-remove:hover {
+        background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+        transform: scale(1.2) rotate(90deg);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.6);
+    }
+
+    /* Preview de imágenes principal y secundaria */
+    .image-preview-container {
+        border: 3px dashed #e0e0e0;
+        border-radius: 15px;
+        padding: 15px;
+        background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+        transition: all 0.3s ease;
+    }
+
+    .image-preview-container:hover {
+        border-color: #3b82f6;
+        background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+    }
+
+    .image-preview-container img {
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+
+    .image-preview-container img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    /* Botones mejorados */
+    .btn {
+        border-radius: 12px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-warning:hover {
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(245, 158, 11, 0.6);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #545b62 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.5);
+    }
+
+    .btn-outline-dark {
+        border: 2px solid #333;
+        color: #333;
+        background: white;
+    }
+
+    .btn-outline-dark:hover {
+        background: #333;
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .btn-dark {
+        background: linear-gradient(135deg, #343a40 0%, #23272b 100%);
+        box-shadow: 0 4px 15px rgba(52, 58, 64, 0.4);
+    }
+
+    .btn-dark:hover {
+        background: linear-gradient(135deg, #23272b 0%, #1d2124 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(52, 58, 64, 0.5);
+    }
+
+    /* Alert mejorado */
+    .alert-info {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border: none;
+        border-left: 5px solid #17a2b8;
+        border-radius: 12px;
+        padding: 15px 20px;
+        box-shadow: 0 3px 10px rgba(23, 162, 184, 0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-section {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+        }
+
+        .upload-area {
+            padding: 25px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Animación de entrada */
+    .form-section {
+        animation: slideInUp 0.5s ease-out;
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Input groups mejorados */
+    .input-group-text {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border: none;
+        border-radius: 10px 0 0 10px;
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Estilos para las cards de upload de imágenes */
+    .image-upload-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .image-upload-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        transform: translateY(-3px);
+    }
+
+    .image-upload-header {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 10px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        color: #1e40af;
+    }
+
+    .image-upload-body {
+        padding: 10px 0;
+    }
+
+    .image-status-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .no-image-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        color: #94a3b8;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: 10px;
+    }
+
+    /* Gallery Grid */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+    }
+
+    .gallery-item {
+        transition: all 0.3s ease;
+    }
+
+    .gallery-image {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .video-container {
+        position: relative;
+        height: 140px;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px 10px 0 0;
+        overflow: hidden;
+    }
+
+    .video-container video {
+        max-width: 100%;
+        max-height: 140px;
+    }
+
+    /* Upload Section */
+    .upload-section {
+        margin-top: 20px;
+    }
+
+    .upload-section-header {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 12px 12px 0 0;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: -3px;
+    }
+
+    /* Info Box */
+    .info-box {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 5px solid #f59e0b;
+        border-radius: 12px;
+        margin-top: 20px;
+        box-shadow: 0 3px 10px rgba(245, 158, 11, 0.2);
+    }
+
+    .info-box-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        border-radius: 12px;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+    }
+
+    .info-box-content {
+        flex: 1;
+        color: #78350f;
+    }
+
+    .info-box-content ul {
+        padding-left: 20px;
+    }
+
+    .info-box-content li {
+        margin-bottom: 5px;
+        line-height: 1.6;
+    }
+
+    /* ============================================
+       RESPONSIVE DESIGN - MEDIA QUERIES
+       ============================================ */
+
+    /* Tablets y pantallas medianas (768px - 1024px) */
+    @media (max-width: 1024px) {
+        /* Reducir padding del main */
+        main {
+            padding-bottom: 30px;
+        }
+
+        /* Header */
+        .edit-header h1 {
+            font-size: 2rem !important;
+        }
+
+        .edit-header .lead {
+            font-size: 1rem !important;
+        }
+
+        /* Secciones del formulario */
+        .form-section {
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+        }
+
+        .section-title i {
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+        }
+
+        /* Botones */
+        .btn-lg {
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+
+        /* Gallery grid para tablets */
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+    }
+
+    /* Móviles grandes y tablets pequeñas (481px - 768px) */
+    @media (max-width: 768px) {
+        /* Main background */
+        main {
+            padding-bottom: 20px;
+        }
+
+        /* Header responsive */
+        .edit-header {
+            border-radius: 0 0 20px 20px;
+            padding: 30px 0 !important;
+        }
+
+        .edit-header h1 {
+            font-size: 1.5rem !important;
+            margin-bottom: 10px !important;
+        }
+
+        .edit-header .lead {
+            font-size: 0.9rem !important;
+        }
+
+        /* Botones del header apilados */
+        .edit-header .text-end {
+            text-align: center !important;
+            margin-top: 15px;
+        }
+
+        .edit-header .btn {
+            display: block;
+            width: 100%;
+            margin: 0 0 10px 0 !important;
+        }
+
+        /* Secciones del formulario */
+        .form-section {
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            padding-bottom: 12px;
+        }
+
+        .section-title i {
+            width: 30px;
+            height: 30px;
+            font-size: 0.9rem;
+        }
+
+        /* Campos del formulario */
+        .form-control, .form-select {
+            font-size: 16px; /* Evita zoom en iOS */
+            padding: 12px;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+        }
+
+        /* Input groups */
+        .input-group-text {
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        /* Image upload cards */
+        .image-upload-card {
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .image-upload-header {
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            flex-wrap: wrap;
+        }
+
+        .image-upload-header .badge {
+            margin-left: auto;
+        }
+
+        /* Preview containers */
+        .image-preview-container {
+            padding: 12px;
+        }
+
+        .image-preview-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .image-status-badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+        }
+
+        .no-image-placeholder {
+            padding: 30px 15px;
+        }
+
+        .no-image-placeholder i {
+            font-size: 2rem;
+        }
+
+        /* Gallery grid móvil */
+        .gallery-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .gallery-image {
+            height: 120px;
+        }
+
+        .video-container {
+            height: 120px;
+        }
+
+        /* Upload area */
+        .upload-area {
+            padding: 25px 15px;
+            border-width: 2px;
+        }
+
+        .upload-area i {
+            font-size: 2.5rem !important;
+        }
+
+        .upload-area h5 {
+            font-size: 1.1rem;
+        }
+
+        .upload-area p {
+            font-size: 0.9rem;
+        }
+
+        .upload-area .btn {
+            font-size: 0.9rem;
+            padding: 10px 20px;
+        }
+
+        .upload-section-header {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+
+        /* Amenidades */
+        .amenidad-checkbox {
+            padding: 10px 12px;
+            gap: 10px;
+        }
+
+        .amenidad-checkbox .form-check-input {
+            width: 20px;
+            height: 20px;
+        }
+
+        .amenidad-checkbox .form-check-label {
+            font-size: 0.85rem;
+            gap: 8px;
+        }
+
+        .amenidad-checkbox .form-check-label i {
+            width: 20px;
+            height: 20px;
+            font-size: 1rem;
+        }
+
+        /* Info box */
+        .info-box {
+            flex-direction: column;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        .info-box-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+
+        .info-box-content {
+            font-size: 0.9rem;
+        }
+
+        .info-box-content ul {
+            padding-left: 15px;
+        }
+
+        .info-box-content li {
+            font-size: 0.85rem;
+        }
+
+        /* Botones de acción */
+        .form-section .d-flex {
+            flex-direction: column;
+            gap: 10px !important;
+        }
+
+        .form-section .btn {
+            width: 100%;
+            padding: 12px;
+        }
+
+        /* Fotos preview */
+        .foto-preview-item {
+            border-radius: 10px;
+        }
+
+        .foto-preview-remove {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+
+        .foto-preview-info {
+            padding: 8px;
+        }
+
+        .foto-preview-info small {
+            font-size: 0.7rem;
+        }
+
+        /* Alert info */
+        .alert-info {
+            font-size: 0.85rem;
+            padding: 12px 15px;
+        }
+
+        /* Container padding */
+        .container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        /* Row spacing */
+        .row.g-4 {
+            --bs-gutter-x: 1rem;
+            --bs-gutter-y: 1rem;
+        }
+    }
+
+    /* Móviles pequeños (hasta 480px) */
+    @media (max-width: 480px) {
+        /* Header más compacto */
+        .edit-header {
+            padding: 20px 0 !important;
+        }
+
+        .edit-header h1 {
+            font-size: 1.3rem !important;
+        }
+
+        .edit-header .lead {
+            font-size: 0.8rem !important;
+            line-height: 1.4;
+        }
+
+        .edit-header i {
+            font-size: 1rem;
+        }
+
+        /* Secciones más compactas */
+        .form-section {
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+        }
+
+        /* Campos de formulario */
+        .form-control, .form-select {
+            font-size: 16px;
+            padding: 10px;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        /* Botones más táctiles */
+        .btn {
+            min-height: 44px; /* Tamaño mínimo recomendado para táctil */
+            font-size: 0.9rem;
+        }
+
+        .btn-lg {
+            min-height: 50px;
+            font-size: 1rem;
+        }
+
+        /* Gallery en una sola columna */
+        .gallery-grid {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        /* Upload area muy compacto */
+        .upload-area {
+            padding: 20px 10px;
+        }
+
+        .upload-area i {
+            font-size: 2rem !important;
+            margin-bottom: 10px !important;
+        }
+
+        .upload-area h5 {
+            font-size: 1rem;
+        }
+
+        .upload-area p {
+            font-size: 0.8rem;
+        }
+
+        .upload-area small {
+            font-size: 0.75rem;
+        }
+
+        /* Amenidades más compactas */
+        .amenidad-checkbox {
+            padding: 8px 10px;
+        }
+
+        .amenidad-checkbox .form-check-label {
+            font-size: 0.8rem;
+        }
+
+        /* Info box más pequeño */
+        .info-box {
+            padding: 12px;
+        }
+
+        .info-box-icon {
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+        }
+
+        .info-box-content {
+            font-size: 0.8rem;
+        }
+
+        .info-box-content strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Image upload cards en una columna */
+        .image-upload-card {
+            margin-bottom: 12px;
+        }
+
+        /* Badges más pequeños */
+        .badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+        }
+
+        /* Reducir separadores */
+        hr {
+            margin: 20px 0;
+        }
+    }
+
+    /* Landscape móviles */
+    @media (max-height: 500px) and (orientation: landscape) {
+        .form-section {
+            padding: 15px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-area {
+            padding: 15px;
+        }
+
+        .upload-area i {
+            font-size: 1.5rem !important;
+        }
+    }
+
+    /* Asegurar que las imágenes no se desborden */
+    @media (max-width: 768px) {
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Evitar scroll horizontal */
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Tablas responsivas si las hay */
+        table {
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+
+    /* Alto contraste para accesibilidad en móviles */
+    @media (max-width: 768px) and (prefers-contrast: high) {
+        .form-control:focus,
+        .form-select:focus {
+            border-width: 3px;
+        }
+
+        .btn {
+            border-width: 2px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Header -->
-<section class="bg-warning text-dark py-4">
+<section class="edit-header text-white py-5">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <h1 class="fw-bold mb-0">
-                    <i class="fas fa-edit me-2"></i>{{ titulo_pagina }}
+                <h1 class="fw-bold mb-2" style="font-size: 2.5rem;">
+                    <i class="fas fa-edit me-3"></i>{{ titulo_pagina }}
                 </h1>
-                <p class="lead mb-0">Modifica los datos de la propiedad</p>
+                <p class="lead mb-0" style="font-size: 1.2rem;">
+                    <i class="fas fa-pencil-alt me-2"></i>Modifica los datos de la propiedad: <strong>{{ propiedad.titulo }}</strong>
+                </p>
             </div>
-            <div class="col-lg-4 text-end">
-                <a href="{% url 'login:gestionar_propiedades' %}" class="btn btn-outline-dark me-2">
-                    <i class="fas fa-arrow-left"></i> Volver a Gestionar
-                </a>
-                <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-dark">
-                    <i class="fas fa-eye"></i> Ver Propiedad
-                </a>
-            </div>
+             <div class="col-lg-4 text-end">
+                 <a href="{% url 'login:dashboard' %}" class="btn btn-outline-dark me-2">
+                     <i class="fas fa-arrow-left me-2"></i>Volver
+                 </a>
+                 <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-dark">
+                     <i class="fas fa-eye me-2"></i>Ver Propiedad
+                 </a>
+             </div>
         </div>
     </div>
 </section>
@@ -30,74 +1100,32 @@
 <section class="py-5">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!-- Property Info Card -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">
-                            <i class="fas fa-info-circle text-info me-2"></i>
-                            Información de la Propiedad
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Título:</strong> {{ propiedad.titulo }}</p>
-                                <p><strong>Tipo:</strong> {{ propiedad.get_tipo_display }}</p>
-                                <p><strong>Estado:</strong> 
-                                    {% if propiedad.estado == 'disponible' %}
-                                        <span class="badge bg-success">{{ propiedad.get_estado_display }}</span>
-                                    {% elif propiedad.estado == 'vendida' %}
-                                        <span class="badge bg-danger">{{ propiedad.get_estado_display }}</span>
-                                    {% else %}
-                                        <span class="badge bg-warning">{{ propiedad.get_estado_display }}</span>
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Precio:</strong> {{ propiedad.get_precio_formateado }}</p>
-                                <p><strong>Ubicación:</strong> {{ propiedad.ubicacion }}</p>
-                                <p><strong>Fecha de creación:</strong> {{ propiedad.fecha_creacion|date:"d/m/Y H:i" }}</p>
-                            </div>
-                        </div>
-                        
-                        {% if propiedad.imagen_principal %}
-                        <div class="text-center mt-3">
-                            <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.titulo }}" 
-                                 class="img-thumbnail" style="max-width: 200px;">
-                            <p class="text-muted small mt-2">Imagen actual</p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Edit Form -->
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">
-                            <i class="fas fa-edit text-warning me-2"></i>
-                            Formulario de Edición
-                        </h5>
-                    </div>
-                    <div class="card-body">
+            <div class="col-lg-10">
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             
                             <!-- Messages -->
                             {% if messages %}
+                        <div class="form-section">
                                 {% for message in messages %}
                                     <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                                         {{ message }}
                                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                     </div>
                                 {% endfor %}
+                        </div>
                             {% endif %}
 
-                            <!-- Form Fields -->
+                    <!-- Sección 1: Información Básica -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Información Básica
+                        </div>
                             <div class="row">
-                                <div class="col-md-4 mb-3">
+                            <div class="col-md-6 mb-3">
                                     <label for="{{ form.titulo.id_for_label }}" class="form-label">
-                                        <strong>{{ form.titulo.label }}</strong>
+                                    {{ form.titulo.label }}
                                     </label>
                                     {{ form.titulo }}
                                     {% if form.titulo.errors %}
@@ -105,9 +1133,9 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                     <label for="{{ form.tipo.id_for_label }}" class="form-label">
-                                        <strong>{{ form.tipo.label }}</strong>
+                                    {{ form.tipo.label }}
                                     </label>
                                     {{ form.tipo }}
                                     {% if form.tipo.errors %}
@@ -115,9 +1143,9 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
                                     <label for="{{ form.operacion.id_for_label }}" class="form-label">
-                                        <strong>{{ form.operacion.label }}</strong>
+                                    {{ form.operacion.label }}
                                     </label>
                                     {{ form.operacion }}
                                     {% if form.operacion.errors %}
@@ -129,9 +1157,12 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="{{ form.precio.id_for_label }}" class="form-label">
-                                        <strong>{{ form.precio.label }}</strong>
+                                    {{ form.precio.label }}
                                     </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
                                     {{ form.precio }}
+                                </div>
                                     {% if form.precio.errors %}
                                         <div class="text-danger small">{{ form.precio.errors.0 }}</div>
                                     {% endif %}
@@ -139,7 +1170,7 @@
                                 
                                 <div class="col-md-6 mb-3">
                                     <label for="{{ form.estado.id_for_label }}" class="form-label">
-                                        <strong>{{ form.estado.label }}</strong>
+                                    {{ form.estado.label }}
                                     </label>
                                     {{ form.estado }}
                                     {% if form.estado.errors %}
@@ -148,83 +1179,363 @@
                                 </div>
                             </div>
 
+                        <div class="mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                                {{ form.descripcion.label }}
+                            </label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                                <div class="text-danger small">{{ form.descripcion.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Sección 2: Características -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-ruler-combined"></i>
+                            Características de la Propiedad
+                        </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                     <label for="{{ form.metros_cuadrados.id_for_label }}" class="form-label">
-                                        <strong>{{ form.metros_cuadrados.label }}</strong>
+                                    {{ form.metros_cuadrados.label }}
                                     </label>
+                                <div class="input-group">
                                     {{ form.metros_cuadrados }}
+                                    <span class="input-group-text">m²</span>
+                                </div>
                                     {% if form.metros_cuadrados.errors %}
                                         <div class="text-danger small">{{ form.metros_cuadrados.errors.0 }}</div>
                                     {% endif %}
                                 </div>
                                 
-                                <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                     <label for="{{ form.habitaciones.id_for_label }}" class="form-label">
-                                        <strong>{{ form.habitaciones.label }}</strong>
+                                    <i class="fas fa-bed me-2"></i>{{ form.habitaciones.label }}
                                     </label>
                                     {{ form.habitaciones }}
                                     {% if form.habitaciones.errors %}
                                         <div class="text-danger small">{{ form.habitaciones.errors.0 }}</div>
                                     {% endif %}
-                                </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                     <label for="{{ form.banos.id_for_label }}" class="form-label">
-                                        <strong>{{ form.banos.label }}</strong>
+                                    <i class="fas fa-bath me-2"></i>{{ form.banos.label }}
                                     </label>
                                     {{ form.banos }}
                                     {% if form.banos.errors %}
                                         <div class="text-danger small">{{ form.banos.errors.0 }}</div>
                                     {% endif %}
+                            </div>
+                        </div>
                                 </div>
                                 
-                                <div class="col-md-6 mb-3">
+                    <!-- Sección 3: Ubicación -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Ubicación y Entorno
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
                                     <label for="{{ form.ubicacion.id_for_label }}" class="form-label">
-                                        <strong>{{ form.ubicacion.label }}</strong>
+                                    {{ form.ubicacion.label }}
                                     </label>
                                     {{ form.ubicacion }}
                                     {% if form.ubicacion.errors %}
                                         <div class="text-danger small">{{ form.ubicacion.errors.0 }}</div>
                                     {% endif %}
                                 </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.ciudad.id_for_label }}" class="form-label">
+                                    {{ form.ciudad.label }}
+                                </label>
+                                {{ form.ciudad }}
+                                {% if form.ciudad.errors %}
+                                    <div class="text-danger small">{{ form.ciudad.errors.0 }}</div>
+                                {% endif %}
+                            </div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="{{ form.descripcion.id_for_label }}" class="form-label">
-                                    <strong>{{ form.descripcion.label }}</strong>
+                            <label for="{{ form.lugares_cercanos.id_for_label }}" class="form-label">
+                                {{ form.lugares_cercanos.label }}
+                            </label>
+                            {{ form.lugares_cercanos }}
+                            {% if form.lugares_cercanos.errors %}
+                                <div class="text-danger small">{{ form.lugares_cercanos.errors.0 }}</div>
+                            {% endif %}
+                            {% if form.lugares_cercanos.help_text %}
+                                <div class="form-text">{{ form.lugares_cercanos.help_text }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.latitud.id_for_label }}" class="form-label">
+                                    <i class="fas fa-globe me-2"></i>{{ form.latitud.label }}
                                 </label>
-                                {{ form.descripcion }}
-                                {% if form.descripcion.errors %}
-                                    <div class="text-danger small">{{ form.descripcion.errors.0 }}</div>
+                                {{ form.latitud }}
+                                {% if form.latitud.errors %}
+                                    <div class="text-danger small">{{ form.latitud.errors.0 }}</div>
+                                {% endif %}
+                                {% if form.latitud.help_text %}
+                                    <div class="form-text">{{ form.latitud.help_text }}</div>
                                 {% endif %}
                             </div>
 
-                            <div class="mb-3">
-                                <label for="{{ form.imagen_principal.id_for_label }}" class="form-label">
-                                    <strong>{{ form.imagen_principal.label }}</strong>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.longitud.id_for_label }}" class="form-label">
+                                    <i class="fas fa-globe me-2"></i>{{ form.longitud.label }}
                                 </label>
+                                {{ form.longitud }}
+                                {% if form.longitud.errors %}
+                                    <div class="text-danger small">{{ form.longitud.errors.0 }}</div>
+                                {% endif %}
+                                {% if form.longitud.help_text %}
+                                    <div class="form-text">{{ form.longitud.help_text }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección 4: Imágenes -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-images"></i>
+                            Imágenes de la Propiedad
+                        </div>
+
+                        <!-- Subsección: Imágenes Principales -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-star me-2"></i>Imágenes Principales
+                            </h6>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="image-upload-card">
+                                        <div class="image-upload-header">
+                                            <i class="fas fa-home me-2"></i>
+                                            <span>{{ form.imagen_principal.label }}</span>
+                                            <span class="badge bg-danger ms-2">Requerida</span>
+                                        </div>
+                                        <div class="image-upload-body">
                                 {{ form.imagen_principal }}
                                 {% if form.imagen_principal.errors %}
-                                    <div class="text-danger small">{{ form.imagen_principal.errors.0 }}</div>
-                                {% endif %}
-                                <div class="form-text">Deja vacío para mantener la imagen actual</div>
-                            </div>
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.imagen_principal.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                            <div class="form-text mt-2">
+                                                <i class="fas fa-lightbulb me-1"></i>Se mostrará en la página principal
+                                            </div>
+                                        </div>
+                                        <div class="image-preview-container mt-3" id="preview-imagen-principal">
+                                            {% if propiedad.imagen_principal %}
+                                                <img src="{{ propiedad.imagen_principal.url }}" alt="Imagen principal actual" style="max-width: 100%; height: auto;" id="img-principal-actual">
+                                                <div class="image-status-badge">
+                                                    <i class="fas fa-check-circle me-1"></i>Actual
+                                                </div>
+                                            {% else %}
+                                                <div class="no-image-placeholder">
+                                                    <i class="fas fa-image-slash fa-3x mb-2"></i>
+                                                    <p class="mb-0">Sin imagen</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <!-- Form Actions -->
-                            <div class="d-flex justify-content-between">
-                                <a href="{% url 'login:gestionar_propiedades' %}" class="btn btn-secondary">
-                                    <i class="fas fa-times"></i> Cancelar
-                                </a>
-                                <button type="submit" class="btn btn-warning">
-                                    <i class="fas fa-save"></i> Guardar Cambios
-                                </button>
+                                <div class="col-md-6">
+                                    <div class="image-upload-card">
+                                        <div class="image-upload-header">
+                                            <i class="fas fa-images me-2"></i>
+                                            <span>{{ form.imagen_secundaria.label }}</span>
+                                            <span class="badge bg-secondary ms-2">Opcional</span>
+                                        </div>
+                                        <div class="image-upload-body">
+                                            {{ form.imagen_secundaria }}
+                                            {% if form.imagen_secundaria.errors %}
+                                                <div class="text-danger small mt-2">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ form.imagen_secundaria.errors.0 }}
+                                                </div>
+                                            {% endif %}
+                                            <div class="form-text mt-2">
+                                                <i class="fas fa-lightbulb me-1"></i>Se mostrará en la vista de detalle
+                                            </div>
+                                        </div>
+                                        <div class="image-preview-container mt-3" id="preview-imagen-secundaria">
+                                            {% if propiedad.imagen_secundaria %}
+                                                <img src="{{ propiedad.imagen_secundaria.url }}" alt="Imagen secundaria actual" style="max-width: 100%; height: auto;" id="img-secundaria-actual">
+                                                <div class="image-status-badge">
+                                                    <i class="fas fa-check-circle me-1"></i>Actual
+                                                </div>
+                                            {% else %}
+                                                <div class="no-image-placeholder">
+                                                    <i class="fas fa-image-slash fa-3x mb-2"></i>
+                                                    <p class="mb-0">Sin imagen</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </form>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Subsección: Galería Adicional -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-photo-video me-2"></i>Galería de Fotos y Videos
+                            </h6>
+
+                            <!-- Fotos y Videos Existentes -->
+                            {% if propiedad.fotos.exists %}
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <span class="text-muted">
+                                        <i class="fas fa-folder-open me-2"></i>Archivos actuales ({{ propiedad.fotos.count }})
+                                    </span>
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-photo-video me-1"></i>{{ propiedad.fotos.count }} archivo{% if propiedad.fotos.count > 1 %}s{% endif %}
+                                    </span>
+                                </div>
+                                <div class="gallery-grid" id="fotos-actuales-grid">
+                                    {% for foto in propiedad.fotos.all %}
+                                    <div class="gallery-item" id="foto-actual-{{ foto.id }}">
+                                        <div class="foto-preview-item">
+                                            <button type="button" class="foto-preview-remove" onclick="eliminarFotoActual({{ foto.id }})" title="Eliminar archivo">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            {% if foto.tipo_medio == 'imagen' %}
+                                                <img src="{{ foto.imagen.url }}" alt="Foto {{ forloop.counter }}" class="gallery-image">
+                                                <div class="foto-preview-info">
+                                                    <small><i class="fas fa-image me-1"></i>Imagen {{ forloop.counter }}</small>
+                                                </div>
+                                            {% elif foto.tipo_medio == 'video' %}
+                                                <div class="video-container">
+                                                    <video src="{{ foto.video.url }}" controls></video>
+                                                </div>
+                                                <div class="foto-preview-info">
+                                                    <small><i class="fas fa-video me-1"></i>Video {{ forloop.counter }}</small>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Agregar Nuevos Archivos -->
+                            <div class="upload-section">
+                                <div class="upload-section-header">
+                                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                                    <span>Agregar Archivos Nuevos</span>
+                                </div>
+                                <div class="upload-area" id="uploadArea">
+                                    <div class="upload-content">
+                                        <i class="fas fa-cloud-upload-alt fa-4x mb-3"></i>
+                                        <h5 class="text-dark fw-bold mb-2">Arrastra archivos aquí</h5>
+                                        <p class="text-muted mb-3">o haz clic en el botón para seleccionar</p>
+                                        <input type="file" id="fotosInput" multiple accept="image/*,video/*" class="d-none">
+                                        <button type="button" class="btn btn-primary btn-lg" onclick="document.getElementById('fotosInput').click()">
+                                            <i class="fas fa-folder-open me-2"></i>Seleccionar Archivos
+                                        </button>
+                                        <div class="mt-3">
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-info-circle me-1"></i>Máximo 10 archivos
+                                            </small>
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-image me-1"></i>Imágenes: JPG, PNG, GIF, WebP (máx. 5MB)
+                                            </small>
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-video me-1"></i>Videos: MP4, AVI, MOV (máx. 50MB)
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Preview de archivos nuevos -->
+                                <div id="fotos-preview" class="mt-4" style="display: none;">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fas fa-sparkles me-2 text-warning"></i>
+                                        <h6 class="mb-0 text-primary">Archivos seleccionados (listos para subir)</h6>
+                                    </div>
+                                    <div id="fotos-grid" class="gallery-grid"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="info-box">
+                            <div class="info-box-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="info-box-content">
+                                <strong>Tips para mejores resultados:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>La <strong>imagen principal</strong> se mostrará en las tarjetas de la página principal</li>
+                                    <li>La <strong>imagen secundaria</strong> aparecerá en la vista de detalle</li>
+                                    <li>Las <strong>fotos adicionales</strong> estarán disponibles en la galería completa</li>
+                                    <li>Usa imágenes de alta calidad para mejor presentación</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <!-- Sección 5: Amenidades -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <i class="fas fa-check-circle"></i>
+                            Amenidades Incluidas
+                        </div>
+                        <p class="text-muted mb-4">
+                            <i class="fas fa-star me-2"></i>Selecciona las amenidades que incluye esta propiedad:
+                        </p>
+                        
+                        <div class="row">
+                            {% for amenidad in amenidades %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <label class="amenidad-checkbox" for="id_amenidades_{{ forloop.counter0 }}">
+                                    <input type="checkbox" name="amenidades" value="{{ amenidad.id }}" 
+                                           id="id_amenidades_{{ forloop.counter0 }}" 
+                                           class="form-check-input"
+                                           {% if amenidad in propiedad.amenidades.all %}checked{% endif %}>
+                                    <span class="form-check-label">
+                                        <i class="fas {{ amenidad.icono }}"></i>
+                                        <span>{{ amenidad.nombre }}</span>
+                                    </span>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if form.amenidades.errors %}
+                            <div class="text-danger mt-3">
+                                {% for error in form.amenidades.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="form-section">
+                        <div class="d-flex justify-content-between gap-3">
+                            <a href="{% url 'login:dashboard' %}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="fas fa-save me-2"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -233,6 +1544,24 @@
 
 {% block extra_js %}
 <script>
+// Fotos a eliminar
+let fotosAEliminar = [];
+let fotosNuevasSeleccionadas = [];
+
+// Función para eliminar foto actual
+function eliminarFotoActual(fotoId) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta foto/video?')) {
+        // Agregar a la lista de fotos a eliminar
+        fotosAEliminar.push(fotoId);
+        
+        // Ocultar visualmente la foto
+        const fotoElement = document.getElementById('foto-actual-' + fotoId);
+        if (fotoElement) {
+            fotoElement.style.display = 'none';
+        }
+    }
+}
+
 // Add Bootstrap classes to form fields
 document.addEventListener('DOMContentLoaded', function() {
     const formFields = document.querySelectorAll('input, select, textarea');
@@ -254,6 +1583,227 @@ document.addEventListener('DOMContentLoaded', function() {
         textarea.classList.add('form-control');
         textarea.style.minHeight = '100px';
     });
+
+    // Preview de imagen principal
+    const imagenPrincipalInput = document.getElementById('{{ form.imagen_principal.id_for_label }}');
+    if (imagenPrincipalInput) {
+        imagenPrincipalInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const previewDiv = document.getElementById('preview-imagen-principal');
+                    previewDiv.innerHTML = `
+                        <img src="${event.target.result}" alt="Nueva imagen principal" class="img-thumbnail" style="max-width: 150px;">
+                        <p class="text-muted small">Nueva imagen seleccionada</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Preview de imagen secundaria
+    const imagenSecundariaInput = document.getElementById('{{ form.imagen_secundaria.id_for_label }}');
+    if (imagenSecundariaInput) {
+        imagenSecundariaInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const previewDiv = document.getElementById('preview-imagen-secundaria');
+                    previewDiv.innerHTML = `
+                        <img src="${event.target.result}" alt="Nueva imagen secundaria" class="img-thumbnail" style="max-width: 150px;">
+                        <p class="text-muted small">Nueva imagen seleccionada</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Sistema de múltiples fotos adicionales
+    const fotosInput = document.getElementById('fotosInput');
+    const uploadArea = document.getElementById('uploadArea');
+    
+    if (fotosInput && uploadArea) {
+        // Evento para seleccionar archivos
+        fotosInput.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+        
+        // Drag and Drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+    }
+    
+    // Función para manejar archivos seleccionados (fotos y videos)
+    function handleFiles(files) {
+        const validFiles = Array.from(files).filter(file => {
+            // Validar tipo de archivo (imagen o video)
+            const isImage = file.type.startsWith('image/');
+            const isVideo = file.type.startsWith('video/');
+            const validVideoTypes = ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-msvideo'];
+            
+            if (!isImage && !isVideo) {
+                alert(`El archivo ${file.name} no es una imagen o video válido.`);
+                return false;
+            }
+            
+            if (isVideo && !validVideoTypes.includes(file.type)) {
+                alert(`El formato de video ${file.name} no es compatible. Use MP4, AVI o MOV.`);
+                return false;
+            }
+            
+            // Validar tamaño (50MB para videos, 5MB para imágenes)
+            const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                const maxSizeMB = isVideo ? 50 : 5;
+                alert(`El archivo ${file.name} excede el tamaño máximo de ${maxSizeMB}MB.`);
+                return false;
+            }
+            
+            // Validar cantidad máxima
+            if (fotosNuevasSeleccionadas.length >= 10) {
+                alert('Puedes seleccionar máximo 10 archivos adicionales.');
+                return false;
+            }
+            
+            return true;
+        });
+        
+        // Agregar archivos válidos
+        fotosNuevasSeleccionadas = fotosNuevasSeleccionadas.concat(validFiles);
+        showFotosPreview();
+    }
+    
+    // Función para mostrar preview de archivos (fotos y videos)
+    function showFotosPreview() {
+        const previewDiv = document.getElementById('fotos-preview');
+        const gridDiv = document.getElementById('fotos-grid');
+        
+        if (fotosNuevasSeleccionadas.length === 0) {
+            previewDiv.style.display = 'none';
+            return;
+        }
+        
+        previewDiv.style.display = 'block';
+        gridDiv.innerHTML = '';
+        
+        fotosNuevasSeleccionadas.forEach((file, index) => {
+            const isVideo = file.type.startsWith('video/');
+            const col = document.createElement('div');
+            col.className = 'col-md-3 col-sm-4 col-6';
+            
+            if (isVideo) {
+                // Preview de video
+                const videoURL = URL.createObjectURL(file);
+                col.innerHTML = `
+                    <div class="foto-preview-item">
+                        <button type="button" class="foto-preview-remove" onclick="removeFotoNuevaPreview(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div style="position: relative; height: 120px; background: #000; display: flex; align-items: center; justify-content: center; border-radius: 8px 8px 0 0;">
+                            <video src="${videoURL}" style="max-width: 100%; max-height: 120px;" controls></video>
+                        </div>
+                        <div class="foto-preview-info">
+                            <small class="text-muted"><i class="fas fa-video me-1"></i>${file.name}</small>
+                            <small class="text-muted d-block">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                        </div>
+                    </div>
+                `;
+                gridDiv.appendChild(col);
+            } else {
+                // Preview de imagen
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    col.innerHTML = `
+                        <div class="foto-preview-item">
+                            <button type="button" class="foto-preview-remove" onclick="removeFotoNuevaPreview(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <img src="${e.target.result}" alt="Preview ${index + 1}" class="img-fluid rounded">
+                            <div class="foto-preview-info">
+                                <small class="text-muted"><i class="fas fa-image me-1"></i>${file.name}</small>
+                                <small class="text-muted d-block">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                            </div>
+                        </div>
+                    `;
+                    gridDiv.appendChild(col);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Hacer la función global para que onclick pueda acceder a ella
+    window.removeFotoNuevaPreview = function(index) {
+        fotosNuevasSeleccionadas.splice(index, 1);
+        showFotosPreview();
+    };
+    
+    // Modificar el envío del formulario
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Crear un FormData con todos los datos del formulario
+            const formData = new FormData(form);
+            
+            // Agregar las fotos nuevas
+            fotosNuevasSeleccionadas.forEach((file) => {
+                formData.append('fotos_adicionales', file);
+            });
+            
+            // Agregar las fotos a eliminar
+            fotosAEliminar.forEach((fotoId) => {
+                formData.append('fotos_eliminar', fotoId);
+            });
+            
+            // Enviar el formulario
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data && data.success === false) {
+                    alert(data.message || 'Error al actualizar la propiedad.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Si hay error, enviar el formulario normalmente
+                form.submit();
+            });
+        });
+    }
 });
 </script>
 {% endblock %}
