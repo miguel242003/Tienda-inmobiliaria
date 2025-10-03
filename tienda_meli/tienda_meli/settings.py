@@ -179,11 +179,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-# 🔒 SEGURIDAD: Credenciales sin defaults (deben estar en .env)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='xmiguelastorgax@gmail.com')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='gsam eenf yjvg bzeu')
+# 🔒 SEGURIDAD: Credenciales DEBEN estar en .env (sin defaults inseguros)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = f'Tienda Inmobiliaria <{EMAIL_HOST_USER}>'
-ADMIN_EMAIL = EMAIL_HOST_USER
+# Correo que recibe las notificaciones de formularios
+ADMIN_EMAIL = config('ADMIN_EMAIL', default=EMAIL_HOST_USER)
 
 # Configuración para recuperación de contraseña
 PASSWORD_RESET_CODE_LENGTH = 6  # Longitud del código de recuperación
@@ -502,6 +503,8 @@ THUMBNAIL_SIZES = {
 
 # Template loaders para mejor rendimiento en producción
 if not DEBUG:
+    # Desactivar APP_DIRS cuando se usan loaders personalizados
+    TEMPLATES[0]['APP_DIRS'] = False
     TEMPLATES[0]['OPTIONS']['loaders'] = [
         ('django.template.loaders.cached.Loader', [
             'django.template.loaders.filesystem.Loader',

@@ -1,0 +1,57 @@
+# ============================================================================
+# ARCHIVO .env PARA PRODUCCIÓN
+# ============================================================================
+# 
+# INSTRUCCIONES:
+# 1. En el servidor, crea un archivo llamado .env en la raíz del proyecto
+# 2. Copia este contenido y completa TODOS los valores
+# 3. NUNCA subas el archivo .env a GitHub
+# 
+# ============================================================================
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CONFIGURACIÓN DE DJANGO
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# IMPORTANTE: Genera una nueva SECRET_KEY en producción
+# Genera una con: python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+SECRET_KEY=tu_secret_key_super_segura_aqui_generada
+
+# DEBUG debe ser False en producción
+DEBUG=False
+
+# ALLOWED_HOSTS: tu dominio (sin http://)
+# Separa múltiples hosts con comas
+ALLOWED_HOSTS=tudominio.com.ar,www.tudominio.com.ar
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CONFIGURACIÓN DE BASE DE DATOS MYSQL
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DB_ENGINE=django.db.backends.mysql
+DB_NAME=tienda_inmobiliaria_prod
+DB_USER=tienda_user
+DB_PASSWORD=tu_password_mysql_aqui
+DB_HOST=localhost
+DB_PORT=3306
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CONFIGURACIÓN DE REDIS
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+REDIS_URL=redis://127.0.0.1:6379/1
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CONFIGURACIÓN DE EMAIL (Gmail)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EMAIL_HOST_USER=tu_email@gmail.com
+EMAIL_HOST_PASSWORD=tu_app_password_gmail
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CONFIGURACIÓN DE CSRF (Seguridad)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Agrega tu dominio con https://
+CSRF_TRUSTED_ORIGINS=https://tudominio.com.ar,https://www.tudominio.com.ar
+
