@@ -35,8 +35,12 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # 🔒 SEGURIDAD: ALLOWED_HOSTS debe ser específico en producción
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-# Configuración para ngrok
+# Configuración de dominios confiables para CSRF
 CSRF_TRUSTED_ORIGINS = [
+    'https://gisa-nqn.com',
+    'http://gisa-nqn.com',
+    'https://www.gisa-nqn.com',
+    'http://www.gisa-nqn.com',
     'https://25f3b08614f5.ngrok-free.app',
     'https://*.ngrok-free.app',  # Para cualquier subdominio de ngrok
 ]
@@ -201,6 +205,10 @@ SESSION_COOKIE_SAMESITE = 'Lax'  # Protección contra CSRF
 SESSION_COOKIE_AGE = 3600  # 1 hora de sesión
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
+# Configurar dominio de sesión (None = usar dominio actual)
+SESSION_COOKIE_DOMAIN = config('SESSION_COOKIE_DOMAIN', default=None)
+SESSION_COOKIE_NAME = 'sessionid'
+# Nombre del cookie de sesión
 
 # Configuración de Cookies CSRF
 CSRF_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
@@ -387,9 +395,10 @@ else:
         }
     }
 
-# Configuración de sesiones con cache
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+# Configuración de sesiones - USANDO BASE DE DATOS PARA MAYOR CONFIABILIDAD
+# Cambiado de cache a DB para evitar pérdida de sesiones
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# SESSION_CACHE_ALIAS = 'default'  # No se usa con backend db
 
 # ──────────────────────────────────────────────────────────────────────────
 # 🗜️ COMPRESIÓN DE ARCHIVOS ESTÁTICOS (django-compressor)
