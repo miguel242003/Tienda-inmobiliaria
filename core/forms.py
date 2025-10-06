@@ -329,6 +329,9 @@ class ContactSubmissionForm(forms.ModelForm):
     
     def clean_email(self):
         """Validación personalizada para el email"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
         email = self.cleaned_data.get('email')
         
         if not email:
@@ -345,7 +348,24 @@ class ContactSubmissionForm(forms.ModelForm):
             raise ValidationError('El correo electrónico no puede exceder los 254 caracteres.')
         
         # Normalizar email (convertir a minúsculas)
-        return email.lower().strip()
+        email_normalizado = email.lower().strip()
+        
+        # Validar límite de tiempo entre envíos (15 minutos)
+        tiempo_limite = timezone.now() - timedelta(minutes=15)
+        ultimo_envio = ContactSubmission.objects.filter(
+            email=email_normalizado,
+            fecha_envio__gte=tiempo_limite
+        ).first()
+        
+        if ultimo_envio:
+            tiempo_transcurrido = timezone.now() - ultimo_envio.fecha_envio
+            minutos_restantes = 15 - int(tiempo_transcurrido.total_seconds() / 60)
+            raise ValidationError(
+                f'Ya has enviado un formulario recientemente. '
+                f'Por favor espera {minutos_restantes} minuto(s) antes de enviar otro.'
+            )
+        
+        return email_normalizado
     
     def clean_telefono(self):
         """Validación personalizada para el teléfono"""
