@@ -289,6 +289,8 @@ class ContactSubmissionForm(forms.ModelForm):
         }
     
     def __init__(self, *args, **kwargs):
+        # Extraer parámetro personalizado para saber si es consulta de propiedad
+        self.es_consulta_propiedad = kwargs.pop('es_consulta_propiedad', False)
         super().__init__(*args, **kwargs)
         
         # Las opciones del asunto ya incluyen la opción vacía en el modelo
@@ -351,17 +353,32 @@ class ContactSubmissionForm(forms.ModelForm):
         email_normalizado = email.lower().strip()
         
         # Validar límite de tiempo entre envíos (15 minutos)
+        # Filtrar solo por el tipo de formulario correspondiente
         tiempo_limite = timezone.now() - timedelta(minutes=15)
-        ultimo_envio = ContactSubmission.objects.filter(
-            email=email_normalizado,
-            fecha_envio__gte=tiempo_limite
-        ).first()
+        
+        if self.es_consulta_propiedad:
+            # Para consultas de propiedad, buscar solo envíos que contengan información de propiedad
+            ultimo_envio = ContactSubmission.objects.filter(
+                email=email_normalizado,
+                fecha_envio__gte=tiempo_limite,
+                mensaje__contains='--- Información de la Propiedad ---'
+            ).first()
+            tipo_formulario = 'consulta de propiedad'
+        else:
+            # Para contacto general, buscar solo envíos que NO contengan información de propiedad
+            ultimo_envio = ContactSubmission.objects.filter(
+                email=email_normalizado,
+                fecha_envio__gte=tiempo_limite
+            ).exclude(
+                mensaje__contains='--- Información de la Propiedad ---'
+            ).first()
+            tipo_formulario = 'formulario de contacto'
         
         if ultimo_envio:
             tiempo_transcurrido = timezone.now() - ultimo_envio.fecha_envio
             minutos_restantes = 15 - int(tiempo_transcurrido.total_seconds() / 60)
             raise ValidationError(
-                f'Ya has enviado un formulario recientemente. '
+                f'Ya has enviado un {tipo_formulario} recientemente. '
                 f'Por favor espera {minutos_restantes} minuto(s) antes de enviar otro.'
             )
         

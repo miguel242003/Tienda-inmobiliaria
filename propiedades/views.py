@@ -80,7 +80,7 @@ def detalle_propiedad(request, propiedad_id):
         from core.models import ContactSubmission
         from core.views import send_contact_confirmation_email, send_contact_notification_email
         
-        form = ContactSubmissionForm(request.POST)
+        form = ContactSubmissionForm(request.POST, es_consulta_propiedad=True)
         if form.is_valid():
             try:
                 # Guardar el mensaje de contacto
@@ -309,18 +309,26 @@ def crear_propiedad(request):
                     # Buscar el AdminCredentials correspondiente al usuario
                     from login.models import AdminCredentials
                     try:
-                        admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                        # Primero intentar buscar por usuario relacionado
+                        if hasattr(request.user, 'admincredentials'):
+                            admin_creds = request.user.admincredentials
+                        else:
+                            # Si no, buscar por email
+                            admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                        
                         propiedad.administrador = admin_creds
                     except AdminCredentials.DoesNotExist:
-                        # Si no existe AdminCredentials, crear uno básico
-                        admin_creds = AdminCredentials.objects.create(
-                            nombre=request.user.first_name or 'Administrador',
-                            apellido=request.user.last_name or 'del Sistema',
-                            email=request.user.email,
-                            telefono='+52-1-33-00000000',
-                            password='temp_password_123'  # Contraseña temporal
+                        # Si no existe AdminCredentials, mostrar mensaje de error
+                        messages.error(
+                            request, 
+                            'Error: No se encontró tu perfil de administrador. '
+                            'Por favor, completa tu perfil antes de crear propiedades.'
                         )
-                        propiedad.administrador = admin_creds
+                        return render(request, 'propiedades/crear_propiedad.html', {
+                            'form': form,
+                            'titulo_pagina': 'Crear Nueva Propiedad',
+                            'amenidades': Amenidad.objects.all()
+                        })
                 
                 propiedad.save()
                 

@@ -415,15 +415,27 @@
                         </div>
                         
                         <div class="agent-profile-info">
-                            <h3 class="agent-name">{{ propiedad.administrador.get_nombre_completo|default:"Agente del Sistema" }}</h3>
+                            <h3 class="agent-name">
+                                {% if propiedad.administrador %}
+                                    {{ propiedad.administrador.get_nombre_completo }}
+                                {% else %}
+                                    Agente del Sistema
+                                {% endif %}
+                            </h3>
                             <p class="agent-type">
                                 Particular con <span class="verified-badge">identidad verificada</span> <i class="fas fa-check-circle verified-icon"></i>
                             </p>
                             <div class="agent-phone">
-                                <span class="phone-number" id="phoneNumber">{{ propiedad.administrador.telefono|default:"+52-1-33-00000000"|slice:":5" }}...</span>
-                                <button class="btn btn-outline-secondary btn-sm phone-btn" onclick="togglePhoneNumber()">
-                                    <i class="fas fa-phone me-1"></i>Ver teléfono
-                                </button>
+                                {% if propiedad.administrador and propiedad.administrador.telefono and propiedad.administrador.telefono != '+52-1-33-00000000' %}
+                                    <span class="phone-number" id="phoneNumber">{{ propiedad.administrador.telefono|slice:":5" }}...</span>
+                                    <button class="btn btn-outline-secondary btn-sm phone-btn" onclick="togglePhoneNumber()">
+                                        <i class="fas fa-phone me-1"></i>Ver teléfono
+                                    </button>
+                                {% else %}
+                                    <span class="text-muted small">
+                                        <i class="fas fa-info-circle me-1"></i>Teléfono no disponible
+                                    </span>
+                                {% endif %}
                             </div>
                             
                         </div>
@@ -432,9 +444,15 @@
                 
                 <!-- WhatsApp Contact Button -->
                 <div class="whatsapp-contact-card mb-4">
-                    <button class="btn btn-success btn-lg w-100 whatsapp-btn" onclick="abrirWhatsApp()">
-                        <i class="fab fa-whatsapp me-2"></i>Consultar por WhatsApp
-                    </button>
+                    {% if propiedad.administrador and propiedad.administrador.telefono and propiedad.administrador.telefono != '+52-1-33-00000000' %}
+                        <button class="btn btn-success btn-lg w-100 whatsapp-btn" onclick="abrirWhatsApp()">
+                            <i class="fab fa-whatsapp me-2"></i>Consultar por WhatsApp
+                        </button>
+                    {% else %}
+                        <button class="btn btn-secondary btn-lg w-100 whatsapp-btn" disabled title="El teléfono del agente no está disponible">
+                            <i class="fab fa-whatsapp me-2"></i>WhatsApp no disponible
+                        </button>
+                    {% endif %}
                 </div>
                 
                 <!-- Contact Form -->
@@ -5584,9 +5602,11 @@ function togglePhoneNumber() {
     const phoneNumberSpan = document.getElementById('phoneNumber');
     const phoneBtn = document.querySelector('.phone-btn');
     
+    if (!phoneNumberSpan || !phoneBtn) return;
+    
     if (phoneNumberSpan.textContent.includes('...')) {
         // Mostrar número completo
-        const fullNumber = '{{ propiedad.administrador.telefono|default:"+52-1-33-00000000" }}';
+        const fullNumber = '{{ propiedad.administrador.telefono }}';
         phoneNumberSpan.textContent = fullNumber;
         phoneBtn.innerHTML = '<i class="fas fa-eye-slash me-1"></i>Ocultar teléfono';
         phoneBtn.classList.remove('btn-outline-secondary');
@@ -5603,21 +5623,26 @@ function togglePhoneNumber() {
 
 // Función para abrir WhatsApp con mensaje predefinido
 function abrirWhatsApp() {
-    const telefono = '{{ propiedad.administrador.telefono|default:"+52-1-33-00000000" }}';
-    const nombrePropiedad = '{{ propiedad.titulo }}';
-    const ubicacion = '{{ propiedad.ubicacion }}';
-    
-    // Limpiar el teléfono (remover caracteres especiales)
-    const telefonoLimpio = telefono.replace(/[^0-9+]/g, '');
-    
-    // Crear mensaje predefinido
-    const mensaje = `Hola! Me interesa la propiedad "${nombrePropiedad}" ubicada en ${ubicacion}. ¿Podrías darme más información?`;
-    
-    // Codificar el mensaje para URL
-    const mensajeCodificado = encodeURIComponent(mensaje);
-    
-    // Crear URL de WhatsApp
-    const urlWhatsApp = `https://wa.me/${telefonoLimpio}?text=${mensajeCodificado}`;
+    {% if propiedad.administrador and propiedad.administrador.telefono and propiedad.administrador.telefono != '+52-1-33-00000000' %}
+        const telefono = '{{ propiedad.administrador.telefono }}';
+        const nombrePropiedad = '{{ propiedad.titulo }}';
+        const ubicacion = '{{ propiedad.ubicacion }}';
+        
+        // Limpiar el teléfono (remover caracteres especiales)
+        const telefonoLimpio = telefono.replace(/[^0-9+]/g, '');
+        
+        // Crear mensaje predefinido
+        const mensaje = `Hola! Me interesa la propiedad "${nombrePropiedad}" ubicada en ${ubicacion}. ¿Podrías darme más información?`;
+        
+        // Codificar el mensaje para URL
+        const mensajeCodificado = encodeURIComponent(mensaje);
+        
+        // Crear URL de WhatsApp
+        const urlWhatsApp = `https://wa.me/${telefonoLimpio}?text=${mensajeCodificado}`;
+    {% else %}
+        alert('El teléfono del agente no está disponible en este momento. Por favor, utiliza el formulario de contacto.');
+        return;
+    {% endif %}
     
     // Abrir WhatsApp en nueva ventana
     window.open(urlWhatsApp, '_blank');

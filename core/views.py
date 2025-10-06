@@ -85,7 +85,7 @@ def about(request):
 def contact(request):
     """Vista de contacto"""
     if request.method == 'POST':
-        form = ContactSubmissionForm(request.POST)
+        form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
         if form.is_valid():
             try:
                 # Guardar el mensaje de contacto
