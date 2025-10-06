@@ -311,6 +311,8 @@ CONTENT_SECURITY_POLICY = {
             'https://cdn.jsdelivr.net',
             'https://unpkg.com',
             'https://cdnjs.cloudflare.com',
+            'https://translate.googleapis.com',  # Google Translate
+            'https://www.gstatic.com',  # Google Translate
         ),
         'style-src': (
             "'self'",
@@ -319,6 +321,7 @@ CONTENT_SECURITY_POLICY = {
             'https://cdn.jsdelivr.net',  # Bootstrap y otros recursos
             'https://fonts.googleapis.com',
             'https://cdnjs.cloudflare.com',
+            'https://www.gstatic.com',  # Google Translate
         ),
         'img-src': (
             "'self'",
@@ -334,6 +337,7 @@ CONTENT_SECURITY_POLICY = {
         'connect-src': (
             "'self'",
             'https://cdn.jsdelivr.net',  # Source maps de Bootstrap
+            'https://translate.googleapis.com',  # Google Translate
         ),
         'frame-ancestors': ("'none'",),  # Evitar iframe embedding
         'base-uri': ("'self'",),
