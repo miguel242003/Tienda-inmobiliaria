@@ -316,6 +316,7 @@ CONTENT_SECURITY_POLICY = {
             "'self'",
             "'unsafe-inline'",  # Necesario para estilos inline
             'https://cdn.tailwindcss.com',
+            'https://cdn.jsdelivr.net',  # Bootstrap y otros recursos
             'https://fonts.googleapis.com',
             'https://cdnjs.cloudflare.com',
         ),
