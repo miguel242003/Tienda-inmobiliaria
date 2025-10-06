@@ -1,0 +1,203 @@
+<!-- Redes Sociales Flotantes -->
+<div class="social-floating-container">
+    <div class="social-icons-floating">
+        <a href="https://wa.me/5492994240815?text=Hola!%20Me%20interesa%20obtener%20m%C3%A1s%20informaci%C3%B3n" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="social-icon-float social-whatsapp" 
+           title="Contactar por WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="https://www.instagram.com/gisa.inmuebles?igsh=bzlxNHF1czA3NDR1&utm_source=qr" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="social-icon-float social-instagram" 
+           title="Síguenos en Instagram">
+            <i class="fab fa-instagram"></i>
+        </a>
+        <a href="https://www.facebook.com/profile.php?id=61556492122318" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="social-icon-float social-facebook" 
+           title="Síguenos en Facebook">
+            <i class="fab fa-facebook"></i>
+        </a>
+        <a href="https://www.tiktok.com/@gisa.inmuebles?_t=ZM-8zx2BS0CTe8&_r=1" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="social-icon-float social-tiktok" 
+           title="Síguenos en TikTok">
+            <i class="fab fa-tiktok"></i>
+        </a>
+    </div>
+</div>
+
+<style>
+/* ===== REDES SOCIALES FLOTANTES ===== */
+.social-floating-container {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    z-index: 9999;
+    transition: all 0.3s ease;
+}
+
+.social-icons-floating {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.social-icon-float {
+    color: white;
+    font-size: 1.4rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 12px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.social-icon-float:hover {
+    transform: scale(1.15);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Colores específicos para cada red social */
+.social-whatsapp {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    border-color: rgba(37, 211, 102, 0.5);
+}
+
+.social-whatsapp:hover {
+    background: linear-gradient(135deg, #128C7E, #075E54);
+    box-shadow: 0 6px 25px rgba(37, 211, 102, 0.5);
+}
+
+.social-instagram {
+    background: linear-gradient(135deg, #E1306C, #C13584, #833AB4, #5B51D8, #405DE6);
+    border-color: rgba(225, 48, 108, 0.5);
+}
+
+.social-instagram:hover {
+    background: linear-gradient(135deg, #C13584, #833AB4, #5B51D8, #405DE6, #4776E6);
+    box-shadow: 0 6px 25px rgba(225, 48, 108, 0.5);
+}
+
+.social-facebook {
+    background: linear-gradient(135deg, #1877F2, #0C63D4);
+    border-color: rgba(24, 119, 242, 0.5);
+}
+
+.social-facebook:hover {
+    background: linear-gradient(135deg, #0C63D4, #0952A5);
+    box-shadow: 0 6px 25px rgba(24, 119, 242, 0.5);
+}
+
+.social-tiktok {
+    background: linear-gradient(135deg, #000000, #FF0050, #00F2EA);
+    border-color: rgba(255, 0, 80, 0.5);
+}
+
+.social-tiktok:hover {
+    background: linear-gradient(135deg, #FF0050, #00F2EA, #000000);
+    box-shadow: 0 6px 25px rgba(255, 0, 80, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .social-floating-container {
+        right: 15px;
+    }
+    
+    .social-icon-float {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+    
+    .social-icons-floating {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .social-floating-container {
+        top: auto;
+        bottom: 20px;
+        right: 15px;
+        transform: none;
+    }
+    
+    .social-icons-floating {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .social-icon-float {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .social-floating-container {
+        bottom: 15px;
+        right: 10px;
+    }
+    
+    .social-icons-floating {
+        gap: 8px;
+    }
+    
+    .social-icon-float {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        padding: 8px;
+    }
+}
+
+/* Animación de entrada */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.social-floating-container {
+    animation: slideInRight 0.6s ease-out;
+}
+
+/* Efecto pulsante para WhatsApp */
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(37, 211, 102, 0.6);
+    }
+}
+
+.social-whatsapp {
+    animation: pulse 2s ease-in-out infinite;
+}
+</style>
+
