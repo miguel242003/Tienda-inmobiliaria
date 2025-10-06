@@ -194,6 +194,9 @@ ADMIN_EMAIL = config('ADMIN_EMAIL', default=EMAIL_HOST_USER)
 PASSWORD_RESET_CODE_LENGTH = 6  # Longitud del código de recuperación
 PASSWORD_RESET_TIMEOUT = 3600  # Tiempo de expiración en segundos (1 hora)
 
+# Configuración de Rate Limiting para reverse proxy (Nginx)
+RATELIMIT_IP_META_KEY = 'HTTP_X_FORWARDED_FOR'
+
 # ============================================================================
 # 🔒 CONFIGURACIÓN DE SEGURIDAD - OWASP
 # ============================================================================
