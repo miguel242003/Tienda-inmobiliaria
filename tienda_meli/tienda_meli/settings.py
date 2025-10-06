@@ -331,7 +331,10 @@ CONTENT_SECURITY_POLICY = {
             'https://cdnjs.cloudflare.com',
             'data:',
         ),
-        'connect-src': ("'self'",),
+        'connect-src': (
+            "'self'",
+            'https://cdn.jsdelivr.net',  # Source maps de Bootstrap
+        ),
         'frame-ancestors': ("'none'",),  # Evitar iframe embedding
         'base-uri': ("'self'",),
         'form-action': ("'self'",),
