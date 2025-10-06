@@ -33,16 +33,12 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure--ya4&kz0qjq@q%(nd8^&e
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # 🔒 SEGURIDAD: ALLOWED_HOSTS debe ser específico en producción
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,gisa-nqn.com,www.gisa-nqn.com').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
-# Configuración para ngrok y dominios en producción
+# Configuración para ngrok
 CSRF_TRUSTED_ORIGINS = [
     'https://25f3b08614f5.ngrok-free.app',
     'https://*.ngrok-free.app',  # Para cualquier subdominio de ngrok
-    'https://gisa-nqn.com',
-    'https://www.gisa-nqn.com',
-    'http://gisa-nqn.com',  # Permitir HTTP temporalmente para debug
-    'http://www.gisa-nqn.com',
 ]
 
 
@@ -202,12 +198,9 @@ PASSWORD_RESET_TIMEOUT = 3600  # Tiempo de expiración en segundos (1 hora)
 SESSION_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
 SESSION_COOKIE_HTTPONLY = True  # No accesible por JavaScript
 SESSION_COOKIE_SAMESITE = 'Lax'  # Protección contra CSRF
-SESSION_COOKIE_AGE = 43200  # 12 horas de sesión (incrementado para mejor UX)
+SESSION_COOKIE_AGE = 3600  # 1 hora de sesión
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
-# Configuración adicional para compatibilidad cross-domain
-SESSION_COOKIE_DOMAIN = None  # Permitir subdominios
-SESSION_COOKIE_NAME = 'tienda_sessionid'  # Nombre personalizado para evitar conflictos
 
 # Configuración de Cookies CSRF
 CSRF_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
@@ -395,13 +388,7 @@ else:
     }
 
 # Configuración de sesiones con cache
-# IMPORTANTE: Usar cached_db para mejor compatibilidad (fallback a DB si cache falla)
-if not DEBUG:
-    # Producción: Usar cached_db para mejor confiabilidad (cache con fallback a DB)
-    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-else:
-    # Desarrollo: Usar DB directamente
-    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
 # ──────────────────────────────────────────────────────────────────────────

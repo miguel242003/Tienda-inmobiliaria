@@ -163,21 +163,27 @@ def complete_login(request, credenciales):
             user = User.objects.get(username=credenciales.email)
         except User.DoesNotExist:
             # Crear usuario si no existe
-            user = User.objects.create_user(
+            # IMPORTANTE: No usar password aquí porque credenciales.password ya está hasheada
+            user = User.objects.create(
                 username=credenciales.email,
                 email=credenciales.email,
-                password=credenciales.password,
                 first_name=credenciales.nombre or 'Administrador',
                 last_name=credenciales.apellido or '',
                 is_staff=True,
-                is_superuser=True
+                is_superuser=True,
+                is_active=True
             )
+            # Establecer la contraseña hasheada directamente
+            user.password = credenciales.password
+            user.save()
             
             # Vincular el AdminCredentials con el User
             credenciales.user = user
             credenciales.save()
         
-        # Autenticar al usuario
+        # Autenticar al usuario manualmente (sin verificar contraseña porque ya fue verificada)
+        # Establecer el backend de autenticación
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
         login(request, user)
         nombre_completo = credenciales.get_nombre_completo()
         messages.success(request, f'¡Bienvenido, {nombre_completo}!')
