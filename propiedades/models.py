@@ -43,7 +43,7 @@ class Propiedad(models.Model):
     descripcion = models.TextField(verbose_name="Descripción")
     precio = models.DecimalField(
         max_digits=12, 
-        decimal_places=2, 
+        decimal_places=0,  # Cambiar a 0 decimales para evitar .00 automático
         validators=[MinValueValidator(0)],
         verbose_name="Precio"
     )
