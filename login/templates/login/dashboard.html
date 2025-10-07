@@ -256,6 +256,58 @@
         #crearPropiedadForm input[type="number"][id*="metros"] {
             padding-right: 2.5rem;
         }
+
+        /* 🔥 ESTILOS PARA INDICADOR DE PROGRESO */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.5rem;
+        }
+
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+        }
+
+        /* Animación de carga */
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Botón deshabilitado */
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
         
         /* ===== RESPONSIVE STYLES ===== */
         
@@ -6766,6 +6818,9 @@
                     return;
                 }
                 
+                // 🔥 MOSTRAR INDICADOR DE PROGRESO
+                this.showLoadingIndicator();
+                
                 const formData = new FormData(this.form);
                 
                 // Agregar las fotos adicionales al FormData
@@ -6823,6 +6878,64 @@
                 } catch (error) {
                     console.error('Error:', error);
                     mostrarMensaje('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
+                } finally {
+                    // 🔥 OCULTAR INDICADOR DE PROGRESO
+                    this.hideLoadingIndicator();
+                }
+            },
+
+            // 🔥 INDICADOR DE PROGRESO PARA ARCHIVOS GRANDES
+            showLoadingIndicator() {
+                // Deshabilitar botón de envío
+                const submitBtn = this.form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <div class="flex items-center justify-center">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Subiendo archivos...
+                        </div>
+                    `;
+                }
+
+                // Mostrar mensaje de progreso
+                this.showProgressMessage('Subiendo archivos, por favor espera...', 'info');
+            },
+
+            hideLoadingIndicator() {
+                // Rehabilitar botón de envío
+                const submitBtn = this.form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `
+                        <i data-lucide="save" class="w-4 h-4 mr-2"></i>
+                        Crear Propiedad
+                    `;
+                }
+
+                // Ocultar mensaje de progreso
+                this.hideProgressMessage();
+            },
+
+            showProgressMessage(message, type = 'info') {
+                const messagesContainer = document.getElementById('modal-messages');
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = `
+                        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                            <div class="flex items-center">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                                <span>${message}</span>
+                            </div>
+                        </div>
+                    `;
+                    messagesContainer.classList.remove('hidden');
+                }
+            },
+
+            hideProgressMessage() {
+                const messagesContainer = document.getElementById('modal-messages');
+                if (messagesContainer) {
+                    messagesContainer.classList.add('hidden');
                 }
             },
 
