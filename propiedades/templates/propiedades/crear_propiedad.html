@@ -524,13 +524,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
     const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
     
-    // Formato de precio - permitir puntos y comas como separadores
-    precioInput.addEventListener('input', function(e) {
-        // No aplicar formato automático, solo validar caracteres permitidos
-        // Permitir números, puntos, comas y espacios
-        let value = e.target.value.replace(/[^\d.,\s]/g, '');
-        e.target.value = value;
-    });
+    // Remover atributos que causan formato automático
+    if (precioInput) {
+        precioInput.removeAttribute('step');
+        precioInput.setAttribute('inputmode', 'numeric');
+        
+        // Formato de precio - permitir puntos y comas como separadores
+        precioInput.addEventListener('input', function(e) {
+            // No aplicar formato automático, solo validar caracteres permitidos
+            // Permitir números, puntos, comas y espacios
+            let value = e.target.value.replace(/[^\d.,\s]/g, '');
+            e.target.value = value;
+        });
+        
+        // Prevenir el formato automático al salir del campo
+        precioInput.addEventListener('blur', function(e) {
+            // No hacer nada, dejar el valor tal cual
+        });
+    }
     
     // Validación antes de enviar
     form.addEventListener('submit', function(e) {
