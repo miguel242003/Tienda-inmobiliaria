@@ -1053,6 +1053,38 @@
             }
         }
         
+        /* Estilo de respaldo para cualquier resolución */
+        .cvs-desktop-table {
+            display: block !important;
+        }
+        
+        /* Solo ocultar en móviles */
+        @media (max-width: 768px) {
+            .cvs-desktop-table {
+                display: none !important;
+            }
+        }
+        
+        /* Forzar visualización en resoluciones altas */
+        @media (min-width: 1920px) {
+            .cvs-desktop-table {
+                display: block !important;
+                width: 100% !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .cvs-desktop-table table {
+                display: table !important;
+                width: 100% !important;
+            }
+            
+            .cvs-desktop-table th,
+            .cvs-desktop-table td {
+                display: table-cell !important;
+            }
+        }
+        
         /* Monitores muy grandes (1440px+) */
         @media (min-width: 1440px) {
             .cvs-desktop-table {
@@ -1067,6 +1099,62 @@
             .cvs-desktop-table th,
             .cvs-desktop-table td {
                 padding: 1.25rem 1.5rem;
+            }
+        }
+        
+        /* Monitores 4K (3840px+) */
+        @media (min-width: 3840px) {
+            .cvs-desktop-table {
+                display: block !important;
+                max-width: none;
+                width: 100% !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+            
+            .cvs-desktop-table table {
+                font-size: 1rem;
+                max-width: 100%;
+                width: 100% !important;
+                display: table !important;
+            }
+            
+            .cvs-desktop-table th,
+            .cvs-desktop-table td {
+                padding: 1.5rem 2rem;
+                font-size: 1rem;
+                display: table-cell !important;
+            }
+            
+            .cvs-desktop-table th {
+                font-size: 0.875rem;
+                font-weight: 700;
+            }
+            
+            .cvs-desktop-table tbody {
+                display: table-row-group !important;
+            }
+            
+            .cvs-desktop-table thead {
+                display: table-header-group !important;
+            }
+        }
+        
+        /* Monitores ultra grandes (2560px+) */
+        @media (min-width: 2560px) and (max-width: 3839px) {
+            .cvs-desktop-table {
+                display: block !important;
+                max-width: none;
+            }
+            
+            .cvs-desktop-table table {
+                font-size: 0.95rem;
+                max-width: 100%;
+            }
+            
+            .cvs-desktop-table th,
+            .cvs-desktop-table td {
+                padding: 1.25rem 1.75rem;
             }
         }
 
