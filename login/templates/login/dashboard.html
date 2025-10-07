@@ -8381,6 +8381,20 @@
                 window.eliminarCV = function(cvId, nombreCompleto) {
                     console.log('eliminarCV llamada con:', cvId, nombreCompleto);
                     
+                    // Verificar que los parámetros sean válidos
+                    if (!cvId || !nombreCompleto) {
+                        console.error('Parámetros inválidos:', cvId, nombreCompleto);
+                        alert('Error: Parámetros inválidos para eliminar CV');
+                        return;
+                    }
+                    
+                    // Fallback simple si el modal no funciona
+                    if (confirm(`¿Estás seguro de que quieres eliminar el CV de ${nombreCompleto}?\n\nEsta acción no se puede deshacer.`)) {
+                        console.log('Usuario confirmó eliminación (fallback)');
+                        eliminarCVDirecto(cvId, nombreCompleto);
+                        return;
+                    }
+                    
                     // Crear modal de confirmación personalizado
                     const modal = document.createElement('div');
                     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
@@ -8423,9 +8437,11 @@
                     
                     document.body.appendChild(modal);
                     lucide.createIcons();
+                    console.log('Modal creado y agregado al DOM');
                     
                     // Event listeners para los botones
                     document.getElementById('cancelar-eliminar').addEventListener('click', () => {
+                        console.log('Usuario canceló eliminación');
                         document.body.removeChild(modal);
                     });
                     
@@ -8473,6 +8489,43 @@
                         });
                     });
                 };
+                
+                // Función para eliminar CV directamente (fallback)
+                function eliminarCVDirecto(cvId, nombreCompleto) {
+                    console.log('Eliminando CV directamente:', cvId);
+                    
+                    // Mostrar indicador de carga
+                    const btnEliminar = event.target.closest('button');
+                    const iconoOriginal = btnEliminar.innerHTML;
+                    btnEliminar.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
+                    btnEliminar.disabled = true;
+                    
+                    fetch(`/delete-cv/${cvId}/`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Respuesta del servidor (directo):', data);
+                        if (data.success) {
+                            alert(`¡CV eliminado exitosamente! ${data.message}`);
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                            btnEliminar.innerHTML = iconoOriginal;
+                            btnEliminar.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error (directo):', error);
+                        alert('Error al eliminar el CV. Por favor intenta nuevamente.');
+                        btnEliminar.innerHTML = iconoOriginal;
+                        btnEliminar.disabled = false;
+                    });
+                }
                 
                 // Función para mostrar mensaje de éxito
                 function mostrarMensajeExito(mensaje, nombreCompleto) {
