@@ -1027,111 +1027,68 @@
             }
         }
         
-        /* Asegurar que las cards móviles se vean en pantallas pequeñas */
-        @media (max-width: 768px) {
-            .cvs-mobile-cards {
-                display: block !important;
-            }
-        }
+        /* Eliminar todos los breakpoints conflictivos - TABLA SIEMPRE VISIBLE */
         
-        @media (min-width: 769px) {
-            .cvs-mobile-cards {
-                display: none !important;
-            }
-        }
-        
-        /* Asegurar que la tabla desktop se vea en pantallas medianas y grandes */
-        @media (min-width: 769px) {
-            .cvs-desktop-table {
-                display: block !important;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .cvs-desktop-table {
-                display: none !important;
-            }
-        }
-        
-        /* Estilo base para la tabla desktop */
+        /* Estilo base para la tabla desktop - SIEMPRE VISIBLE */
         .cvs-desktop-table {
-            display: block;
-            width: 100%;
+            display: block !important;
+            width: 100% !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
         
         .cvs-desktop-table table {
-            display: table;
-            width: 100%;
+            display: table !important;
+            width: 100% !important;
+            table-layout: auto !important;
         }
         
         .cvs-desktop-table th,
         .cvs-desktop-table td {
-            display: table-cell;
+            display: table-cell !important;
+            padding: 0.75rem 1rem !important;
+            border-bottom: 1px solid #e5e7eb !important;
         }
         
-        /* Solo ocultar en móviles */
-        @media (max-width: 768px) {
-            .cvs-desktop-table {
-                display: none !important;
-            }
+        .cvs-desktop-table th {
+            background-color: #f9fafb !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            color: #6b7280 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
         }
         
-        /* Monitores muy grandes (1440px+) */
-        @media (min-width: 1440px) {
-            .cvs-desktop-table {
-                display: block;
-                max-width: none;
-            }
-            
-            .cvs-desktop-table table {
-                font-size: 0.9rem;
-            }
-            
+        .cvs-desktop-table tbody tr:hover {
+            background-color: #f9fafb !important;
+        }
+        
+        /* Ocultar cards móviles por defecto */
+        .cvs-mobile-cards {
+            display: none !important;
+        }
+        
+        /* Estilos optimizados para diferentes resoluciones */
+        @media (min-width: 1920px) {
             .cvs-desktop-table th,
             .cvs-desktop-table td {
-                padding: 1.25rem 1.5rem;
+                padding: 1rem 1.5rem !important;
             }
         }
         
-        /* Monitores 4K (3840px+) */
+        @media (min-width: 2560px) {
+            .cvs-desktop-table th,
+            .cvs-desktop-table td {
+                padding: 1.25rem 2rem !important;
+                font-size: 1rem !important;
+            }
+        }
+        
         @media (min-width: 3840px) {
-            .cvs-desktop-table {
-                display: block;
-                max-width: none;
-            }
-            
-            .cvs-desktop-table table {
-                font-size: 1rem;
-                max-width: 100%;
-            }
-            
             .cvs-desktop-table th,
             .cvs-desktop-table td {
-                padding: 1.5rem 2rem;
-                font-size: 1rem;
-            }
-            
-            .cvs-desktop-table th {
-                font-size: 0.875rem;
-                font-weight: 700;
-            }
-        }
-        
-        /* Monitores ultra grandes (2560px+) */
-        @media (min-width: 2560px) and (max-width: 3839px) {
-            .cvs-desktop-table {
-                display: block;
-                max-width: none;
-            }
-            
-            .cvs-desktop-table table {
-                font-size: 0.95rem;
-                max-width: 100%;
-            }
-            
-            .cvs-desktop-table th,
-            .cvs-desktop-table td {
-                padding: 1.25rem 1.75rem;
+                padding: 1.5rem 2.5rem !important;
+                font-size: 1.1rem !important;
             }
         }
 
@@ -3694,7 +3651,7 @@
                         </div>
                         
                         <!-- Tabla Desktop -->
-                        <div class="hidden md:block overflow-x-auto cvs-desktop-table">
+                        <div class="block overflow-x-auto cvs-desktop-table">
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -3779,7 +3736,7 @@
                         </div>
 
                         <!-- Cards Móviles -->
-                        <div class="md:hidden p-4 sm:p-6 cvs-mobile-cards">
+                        <div class="hidden p-4 sm:p-6 cvs-mobile-cards">
                             {% for cv in cvs_recientes %}
                             <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4 cv-card">
                                 <div class="flex items-start justify-between mb-3">
@@ -10430,4 +10387,5 @@
         </div>
     </div>
 </body>
+</html>
 </html>
