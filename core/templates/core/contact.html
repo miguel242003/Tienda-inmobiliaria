@@ -199,13 +199,7 @@
                 <h3 class="location-title mb-2">Nuestra Ubicación</h3>
                 <div class="yellow-underline"></div>
                 <div class="bg-white rounded shadow-sm p-4">
-                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 300px;">
-                        <div class="text-center">
-                            <i class="fas fa-map fa-4x text-muted mb-3"></i>
-                            <p class="text-muted">Mapa interactivo próximamente disponible</p>
-                            <p class="text-muted">Calle Principal 123, Ciudad, Estado 12345</p>
-                        </div>
-                    </div>
+                    <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
                 </div>
             </div>
         </div>
@@ -269,6 +263,12 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Leaflet JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
 :root {
     --brand-600: #1D4ED8;
@@ -1736,7 +1736,56 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+    
+    // Inicializar mapa con Leaflet
+    initMap();
 });
+
+// Función para inicializar el mapa
+function initMap() {
+    // Coordenadas de la ubicación
+    const lat = -38.95407893212158;
+    const lng = -68.06969165248405;
+    
+    // Crear el mapa
+    const map = L.map('map').setView([lat, lng], 15);
+    
+    // Agregar capa de tiles (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Agregar marcador personalizado
+    const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: '<div style="background-color: #FFD700; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;"><i class="fas fa-map-marker-alt" style="color: #2C3240; font-size: 16px;"></i></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -15]
+    });
+    
+    // Agregar marcador al mapa
+    const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+    
+    // Agregar popup al marcador
+    marker.bindPopup(`
+        <div style="text-align: center; padding: 10px;">
+            <h4 style="margin: 0 0 8px 0; color: #2C3240; font-weight: bold;">Inmobiliaria</h4>
+            <p style="margin: 0; color: #666; font-size: 14px;">Tu socio de confianza en bienes raíces</p>
+            <hr style="margin: 8px 0;">
+            <p style="margin: 0; color: #333; font-size: 13px;">
+                <i class="fas fa-map-marker-alt" style="color: #FFD700; margin-right: 5px;"></i>
+                Ubicación: ${lat.toFixed(6)}, ${lng.toFixed(6)}
+            </p>
+        </div>
+    `).openPopup();
+    
+    // Ajustar el mapa cuando se redimensione la ventana
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 100);
+}
 
 // Ajustar líneas amarillas cuando se redimensione la ventana
 window.addEventListener('resize', function() {
