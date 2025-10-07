@@ -524,14 +524,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
     const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
     
-    // Formato de precio
-    precioInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/[^\d.]/g, '');
-        if (value && !isNaN(value)) {
-            value = parseFloat(value).toFixed(2);
-            e.target.value = value;
-        }
-    });
+    // Formato de precio - deshabilitado para permitir formato argentino
+    // precioInput.addEventListener('input', function(e) {
+    //     let value = e.target.value.replace(/[^\d.]/g, '');
+    //     if (value && !isNaN(value)) {
+    //         value = parseFloat(value).toFixed(2);
+    //         e.target.value = value;
+    //     }
+    // });
     
     // Validación antes de enviar
     form.addEventListener('submit', function(e) {
