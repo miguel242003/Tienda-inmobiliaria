@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load webp_tags %}
 
 {% block title %}Buscar Propiedades - Tienda Inmobiliaria{% endblock %}
 
@@ -175,10 +176,7 @@ body {
             {% for propiedad in page_obj %}
             <article class="property-card" role="article" aria-label="Propiedad: {{ propiedad.titulo }}">
                 {% if propiedad.imagen_principal %}
-                <img src="{{ propiedad.imagen_principal.url }}" 
-                     class="property-card-image" 
-                     alt="{{ propiedad.titulo }}"
-                     loading="lazy">
+                {% webp_picture propiedad.imagen_principal propiedad.titulo "property-card-image" True %}
                 {% else %}
                 <div class="property-card-image-placeholder">
                     <i class="fas fa-home" aria-hidden="true"></i>

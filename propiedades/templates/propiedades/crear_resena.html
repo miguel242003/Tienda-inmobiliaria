@@ -1,4 +1,5 @@
 {% load static %}
+{% load webp_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -67,8 +68,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div class="flex items-center space-x-4">
                 {% if propiedad.imagen_principal %}
-                    <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.titulo }}" 
-                         class="w-20 h-20 rounded-lg object-cover">
+                    {% webp_picture propiedad.imagen_principal propiedad.titulo "w-20 h-20 rounded-lg object-cover" True %}
                 {% else %}
                     <div class="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
                         <i data-lucide="home" class="w-8 h-8 text-gray-400"></i>

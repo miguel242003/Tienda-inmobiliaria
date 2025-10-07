@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from core.fields import WebPImageFieldMixin
 import pyotp
 import qrcode
 import qrcode.image.svg
@@ -8,7 +9,7 @@ import base64
 
 # Crea tus modelos aquí.
 
-class AdminCredentials(models.Model):
+class AdminCredentials(WebPImageFieldMixin, models.Model):
     """Modelo para almacenar credenciales del administrador de forma segura"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='admincredentials', verbose_name="Usuario")
     nombre = models.CharField(max_length=100, verbose_name="Nombre del Administrador", blank=True, null=True)

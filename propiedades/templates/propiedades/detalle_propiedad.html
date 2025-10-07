@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load webp_tags %}
 {% load l10n %}
 
 {% block title %}{{ propiedad.titulo }} - Tienda Inmobiliaria{% endblock %}
@@ -32,7 +33,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="property-main-image position-relative">
                                 {% if propiedad.get_foto_principal %}
-                                <img src="{{ propiedad.get_foto_principal.url }}" class="img-fluid rounded shadow clickable-image" alt="{{ propiedad.titulo }}" onclick="openImageViewer(0)">
+                                {% webp_picture propiedad.get_foto_principal propiedad.titulo "img-fluid rounded shadow clickable-image" True %}
                                 {% else %}
                                 <div class="bg-light rounded shadow d-flex align-items-center justify-content-center" style="height: 300px;">
                                     <i class="fas fa-home fa-4x text-muted"></i>
@@ -45,7 +46,7 @@
                         <div class="col-md-6 mb-3">
                             <div class="property-secondary-image position-relative">
                                 {% if propiedad.get_foto_secundaria %}
-                                <img src="{{ propiedad.get_foto_secundaria.url }}" class="img-fluid rounded shadow clickable-image" alt="{{ propiedad.titulo }}" onclick="openImageViewer(1)">
+                                {% webp_picture propiedad.get_foto_secundaria propiedad.titulo "img-fluid rounded shadow clickable-image" True %}
                                 {% else %}
                                 <div class="bg-light rounded shadow d-flex align-items-center justify-content-center" style="height: 300px;">
                                     <i class="fas fa-home fa-4x text-muted"></i>

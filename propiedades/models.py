@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
+from core.fields import WebPImageFieldMixin
 
 class Amenidad(models.Model):
     """Modelo para las amenidades de las propiedades"""
@@ -18,7 +19,7 @@ class Amenidad(models.Model):
     def __str__(self):
         return self.nombre
 
-class Propiedad(models.Model):
+class Propiedad(WebPImageFieldMixin, models.Model):
     TIPO_CHOICES = [
         ('casa', 'Casa'),
         ('apartamento', 'Apartamento'),
@@ -192,7 +193,7 @@ class Propiedad(models.Model):
         
         return resultado
 
-class FotoPropiedad(models.Model):
+class FotoPropiedad(WebPImageFieldMixin, models.Model):
     """Modelo para almacenar múltiples fotos y videos de una propiedad"""
     
     TIPO_MEDIO_CHOICES = [

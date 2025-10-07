@@ -1,322 +1,243 @@
-# -*- coding: utf-8 -*-
 """
-⚡ OPTIMIZADOR DE IMÁGENES AUTOMÁTICO
-Comprime y redimensiona imágenes automáticamente al subirlas.
-
-Uso:
-    from core.image_optimizer import optimize_image
-    optimized_file = optimize_image(uploaded_file)
+Utilidad para optimización de imágenes a formato WebP
+Convierte automáticamente imágenes a WebP manteniendo compatibilidad
 """
 
-from PIL import Image
-from io import BytesIO
-from django.core.files.uploadedfile import InMemoryUploadedFile
-import sys
 import os
+import logging
+from PIL import Image
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.conf import settings
+from io import BytesIO
 
+logger = logging.getLogger(__name__)
 
-class ImageOptimizer:
-    """Optimizador de imágenes con compresión y redimensionamiento"""
+class WebPOptimizer:
+    """Clase para optimizar imágenes a formato WebP"""
     
-    # Configuración por defecto
-    DEFAULT_MAX_WIDTH = 1920
-    DEFAULT_MAX_HEIGHT = 1080
+    # Formatos soportados para conversión
+    SUPPORTED_FORMATS = ['JPEG', 'JPG', 'PNG', 'BMP', 'TIFF']
+    
+    # Calidad por defecto (80-90% para balance calidad/tamaño)
     DEFAULT_QUALITY = 85
-    DEFAULT_FORMAT = 'JPEG'
     
-    # Tamaños predefinidos
-    SIZES = {
-        'thumbnail': (150, 150),
-        'small': (400, 400),
-        'medium': (800, 800),
-        'large': (1920, 1080),
-    }
+    # Tamaño máximo recomendado (en píxeles)
+    MAX_DIMENSION = 2048
     
-    @staticmethod
-    def optimize_image(image_file, max_width=None, max_height=None, quality=None, format=None):
+    @classmethod
+    def convert_to_webp(cls, image_file, quality=None, max_dimension=None, preserve_original=True):
         """
-        Optimiza una imagen: comprime y redimensiona.
+        Convierte una imagen a formato WebP
         
         Args:
-            image_file: Archivo de imagen (InMemoryUploadedFile o similar)
-            max_width: Ancho máximo en píxeles (default: 1920)
-            max_height: Alto máximo en píxeles (default: 1080)
-            quality: Calidad de compresión 1-100 (default: 85)
-            format: Formato de salida (default: JPEG)
-        
-        Returns:
-            InMemoryUploadedFile: Archivo optimizado
-        """
-        # Valores por defecto
-        max_width = max_width or ImageOptimizer.DEFAULT_MAX_WIDTH
-        max_height = max_height or ImageOptimizer.DEFAULT_MAX_HEIGHT
-        quality = quality or ImageOptimizer.DEFAULT_QUALITY
-        format = format or ImageOptimizer.DEFAULT_FORMAT
-        
-        # Abrir imagen
-        img = Image.open(image_file)
-        
-        # Convertir RGBA a RGB si es necesario
-        if img.mode in ('RGBA', 'LA', 'P'):
-            # Crear fondo blanco
-            background = Image.new('RGB', img.size, (255, 255, 255))
-            if img.mode == 'P':
-                img = img.convert('RGBA')
-            background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
-            img = background
-        elif img.mode != 'RGB':
-            img = img.convert('RGB')
-        
-        # Obtener dimensiones originales
-        width, height = img.size
-        
-        # Calcular nuevas dimensiones manteniendo proporción
-        if width > max_width or height > max_height:
-            # Calcular ratio
-            ratio = min(max_width / width, max_height / height)
-            new_width = int(width * ratio)
-            new_height = int(height * ratio)
+            image_file: Archivo de imagen (Django FileField o archivo)
+            quality: Calidad de compresión (1-100, por defecto 85)
+            max_dimension: Dimensión máxima (por defecto 2048px)
+            preserve_original: Si mantener el archivo original
             
-            # Redimensionar con alta calidad
-            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-        
-        # Guardar imagen optimizada en memoria
-        output = BytesIO()
-        
-        # Optimizar según formato
-        if format.upper() == 'JPEG':
-            img.save(
-                output,
-                format='JPEG',
-                quality=quality,
-                optimize=True,
-                progressive=True
-            )
-            content_type = 'image/jpeg'
-            extension = 'jpg'
-        elif format.upper() == 'PNG':
-            img.save(
-                output,
-                format='PNG',
-                optimize=True
-            )
-            content_type = 'image/png'
-            extension = 'png'
-        elif format.upper() == 'WEBP':
-            img.save(
-                output,
-                format='WEBP',
-                quality=quality,
-                method=6  # Mejor compresión
-            )
-            content_type = 'image/webp'
-            extension = 'webp'
-        
-        output.seek(0)
-        
-        # Obtener nombre de archivo
-        original_name = getattr(image_file, 'name', 'image')
-        name_without_ext = os.path.splitext(original_name)[0]
-        new_name = f"{name_without_ext}_optimized.{extension}"
-        
-        # Crear nuevo archivo
-        optimized_file = InMemoryUploadedFile(
-            output,
-            'ImageField',
-            new_name,
-            content_type,
-            sys.getsizeof(output),
-            None
-        )
-        
-        return optimized_file
-    
-    @staticmethod
-    def create_thumbnail(image_file, size='thumbnail'):
-        """
-        Crea una miniatura de la imagen.
-        
-        Args:
-            image_file: Archivo de imagen
-            size: Tamaño predefinido ('thumbnail', 'small', 'medium', 'large')
-        
         Returns:
-            InMemoryUploadedFile: Miniatura
+            tuple: (webp_file, original_size, webp_size, saved_percentage)
         """
-        if size in ImageOptimizer.SIZES:
-            width, height = ImageOptimizer.SIZES[size]
-        else:
-            width, height = 150, 150
-        
-        return ImageOptimizer.optimize_image(
-            image_file,
-            max_width=width,
-            max_height=height,
-            quality=80
-        )
+        if quality is None:
+            quality = cls.DEFAULT_QUALITY
+        if max_dimension is None:
+            max_dimension = cls.MAX_DIMENSION
+            
+        try:
+            # Abrir la imagen
+            if hasattr(image_file, 'read'):
+                image = Image.open(image_file)
+            else:
+                image = Image.open(image_file.path)
+            
+            # Verificar si ya es WebP
+            if image.format == 'WEBP':
+                logger.info(f"La imagen ya está en formato WebP: {image_file.name}")
+                return image_file, 0, 0, 0
+            
+            # Verificar formato soportado
+            if image.format not in cls.SUPPORTED_FORMATS:
+                logger.warning(f"Formato no soportado para conversión: {image.format}")
+                return image_file, 0, 0, 0
+            
+            # Obtener tamaño original
+            original_size = len(image_file.read()) if hasattr(image_file, 'read') else os.path.getsize(image_file.path)
+            image_file.seek(0) if hasattr(image_file, 'seek') else None
+            
+            # Redimensionar si es necesario
+            if max(image.size) > max_dimension:
+                image = cls._resize_image(image, max_dimension)
+            
+            # Convertir a RGB si es necesario (WebP no soporta RGBA con transparencia)
+            if image.mode in ('RGBA', 'LA', 'P'):
+                # Crear fondo blanco para transparencias
+                background = Image.new('RGB', image.size, (255, 255, 255))
+                if image.mode == 'P':
+                    image = image.convert('RGBA')
+                background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+                image = background
+            elif image.mode != 'RGB':
+                image = image.convert('RGB')
+            
+            # Crear archivo WebP en memoria
+            webp_buffer = BytesIO()
+            image.save(webp_buffer, format='WEBP', quality=quality, optimize=True)
+            webp_buffer.seek(0)
+            
+            # Obtener tamaño del WebP
+            webp_size = len(webp_buffer.getvalue())
+            webp_buffer.seek(0)
+            
+            # Calcular porcentaje de ahorro
+            saved_percentage = ((original_size - webp_size) / original_size * 100) if original_size > 0 else 0
+            
+            logger.info(f"Conversión exitosa: {original_size} bytes -> {webp_size} bytes ({saved_percentage:.1f}% ahorro)")
+            
+            # Crear ContentFile para Django
+            webp_file = ContentFile(webp_buffer.getvalue())
+            
+            return webp_file, original_size, webp_size, saved_percentage
+            
+        except Exception as e:
+            logger.error(f"Error al convertir imagen a WebP: {e}")
+            return image_file, 0, 0, 0
     
-    @staticmethod
-    def get_image_info(image_file):
+    @classmethod
+    def _resize_image(cls, image, max_dimension):
+        """Redimensiona una imagen manteniendo la proporción"""
+        if max(image.size) <= max_dimension:
+            return image
+        
+        # Calcular nuevas dimensiones
+        ratio = max_dimension / max(image.size)
+        new_size = (int(image.size[0] * ratio), int(image.size[1] * ratio))
+        
+        # Redimensionar con alta calidad
+        return image.resize(new_size, Image.Resampling.LANCZOS)
+    
+    @classmethod
+    def get_webp_path(cls, original_path):
+        """Genera la ruta del archivo WebP basado en la ruta original"""
+        if not original_path:
+            return None
+        
+        # Reemplazar extensión por .webp
+        name, ext = os.path.splitext(original_path)
+        return f"{name}.webp"
+    
+    @classmethod
+    def webp_exists(cls, original_path):
+        """Verifica si existe la versión WebP de una imagen"""
+        webp_path = cls.get_webp_path(original_path)
+        if not webp_path:
+            return False
+        
+        return default_storage.exists(webp_path)
+    
+    @classmethod
+    def delete_webp(cls, original_path):
+        """Elimina el archivo WebP asociado"""
+        webp_path = cls.get_webp_path(original_path)
+        if webp_path and default_storage.exists(webp_path):
+            default_storage.delete(webp_path)
+            logger.info(f"Archivo WebP eliminado: {webp_path}")
+    
+    @classmethod
+    def optimize_image_field(cls, model_instance, field_name, quality=None):
         """
-        Obtiene información de una imagen.
+        Optimiza un campo de imagen específico de un modelo
         
         Args:
-            image_file: Archivo de imagen
-        
-        Returns:
-            dict: Información de la imagen
-        """
-        img = Image.open(image_file)
-        
-        return {
-            'width': img.size[0],
-            'height': img.size[1],
-            'format': img.format,
-            'mode': img.mode,
-            'size_bytes': image_file.size if hasattr(image_file, 'size') else 0,
-            'size_kb': round(image_file.size / 1024, 2) if hasattr(image_file, 'size') else 0,
-            'size_mb': round(image_file.size / (1024 * 1024), 2) if hasattr(image_file, 'size') else 0,
-        }
-    
-    @staticmethod
-    def batch_optimize(image_files, max_width=1920, max_height=1080, quality=85):
-        """
-        Optimiza múltiples imágenes.
-        
-        Args:
-            image_files: Lista de archivos de imagen
-            max_width: Ancho máximo
-            max_height: Alto máximo
+            model_instance: Instancia del modelo
+            field_name: Nombre del campo de imagen
             quality: Calidad de compresión
-        
+            
         Returns:
-            list: Lista de archivos optimizados
+            dict: Estadísticas de la optimización
         """
-        optimized_files = []
+        image_field = getattr(model_instance, field_name)
+        if not image_field:
+            return {'status': 'no_image', 'message': 'No hay imagen para optimizar'}
         
-        for image_file in image_files:
-            try:
-                optimized = ImageOptimizer.optimize_image(
-                    image_file,
-                    max_width=max_width,
-                    max_height=max_height,
-                    quality=quality
-                )
-                optimized_files.append(optimized)
-            except Exception as e:
-                print(f"Error optimizando {getattr(image_file, 'name', 'imagen')}: {str(e)}")
-                # Devolver original si falla
-                optimized_files.append(image_file)
+        try:
+            # Convertir a WebP
+            webp_file, original_size, webp_size, saved_percentage = cls.convert_to_webp(
+                image_field, quality=quality
+            )
+            
+            if webp_size == 0:  # No se pudo convertir
+                return {'status': 'error', 'message': 'No se pudo convertir la imagen'}
+            
+            # Generar nueva ruta
+            original_path = image_field.name
+            webp_path = cls.get_webp_path(original_path)
+            
+            # Guardar archivo WebP
+            saved_path = default_storage.save(webp_path, webp_file)
+            
+            return {
+                'status': 'success',
+                'original_size': original_size,
+                'webp_size': webp_size,
+                'saved_percentage': saved_percentage,
+                'webp_path': saved_path,
+                'original_path': original_path
+            }
+            
+        except Exception as e:
+            logger.error(f"Error al optimizar campo {field_name}: {e}")
+            return {'status': 'error', 'message': str(e)}
+    
+    @classmethod
+    def batch_optimize_images(cls, model_class, image_fields, quality=None):
+        """
+        Optimiza todas las imágenes de un modelo en lote
         
-        return optimized_files
-
-
-def optimize_image(image_file, max_width=1920, max_height=1080, quality=85):
-    """
-    Función de conveniencia para optimizar una imagen.
-    
-    Args:
-        image_file: Archivo de imagen
-        max_width: Ancho máximo (default: 1920)
-        max_height: Alto máximo (default: 1080)
-        quality: Calidad 1-100 (default: 85)
-    
-    Returns:
-        InMemoryUploadedFile: Imagen optimizada
-    """
-    return ImageOptimizer.optimize_image(image_file, max_width, max_height, quality)
-
-
-def create_thumbnail(image_file, size='thumbnail'):
-    """
-    Función de conveniencia para crear miniatura.
-    
-    Args:
-        image_file: Archivo de imagen
-        size: Tamaño ('thumbnail', 'small', 'medium', 'large')
-    
-    Returns:
-        InMemoryUploadedFile: Miniatura
-    """
-    return ImageOptimizer.create_thumbnail(image_file, size)
-
-
-# Script para optimizar imágenes existentes
-def optimize_existing_images():
-    """
-    Script para optimizar todas las imágenes existentes en la base de datos.
-    
-    Uso:
-        python manage.py shell
-        >>> from core.image_optimizer import optimize_existing_images
-        >>> optimize_existing_images()
-    """
-    from propiedades.models import Propiedad, FotoPropiedad
-    from django.core.files import File
-    import os
-    
-    print("🔄 Optimizando imágenes existentes...")
-    
-    # Optimizar imágenes principales de propiedades
-    propiedades = Propiedad.objects.all()
-    total_propiedades = propiedades.count()
-    
-    for i, propiedad in enumerate(propiedades, 1):
-        print(f"Procesando propiedad {i}/{total_propiedades}: {propiedad.titulo}")
+        Args:
+            model_class: Clase del modelo
+            image_fields: Lista de nombres de campos de imagen
+            quality: Calidad de compresión
+            
+        Returns:
+            dict: Estadísticas de la optimización en lote
+        """
+        stats = {
+            'total_processed': 0,
+            'successful': 0,
+            'errors': 0,
+            'total_original_size': 0,
+            'total_webp_size': 0,
+            'errors_list': []
+        }
         
-        # Optimizar imagen principal
-        if propiedad.imagen_principal:
-            try:
-                original_path = propiedad.imagen_principal.path
-                if os.path.exists(original_path):
-                    with open(original_path, 'rb') as f:
-                        optimized = optimize_image(File(f))
-                        propiedad.imagen_principal.save(
-                            os.path.basename(original_path),
-                            optimized,
-                            save=True
-                        )
-                    print(f"  ✅ Imagen principal optimizada")
-            except Exception as e:
-                print(f"  ❌ Error: {str(e)}")
+        for instance in model_class.objects.all():
+            for field_name in image_fields:
+                image_field = getattr(instance, field_name)
+                if image_field:
+                    stats['total_processed'] += 1
+                    
+                    result = cls.optimize_image_field(instance, field_name, quality)
+                    
+                    if result['status'] == 'success':
+                        stats['successful'] += 1
+                        stats['total_original_size'] += result['original_size']
+                        stats['total_webp_size'] += result['webp_size']
+                    else:
+                        stats['errors'] += 1
+                        stats['errors_list'].append({
+                            'instance': str(instance),
+                            'field': field_name,
+                            'error': result['message']
+                        })
         
-        # Optimizar imagen secundaria
-        if propiedad.imagen_secundaria:
-            try:
-                original_path = propiedad.imagen_secundaria.path
-                if os.path.exists(original_path):
-                    with open(original_path, 'rb') as f:
-                        optimized = optimize_image(File(f))
-                        propiedad.imagen_secundaria.save(
-                            os.path.basename(original_path),
-                            optimized,
-                            save=True
-                        )
-                    print(f"  ✅ Imagen secundaria optimizada")
-            except Exception as e:
-                print(f"  ❌ Error: {str(e)}")
-    
-    # Optimizar fotos adicionales
-    fotos = FotoPropiedad.objects.filter(tipo_medio='imagen')
-    total_fotos = fotos.count()
-    
-    for i, foto in enumerate(fotos, 1):
-        print(f"Procesando foto adicional {i}/{total_fotos}")
+        # Calcular ahorro total
+        if stats['total_original_size'] > 0:
+            stats['total_saved_percentage'] = (
+                (stats['total_original_size'] - stats['total_webp_size']) / 
+                stats['total_original_size'] * 100
+            )
+        else:
+            stats['total_saved_percentage'] = 0
         
-        if foto.imagen:
-            try:
-                original_path = foto.imagen.path
-                if os.path.exists(original_path):
-                    with open(original_path, 'rb') as f:
-                        optimized = optimize_image(File(f))
-                        foto.imagen.save(
-                            os.path.basename(original_path),
-                            optimized,
-                            save=True
-                        )
-                    print(f"  ✅ Foto optimizada")
-            except Exception as e:
-                print(f"  ❌ Error: {str(e)}")
-    
-    print("✅ Optimización completada!")
-
+        return stats

@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load webp_tags %}
 
 {% block title %}Buscar Propiedades - Tienda Inmobiliaria{% endblock %}
 
@@ -142,7 +143,7 @@ OPCIONES PARA BAJAR EL FILTRO:
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card h-100 shadow-sm property-card">
                     {% if propiedad.imagen_principal %}
-                    <img src="{{ propiedad.imagen_principal.url }}" class="card-img-top" alt="{{ propiedad.titulo }}" style="height: 250px; object-fit: cover;">
+                    {% webp_picture propiedad.imagen_principal propiedad.titulo "card-img-top" True %}
                     {% else %}
                     <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
                         <i class="fas fa-home fa-4x text-muted"></i>
