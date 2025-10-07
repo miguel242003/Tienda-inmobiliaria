@@ -536,3 +536,19 @@ if not DEBUG:
 
 # Deshabilitar debug de templates en producción
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
+
+# ──────────────────────────────────────────────────────────────────────────
+# 📁 CONFIGURACIÓN DE LÍMITES DE ARCHIVOS
+# ──────────────────────────────────────────────────────────────────────────
+
+# Límites para subida de archivos (en bytes)
+# 20MB para imágenes principales/secundarias
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # 20MB
+
+# Límite para archivos temporales (videos de 200MB)
+FILE_UPLOAD_TEMP_DIR = None  # Usar directorio temporal del sistema
+
+# Configuración de archivos temporales
+FILE_UPLOAD_PERMISSIONS = 0o644  # Permisos para archivos subidos
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755  # Permisos para directorios
