@@ -524,45 +524,66 @@ document.addEventListener('DOMContentLoaded', function() {
     const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
     const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
     
-    // FORZAR que el input de precio sea tipo texto y sin formato automático
+    // SOLUCIÓN DEFINITIVA: Eliminar completamente el formato automático
     if (precioInput) {
-        // Forzar tipo text
+        // 1. Forzar tipo text y eliminar TODOS los atributos numéricos
         precioInput.setAttribute('type', 'text');
-        
-        // Remover todos los atributos que causan formato
         precioInput.removeAttribute('step');
         precioInput.removeAttribute('min');
         precioInput.removeAttribute('max');
+        precioInput.removeAttribute('pattern');
         
-        // Configurar inputmode para teclado numérico en móviles
+        // 2. Configurar inputmode para teclado numérico en móviles
         precioInput.setAttribute('inputmode', 'numeric');
         
-        // Si viene con valor pre-formateado (ej: al editar), limpiarlo
-        if (precioInput.value && precioInput.value.includes('.00')) {
-            // Remover solo si termina en .00
-            if (precioInput.value.endsWith('.00')) {
-                precioInput.value = precioInput.value.replace(/\.00$/, '');
-            }
+        // 3. Limpiar valor inicial si tiene .00
+        if (precioInput.value) {
+            precioInput.value = precioInput.value.replace(/\.00$/, '');
         }
         
-        // Formato de precio - permitir puntos y comas como separadores
+        // 4. Interceptar TODOS los eventos que pueden causar formato
         precioInput.addEventListener('input', function(e) {
-            // No aplicar formato automático, solo validar caracteres permitidos
-            // Permitir números, puntos, comas y espacios
             let value = e.target.value.replace(/[^\d.,\s]/g, '');
             e.target.value = value;
         });
         
-        // Prevenir el formato automático al salir del campo (blur)
         precioInput.addEventListener('blur', function(e) {
-            // No hacer nada, dejar el valor tal cual está
+            // NO hacer nada - mantener valor tal cual
         });
         
-        // Prevenir formato al cargar la página
         precioInput.addEventListener('change', function(e) {
-            // Solo limpiar caracteres no permitidos
             let value = e.target.value.replace(/[^\d.,\s]/g, '');
             e.target.value = value;
+        });
+        
+        precioInput.addEventListener('keyup', function(e) {
+            // Prevenir formato en tiempo real
+            if (e.target.value.endsWith('.00')) {
+                e.target.value = e.target.value.replace(/\.00$/, '');
+            }
+        });
+        
+        // 5. Interceptar el evento focus para limpiar .00 si aparece
+        precioInput.addEventListener('focus', function(e) {
+            if (e.target.value.endsWith('.00')) {
+                e.target.value = e.target.value.replace(/\.00$/, '');
+            }
+        });
+        
+        // 6. Usar MutationObserver para detectar cambios automáticos del navegador
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                    if (precioInput.value.endsWith('.00')) {
+                        precioInput.value = precioInput.value.replace(/\.00$/, '');
+                    }
+                }
+            });
+        });
+        
+        observer.observe(precioInput, {
+            attributes: true,
+            attributeFilter: ['value']
         });
     }
     
