@@ -35,6 +35,11 @@ class Command(BaseCommand):
                 'nombre': 'WiFi',
                 'icono': 'fa-wifi',
                 'descripcion': 'Conexión WiFi gratuita incluida'
+            },
+            {
+                'nombre': 'Estacionamiento',
+                'icono': 'fa-car',
+                'descripcion': 'Lugar de estacionamiento disponible'
             }
         ]
 

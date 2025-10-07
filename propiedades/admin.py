@@ -16,8 +16,8 @@ class FotoPropiedadInline(admin.TabularInline):
 
 @admin.register(Propiedad)
 class PropiedadAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'tipo', 'operacion', 'precio', 'get_precio_ars', 'ubicacion', 'estado', 'administrador', 'metros_cuadrados', 'habitaciones', 'banos', 'fecha_creacion')
-    list_filter = ('tipo', 'operacion', 'estado', 'fecha_creacion', 'habitaciones', 'banos', 'administrador')
+    list_display = ('titulo', 'tipo', 'operacion', 'precio', 'get_precio_ars', 'ubicacion', 'estado', 'administrador', 'metros_cuadrados', 'habitaciones', 'banos', 'ambientes', 'balcon', 'fecha_creacion')
+    list_filter = ('tipo', 'operacion', 'estado', 'fecha_creacion', 'habitaciones', 'banos', 'ambientes', 'balcon', 'administrador')
     search_fields = ('titulo', 'descripcion', 'ubicacion', 'administrador__nombre', 'administrador__apellido')
     list_editable = ('precio', 'estado', 'operacion')
     readonly_fields = ('fecha_creacion', 'fecha_actualizacion')
@@ -32,7 +32,7 @@ class PropiedadAdmin(admin.ModelAdmin):
             'description': 'El precio debe estar en pesos argentinos (ARS)'
         }),
         ('Características', {
-            'fields': ('metros_cuadrados', 'habitaciones', 'banos')
+            'fields': ('metros_cuadrados', 'habitaciones', 'banos', 'ambientes', 'balcon')
         }),
         ('Imágenes', {
             'fields': ('imagen_principal', 'imagen_secundaria'),

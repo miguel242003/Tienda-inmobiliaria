@@ -9,7 +9,7 @@ class PropiedadForm(forms.ModelForm):
         fields = [
             'titulo', 'descripcion', 'precio', 'tipo', 'operacion', 'estado',
             'ubicacion', 'ciudad', 'lugares_cercanos', 'metros_cuadrados', 'habitaciones', 'banos',
-            'imagen_principal', 'imagen_secundaria', 'amenidades',
+            'ambientes', 'balcon', 'imagen_principal', 'imagen_secundaria', 'amenidades',
             'latitud', 'longitud'
         ]
         widgets = {
@@ -95,6 +95,17 @@ class PropiedadForm(forms.ModelForm):
                 'title': 'Los baños deben estar entre 0 y 10',
                 'required': True
             }),
+            'ambientes': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'max': '30',
+                'placeholder': 'Número de ambientes',
+                'title': 'Los ambientes deben estar entre 0 y 30',
+                'required': True
+            }),
+            'balcon': forms.RadioSelect(attrs={
+                'class': 'form-check-input'
+            }),
             'imagen_principal': forms.FileInput(attrs={
                 'class': 'form-control',
                 'accept': 'image/jpeg,image/jpg,image/png,image/gif,image/webp',
@@ -141,6 +152,8 @@ class PropiedadForm(forms.ModelForm):
             'metros_cuadrados': 'Metros Cuadrados',
             'habitaciones': 'Habitaciones',
             'banos': 'Baños',
+            'ambientes': 'Ambientes',
+            'balcon': 'Tiene Balcón',
             'imagen_principal': 'Imagen Principal',
             'imagen_secundaria': 'Imagen Secundaria',
             'amenidades': 'Amenidades',
@@ -153,6 +166,8 @@ class PropiedadForm(forms.ModelForm):
             'latitud': 'Coordenada de latitud para mostrar en el mapa (ej: -38.9516)',
             'longitud': 'Coordenada de longitud para mostrar en el mapa (ej: -68.0591)',
             'amenidades': 'Seleccione las amenidades que incluye la propiedad',
+            'ambientes': 'Número total de ambientes (incluye living, comedor, cocina, etc.)',
+            'balcon': 'Indica si la propiedad cuenta con balcón',
         }
     
     def clean_titulo(self):
@@ -224,6 +239,16 @@ class PropiedadForm(forms.ModelForm):
             elif banos > 10:
                 raise forms.ValidationError('Los baños no pueden ser mayor a 10.')
         return banos
+    
+    def clean_ambientes(self):
+        """Validar el número de ambientes"""
+        ambientes = self.cleaned_data.get('ambientes')
+        if ambientes is not None:
+            if ambientes < 0:
+                raise forms.ValidationError('Los ambientes no pueden ser negativos.')
+            elif ambientes > 30:
+                raise forms.ValidationError('Los ambientes no pueden ser mayor a 30.')
+        return ambientes
     
     def clean_imagen_principal(self):
         """Validar la imagen principal"""

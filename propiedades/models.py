@@ -59,6 +59,10 @@ class Propiedad(WebPImageFieldMixin, models.Model):
     metros_cuadrados = models.PositiveIntegerField(verbose_name="Metros Cuadrados")
     habitaciones = models.PositiveIntegerField(default=0, verbose_name="Habitaciones")
     banos = models.PositiveIntegerField(default=0, verbose_name="Baños")
+    ambientes = models.PositiveIntegerField(default=0, verbose_name="Ambientes", 
+                                          help_text="Número total de ambientes (incluye living, comedor, cocina, etc.)")
+    balcon = models.BooleanField(default=False, verbose_name="Tiene Balcón", 
+                                help_text="Indica si la propiedad cuenta con balcón")
     imagen_principal = models.ImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Principal")
     imagen_secundaria = models.ImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Secundaria")
     administrador = models.ForeignKey(

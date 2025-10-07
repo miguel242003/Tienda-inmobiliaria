@@ -4467,6 +4467,48 @@
                                 </div>
                             </div>
 
+                            <!-- Características Adicionales -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 modal-propiedad-grid-2">
+                                <div class="modal-propiedad-field">
+                                    <label for="{{ form.ambientes.id_for_label|safe|escapejs }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.ambientes.label|safe }}
+                                    </label>
+                                    {{ form.ambientes|safe }}
+                                    {% if form.ambientes.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.ambientes.errors %}
+                                                <p>{{ error|safe }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <p class="text-gray-500 text-xs mt-1">{{ form.ambientes.help_text|safe }}</p>
+                                </div>
+                                
+                                <div class="modal-propiedad-field">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        {{ form.balcon.label|safe }}
+                                    </label>
+                                    <div class="flex items-center space-x-4">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="{{ form.balcon.name }}" value="True" class="mr-2 text-blue-600 focus:ring-blue-500">
+                                            <span class="text-sm text-gray-700">Sí</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="{{ form.balcon.name }}" value="False" class="mr-2 text-blue-600 focus:ring-blue-500" checked>
+                                            <span class="text-sm text-gray-700">No</span>
+                                        </label>
+                                    </div>
+                                    {% if form.balcon.errors %}
+                                        <div class="text-red-600 text-sm mt-1">
+                                            {% for error in form.balcon.errors %}
+                                                <p>{{ error|safe }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <p class="text-gray-500 text-xs mt-1">{{ form.balcon.help_text|safe }}</p>
+                                </div>
+                            </div>
+
                             <!-- Imágenes -->
                             <div class="mb-6 modal-propiedad-imagenes">
                                 <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -7408,6 +7450,8 @@
                     { id: 'id_metros_cuadrados', type: 'metros', required: true },
                     { id: 'id_habitaciones', type: 'habitaciones', required: true },
                     { id: 'id_banos', type: 'banos', required: true },
+                    { id: 'id_ambientes', type: 'ambientes', required: true },
+                    { id: 'id_balcon', type: 'balcon', required: false },
                     { id: 'id_imagen_principal', type: 'imagen', required: true },
                     { id: 'id_imagen_secundaria', type: 'imagen', required: false },
                     { id: 'id_latitud', type: 'latitud', required: false },
@@ -7519,6 +7563,21 @@
                             this.showPropertyFieldError(input, 'Los baños no pueden ser mayor a 10.');
                             return false;
                         }
+                        break;
+                        
+                    case 'ambientes':
+                        const ambientes = parseInt(value);
+                        if (isNaN(ambientes) || ambientes < 0) {
+                            this.showPropertyFieldError(input, 'Los ambientes no pueden ser negativos.');
+                            return false;
+                        } else if (ambientes > 30) {
+                            this.showPropertyFieldError(input, 'Los ambientes no pueden ser mayor a 30.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'balcon':
+                        // El campo balcón es opcional, no requiere validación especial
                         break;
                         
                     case 'imagen':
@@ -8397,38 +8456,57 @@
                     
                     // Crear modal de confirmación personalizado
                     const modal = document.createElement('div');
-                    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    modal.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm';
                     modal.innerHTML = `
-                        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+                        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95">
                             <div class="p-6">
-                                <div class="flex items-center mb-4">
+                                <div class="flex items-center mb-6">
                                     <div class="flex-shrink-0">
-                                        <i data-lucide="trash-2" class="w-8 h-8 text-red-600"></i>
+                                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                                            <i data-lucide="trash-2" class="w-6 h-6 text-red-600"></i>
+                                        </div>
                                     </div>
-                                    <div class="ml-3">
-                                        <h3 class="text-lg font-semibold text-gray-900">Eliminar Currículum</h3>
+                                    <div class="ml-4">
+                                        <h3 class="text-xl font-bold text-gray-900">Eliminar Currículum</h3>
+                                        <p class="text-sm text-gray-500">Esta acción es permanente</p>
                                     </div>
                                 </div>
+                                
                                 <div class="mb-6">
-                                    <p class="text-sm text-gray-600 mb-2">
-                                        ¿Estás seguro de que quieres eliminar el CV de <strong>${nombreCompleto}</strong>?
-                                    </p>
-                                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                                        <div class="flex">
-                                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 mr-2 mt-0.5"></i>
-                                            <p class="text-sm text-red-700">
-                                                Esta acción no se puede deshacer. Se eliminará permanentemente el archivo y todos los datos del candidato.
-                                            </p>
+                                    <div class="bg-gray-50 rounded-xl p-4 mb-4">
+                                        <div class="flex items-center mb-2">
+                                            <i data-lucide="user" class="w-4 h-4 text-gray-500 mr-2"></i>
+                                            <span class="text-sm font-medium text-gray-700">Candidato:</span>
+                                        </div>
+                                        <p class="text-lg font-semibold text-gray-900 ml-6">${nombreCompleto}</p>
+                                    </div>
+                                    
+                                    <div class="bg-red-50 border-l-4 border-red-400 rounded-lg p-4">
+                                        <div class="flex items-start">
+                                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 mr-3 mt-0.5 flex-shrink-0"></i>
+                                            <div>
+                                                <h4 class="text-sm font-semibold text-red-800 mb-1">Advertencia Importante</h4>
+                                                <p class="text-sm text-red-700">
+                                                    Esta acción eliminará permanentemente:
+                                                </p>
+                                                <ul class="text-sm text-red-700 mt-2 ml-4 space-y-1">
+                                                    <li>• El archivo PDF del currículum</li>
+                                                    <li>• Todos los datos del candidato</li>
+                                                    <li>• El historial de contacto</li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="flex space-x-3">
-                                    <button id="cancelar-eliminar" class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                                    <button id="cancelar-eliminar" class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium flex items-center justify-center">
+                                        <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                                         Cancelar
                                     </button>
-                                    <button id="confirmar-eliminar" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                                    <button id="confirmar-eliminar" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-all duration-200 font-medium flex items-center justify-center shadow-lg hover:shadow-xl">
                                         <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
-                                        Eliminar
+                                        Eliminar Permanentemente
                                     </button>
                                 </div>
                             </div>
@@ -8439,16 +8517,36 @@
                     lucide.createIcons();
                     console.log('Modal creado y agregado al DOM');
                     
+                    // Animar entrada del modal
+                    setTimeout(() => {
+                        const modalContent = modal.querySelector('.bg-white');
+                        modalContent.classList.remove('scale-95');
+                        modalContent.classList.add('scale-100');
+                    }, 10);
+                    
                     // Event listeners para los botones
                     document.getElementById('cancelar-eliminar').addEventListener('click', () => {
                         console.log('Usuario canceló eliminación');
-                        document.body.removeChild(modal);
+                        // Animar salida del modal
+                        const modalContent = modal.querySelector('.bg-white');
+                        modalContent.classList.add('scale-95', 'opacity-0');
+                        setTimeout(() => {
+                            if (document.body.contains(modal)) {
+                                document.body.removeChild(modal);
+                            }
+                        }, 300);
                     });
                     
                     document.getElementById('confirmar-eliminar').addEventListener('click', () => {
                         console.log('Usuario confirmó eliminación');
-                        // Cerrar modal
-                        document.body.removeChild(modal);
+                        // Animar salida del modal
+                        const modalContent = modal.querySelector('.bg-white');
+                        modalContent.classList.add('scale-95', 'opacity-0');
+                        setTimeout(() => {
+                            if (document.body.contains(modal)) {
+                                document.body.removeChild(modal);
+                            }
+                        }, 300);
                         
                         // Mostrar indicador de carga
                         const btnEliminar = event.target.closest('button');
@@ -8530,13 +8628,42 @@
                 // Función para mostrar mensaje de éxito
                 function mostrarMensajeExito(mensaje, nombreCompleto) {
                     const toast = document.createElement('div');
-                    toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full';
+                    toast.className = 'fixed top-4 right-4 z-50 transform transition-all duration-500 translate-x-full';
                     toast.innerHTML = `
-                        <div class="flex items-center">
-                            <i data-lucide="check-circle" class="w-6 h-6 mr-3"></i>
-                            <div>
-                                <p class="font-semibold">¡CV Eliminado Exitosamente!</p>
-                                <p class="text-sm opacity-90">El currículum de ${nombreCompleto} ha sido eliminado permanentemente.</p>
+                        <div class="bg-white border-l-4 border-green-500 rounded-xl shadow-2xl max-w-sm w-full overflow-hidden">
+                            <div class="p-4">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-sm font-semibold text-gray-900">¡CV Eliminado!</h3>
+                                            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                        <div class="mt-1">
+                                            <p class="text-sm text-gray-600">
+                                                El currículum de <span class="font-medium text-gray-900">${nombreCompleto}</span> ha sido eliminado permanentemente.
+                                            </p>
+                                        </div>
+                                        <div class="mt-3 flex items-center">
+                                            <div class="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                                                <i data-lucide="shield-check" class="w-3 h-3 mr-1"></i>
+                                                <span>Archivo eliminado del servidor</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-green-50 px-4 py-2 border-t border-green-100">
+                                <div class="flex items-center text-xs text-green-700">
+                                    <i data-lucide="clock" class="w-3 h-3 mr-1"></i>
+                                    <span>Eliminado hace unos segundos</span>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -8544,32 +8671,63 @@
                     document.body.appendChild(toast);
                     lucide.createIcons();
                     
-                    // Animar entrada
+                    // Animar entrada con efecto de rebote
                     setTimeout(() => {
                         toast.classList.remove('translate-x-full');
+                        toast.classList.add('animate-bounce');
+                        setTimeout(() => {
+                            toast.classList.remove('animate-bounce');
+                        }, 600);
                     }, 100);
                     
-                    // Auto-remover después de 3 segundos
+                    // Auto-remover después de 5 segundos con animación de salida
                     setTimeout(() => {
-                        toast.classList.add('translate-x-full');
+                        toast.classList.add('translate-x-full', 'opacity-0');
                         setTimeout(() => {
                             if (document.body.contains(toast)) {
                                 document.body.removeChild(toast);
                             }
-                        }, 300);
-                    }, 3000);
+                        }, 500);
+                    }, 5000);
                 }
                 
                 // Función para mostrar mensaje de error
                 function mostrarMensajeError(mensaje) {
                     const toast = document.createElement('div');
-                    toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full';
+                    toast.className = 'fixed top-4 right-4 z-50 transform transition-all duration-500 translate-x-full';
                     toast.innerHTML = `
-                        <div class="flex items-center">
-                            <i data-lucide="alert-circle" class="w-6 h-6 mr-3"></i>
-                            <div>
-                                <p class="font-semibold">Error al Eliminar</p>
-                                <p class="text-sm opacity-90">${mensaje}</p>
+                        <div class="bg-white border-l-4 border-red-500 rounded-xl shadow-2xl max-w-sm w-full overflow-hidden">
+                            <div class="p-4">
+                                <div class="flex items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                            <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <h3 class="text-sm font-semibold text-gray-900">Error al Eliminar</h3>
+                                            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                        <div class="mt-1">
+                                            <p class="text-sm text-gray-600">${mensaje}</p>
+                                        </div>
+                                        <div class="mt-3 flex items-center">
+                                            <div class="flex items-center text-xs text-red-600 bg-red-50 px-2 py-1 rounded-full">
+                                                <i data-lucide="alert-triangle" class="w-3 h-3 mr-1"></i>
+                                                <span>No se pudo completar la acción</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-red-50 px-4 py-2 border-t border-red-100">
+                                <div class="flex items-center text-xs text-red-700">
+                                    <i data-lucide="refresh-cw" class="w-3 h-3 mr-1"></i>
+                                    <span>Intenta nuevamente en unos segundos</span>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -8577,20 +8735,24 @@
                     document.body.appendChild(toast);
                     lucide.createIcons();
                     
-                    // Animar entrada
+                    // Animar entrada con efecto de rebote
                     setTimeout(() => {
                         toast.classList.remove('translate-x-full');
+                        toast.classList.add('animate-bounce');
+                        setTimeout(() => {
+                            toast.classList.remove('animate-bounce');
+                        }, 600);
                     }, 100);
                     
-                    // Auto-remover después de 4 segundos
+                    // Auto-remover después de 6 segundos con animación de salida
                     setTimeout(() => {
-                        toast.classList.add('translate-x-full');
+                        toast.classList.add('translate-x-full', 'opacity-0');
                         setTimeout(() => {
                             if (document.body.contains(toast)) {
                                 document.body.removeChild(toast);
                             }
-                        }, 300);
-                    }, 4000);
+                        }, 500);
+                    }, 6000);
                 }
                 
                 // Event listeners para gestión de reseñas
