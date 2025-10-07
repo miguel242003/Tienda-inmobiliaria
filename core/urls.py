@@ -10,4 +10,5 @@ urlpatterns = [
     path('consorcio/', views.consorcio, name='consorcio'),
     path('cv/', views.cv, name='cv'),
     path('download-cv/<int:cv_id>/', views.download_cv, name='download_cv'),
+    path('delete-cv/<int:cv_id>/', views.delete_cv, name='delete_cv'),
 ]

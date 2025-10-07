@@ -3,8 +3,9 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.utils.encoding import smart_str
+from django.contrib.auth.decorators import login_required
 import os
 from propiedades.models import Propiedad
 from .forms import CVSubmissionForm, ContactSubmissionForm
@@ -156,9 +157,6 @@ def cv(request):
                 
                 # Enviar email de confirmación al candidato
                 send_cv_confirmation_email(cv_submission)
-                
-                # Enviar email de notificación al administrador
-                send_cv_notification_email(cv_submission)
                 
                 messages.success(
                     request, 
@@ -318,6 +316,38 @@ def download_cv(request, cv_id):
     except Exception as e:
         print(f"Error descargando CV: {e}")
         raise Http404("Error al descargar el archivo CV")
+
+
+@login_required
+def delete_cv(request, cv_id):
+    """Vista para eliminar un CV"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'message': 'No tienes permisos para realizar esta acción.'}, status=403)
+    
+    try:
+        cv_submission = get_object_or_404(CVSubmission, id=cv_id)
+        
+        # Eliminar el archivo físico si existe
+        if cv_submission.cv_file and cv_submission.cv_file.path:
+            try:
+                if os.path.exists(cv_submission.cv_file.path):
+                    os.remove(cv_submission.cv_file.path)
+            except Exception as e:
+                print(f"Error eliminando archivo físico: {e}")
+        
+        # Eliminar el registro de la base de datos
+        cv_submission.delete()
+        
+        return JsonResponse({
+            'success': True, 
+            'message': f'CV de {cv_submission.nombre_completo} eliminado exitosamente.'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False, 
+            'message': f'Error al eliminar el CV: {str(e)}'
+        }, status=500)
 
 
 def send_contact_confirmation_email(contact_submission):
