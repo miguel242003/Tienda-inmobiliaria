@@ -330,7 +330,13 @@ CONTENT_SECURITY_POLICY = {
         'img-src': (
             "'self'",
             'data:',  # Para imágenes base64
+            'blob:',  # Para URLs blob (previsualización de archivos)
             'https:',  # Permitir imágenes HTTPS
+        ),
+        'media-src': (
+            "'self'",
+            'blob:',  # Para URLs blob (previsualización de archivos)
+            'data:',  # Para media base64
         ),
         'font-src': (
             "'self'",
