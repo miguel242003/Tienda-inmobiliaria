@@ -4,6 +4,17 @@ from .models import Propiedad, Amenidad, Resena
 class PropiedadForm(forms.ModelForm):
     """Formulario para crear y editar propiedades"""
     
+    # Sobrescribir el campo precio para evitar formato automático de decimales
+    precio = forms.CharField(
+        label='Precio',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Ej: 100.000 o 1.500.000',
+            'title': 'Ingrese el precio (puede usar punto o coma como separador de miles)',
+            'required': True
+        })
+    )
+    
     class Meta:
         model = Propiedad
         fields = [
@@ -26,12 +37,6 @@ class PropiedadForm(forms.ModelForm):
                 'placeholder': 'Describa la propiedad en detalle',
                 'pattern': '^.{10,1000}$',
                 'title': 'La descripción debe tener entre 10 y 1000 caracteres',
-                'required': True
-            }),
-            'precio': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: 100.000 o 1.500.000',
-                'title': 'Ingrese el precio (puede usar punto o coma como separador de miles)',
                 'required': True
             }),
             'tipo': forms.Select(attrs={
@@ -128,7 +133,6 @@ class PropiedadForm(forms.ModelForm):
         labels = {
             'titulo': 'Título de la Propiedad',
             'descripcion': 'Descripción',
-            'precio': 'Precio',
             'tipo': 'Tipo de Propiedad',
             'operacion': 'Tipo de Operación',
             'estado': 'Estado',
