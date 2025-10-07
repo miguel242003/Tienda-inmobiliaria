@@ -143,6 +143,9 @@ class CVSubmissionForm(forms.ModelForm):
     
     def clean_email(self):
         """Validación personalizada para el email"""
+        from django.utils import timezone
+        from datetime import timedelta
+        
         email = self.cleaned_data.get('email')
         
         if not email:
@@ -159,7 +162,27 @@ class CVSubmissionForm(forms.ModelForm):
             raise ValidationError('El correo electrónico no puede exceder los 254 caracteres.')
         
         # Normalizar email (convertir a minúsculas)
-        return email.lower().strip()
+        email_normalizado = email.lower().strip()
+        
+        # 🔒 VALIDACIÓN: Solo permitir un CV cada 20 días por email
+        tiempo_limite = timezone.now() - timedelta(days=20)
+        
+        ultimo_cv = CVSubmission.objects.filter(
+            email=email_normalizado,
+            fecha_envio__gte=tiempo_limite
+        ).first()
+        
+        if ultimo_cv:
+            tiempo_transcurrido = timezone.now() - ultimo_cv.fecha_envio
+            dias_transcurridos = int(tiempo_transcurrido.total_seconds() / 86400)  # 86400 segundos = 1 día
+            dias_restantes = 20 - dias_transcurridos
+            
+            raise ValidationError(
+                f'Ya has enviado un CV con este correo electrónico el {ultimo_cv.fecha_envio.strftime("%d/%m/%Y")}. '
+                f'Por favor espera {dias_restantes} día(s) más antes de enviar otro CV.'
+            )
+        
+        return email_normalizado
     
     def clean_telefono(self):
         """Validación personalizada para el teléfono"""

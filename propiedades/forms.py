@@ -28,13 +28,10 @@ class PropiedadForm(forms.ModelForm):
                 'title': 'La descripción debe tener entre 10 y 1000 caracteres',
                 'required': True
             }),
-            'precio': forms.NumberInput(attrs={
+            'precio': forms.TextInput(attrs={
                 'class': 'form-control',
-                'step': '0.01',
-                'min': '1',
-                'max': '999999999',
-                'placeholder': '0.00',
-                'title': 'El precio debe ser mayor a 0 y menor a 999,999,999',
+                'placeholder': 'Ej: 100.000 o 1.500.000',
+                'title': 'Ingrese el precio (puede usar punto o coma como separador de miles)',
                 'required': True
             }),
             'tipo': forms.Select(attrs={
@@ -177,12 +174,70 @@ class PropiedadForm(forms.ModelForm):
     
     def clean_precio(self):
         """Validar que el precio sea mayor a 0"""
-        precio = self.cleaned_data.get('precio')
-        if precio:
-            if precio <= 0:
-                raise forms.ValidationError('El precio debe ser mayor a 0.')
-            elif precio > 999999999:
-                raise forms.ValidationError('El precio no puede ser mayor a 999,999,999.')
+        precio_str = self.cleaned_data.get('precio')
+        
+        if not precio_str:
+            raise forms.ValidationError('El precio es obligatorio.')
+        
+        # Convertir a string si es necesario
+        precio_str = str(precio_str).strip()
+        
+        # Remover espacios en blanco
+        precio_str = precio_str.replace(' ', '')
+        
+        # Detectar si usa coma como separador decimal o punto
+        # Formato argentino: 100.000 o 100.000,50 (punto como separador de miles, coma como decimal)
+        # Formato internacional: 100,000 o 100,000.50 (coma como separador de miles, punto como decimal)
+        
+        # Si tiene tanto punto como coma, determinar cuál es el decimal
+        if ',' in precio_str and '.' in precio_str:
+            # El último separador es el decimal
+            pos_coma = precio_str.rfind(',')
+            pos_punto = precio_str.rfind('.')
+            
+            if pos_punto > pos_coma:
+                # Formato internacional: 1.000.000,50 o 1,000,000.50
+                # El punto es el decimal, remover comas
+                precio_str = precio_str.replace(',', '')
+            else:
+                # Formato argentino: 1,000,000.50 o 1.000.000,50
+                # La coma es el decimal, remover puntos y cambiar coma por punto
+                precio_str = precio_str.replace('.', '').replace(',', '.')
+        elif ',' in precio_str:
+            # Solo tiene coma, puede ser separador de miles o decimal
+            partes = precio_str.split(',')
+            if len(partes) == 2 and len(partes[1]) <= 2:
+                # Es decimal (ej: 100,50)
+                precio_str = precio_str.replace(',', '.')
+            else:
+                # Es separador de miles (ej: 100,000 o 1,000,000)
+                precio_str = precio_str.replace(',', '')
+        elif '.' in precio_str:
+            # Solo tiene punto, puede ser separador de miles o decimal
+            partes = precio_str.split('.')
+            if len(partes) == 2 and len(partes[1]) <= 2:
+                # Es decimal (ej: 100.50)
+                # Ya está en formato correcto
+                pass
+            else:
+                # Es separador de miles (ej: 100.000 o 1.000.000)
+                precio_str = precio_str.replace('.', '')
+        
+        # Intentar convertir a decimal
+        try:
+            from decimal import Decimal, InvalidOperation
+            precio = Decimal(precio_str)
+        except (ValueError, InvalidOperation):
+            raise forms.ValidationError('El precio debe ser un número válido. Ejemplos: 100000, 100.000, 100000.50')
+        
+        # Validar que sea mayor a 0
+        if precio <= 0:
+            raise forms.ValidationError('El precio debe ser mayor a 0.')
+        
+        # Validar que no sea mayor a 999,999,999
+        if precio > 999999999:
+            raise forms.ValidationError('El precio no puede ser mayor a 999,999,999.')
+        
         return precio
     
     def clean_ubicacion(self):
