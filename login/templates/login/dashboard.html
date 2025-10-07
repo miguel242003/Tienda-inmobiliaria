@@ -928,7 +928,7 @@
         }
         
         /* Mejorar visualización en pantallas medianas */
-        @media (min-width: 640px) and (max-width: 768px) {
+        @media (min-width: 640px) and (max-width: 1024px) {
             .cv-card {
                 padding: 1rem;
             }
@@ -944,6 +944,13 @@
             .cv-card a, .cv-card button {
                 padding: 0.75rem 1rem;
                 font-size: 0.9rem;
+            }
+            
+            /* Mejorar layout en pantallas medianas */
+            .cvs-mobile-cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1rem;
             }
         }
         
@@ -974,13 +981,13 @@
         }
         
         /* Asegurar que las cards móviles se vean en pantallas medianas */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .cvs-mobile-cards {
                 display: block !important;
             }
         }
         
-        @media (min-width: 769px) {
+        @media (min-width: 1025px) {
             .cvs-mobile-cards {
                 display: none !important;
             }
@@ -3545,7 +3552,7 @@
                         </div>
                         
                         <!-- Tabla Desktop -->
-                        <div class="hidden md:block overflow-x-auto">
+                        <div class="hidden lg:block overflow-x-auto">
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -3630,7 +3637,7 @@
                         </div>
 
                         <!-- Cards Móviles -->
-                        <div class="md:hidden p-4 sm:p-6 cvs-mobile-cards">
+                        <div class="lg:hidden p-4 sm:p-6 cvs-mobile-cards">
                             {% for cv in cvs_recientes %}
                             <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4 cv-card">
                                 <div class="flex items-start justify-between mb-3">
