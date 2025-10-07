@@ -3703,7 +3703,7 @@
                                                    title="Enviar email">
                                                     <i data-lucide="mail" class="w-4 h-4"></i>
                                                 </a>
-                                                <button onclick="eliminarCV({{ cv.id|safe }}, '{{ cv.nombre_completo|escapejs }}')" 
+                                                <button type="button" onclick="eliminarCV({{ cv.id|safe }}, '{{ cv.nombre_completo|escapejs }}')" 
                                                         class="text-red-600 hover:text-red-900" 
                                                         title="Eliminar CV">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -3788,7 +3788,7 @@
                                         <i data-lucide="mail" class="w-4 h-4 mr-1"></i>
                                         Contactar
                                     </a>
-                                    <button onclick="eliminarCV({{ cv.id|safe }}, '{{ cv.nombre_completo|escapejs }}')" 
+                                    <button type="button" onclick="eliminarCV({{ cv.id|safe }}, '{{ cv.nombre_completo|escapejs }}')" 
                                             class="bg-red-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-700 transition-colors">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
@@ -4946,6 +4946,8 @@
 
     <!-- JavaScript organizado en módulos -->
     <script>
+        console.log('Dashboard JavaScript cargado');
+        
         // ========================================
         // FUNCIONES DE NAVEGACIÓN CENTRALIZADAS
         // ========================================
@@ -8377,6 +8379,46 @@
                 
                 // Función para eliminar CV
                 window.eliminarCV = function(cvId, nombreCompleto) {
+                    console.log('eliminarCV llamada con:', cvId, nombreCompleto);
+                    
+                    // Versión simplificada para debuggear
+                    if (confirm(`¿Estás seguro de que quieres eliminar el CV de ${nombreCompleto}?`)) {
+                        console.log('Usuario confirmó eliminación');
+                        
+                        // Mostrar indicador de carga
+                        const btnEliminar = event.target.closest('button');
+                        const iconoOriginal = btnEliminar.innerHTML;
+                        btnEliminar.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
+                        btnEliminar.disabled = true;
+                        
+                        fetch(`/delete-cv/${cvId}/`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Respuesta del servidor:', data);
+                            if (data.success) {
+                                alert(`¡CV eliminado exitosamente! ${data.message}`);
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                                btnEliminar.innerHTML = iconoOriginal;
+                                btnEliminar.disabled = false;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error al eliminar el CV. Por favor intenta nuevamente.');
+                            btnEliminar.innerHTML = iconoOriginal;
+                            btnEliminar.disabled = false;
+                        });
+                    }
+                    return;
+                    
                     // Crear modal de confirmación personalizado
                     const modal = document.createElement('div');
                     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
