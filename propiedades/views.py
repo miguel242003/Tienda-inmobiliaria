@@ -70,9 +70,9 @@ def lista_propiedades(request):
     
     return render(request, 'propiedades/buscar_propiedades.html', context)
 
-def detalle_propiedad(request, propiedad_id):
+def detalle_propiedad(request, slug):
     """Vista para mostrar el detalle de una propiedad"""
-    propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+    propiedad = get_object_or_404(Propiedad, slug=slug)
     
     # Procesar formulario de contacto si es POST
     if request.method == 'POST':
@@ -106,7 +106,7 @@ def detalle_propiedad(request, propiedad_id):
                     request, 
                     '¡Mensaje enviado exitosamente! Hemos recibido tu consulta y te contactaremos pronto.'
                 )
-                return redirect('propiedades:detalle', propiedad_id=propiedad.id)
+                return redirect('propiedades:detalle', slug=propiedad.slug)
                 
             except Exception as e:
                 messages.error(
@@ -378,11 +378,11 @@ def crear_propiedad(request):
                     'success': True,
                     'message': 'Propiedad creada exitosamente.',
                     'propiedad_id': propiedad.id,
-                    'redirect_url': reverse('propiedades:detalle', args=[propiedad.id])
+                    'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug])
                 })
             else:
                 messages.success(request, 'Propiedad creada exitosamente.')
-                return redirect('propiedades:detalle', propiedad.id)
+                return redirect('propiedades:detalle', slug=propiedad.slug)
         else:
             # Verificar si es una petición AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -447,9 +447,9 @@ def registrar_click(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
-def crear_resena(request, propiedad_id):
+def crear_resena(request, slug):
     """Vista para crear una nueva reseña de una propiedad"""
-    propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+    propiedad = get_object_or_404(Propiedad, slug=slug)
     
     if request.method == 'POST':
         from .forms import ResenaForm

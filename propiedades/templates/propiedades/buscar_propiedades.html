@@ -181,7 +181,7 @@ OPCIONES PARA BAJAR EL FILTRO:
                             {% else %}
                                 <h4 class="text-primary mb-0">{{ propiedad.get_precio_formateado }}</h4>
                             {% endif %}
-                            <a href="{% url 'propiedades:detalle' propiedad.id %}" class="btn btn-outline-primary">
+                            <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary">
                                 Ver Detalles
                             </a>
                         </div>

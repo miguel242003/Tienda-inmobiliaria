@@ -52,7 +52,7 @@
                     </a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="{% url 'propiedades:detalle' propiedad.id %}" class="text-white hover:text-blue-200 transition-colors">
+                    <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="text-white hover:text-blue-200 transition-colors">
                         <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
                         Volver a la Propiedad
                     </a>
@@ -254,7 +254,7 @@
 
                     <!-- Botones -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                        <a href="{% url 'propiedades:detalle' propiedad.id %}" 
+                        <a href="{% url 'propiedades:detalle' propiedad.slug %}" 
                            class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-center">
                             <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                             Cancelar
@@ -320,7 +320,7 @@
                         
                         // Redirigir después de 3 segundos
                         setTimeout(() => {
-                            window.location.href = '{% url "propiedades:detalle" propiedad.id %}';
+                            window.location.href = '{% url "propiedades:detalle" propiedad.slug %}';
                         }, 3000);
                     } else {
                         // Mostrar errores

@@ -40,6 +40,7 @@ class Propiedad(models.Model):
     ]
     
     titulo = models.CharField(max_length=200, verbose_name="Título")
+    slug = models.SlugField(max_length=250, unique=True, blank=True, verbose_name="URL amigable")
     descripcion = models.TextField(verbose_name="Descripción")
     precio = models.DecimalField(
         max_digits=12, 
@@ -97,6 +98,13 @@ class Propiedad(models.Model):
     
     def __str__(self):
         return self.titulo
+    
+    def save(self, *args, **kwargs):
+        """Generar slug automáticamente si no existe"""
+        if not self.slug:
+            from django.utils.text import slugify
+            self.slug = slugify(self.titulo)
+        super().save(*args, **kwargs)
     
     def get_precio_formateado(self):
         # 🔥 FORMATO ARGENTINO: 110.000 en lugar de 110,000.00
