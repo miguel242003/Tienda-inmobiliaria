@@ -524,10 +524,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
     const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
     
-    // Remover atributos que causan formato automático
+    // FORZAR que el input de precio sea tipo texto y sin formato automático
     if (precioInput) {
+        // Forzar tipo text
+        precioInput.setAttribute('type', 'text');
+        
+        // Remover todos los atributos que causan formato
         precioInput.removeAttribute('step');
+        precioInput.removeAttribute('min');
+        precioInput.removeAttribute('max');
+        
+        // Configurar inputmode para teclado numérico en móviles
         precioInput.setAttribute('inputmode', 'numeric');
+        
+        // Si viene con valor pre-formateado (ej: al editar), limpiarlo
+        if (precioInput.value && precioInput.value.includes('.00')) {
+            // Remover solo si termina en .00
+            if (precioInput.value.endsWith('.00')) {
+                precioInput.value = precioInput.value.replace(/\.00$/, '');
+            }
+        }
         
         // Formato de precio - permitir puntos y comas como separadores
         precioInput.addEventListener('input', function(e) {
@@ -537,9 +553,16 @@ document.addEventListener('DOMContentLoaded', function() {
             e.target.value = value;
         });
         
-        // Prevenir el formato automático al salir del campo
+        // Prevenir el formato automático al salir del campo (blur)
         precioInput.addEventListener('blur', function(e) {
-            // No hacer nada, dejar el valor tal cual
+            // No hacer nada, dejar el valor tal cual está
+        });
+        
+        // Prevenir formato al cargar la página
+        precioInput.addEventListener('change', function(e) {
+            // Solo limpiar caracteres no permitidos
+            let value = e.target.value.replace(/[^\d.,\s]/g, '');
+            e.target.value = value;
         });
     }
     
