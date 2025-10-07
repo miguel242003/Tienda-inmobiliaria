@@ -457,54 +457,6 @@ class DashboardForms {
                 this.handleCheckboxChange(e.target);
             }
         });
-
-        // Currency formatting for price fields - DISABLED
-        // document.addEventListener('input', (e) => {
-        //     if (e.target.hasAttribute('data-mask') && e.target.getAttribute('data-mask') === 'currency') {
-        //         this.formatCurrency(e.target);
-        //     }
-        // });
-    }
-
-    /**
-     * Format currency input (Argentine format: 100.000,00)
-     */
-    formatCurrency(input) {
-        let value = input.value;
-        
-        if (value === '') {
-            input.value = '';
-            return;
-        }
-
-        // Remove all non-digit characters except comma
-        let cleanValue = value.replace(/[^\d,]/g, '');
-        
-        // If there's a comma, handle decimal part
-        if (cleanValue.includes(',')) {
-            const parts = cleanValue.split(',');
-            if (parts.length === 2) {
-                // Format integer part with dots and keep decimal part
-                const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                const decimalPart = parts[1].substring(0, 2); // Max 2 decimal places
-                input.value = integerPart + ',' + decimalPart;
-            }
-        } else {
-            // No decimal part, just format with dots (only if number is > 999)
-            const num = parseInt(cleanValue) || 0;
-            if (num > 999) {
-                input.value = this.formatNumber(num);
-            } else {
-                input.value = num.toString();
-            }
-        }
-    }
-
-    /**
-     * Format number with Argentine thousands separator
-     */
-    formatNumber(num) {
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
     /**

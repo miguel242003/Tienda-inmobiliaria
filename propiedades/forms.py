@@ -28,12 +28,14 @@ class PropiedadForm(forms.ModelForm):
                 'title': 'La descripción debe tener entre 10 y 1000 caracteres',
                 'required': True
             }),
-            'precio': forms.TextInput(attrs={
+            'precio': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'placeholder': '100.000,00',
-                'title': 'El precio debe ser mayor a 0 y menor a 999,999,999 (formato: 100.000,00)',
-                'required': True,
-                'pattern': '^[0-9]{1,3}(\\.[0-9]{3})*(,[0-9]{2})?$'
+                'step': '0.01',
+                'min': '1',
+                'max': '999999999',
+                'placeholder': '0.00',
+                'title': 'El precio debe ser mayor a 0 y menor a 999,999,999',
+                'required': True
             }),
             'tipo': forms.Select(attrs={
                 'class': 'form-control',
@@ -174,28 +176,14 @@ class PropiedadForm(forms.ModelForm):
         return descripcion
     
     def clean_precio(self):
-        """Validar que el precio sea mayor a 0 y convertir formato argentino"""
-        precio_str = self.cleaned_data.get('precio')
-        if not precio_str:
-            raise forms.ValidationError('El precio es obligatorio.')
-        
-        try:
-            # Convertir formato argentino (100.000,00) a formato decimal (100000.00)
-            # Remover puntos (separadores de miles) y reemplazar coma por punto
-            precio_limpio = precio_str.replace('.', '').replace(',', '.')
-            precio = float(precio_limpio)
-            
+        """Validar que el precio sea mayor a 0"""
+        precio = self.cleaned_data.get('precio')
+        if precio:
             if precio <= 0:
                 raise forms.ValidationError('El precio debe ser mayor a 0.')
             elif precio > 999999999:
                 raise forms.ValidationError('El precio no puede ser mayor a 999,999,999.')
-            
-            return precio
-            
-        except ValueError:
-            raise forms.ValidationError(
-                'Formato de precio inválido. Use el formato: 100.000,00 (ej: 150.000,50)'
-            )
+        return precio
     
     def clean_ubicacion(self):
         """Validar la ubicación de la propiedad"""
