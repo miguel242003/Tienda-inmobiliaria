@@ -8517,34 +8517,43 @@
                         modalContent.classList.add('scale-100');
                     }, 10);
                     
-                    // Event listeners para los botones
-                    document.getElementById('cancelar-eliminar').addEventListener('click', () => {
-                        console.log('Usuario canceló eliminación');
-                        // Animar salida del modal
-                        const modalContent = modal.querySelector('.bg-white');
-                        modalContent.classList.add('scale-95', 'opacity-0');
-                        setTimeout(() => {
-                            if (document.body.contains(modal)) {
-                                document.body.removeChild(modal);
-                            }
-                        }, 300);
-                    });
-                    
-                    document.getElementById('confirmar-eliminar').addEventListener('click', () => {
-                        console.log('Usuario confirmó eliminación');
+                    // Event listeners para los botones - con delay para asegurar que los elementos estén disponibles
+                    setTimeout(() => {
+                        const btnCancelar = document.getElementById('cancelar-eliminar');
+                        const btnConfirmar = document.getElementById('confirmar-eliminar');
                         
-                        // Cerrar modal inmediatamente
-                        const modalContent = modal.querySelector('.bg-white');
-                        modalContent.classList.add('scale-95', 'opacity-0');
-                        setTimeout(() => {
-                            if (document.body.contains(modal)) {
-                                document.body.removeChild(modal);
-                            }
-                        }, 300);
+                        if (btnCancelar) {
+                            btnCancelar.addEventListener('click', () => {
+                                console.log('Usuario canceló eliminación');
+                                // Animar salida del modal
+                                const modalContent = modal.querySelector('.bg-white');
+                                modalContent.classList.add('scale-95', 'opacity-0');
+                                setTimeout(() => {
+                                    if (document.body.contains(modal)) {
+                                        document.body.removeChild(modal);
+                                    }
+                                }, 300);
+                            });
+                        }
                         
-                        // Ejecutar eliminación
-                        eliminarCVDirecto(cvId, nombreCompleto);
-                    });
+                        if (btnConfirmar) {
+                            btnConfirmar.addEventListener('click', () => {
+                                console.log('Usuario confirmó eliminación');
+                                
+                                // Cerrar modal inmediatamente
+                                const modalContent = modal.querySelector('.bg-white');
+                                modalContent.classList.add('scale-95', 'opacity-0');
+                                setTimeout(() => {
+                                    if (document.body.contains(modal)) {
+                                        document.body.removeChild(modal);
+                                    }
+                                }, 300);
+                                
+                                // Ejecutar eliminación
+                                eliminarCVDirecto(cvId, nombreCompleto);
+                            });
+                        }
+                    }, 50);
                 };
                 
                 // Función para eliminar CV directamente
