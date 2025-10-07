@@ -99,7 +99,13 @@ class Propiedad(models.Model):
         return self.titulo
     
     def get_precio_formateado(self):
-        return f"${self.precio:,.2f}"
+        # 🔥 FORMATO ARGENTINO: 110.000 en lugar de 110,000.00
+        try:
+            # Formatear con punto como separador de miles
+            formatted = f"{self.precio:,.0f}".replace(',', '.')
+            return f"${formatted}"
+        except (ValueError, TypeError):
+            return f"${self.precio}"
     
     def get_total_fotos(self):
         """Retorna el total de fotos de la propiedad"""

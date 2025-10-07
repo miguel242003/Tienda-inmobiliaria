@@ -159,6 +159,13 @@ USE_I18N = True
 
 USE_TZ = True
 
+# 🔥 CONFIGURACIÓN DE FORMATO ARGENTINO
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
+NUMBER_GROUPING = 3
+DECIMAL_SEPARATOR = ','
+THOUSAND_SEPARATOR = '.'
+
 
 # Archivos estáticos (CSS, JavaScript, Imágenes)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/

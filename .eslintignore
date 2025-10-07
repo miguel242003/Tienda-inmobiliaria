@@ -1,11 +1,10 @@
-# Ignorar archivos HTML con plantillas Django
-**/*.html
-**/templates/**
-**/static/**
+# Ignorar archivos de templates Django
+login/templates/login/dashboard.html
+propiedades/templates/**/*.html
+core/templates/**/*.html
+static/js/**/*.js
 
-# Ignorar archivos de Python
-**/*.py
-**/__pycache__/
-**/migrations/
-**/venv/
-**/env/
+# Ignorar archivos de configuración
+*.conf
+*.sh
+*.py
