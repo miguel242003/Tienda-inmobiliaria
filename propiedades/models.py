@@ -99,7 +99,7 @@ class Propiedad(models.Model):
         return self.titulo
     
     def get_precio_formateado(self):
-        return f"${self.precio:,.2f}"
+        return f"${self.precio:,.0f}"
     
     def get_total_fotos(self):
         """Retorna el total de fotos de la propiedad"""
