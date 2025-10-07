@@ -978,6 +978,37 @@
                 justify-content: space-between;
                 align-items: flex-start;
             }
+            
+            /* Asegurar que la tabla se vea en desktop */
+            .cvs-desktop-table {
+                display: block !important;
+                width: 100%;
+            }
+            
+            .cvs-desktop-table table {
+                width: 100%;
+                table-layout: auto;
+            }
+            
+            .cvs-desktop-table th,
+            .cvs-desktop-table td {
+                padding: 1rem 1.5rem;
+                text-align: left;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .cvs-desktop-table th {
+                background-color: #f9fafb;
+                font-weight: 600;
+                font-size: 0.875rem;
+                color: #6b7280;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            
+            .cvs-desktop-table tbody tr:hover {
+                background-color: #f9fafb;
+            }
         }
         
         /* Asegurar que las cards móviles se vean en pantallas medianas */
@@ -990,6 +1021,36 @@
         @media (min-width: 1025px) {
             .cvs-mobile-cards {
                 display: none !important;
+            }
+        }
+        
+        /* Asegurar que la tabla desktop se vea en monitores grandes */
+        @media (min-width: 1025px) {
+            .cvs-desktop-table {
+                display: block !important;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .cvs-desktop-table {
+                display: none !important;
+            }
+        }
+        
+        /* Monitores muy grandes (1440px+) */
+        @media (min-width: 1440px) {
+            .cvs-desktop-table {
+                display: block !important;
+                max-width: none;
+            }
+            
+            .cvs-desktop-table table {
+                font-size: 0.9rem;
+            }
+            
+            .cvs-desktop-table th,
+            .cvs-desktop-table td {
+                padding: 1.25rem 1.5rem;
             }
         }
 
@@ -3552,7 +3613,7 @@
                         </div>
                         
                         <!-- Tabla Desktop -->
-                        <div class="hidden lg:block overflow-x-auto">
+                        <div class="hidden lg:block overflow-x-auto cvs-desktop-table">
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
