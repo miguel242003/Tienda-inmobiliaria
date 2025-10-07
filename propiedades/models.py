@@ -127,9 +127,6 @@ class Propiedad(models.Model):
             return self.fotos.all()[1].imagen
         return None
     
-    def get_capacidad_personas(self):
-        """Retorna la capacidad de personas (habitaciones + 2)"""
-        return self.habitaciones + 2
     
     def get_foto_por_posicion(self, posicion):
         """Retorna la foto en la posición especificada (1, 2, 3, etc.)"""
