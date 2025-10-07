@@ -3381,7 +3381,7 @@
                                                    class="hidden">
                                             <div class="text-sm text-gray-600">
                                                 <p class="font-medium">Cambiar foto de perfil</p>
-                                                <p class="text-gray-500">JPG, PNG o GIF. Máximo 5MB</p>
+                                                <p class="text-gray-500">JPG, PNG o GIF. Máximo 20MB</p>
                                             </div>
                                         </div>
                                     </div>
@@ -4026,7 +4026,7 @@
                                         <div class="upload-content">
                                             <i data-lucide="upload" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
                                             <h6 class="text-gray-600 mb-2">Arrastra y suelta archivos aquí o haz clic para seleccionar</h6>
-                                            <p class="text-gray-500 text-sm mb-2">Máximo 10 archivos de 50MB cada uno</p>
+                                            <p class="text-gray-500 text-sm mb-2">Máximo 10 archivos de 200MB cada uno</p>
                                             <p class="text-gray-500 text-xs mb-4">Imágenes: JPG, PNG | Videos: MP4, AVI, MOV</p>
                                             <input type="file" id="fotosInput" multiple accept="image/*,video/*" class="hidden">
                                             <button type="button" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors" onclick="document.getElementById('fotosInput').click()">
@@ -5226,9 +5226,9 @@
                         return;
                     }
                     
-                    // Validar tamaño (5MB)
-                    if (file.size > 5 * 1024 * 1024) {
-                        mostrarMensaje('La imagen debe ser menor a 5MB.', 'danger');
+                    // Validar tamaño (20MB)
+                    if (file.size > 20 * 1024 * 1024) {
+                        mostrarMensaje('La imagen debe ser menor a 20MB.', 'danger');
                         return;
                     }
                     
@@ -5373,14 +5373,14 @@
                 const fotoInput = document.getElementById('foto-perfil-input');
                 if (fotoInput.files.length > 0) {
                     const file = fotoInput.files[0];
-                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    const maxSize = 20 * 1024 * 1024; // 20MB
                     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
                     
                     if (!allowedTypes.includes(file.type)) {
                         this.showFieldError(fotoInput, 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)');
                         isValid = false;
                     } else if (file.size > maxSize) {
-                        this.showFieldError(fotoInput, 'El archivo debe ser menor a 5MB');
+                        this.showFieldError(fotoInput, 'El archivo debe ser menor a 20MB');
                         isValid = false;
                     } else {
                         this.showFieldSuccess(fotoInput);
@@ -5513,14 +5513,14 @@
                 } else if (fieldType === 'foto') {
                     if (input.files.length > 0) {
                         const file = input.files[0];
-                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        const maxSize = 20 * 1024 * 1024; // 20MB
                         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
                         
                         if (!allowedTypes.includes(file.type)) {
                             errorMessage = 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)';
                             isValid = false;
                         } else if (file.size > maxSize) {
-                            errorMessage = 'El archivo debe ser menor a 5MB';
+                            errorMessage = 'El archivo debe ser menor a 20MB';
                             isValid = false;
                         }
                     }
@@ -5819,9 +5819,9 @@
                                 return;
                             }
                             
-                            // Validar tamaño (5MB)
-                            if (file.size > 5 * 1024 * 1024) {
-                                alert('La imagen debe ser menor a 5MB.');
+                            // Validar tamaño (20MB)
+                            if (file.size > 20 * 1024 * 1024) {
+                                alert('La imagen debe ser menor a 20MB.');
                                 this.resetForm();
                                 return;
                             }
@@ -6136,14 +6136,14 @@
                 const fotoInput = document.getElementById('foto_perfil_usuario');
                 if (fotoInput.files.length > 0) {
                     const file = fotoInput.files[0];
-                    const maxSize = 5 * 1024 * 1024; // 5MB
+                    const maxSize = 20 * 1024 * 1024; // 20MB
                     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
                     
                     if (!allowedTypes.includes(file.type)) {
                         this.showCreateUserFieldError(fotoInput, 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)');
                         isValid = false;
                     } else if (file.size > maxSize) {
-                        this.showCreateUserFieldError(fotoInput, 'El archivo debe ser menor a 5MB');
+                        this.showCreateUserFieldError(fotoInput, 'El archivo debe ser menor a 20MB');
                         isValid = false;
                     } else {
                         this.showCreateUserFieldSuccess(fotoInput);
@@ -6423,14 +6423,14 @@
                 } else if (fieldType === 'foto') {
                     if (input.files.length > 0) {
                         const file = input.files[0];
-                        const maxSize = 5 * 1024 * 1024; // 5MB
+                        const maxSize = 20 * 1024 * 1024; // 20MB
                         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
                         
                         if (!allowedTypes.includes(file.type)) {
                             errorMessage = 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)';
                             isValid = false;
                         } else if (file.size > maxSize) {
-                            errorMessage = 'El archivo debe ser menor a 5MB';
+                            errorMessage = 'El archivo debe ser menor a 20MB';
                             isValid = false;
                         }
                     }
@@ -6652,10 +6652,10 @@
                         return false;
                     }
                     
-                    // Validar tamaño (50MB para videos, 5MB para imágenes)
-                    const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+                    // Validar tamaño (200MB para videos, 20MB para imágenes)
+                    const maxSize = isVideo ? 200 * 1024 * 1024 : 20 * 1024 * 1024;
                     if (file.size > maxSize) {
-                        const maxSizeMB = isVideo ? 50 : 5;
+                        const maxSizeMB = isVideo ? 200 : 20;
                         alert(`El archivo ${file.name} excede el tamaño máximo de ${maxSizeMB}MB.`);
                         return false;
                     }
@@ -6751,8 +6751,8 @@
                         return false;
                     }
                     
-                    if (file.size > 5 * 1024 * 1024) { // 5MB
-                        alert(`La ${fieldName} debe ser menor a 5MB.`);
+                    if (file.size > 20 * 1024 * 1024) { // 20MB
+                        alert(`La ${fieldName} debe ser menor a 20MB.`);
                         input.value = '';
                         return false;
                     }
@@ -6972,8 +6972,8 @@
                                 return false;
                             }
                             
-                            if (file.size > 5 * 1024 * 1024) {
-                                this.showPropertyFieldError(input, 'La imagen debe ser menor a 5MB.');
+                            if (file.size > 20 * 1024 * 1024) {
+                                this.showPropertyFieldError(input, 'La imagen debe ser menor a 20MB.');
                                 return false;
                             }
                         }

@@ -66,8 +66,8 @@ Se ha implementado un sistema completo de validación de archivos que verifica:
    - Verifica coincidencia MIME/extensión
    - Sanitiza nombre del archivo
    
-✅ validar_video(archivo, max_mb=50)
-   - Valida tamaño (máx 50MB)
+✅ validar_video(archivo, max_mb=200)
+   - Valida tamaño (máx 200MB)
    - Verifica tipo MIME real
    - Valida extensión
    - Verifica coincidencia MIME/extensión

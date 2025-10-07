@@ -116,9 +116,9 @@ def validar_archivo_imagen(archivo):
 def validar_archivo_video(archivo):
     """Validación robusta de archivos de video"""
     
-    # 1. Validar tamaño (50MB para videos)
-    if archivo.size > 50 * 1024 * 1024:
-        raise ValidationError('El video no debe superar 50MB.')
+    # 1. Validar tamaño (200MB para videos)
+    if archivo.size > 200 * 1024 * 1024:
+        raise ValidationError('El video no debe superar 200MB.')
     
     # 2. Validar tipo MIME
     mime = magic.from_buffer(archivo.read(1024), mime=True)

@@ -282,7 +282,7 @@ def crear_propiedad(request):
                 # 🔒 VALIDAR IMÁGENES PRINCIPALES
                 if 'imagen_principal' in request.FILES:
                     try:
-                        validar_imagen(request.FILES['imagen_principal'], max_mb=5)
+                        validar_imagen(request.FILES['imagen_principal'], max_mb=20)
                     except ValidationError as e:
                         messages.error(request, f'Imagen principal: {str(e)}')
                         return render(request, 'propiedades/crear_propiedad.html', {
@@ -293,7 +293,7 @@ def crear_propiedad(request):
                 
                 if 'imagen_secundaria' in request.FILES:
                     try:
-                        validar_imagen(request.FILES['imagen_secundaria'], max_mb=5)
+                        validar_imagen(request.FILES['imagen_secundaria'], max_mb=20)
                     except ValidationError as e:
                         messages.error(request, f'Imagen secundaria: {str(e)}')
                         return render(request, 'propiedades/crear_propiedad.html', {

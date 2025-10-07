@@ -138,8 +138,8 @@
 │  ✅ Malware upload                                                       │
 │                                                                          │
 │  Límites establecidos:                                                   │
-│  • Imágenes: 5MB máximo                                                  │
-│  • Videos: 50MB máximo                                                   │
+│  • Imágenes: 20MB máximo                                                  │
+│  • Videos: 200MB máximo                                                  │
 │  • Documentos: 10MB máximo                                               │
 │                                                                          │
 ╰──────────────────────────────────────────────────────────────────────────╯

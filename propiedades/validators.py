@@ -45,13 +45,13 @@ class FileValidator:
     ]
     
     @staticmethod
-    def validar_tamano(archivo, max_mb=5):
+    def validar_tamano(archivo, max_mb=20):
         """
         Valida el tamaño del archivo.
         
         Args:
             archivo: Archivo a validar
-            max_mb: Tamaño máximo en MB (default: 5MB)
+            max_mb: Tamaño máximo en MB (default: 20MB)
         
         Raises:
             ValidationError: Si el archivo excede el tamaño máximo
@@ -142,13 +142,13 @@ class FileValidator:
         return nombre_seguro
 
 
-def validar_imagen(archivo, max_mb=5):
+def validar_imagen(archivo, max_mb=20):
     """
     Validación completa y robusta de archivos de imagen.
     
     Args:
         archivo: Archivo de imagen a validar
-        max_mb: Tamaño máximo en MB (default: 5MB)
+        max_mb: Tamaño máximo en MB (default: 20MB)
     
     Returns:
         Archivo validado
@@ -192,13 +192,13 @@ def validar_imagen(archivo, max_mb=5):
     return archivo
 
 
-def validar_video(archivo, max_mb=50):
+def validar_video(archivo, max_mb=200):
     """
     Validación completa y robusta de archivos de video.
     
     Args:
         archivo: Archivo de video a validar
-        max_mb: Tamaño máximo en MB (default: 50MB)
+        max_mb: Tamaño máximo en MB (default: 200MB)
     
     Returns:
         Archivo validado

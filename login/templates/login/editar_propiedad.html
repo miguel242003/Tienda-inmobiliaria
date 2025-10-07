@@ -1451,10 +1451,10 @@
                                                 <i class="fas fa-info-circle me-1"></i>Máximo 10 archivos
                                             </small>
                                             <small class="text-muted d-block">
-                                                <i class="fas fa-image me-1"></i>Imágenes: JPG, PNG, GIF, WebP (máx. 5MB)
+                                                <i class="fas fa-image me-1"></i>Imágenes: JPG, PNG, GIF, WebP (máx. 20MB)
                                             </small>
                                             <small class="text-muted d-block">
-                                                <i class="fas fa-video me-1"></i>Videos: MP4, AVI, MOV (máx. 50MB)
+                                                <i class="fas fa-video me-1"></i>Videos: MP4, AVI, MOV (máx. 200MB)
                                             </small>
                                         </div>
                                     </div>
@@ -1669,10 +1669,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Validar tamaño (50MB para videos, 5MB para imágenes)
-            const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+            // Validar tamaño (200MB para videos, 20MB para imágenes)
+            const maxSize = isVideo ? 200 * 1024 * 1024 : 20 * 1024 * 1024;
             if (file.size > maxSize) {
-                const maxSizeMB = isVideo ? 50 : 5;
+                const maxSizeMB = isVideo ? 200 : 20;
                 alert(`El archivo ${file.name} excede el tamaño máximo de ${maxSizeMB}MB.`);
                 return false;
             }

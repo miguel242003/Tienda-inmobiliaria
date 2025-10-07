@@ -210,7 +210,7 @@ class DashboardForms {
         if (!files.length) return;
 
         const allowedTypes = input.getAttribute('accept')?.split(',').map(type => type.trim()) || [];
-        const maxSize = parseInt(input.getAttribute('data-max-size')) || 5 * 1024 * 1024; // 5MB default
+        const maxSize = parseInt(input.getAttribute('data-max-size')) || 20 * 1024 * 1024; // 20MB default
 
         Array.from(files).forEach(file => {
             // Validate file type

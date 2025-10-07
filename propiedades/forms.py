@@ -234,9 +234,9 @@ class PropiedadForm(forms.ModelForm):
             if imagen.content_type not in allowed_types:
                 raise forms.ValidationError('Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP).')
             
-            # Validar tamaño (5MB máximo)
-            if imagen.size > 5 * 1024 * 1024:
-                raise forms.ValidationError('La imagen debe ser menor a 5MB.')
+            # Validar tamaño (20MB máximo)
+            if imagen.size > 20 * 1024 * 1024:
+                raise forms.ValidationError('La imagen debe ser menor a 20MB.')
         return imagen
     
     def clean_imagen_secundaria(self):
@@ -248,9 +248,9 @@ class PropiedadForm(forms.ModelForm):
             if imagen.content_type not in allowed_types:
                 raise forms.ValidationError('Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP).')
             
-            # Validar tamaño (5MB máximo)
-            if imagen.size > 5 * 1024 * 1024:
-                raise forms.ValidationError('La imagen debe ser menor a 5MB.')
+            # Validar tamaño (20MB máximo)
+            if imagen.size > 20 * 1024 * 1024:
+                raise forms.ValidationError('La imagen debe ser menor a 20MB.')
         return imagen
     
     def clean_latitud(self):

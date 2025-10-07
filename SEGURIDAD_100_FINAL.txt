@@ -184,7 +184,7 @@
 │                                                                             │
 │  ✅ Validación Robusta de Archivos                                         │
 │     • Verificación de tipo MIME real                                       │
-│     • Validación de tamaño (5MB/50MB/10MB)                                 │
+│     • Validación de tamaño (20MB/200MB/10MB)                                │
 │     • Detección de falsificación                                           │
 │     • Sanitización de nombres                                              │
 │     • Protección contra malware                                            │

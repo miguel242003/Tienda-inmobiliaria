@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='fotopropiedad',
             name='video',
-            field=models.FileField(blank=True, help_text='Formatos soportados: MP4, WebM, AVI (máx. 50MB)', null=True, upload_to='propiedades/videos/', verbose_name='Video'),
+            field=models.FileField(blank=True, help_text='Formatos soportados: MP4, WebM, AVI (máx. 200MB)', null=True, upload_to='propiedades/videos/', verbose_name='Video'),
         ),
         migrations.AlterField(
             model_name='fotopropiedad',
