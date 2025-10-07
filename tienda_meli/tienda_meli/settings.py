@@ -312,7 +312,7 @@ CONTENT_SECURITY_POLICY = {
             "'unsafe-eval'",    # Necesario para algunos frameworks JS
             'https://cdn.tailwindcss.com',
             'https://cdn.jsdelivr.net',
-            'https://unpkg.com',
+            'https://unpkg.com',  # Leaflet y otros recursos
             'https://cdnjs.cloudflare.com',
             'https://translate.googleapis.com',  # Google Translate
             'https://www.gstatic.com',  # Google Translate
@@ -325,6 +325,7 @@ CONTENT_SECURITY_POLICY = {
             'https://fonts.googleapis.com',
             'https://cdnjs.cloudflare.com',
             'https://www.gstatic.com',  # Google Translate
+            'https://unpkg.com',  # Leaflet y otros recursos
         ),
         'img-src': (
             "'self'",
@@ -341,6 +342,7 @@ CONTENT_SECURITY_POLICY = {
             "'self'",
             'https://cdn.jsdelivr.net',  # Source maps de Bootstrap
             'https://translate.googleapis.com',  # Google Translate
+            'https://unpkg.com',  # Source maps de Leaflet
         ),
         'frame-ancestors': ("'none'",),  # Evitar iframe embedding
         'base-uri': ("'self'",),
