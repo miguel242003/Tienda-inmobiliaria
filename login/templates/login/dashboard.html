@@ -6560,16 +6560,40 @@
                 const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
                 const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
                 
-                // Formato de precio - DESHABILITADO para permitir formato argentino
-                // if (precioInput) {
-                //     precioInput.addEventListener('input', function(e) {
-                //         let value = e.target.value.replace(/[^\d.]/g, '');
-                //         if (value && !isNaN(value)) {
-                //             value = parseFloat(value).toFixed(2);
-                //             e.target.value = value;
-                //         }
-                //     });
-                // }
+                // Formato de precio con separadores de miles (formato argentino)
+                if (precioInput) {
+                    precioInput.addEventListener('input', function(e) {
+                        let value = e.target.value;
+                        
+                        // Si está vacío, no hacer nada
+                        if (value === '') {
+                            return;
+                        }
+                        
+                        // Si hay coma, manejar decimales
+                        if (value.includes(',')) {
+                            const parts = value.split(',');
+                            if (parts.length === 2) {
+                                // Formatear parte entera con puntos y mantener decimales
+                                const integerPart = parts[0].replace(/[^\d]/g, '');
+                                const decimalPart = parts[1].replace(/[^\d]/g, '').substring(0, 2);
+                                const formattedInteger = formatNumberWithDots(integerPart);
+                                e.target.value = formattedInteger + ',' + decimalPart;
+                            }
+                        } else {
+                            // Solo números enteros, formatear con puntos
+                            const cleanValue = value.replace(/[^\d]/g, '');
+                            if (cleanValue) {
+                                e.target.value = formatNumberWithDots(cleanValue);
+                            }
+                        }
+                    });
+                }
+                
+                // Función para formatear números con puntos como separadores de miles
+                function formatNumberWithDots(num) {
+                    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                }
                 // Validación antes de enviar (solo para nueva propiedad)
                 if (this.form.id === 'crearPropiedadForm') {
                     this.form.addEventListener('submit', (e) => {
