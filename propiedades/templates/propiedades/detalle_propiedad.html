@@ -110,6 +110,16 @@
                                              <i class="fas fa-bath me-2"></i>
                                              {{ propiedad.banos }} baños
                                          </span>
+                                         <span class="stat-item">
+                                             <i class="fas fa-home me-2"></i>
+                                             {{ propiedad.ambientes }} ambientes
+                                         </span>
+                                         {% if propiedad.balcon %}
+                                         <span class="stat-item">
+                                             <i class="fas fa-balance-scale me-2"></i>
+                                             Con balcón
+                                         </span>
+                                         {% endif %}
                                      </div>
                                      
                                      <p class="property-location">
@@ -4941,6 +4951,8 @@ const fotosData = {
     titulo: '{{ propiedad.titulo }}',
     habitaciones: {{ propiedad.habitaciones }},
     banos: {{ propiedad.banos }},
+    ambientes: {{ propiedad.ambientes }},
+    balcon: {{ propiedad.balcon|yesno:"true,false" }},
     metros: {{ propiedad.metros_cuadrados }},
     fotoPrincipal: {% if propiedad.get_foto_principal %}'{{ propiedad.get_foto_principal.url }}'{% else %}null{% endif %},
     fotoSecundaria: {% if propiedad.get_foto_secundaria %}'{{ propiedad.get_foto_secundaria.url }}'{% else %}null{% endif %},
@@ -5061,12 +5073,18 @@ function verGaleríaCompleta() {
                 <div class="property-info text-white-50 d-flex justify-content-center flex-wrap gap-3">
                     <div class="property-detail-card">
                         <i class="fas fa-bed me-2"></i>
-                        <span>${fotosData.habitaciones} dormitorios, ${fotosData.banos} baños</span>
+                        <span>${fotosData.habitaciones} dormitorios, ${fotosData.banos} baños, ${fotosData.ambientes} ambientes</span>
                     </div>
                     <div class="property-detail-card">
                         <i class="fas fa-vector-square me-2"></i>
                         <span>${fotosData.metros} metros cuadrados</span>
                     </div>
+                    ${fotosData.balcon ? `
+                    <div class="property-detail-card">
+                        <i class="fas fa-balance-scale me-2"></i>
+                        <span>Con balcón</span>
+                    </div>
+                    ` : ''}
                 </div>
             </div>
             
