@@ -8493,11 +8493,11 @@
                                 </div>
                                 
                                 <div class="flex space-x-3">
-                                    <button id="cancelar-eliminar" class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium flex items-center justify-center">
+                                    <button id="cancelar-eliminar-cv" class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-200 transition-all duration-200 font-medium flex items-center justify-center">
                                         <i data-lucide="x" class="w-4 h-4 mr-2"></i>
                                         Cancelar
                                     </button>
-                                    <button id="confirmar-eliminar" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-all duration-200 font-medium flex items-center justify-center shadow-lg hover:shadow-xl">
+                                    <button id="confirmar-eliminar-cv" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-lg hover:bg-red-700 transition-all duration-200 font-medium flex items-center justify-center shadow-lg hover:shadow-xl">
                                         <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
                                         Eliminar Permanentemente
                                     </button>
@@ -8519,12 +8519,12 @@
                     
                     // Event listeners para los botones - con delay para asegurar que los elementos estén disponibles
                     setTimeout(() => {
-                        const btnCancelar = document.getElementById('cancelar-eliminar');
-                        const btnConfirmar = document.getElementById('confirmar-eliminar');
+                        const btnCancelar = document.getElementById('cancelar-eliminar-cv');
+                        const btnConfirmar = document.getElementById('confirmar-eliminar-cv');
                         
                         if (btnCancelar) {
                             btnCancelar.addEventListener('click', () => {
-                                console.log('Usuario canceló eliminación');
+                                console.log('Usuario canceló eliminación de CV');
                                 // Animar salida del modal
                                 const modalContent = modal.querySelector('.bg-white');
                                 modalContent.classList.add('scale-95', 'opacity-0');
@@ -8538,7 +8538,7 @@
                         
                         if (btnConfirmar) {
                             btnConfirmar.addEventListener('click', () => {
-                                console.log('Usuario confirmó eliminación');
+                                console.log('Usuario confirmó eliminación de CV');
                                 
                                 // Cerrar modal inmediatamente
                                 const modalContent = modal.querySelector('.bg-white');
