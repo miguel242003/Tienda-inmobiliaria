@@ -285,13 +285,16 @@ def send_cv_notification_email(cv_submission):
 
 
 def download_cv(request, cv_id):
-    """Vista para descargar archivos CV"""
+    """Vista para descargar archivos CV - Optimizada para producción"""
     try:
         # Obtener el CV o devolver 404 si no existe
         cv_submission = get_object_or_404(CVSubmission, id=cv_id)
         
         # Verificar que el archivo existe
         if not cv_submission.cv_file:
+            # En producción, no imprimir logs sensibles
+            if settings.DEBUG:
+                print(f"CV {cv_id}: No tiene archivo asociado")
             raise Http404("Archivo CV no encontrado")
         
         # Obtener la ruta del archivo
@@ -299,23 +302,53 @@ def download_cv(request, cv_id):
         
         # Verificar que el archivo existe físicamente
         if not os.path.exists(file_path):
+            if settings.DEBUG:
+                print(f"CV {cv_id}: Archivo no existe en: {file_path}")
             raise Http404("Archivo CV no encontrado en el servidor")
         
         # Obtener el nombre del archivo original
         filename = os.path.basename(cv_submission.cv_file.name)
         
         # Leer el archivo
-        with open(file_path, 'rb') as file:
-            response = HttpResponse(file.read(), content_type='application/octet-stream')
+        try:
+            with open(file_path, 'rb') as file:
+                file_content = file.read()
+                
+                # Determinar el tipo de contenido basado en la extensión
+                file_extension = filename.lower().split('.')[-1]
+                content_type_map = {
+                    'pdf': 'application/pdf',
+                    'doc': 'application/msword',
+                    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'txt': 'text/plain',
+                }
+                content_type = content_type_map.get(file_extension, 'application/octet-stream')
+                
+                response = HttpResponse(file_content, content_type=content_type)
+                
+                # Configurar headers para la descarga
+                response['Content-Disposition'] = f'attachment; filename="{smart_str(filename)}"'
+                response['Content-Length'] = len(file_content)
+                
+                # Headers de seguridad para archivos descargables
+                response['X-Content-Type-Options'] = 'nosniff'
+                response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+                response['Pragma'] = 'no-cache'
+                response['Expires'] = '0'
+                
+                return response
+                
+        except IOError as e:
+            if settings.DEBUG:
+                print(f"CV {cv_id}: Error de lectura de archivo: {e}")
+            raise Http404("Error al leer el archivo CV")
             
-            # Configurar headers para la descarga
-            response['Content-Disposition'] = f'attachment; filename="{smart_str(filename)}"'
-            response['Content-Length'] = os.path.getsize(file_path)
-            
-            return response
-            
+    except Http404:
+        # Re-lanzar Http404 sin modificar
+        raise
     except Exception as e:
-        print(f"Error descargando CV: {e}")
+        if settings.DEBUG:
+            print(f"CV {cv_id}: Error inesperado descargando CV: {e}")
         raise Http404("Error al descargar el archivo CV")
 
 
