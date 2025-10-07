@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
     const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
     
-    // SOLUCIÓN ULTRA AGRESIVA: Eliminar CUALQUIER formato automático
+    // SOLUCIÓN DEFINITIVA: Desactivar TODA validación externa y formateo
     if (precioInput) {
         // 1. Forzar tipo text y eliminar TODOS los atributos
         precioInput.setAttribute('type', 'text');
@@ -539,6 +539,8 @@ document.addEventListener('DOMContentLoaded', function() {
         precioInput.removeAttribute('max');
         precioInput.removeAttribute('pattern');
         precioInput.removeAttribute('data-validate');
+        precioInput.removeAttribute('data-field-type');
+        precioInput.removeAttribute('data-required');
         
         // 2. Configurar inputmode para teclado numérico en móviles
         precioInput.setAttribute('inputmode', 'numeric');
@@ -548,7 +550,11 @@ document.addEventListener('DOMContentLoaded', function() {
             precioInput.value = precioInput.value.replace(/\.00$/, '');
         }
         
-        // 4. Interceptar TODOS los eventos posibles
+        // 4. DESACTIVAR TODAS LAS VALIDACIONES EXTERNAS
+        precioInput.setAttribute('data-skip-validation', 'true');
+        precioInput.setAttribute('data-no-format', 'true');
+        
+        // 5. Interceptar TODOS los eventos posibles
         precioInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/[^\d.,\s]/g, '');
             e.target.value = value;
@@ -576,7 +582,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // 5. Interceptar eventos de teclado
+        // 6. Interceptar eventos de teclado
         precioInput.addEventListener('keydown', function(e) {
             // Permitir teclas de navegación y edición
             if ([8, 9, 27, 46, 110, 190].indexOf(e.keyCode) !== -1 ||
@@ -592,7 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // 6. Usar MutationObserver para detectar cambios automáticos
+        // 7. Usar MutationObserver para detectar cambios automáticos
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
@@ -608,19 +614,26 @@ document.addEventListener('DOMContentLoaded', function() {
             attributeFilter: ['value']
         });
         
-        // 7. Interceptar el evento propertychange (IE)
+        // 8. Interceptar el evento propertychange (IE)
         precioInput.addEventListener('propertychange', function(e) {
             if (e.propertyName === 'value' && precioInput.value.endsWith('.00')) {
                 precioInput.value = precioInput.value.replace(/\.00$/, '');
             }
         });
         
-        // 8. Forzar el valor cada 100ms para prevenir formato automático
+        // 9. Forzar el valor cada 50ms para prevenir formato automático
         setInterval(function() {
             if (precioInput.value.endsWith('.00')) {
                 precioInput.value = precioInput.value.replace(/\.00$/, '');
             }
-        }, 100);
+        }, 50);
+        
+        // 10. DESACTIVAR CUALQUIER VALIDACIÓN EXTERNA
+        precioInput.addEventListener('DOMAttrModified', function(e) {
+            if (e.attrName === 'value' && precioInput.value.endsWith('.00')) {
+                precioInput.value = precioInput.value.replace(/\.00$/, '');
+            }
+        });
     }
     
     // Validación antes de enviar
