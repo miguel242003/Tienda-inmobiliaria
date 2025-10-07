@@ -524,6 +524,17 @@
 
 {% block extra_js %}
 <script>
+// DESACTIVAR CUALQUIER JAVASCRIPT DEL DASHBOARD QUE INTERFIERA
+if (typeof showGestionPropiedades !== 'undefined') {
+    showGestionPropiedades = function() {};
+}
+if (typeof updateSidebarState !== 'undefined') {
+    updateSidebarState = function() {};
+}
+if (typeof showSection !== 'undefined') {
+    showSection = function() {};
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Form validation
     const form = document.getElementById('crearPropiedadForm');
@@ -553,6 +564,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // 4. DESACTIVAR TODAS LAS VALIDACIONES EXTERNAS
         precioInput.setAttribute('data-skip-validation', 'true');
         precioInput.setAttribute('data-no-format', 'true');
+        precioInput.setAttribute('data-field-type', 'text');
+        precioInput.setAttribute('data-validate', 'false');
+        
+        // 5. DESACTIVAR CUALQUIER VALIDACIÓN EXTERNA QUE PUEDA INTERFERIR
+        precioInput.addEventListener('DOMNodeInserted', function(e) {
+            e.stopPropagation();
+        });
+        
+        precioInput.addEventListener('DOMNodeRemoved', function(e) {
+            e.stopPropagation();
+        });
         
         // 5. Interceptar TODOS los eventos posibles
         precioInput.addEventListener('input', function(e) {
