@@ -5136,6 +5136,149 @@
         };
 
         // ========================================
+        // FUNCIÓN GLOBAL PARA MANEJAR FORMULARIO DE PROPIEDADES
+        // ========================================
+        
+        async function handlePropiedadFormSubmit() {
+            console.log('=== INICIANDO CREACIÓN DE PROPIEDAD ===');
+            
+            const form = document.getElementById('crearPropiedadForm');
+            if (!form) return;
+            
+            // Validar campos antes de enviar
+            if (!validatePropiedadForm()) {
+                return;
+            }
+            
+            const formData = new FormData(form);
+            
+            try {
+                // Mostrar loading
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creando...';
+                
+                // Enviar formulario
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Mostrar mensaje de éxito
+                    showMessage('success', 'Propiedad creada exitosamente');
+                    
+                    // Cerrar modal
+                    if (window.PropertyModalManager) {
+                        window.PropertyModalManager.closeModal();
+                    }
+                    
+                    // Recargar la lista de propiedades
+                    if (window.cargarPropiedades) {
+                        window.cargarPropiedades();
+                    }
+                } else {
+                    // Mostrar errores
+                    showMessage('error', result.message || 'Error al crear la propiedad');
+                    if (result.errors) {
+                        showFieldErrors(result.errors);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('error', 'Error de conexión. Por favor intenta de nuevo.');
+            } finally {
+                // Restaurar botón
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+        
+        function validatePropiedadForm() {
+            const campos = [
+                { id: 'id_titulo', name: 'título', required: true },
+                { id: 'id_descripcion', name: 'descripción', required: true },
+                { id: 'id_precio', name: 'precio', required: true },
+                { id: 'id_tipo', name: 'tipo', required: true },
+                { id: 'id_operacion', name: 'operación', required: true },
+                { id: 'id_estado', name: 'estado', required: true },
+                { id: 'id_ubicacion', name: 'ubicación', required: true },
+                { id: 'id_metros_cuadrados', name: 'metros cuadrados', required: true },
+                { id: 'id_habitaciones', name: 'habitaciones', required: true },
+                { id: 'id_banos', name: 'baños', required: true },
+                { id: 'id_imagen_principal', name: 'imagen principal', required: true }
+            ];
+            
+            let isValid = true;
+            
+            campos.forEach(campo => {
+                const input = document.getElementById(campo.id);
+                if (input) {
+                    const value = input.value.trim();
+                    if (campo.required && !value) {
+                        showFieldError(input, `${campo.name} es obligatorio`);
+                        isValid = false;
+                    } else if (campo.id === 'id_precio' && value) {
+                        // Validar precio
+                        const precio = parseFloat(value.replace(/\./g, '').replace(',', '.'));
+                        if (isNaN(precio) || precio <= 0) {
+                            showFieldError(input, 'El precio debe ser mayor a 0');
+                            isValid = false;
+                        }
+                    }
+                }
+            });
+            
+            return isValid;
+        }
+        
+        function showFieldError(input, message) {
+            // Remover error anterior
+            const existingError = input.parentElement.querySelector('.field-error');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Agregar nuevo error
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error text-red-600 text-sm mt-1';
+            errorDiv.textContent = message;
+            input.parentElement.appendChild(errorDiv);
+            
+            // Resaltar campo
+            input.classList.add('border-red-500');
+        }
+        
+        function showMessage(type, message) {
+            const messagesDiv = document.getElementById('modal-messages');
+            if (messagesDiv) {
+                messagesDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+                messagesDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                messagesDiv.classList.remove('hidden');
+            }
+        }
+        
+        function showFieldErrors(errors) {
+            Object.keys(errors).forEach(fieldName => {
+                const input = document.getElementById(`id_${fieldName}`);
+                if (input) {
+                    showFieldError(input, errors[fieldName][0]);
+                }
+            });
+        }
+
+        // ========================================
         // MÓDULO: GESTIÓN DE CONFIGURACIONES
         // ========================================
         const ConfigManager = {
@@ -5241,139 +5384,7 @@
                 }
             },
 
-            async handlePropiedadFormSubmit() {
-                console.log('=== INICIANDO CREACIÓN DE PROPIEDAD ===');
-                
-                // Validar campos antes de enviar
-                if (!this.validatePropiedadForm()) {
-                    return;
-                }
-                
-                const formData = new FormData(this.form);
-                
-                try {
-                    // Mostrar loading
-                    const submitBtn = this.form.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creando...';
-                    
-                    // Enviar formulario
-                    const response = await fetch(this.form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        // Mostrar mensaje de éxito
-                        this.showMessage('success', 'Propiedad creada exitosamente');
-                        
-                        // Cerrar modal
-                        PropertyModalManager.closeModal();
-                        
-                        // Recargar la lista de propiedades
-                        if (window.cargarPropiedades) {
-                            window.cargarPropiedades();
-                        }
-                    } else {
-                        // Mostrar errores
-                        this.showMessage('error', result.message || 'Error al crear la propiedad');
-                        if (result.errors) {
-                            this.showFieldErrors(result.errors);
-                        }
-                    }
-                    
-                } catch (error) {
-                    console.error('Error:', error);
-                    this.showMessage('error', 'Error de conexión. Por favor intenta de nuevo.');
-                } finally {
-                    // Restaurar botón
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                }
-            },
 
-            validatePropiedadForm() {
-                const campos = [
-                    { id: 'id_titulo', name: 'título', required: true },
-                    { id: 'id_descripcion', name: 'descripción', required: true },
-                    { id: 'id_precio', name: 'precio', required: true },
-                    { id: 'id_tipo', name: 'tipo', required: true },
-                    { id: 'id_operacion', name: 'operación', required: true },
-                    { id: 'id_estado', name: 'estado', required: true },
-                    { id: 'id_ubicacion', name: 'ubicación', required: true },
-                    { id: 'id_metros_cuadrados', name: 'metros cuadrados', required: true },
-                    { id: 'id_habitaciones', name: 'habitaciones', required: true },
-                    { id: 'id_banos', name: 'baños', required: true },
-                    { id: 'id_imagen_principal', name: 'imagen principal', required: true }
-                ];
-                
-                let isValid = true;
-                
-                campos.forEach(campo => {
-                    const input = document.getElementById(campo.id);
-                    if (input) {
-                        const value = input.value.trim();
-                        if (campo.required && !value) {
-                            this.showFieldError(input, `${campo.name} es obligatorio`);
-                            isValid = false;
-                        } else if (campo.id === 'id_precio' && value) {
-                            // Validar precio
-                            const precio = parseFloat(value.replace(/\./g, '').replace(',', '.'));
-                            if (isNaN(precio) || precio <= 0) {
-                                this.showFieldError(input, 'El precio debe ser mayor a 0');
-                                isValid = false;
-                            }
-                        }
-                    }
-                });
-                
-                return isValid;
-            },
-
-            showFieldError(input, message) {
-                // Remover error anterior
-                const existingError = input.parentElement.querySelector('.field-error');
-                if (existingError) {
-                    existingError.remove();
-                }
-                
-                // Agregar nuevo error
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'field-error text-red-600 text-sm mt-1';
-                errorDiv.textContent = message;
-                input.parentElement.appendChild(errorDiv);
-                
-                // Resaltar campo
-                input.classList.add('border-red-500');
-            },
-
-            showMessage(type, message) {
-                const messagesDiv = document.getElementById('modal-messages');
-                if (messagesDiv) {
-                    messagesDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
-                    messagesDiv.innerHTML = `
-                        ${message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    `;
-                    messagesDiv.classList.remove('hidden');
-                }
-            },
-
-            showFieldErrors(errors) {
-                Object.keys(errors).forEach(fieldName => {
-                    const input = document.getElementById(`id_${fieldName}`);
-                    if (input) {
-                        this.showFieldError(input, errors[fieldName][0]);
-                    }
-                });
-            },
 
             async handleFormSubmit() {
                 console.log('=== INICIANDO ACTUALIZACIÓN DE PERFIL ===');
@@ -6732,7 +6743,7 @@
                 if (this.form.id === 'crearPropiedadForm') {
                     this.form.addEventListener('submit', (e) => {
                         e.preventDefault();
-                        this.handlePropiedadFormSubmit();
+                        handlePropiedadFormSubmit();
                     });
                     
                     // Validación en tiempo real para todos los campos
