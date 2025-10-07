@@ -880,6 +880,24 @@
             }
         }
         
+        /* Configuración para pantallas medianas (640px - 768px) */
+        @media (min-width: 640px) and (max-width: 768px) {
+            .cvs-container {
+                padding: 1rem;
+            }
+            
+            .cvs-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+            
+            .cvs-header button {
+                width: auto;
+                padding: 0.75rem 1rem;
+            }
+        }
+        
         /* Tarjetas de CVs responsivas */
         @media (max-width: 768px) {
             .cv-card {
@@ -909,6 +927,26 @@
             }
         }
         
+        /* Mejorar visualización en pantallas medianas */
+        @media (min-width: 640px) and (max-width: 768px) {
+            .cv-card {
+                padding: 1rem;
+            }
+            
+            .cv-card h4 {
+                font-size: 1.1rem;
+            }
+            
+            .cv-card .flex.space-x-2 {
+                gap: 0.75rem;
+            }
+            
+            .cv-card a, .cv-card button {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+        
         /* Tablet (768px - 1024px) */
         @media (min-width: 769px) and (max-width: 1024px) {
             .cvs-container {
@@ -932,6 +970,19 @@
                 flex-direction: row;
                 justify-content: space-between;
                 align-items: flex-start;
+            }
+        }
+        
+        /* Asegurar que las cards móviles se vean en pantallas medianas */
+        @media (max-width: 768px) {
+            .cvs-mobile-cards {
+                display: block !important;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .cvs-mobile-cards {
+                display: none !important;
             }
         }
 
@@ -3475,43 +3526,6 @@
                         </div>
                     </div>
 
-                    <!-- Estadísticas de CVs -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4 sm:mb-6">
-                        <div class="p-4 sm:p-6 border-b border-gray-200">
-                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 flex items-center mb-3 sm:mb-0">
-                                <i data-lucide="bar-chart-3" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-blue-600"></i>
-                                Estadísticas
-                            </h3>
-                        </div>
-                        <div class="p-4 sm:p-6">
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
-                                <!-- Total CVs -->
-                                <div class="text-center">
-                                    <div class="text-2xl sm:text-3xl font-bold text-blue-600">{{ cvs_recientes|length|default:"0" }}</div>
-                                    <div class="text-sm text-gray-500">Total CVs</div>
-                                </div>
-                                <!-- CVs Pendientes -->
-                                <div class="text-center">
-                                    <div class="text-2xl sm:text-3xl font-bold text-yellow-600">
-                                        {% for cv in cvs_recientes %}{% if not cv.procesado %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
-                                    </div>
-                                    <div class="text-sm text-gray-500">Pendientes</div>
-                                </div>
-                                <!-- CVs Procesados -->
-                                <div class="text-center">
-                                    <div class="text-2xl sm:text-3xl font-bold text-green-600">
-                                        {% for cv in cvs_recientes %}{% if cv.procesado %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
-                                    </div>
-                                    <div class="text-sm text-gray-500">Procesados</div>
-                                </div>
-                                <!-- Este Mes -->
-                                <div class="text-center">
-                                    <div class="text-2xl sm:text-3xl font-bold text-purple-600">{{ formularios_cv|default:"0" }}</div>
-                                    <div class="text-sm text-gray-500">Este Mes</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Lista de CVs -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -3531,7 +3545,7 @@
                         </div>
                         
                         <!-- Tabla Desktop -->
-                        <div class="hidden sm:block overflow-x-auto">
+                        <div class="hidden md:block overflow-x-auto">
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -3616,7 +3630,7 @@
                         </div>
 
                         <!-- Cards Móviles -->
-                        <div class="sm:hidden p-4 sm:p-6 cvs-mobile-cards">
+                        <div class="md:hidden p-4 sm:p-6 cvs-mobile-cards">
                             {% for cv in cvs_recientes %}
                             <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4 cv-card">
                                 <div class="flex items-start justify-between mb-3">
@@ -4836,6 +4850,7 @@
                 'dashboard-content',
                 'gestion-propiedades-content', 
                 'gestion-resenas-content',
+                'cvs-content',
                 'configuraciones-content'
             ];
             
