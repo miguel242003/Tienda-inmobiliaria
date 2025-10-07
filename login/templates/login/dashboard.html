@@ -928,7 +928,7 @@
         }
         
         /* Mejorar visualización en pantallas medianas */
-        @media (min-width: 640px) and (max-width: 1024px) {
+        @media (min-width: 640px) and (max-width: 768px) {
             .cv-card {
                 padding: 1rem;
             }
@@ -964,6 +964,22 @@
                 flex-direction: row;
                 justify-content: space-between;
                 align-items: flex-start;
+            }
+            
+            /* Asegurar que la tabla se vea en tablets */
+            .cvs-desktop-table {
+                display: block !important;
+                width: 100%;
+            }
+            
+            .cvs-desktop-table table {
+                width: 100%;
+                font-size: 0.875rem;
+            }
+            
+            .cvs-desktop-table th,
+            .cvs-desktop-table td {
+                padding: 0.75rem 1rem;
             }
         }
         
@@ -1011,27 +1027,27 @@
             }
         }
         
-        /* Asegurar que las cards móviles se vean en pantallas medianas */
-        @media (max-width: 1024px) {
+        /* Asegurar que las cards móviles se vean en pantallas pequeñas */
+        @media (max-width: 768px) {
             .cvs-mobile-cards {
                 display: block !important;
             }
         }
         
-        @media (min-width: 1025px) {
+        @media (min-width: 769px) {
             .cvs-mobile-cards {
                 display: none !important;
             }
         }
         
-        /* Asegurar que la tabla desktop se vea en monitores grandes */
-        @media (min-width: 1025px) {
+        /* Asegurar que la tabla desktop se vea en pantallas medianas y grandes */
+        @media (min-width: 769px) {
             .cvs-desktop-table {
                 display: block !important;
             }
         }
         
-        @media (max-width: 1024px) {
+        @media (max-width: 768px) {
             .cvs-desktop-table {
                 display: none !important;
             }
@@ -3613,7 +3629,7 @@
                         </div>
                         
                         <!-- Tabla Desktop -->
-                        <div class="hidden lg:block overflow-x-auto cvs-desktop-table">
+                        <div class="hidden md:block overflow-x-auto cvs-desktop-table">
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -3698,7 +3714,7 @@
                         </div>
 
                         <!-- Cards Móviles -->
-                        <div class="lg:hidden p-4 sm:p-6 cvs-mobile-cards">
+                        <div class="md:hidden p-4 sm:p-6 cvs-mobile-cards">
                             {% for cv in cvs_recientes %}
                             <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4 cv-card">
                                 <div class="flex items-start justify-between mb-3">
