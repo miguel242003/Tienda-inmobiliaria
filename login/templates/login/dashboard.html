@@ -6560,16 +6560,16 @@
                 const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
                 const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
                 
-                // Formato de precio
-                if (precioInput) {
-                    precioInput.addEventListener('input', function(e) {
-                        let value = e.target.value.replace(/[^\d.]/g, '');
-                        if (value && !isNaN(value)) {
-                            value = parseFloat(value).toFixed(2);
-                            e.target.value = value;
-                        }
-                    });
-                }
+                // Formato de precio - DESHABILITADO para permitir formato argentino
+                // if (precioInput) {
+                //     precioInput.addEventListener('input', function(e) {
+                //         let value = e.target.value.replace(/[^\d.]/g, '');
+                //         if (value && !isNaN(value)) {
+                //             value = parseFloat(value).toFixed(2);
+                //             e.target.value = value;
+                //         }
+                //     });
+                // }
                 // Validación antes de enviar (solo para nueva propiedad)
                 if (this.form.id === 'crearPropiedadForm') {
                     this.form.addEventListener('submit', (e) => {
