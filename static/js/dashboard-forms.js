@@ -458,12 +458,12 @@ class DashboardForms {
             }
         });
 
-        // Currency formatting for price fields
-        document.addEventListener('input', (e) => {
-            if (e.target.hasAttribute('data-mask') && e.target.getAttribute('data-mask') === 'currency') {
-                this.formatCurrency(e.target);
-            }
-        });
+        // Currency formatting for price fields - DISABLED
+        // document.addEventListener('input', (e) => {
+        //     if (e.target.hasAttribute('data-mask') && e.target.getAttribute('data-mask') === 'currency') {
+        //         this.formatCurrency(e.target);
+        //     }
+        // });
     }
 
     /**

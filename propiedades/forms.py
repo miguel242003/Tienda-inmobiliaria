@@ -33,8 +33,7 @@ class PropiedadForm(forms.ModelForm):
                 'placeholder': '100.000,00',
                 'title': 'El precio debe ser mayor a 0 y menor a 999,999,999 (formato: 100.000,00)',
                 'required': True,
-                'pattern': '^[0-9]{1,3}(\\.[0-9]{3})*(,[0-9]{2})?$',
-                'data-mask': 'currency'
+                'pattern': '^[0-9]{1,3}(\\.[0-9]{3})*(,[0-9]{2})?$'
             }),
             'tipo': forms.Select(attrs={
                 'class': 'form-control',
