@@ -324,6 +324,10 @@ def dashboard(request):
     # Obtener propiedades recientes
     propiedades_recientes = Propiedad.objects.all().order_by('-fecha_creacion')[:5]
     
+    # Obtener CVs recientes
+    from core.models import CVSubmission
+    cvs_recientes = CVSubmission.objects.all().order_by('-fecha_envio')[:10]
+    
     # Obtener todas las propiedades para el selector del gráfico
     todas_propiedades = Propiedad.objects.all().order_by('titulo')
     
@@ -422,6 +426,7 @@ def dashboard(request):
         'staff_users': staff_users,
         'total_propiedades': total_propiedades,
         'propiedades_recientes': propiedades_recientes,
+        'cvs_recientes': cvs_recientes,
         'todas_propiedades': todas_propiedades,
         'total_clicks': total_clicks,
         'clicks_por_mes': clicks_por_mes,

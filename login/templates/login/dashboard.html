@@ -2858,6 +2858,11 @@
                     <span class="font-medium text-sm sm:text-base">Gestionar Propiedades</span>
                 </button>
                 
+                <button id="btn-gestionar-cvs" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:scale-105 rounded-lg transition-all duration-200">
+                    <i data-lucide="file-text" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
+                    <span class="font-medium text-sm sm:text-base">Currículums</span>
+                </button>
+                
                 <button id="btn-nuevo-usuario" class="flex items-center w-full px-3 sm:px-4 py-2 sm:py-3 text-slate-300 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-600 hover:scale-105 rounded-lg transition-all duration-200">
                     <i data-lucide="user-plus" class="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3"></i>
                     <span class="font-medium text-sm sm:text-base">Nuevo Usuario</span>
@@ -3361,6 +3366,116 @@
                         <!-- Cards móviles (ocultas por defecto, se muestran en móvil) -->
                         <div class="propiedades-cards-mobile" id="propertiesCardsMobile" style="display: none;">
                             <!-- Las cards se generarán dinámicamente aquí -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contenido de CVs (oculto por defecto) -->
+                <div id="cvs-content" class="hidden cvs-container">
+                    <!-- Header de CVs -->
+                    <div class="mb-6 cvs-header">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                                    Currículums Recibidos
+                                </h1>
+                                <p class="text-gray-600">Gestiona los CVs enviados por candidatos</p>
+                            </div>
+                            <div class="mt-4 sm:mt-0">
+                                <button id="btn-volver-inicio-cvs" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                                    Volver al Inicio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de CVs -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div class="p-6 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i data-lucide="file-text" class="w-5 h-5 mr-2 text-purple-600"></i>
+                                CVs Recientes
+                            </h3>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Candidato</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experiencia</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archivo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for cv in cvs_recientes %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900">{{ cv.nombre_completo|safe }}</div>
+                                                <div class="text-sm text-gray-500">{{ cv.email|safe }}</div>
+                                                {% if cv.telefono %}
+                                                <div class="text-sm text-gray-500">{{ cv.telefono|safe }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                {{ cv.get_posicion_interes_display|safe }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ cv.get_anos_experiencia_display|default:"No especificado"|safe }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ cv.cv_file.name|slice:"-30:"|safe }}</div>
+                                            <div class="text-sm text-gray-500">{{ cv.get_file_size|safe }} ({{ cv.get_file_extension|safe }})</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ cv.fecha_envio|date:"d/m/Y H:i"|safe }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <div class="flex space-x-2">
+                                                <a href="{% url 'core:download_cv' cv.id %}" 
+                                                   class="text-green-600 hover:text-green-900" 
+                                                   title="Descargar CV"
+                                                   target="_blank">
+                                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                                </a>
+                                                <a href="mailto:{{ cv.email|safe }}" 
+                                                   class="text-blue-600 hover:text-blue-900" 
+                                                   title="Enviar email">
+                                                    <i data-lucide="mail" class="w-4 h-4"></i>
+                                                </a>
+                                                {% if cv.procesado %}
+                                                <span class="text-green-600" title="Procesado">
+                                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                                </span>
+                                                {% else %}
+                                                <span class="text-yellow-600" title="Pendiente">
+                                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                                </span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-12 text-center">
+                                            <div class="text-gray-500">
+                                                <i data-lucide="file-text" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                                                <h3 class="text-lg font-medium text-gray-900 mb-2">No hay CVs recibidos</h3>
+                                                <p class="text-gray-500">Los currículums enviados aparecerán aquí.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -4553,6 +4668,9 @@
                     break;
                 case 'gestion':
                     activeButton = document.getElementById('btn-gestionar-propiedades');
+                    break;
+                case 'cvs':
+                    activeButton = document.getElementById('btn-gestionar-cvs');
                     break;
                 case 'resenas':
                     activeButton = document.getElementById('btn-gestionar-resenas');
@@ -7901,6 +8019,26 @@
                         console.error('No hay usuario seleccionado para eliminar');
                     }
                 });
+                
+                // Event listeners para gestión de CVs
+                const btnGestionarCvs = document.getElementById('btn-gestionar-cvs');
+                const btnVolverInicioCvs = document.getElementById('btn-volver-inicio-cvs');
+                
+                if (btnGestionarCvs) {
+                    btnGestionarCvs.addEventListener('click', function() {
+                        showSection('cvs-content');
+                        updateSidebarState('cvs');
+                        lucide.createIcons();
+                    });
+                }
+                
+                if (btnVolverInicioCvs) {
+                    btnVolverInicioCvs.addEventListener('click', function() {
+                        showSection('dashboard-content');
+                        updateSidebarState('dashboard');
+                        lucide.createIcons();
+                    });
+                }
                 
                 // Event listeners para gestión de reseñas
                 const btnGestionarResenas = document.getElementById('btn-gestionar-resenas');
