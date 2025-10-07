@@ -43,7 +43,7 @@ class Propiedad(models.Model):
     descripcion = models.TextField(verbose_name="Descripción")
     precio = models.DecimalField(
         max_digits=12, 
-        decimal_places=0,  # Cambiar a 0 decimales para evitar .00 automático
+        decimal_places=2, 
         validators=[MinValueValidator(0)],
         verbose_name="Precio"
     )
@@ -99,7 +99,7 @@ class Propiedad(models.Model):
         return self.titulo
     
     def get_precio_formateado(self):
-        return f"${self.precio:,.0f}"
+        return f"${self.precio:,.2f}"
     
     def get_total_fotos(self):
         """Retorna el total de fotos de la propiedad"""

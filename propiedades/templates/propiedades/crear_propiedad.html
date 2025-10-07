@@ -91,13 +91,7 @@
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
-                                        <input type="text" 
-                                               name="precio" 
-                                               id="{{ form.precio.id_for_label }}"
-                                               class="form-control"
-                                               placeholder="Ej: 100.000 o 1.500.000"
-                                               title="Ingrese el precio (puede usar punto o coma como separador de miles)"
-                                               required>
+                                        {{ form.precio }}
                                     </div>
                                     {% if form.precio.errors %}
                                         <div class="text-danger mt-1">
@@ -524,139 +518,20 @@
 
 {% block extra_js %}
 <script>
-// DESACTIVAR CUALQUIER JAVASCRIPT DEL DASHBOARD QUE INTERFIERA
-if (typeof showGestionPropiedades !== 'undefined') {
-    showGestionPropiedades = function() {};
-}
-if (typeof updateSidebarState !== 'undefined') {
-    updateSidebarState = function() {};
-}
-if (typeof showSection !== 'undefined') {
-    showSection = function() {};
-}
-
 document.addEventListener('DOMContentLoaded', function() {
     // Form validation
     const form = document.getElementById('crearPropiedadForm');
     const precioInput = document.getElementById('{{ form.precio.id_for_label }}');
     const metrosInput = document.getElementById('{{ form.metros_cuadrados.id_for_label }}');
     
-    // SOLUCIÓN DEFINITIVA: Desactivar TODA validación externa y formateo
-    if (precioInput) {
-        // 1. Forzar tipo text y eliminar TODOS los atributos
-        precioInput.setAttribute('type', 'text');
-        precioInput.removeAttribute('step');
-        precioInput.removeAttribute('min');
-        precioInput.removeAttribute('max');
-        precioInput.removeAttribute('pattern');
-        precioInput.removeAttribute('data-validate');
-        precioInput.removeAttribute('data-field-type');
-        precioInput.removeAttribute('data-required');
-        
-        // 2. Configurar inputmode para teclado numérico en móviles
-        precioInput.setAttribute('inputmode', 'numeric');
-        
-        // 3. Limpiar valor inicial si tiene .00
-        if (precioInput.value) {
-            precioInput.value = precioInput.value.replace(/\.00$/, '');
+    // Formato de precio
+    precioInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/[^\d.]/g, '');
+        if (value && !isNaN(value)) {
+            value = parseFloat(value).toFixed(2);
+            e.target.value = value;
         }
-        
-        // 4. DESACTIVAR TODAS LAS VALIDACIONES EXTERNAS
-        precioInput.setAttribute('data-skip-validation', 'true');
-        precioInput.setAttribute('data-no-format', 'true');
-        precioInput.setAttribute('data-field-type', 'text');
-        precioInput.setAttribute('data-validate', 'false');
-        
-        // 5. DESACTIVAR CUALQUIER VALIDACIÓN EXTERNA QUE PUEDA INTERFERIR
-        precioInput.addEventListener('DOMNodeInserted', function(e) {
-            e.stopPropagation();
-        });
-        
-        precioInput.addEventListener('DOMNodeRemoved', function(e) {
-            e.stopPropagation();
-        });
-        
-        // 5. Interceptar TODOS los eventos posibles
-        precioInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/[^\d.,\s]/g, '');
-            e.target.value = value;
-        });
-        
-        precioInput.addEventListener('blur', function(e) {
-            // NO hacer nada - mantener valor tal cual
-        });
-        
-        precioInput.addEventListener('change', function(e) {
-            let value = e.target.value.replace(/[^\d.,\s]/g, '');
-            e.target.value = value;
-        });
-        
-        precioInput.addEventListener('keyup', function(e) {
-            // Prevenir formato en tiempo real
-            if (e.target.value.endsWith('.00')) {
-                e.target.value = e.target.value.replace(/\.00$/, '');
-            }
-        });
-        
-        precioInput.addEventListener('focus', function(e) {
-            if (e.target.value.endsWith('.00')) {
-                e.target.value = e.target.value.replace(/\.00$/, '');
-            }
-        });
-        
-        // 6. Interceptar eventos de teclado
-        precioInput.addEventListener('keydown', function(e) {
-            // Permitir teclas de navegación y edición
-            if ([8, 9, 27, 46, 110, 190].indexOf(e.keyCode) !== -1 ||
-                (e.keyCode === 65 && e.ctrlKey === true) ||
-                (e.keyCode >= 35 && e.keyCode <= 40)) {
-                return;
-            }
-            // Permitir solo números, punto, coma y espacios
-            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && 
-                (e.keyCode < 96 || e.keyCode > 105) && 
-                e.keyCode !== 188 && e.keyCode !== 190 && e.keyCode !== 32) {
-                e.preventDefault();
-            }
-        });
-        
-        // 7. Usar MutationObserver para detectar cambios automáticos
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
-                    if (precioInput.value.endsWith('.00')) {
-                        precioInput.value = precioInput.value.replace(/\.00$/, '');
-                    }
-                }
-            });
-        });
-        
-        observer.observe(precioInput, {
-            attributes: true,
-            attributeFilter: ['value']
-        });
-        
-        // 8. Interceptar el evento propertychange (IE)
-        precioInput.addEventListener('propertychange', function(e) {
-            if (e.propertyName === 'value' && precioInput.value.endsWith('.00')) {
-                precioInput.value = precioInput.value.replace(/\.00$/, '');
-            }
-        });
-        
-        // 9. Forzar el valor cada 50ms para prevenir formato automático
-        setInterval(function() {
-            if (precioInput.value.endsWith('.00')) {
-                precioInput.value = precioInput.value.replace(/\.00$/, '');
-            }
-        }, 50);
-        
-        // 10. DESACTIVAR CUALQUIER VALIDACIÓN EXTERNA
-        precioInput.addEventListener('DOMAttrModified', function(e) {
-            if (e.attrName === 'value' && precioInput.value.endsWith('.00')) {
-                precioInput.value = precioInput.value.replace(/\.00$/, '');
-            }
-        });
-    }
+    });
     
     // Validación antes de enviar
     form.addEventListener('submit', function(e) {

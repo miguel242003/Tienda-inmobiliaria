@@ -341,7 +341,6 @@ CONTENT_SECURITY_POLICY = {
             "'self'",
             'https://cdn.jsdelivr.net',  # Source maps de Bootstrap
             'https://translate.googleapis.com',  # Google Translate
-            'https://unpkg.com',  # Lucide icons y otros recursos
         ),
         'frame-ancestors': ("'none'",),  # Evitar iframe embedding
         'base-uri': ("'self'",),

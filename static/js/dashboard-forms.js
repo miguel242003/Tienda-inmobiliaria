@@ -457,6 +457,37 @@ class DashboardForms {
                 this.handleCheckboxChange(e.target);
             }
         });
+
+        // Currency formatting for price fields
+        document.addEventListener('input', (e) => {
+            if (e.target.hasAttribute('data-mask') && e.target.getAttribute('data-mask') === 'currency') {
+                this.formatCurrency(e.target);
+            }
+        });
+    }
+
+    /**
+     * Format currency input (Argentine format: 100.000,00)
+     */
+    formatCurrency(input) {
+        let value = input.value.replace(/[^\d]/g, ''); // Remove all non-digits
+        
+        if (value === '') {
+            input.value = '';
+            return;
+        }
+
+        // Convert to number and format
+        const num = parseInt(value);
+        const formatted = this.formatNumber(num);
+        input.value = formatted;
+    }
+
+    /**
+     * Format number with Argentine thousands separator
+     */
+    formatNumber(num) {
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
     /**

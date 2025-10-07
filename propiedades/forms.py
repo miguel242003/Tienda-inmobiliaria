@@ -4,17 +4,6 @@ from .models import Propiedad, Amenidad, Resena
 class PropiedadForm(forms.ModelForm):
     """Formulario para crear y editar propiedades"""
     
-    # Sobrescribir el campo precio para evitar formato automático de decimales
-    precio = forms.CharField(
-        label='Precio',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Ej: 100.000 o 1.500.000',
-            'title': 'Ingrese el precio (puede usar punto o coma como separador de miles)',
-            'required': True
-        })
-    )
-    
     class Meta:
         model = Propiedad
         fields = [
@@ -38,6 +27,14 @@ class PropiedadForm(forms.ModelForm):
                 'pattern': '^.{10,1000}$',
                 'title': 'La descripción debe tener entre 10 y 1000 caracteres',
                 'required': True
+            }),
+            'precio': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '100.000,00',
+                'title': 'El precio debe ser mayor a 0 y menor a 999,999,999 (formato: 100.000,00)',
+                'required': True,
+                'pattern': '^[0-9]{1,3}(\\.[0-9]{3})*(,[0-9]{2})?$',
+                'data-mask': 'currency'
             }),
             'tipo': forms.Select(attrs={
                 'class': 'form-control',
@@ -133,6 +130,7 @@ class PropiedadForm(forms.ModelForm):
         labels = {
             'titulo': 'Título de la Propiedad',
             'descripcion': 'Descripción',
+            'precio': 'Precio',
             'tipo': 'Tipo de Propiedad',
             'operacion': 'Tipo de Operación',
             'estado': 'Estado',
@@ -177,72 +175,28 @@ class PropiedadForm(forms.ModelForm):
         return descripcion
     
     def clean_precio(self):
-        """Validar que el precio sea mayor a 0"""
+        """Validar que el precio sea mayor a 0 y convertir formato argentino"""
         precio_str = self.cleaned_data.get('precio')
-        
         if not precio_str:
             raise forms.ValidationError('El precio es obligatorio.')
         
-        # Convertir a string si es necesario
-        precio_str = str(precio_str).strip()
-        
-        # Remover espacios en blanco
-        precio_str = precio_str.replace(' ', '')
-        
-        # Detectar si usa coma como separador decimal o punto
-        # Formato argentino: 100.000 o 100.000,50 (punto como separador de miles, coma como decimal)
-        # Formato internacional: 100,000 o 100,000.50 (coma como separador de miles, punto como decimal)
-        
-        # Si tiene tanto punto como coma, determinar cuál es el decimal
-        if ',' in precio_str and '.' in precio_str:
-            # El último separador es el decimal
-            pos_coma = precio_str.rfind(',')
-            pos_punto = precio_str.rfind('.')
-            
-            if pos_punto > pos_coma:
-                # Formato internacional: 1.000.000,50 o 1,000,000.50
-                # El punto es el decimal, remover comas
-                precio_str = precio_str.replace(',', '')
-            else:
-                # Formato argentino: 1,000,000.50 o 1.000.000,50
-                # La coma es el decimal, remover puntos y cambiar coma por punto
-                precio_str = precio_str.replace('.', '').replace(',', '.')
-        elif ',' in precio_str:
-            # Solo tiene coma, puede ser separador de miles o decimal
-            partes = precio_str.split(',')
-            if len(partes) == 2 and len(partes[1]) <= 2:
-                # Es decimal (ej: 100,50)
-                precio_str = precio_str.replace(',', '.')
-            else:
-                # Es separador de miles (ej: 100,000 o 1,000,000)
-                precio_str = precio_str.replace(',', '')
-        elif '.' in precio_str:
-            # Solo tiene punto, puede ser separador de miles o decimal
-            partes = precio_str.split('.')
-            if len(partes) == 2 and len(partes[1]) <= 2:
-                # Es decimal (ej: 100.50)
-                # Ya está en formato correcto
-                pass
-            else:
-                # Es separador de miles (ej: 100.000 o 1.000.000)
-                precio_str = precio_str.replace('.', '')
-        
-        # Intentar convertir a decimal
         try:
-            from decimal import Decimal, InvalidOperation
-            precio = Decimal(precio_str)
-        except (ValueError, InvalidOperation):
-            raise forms.ValidationError('El precio debe ser un número válido. Ejemplos: 100000, 100.000, 100000.50')
-        
-        # Validar que sea mayor a 0
-        if precio <= 0:
-            raise forms.ValidationError('El precio debe ser mayor a 0.')
-        
-        # Validar que no sea mayor a 999,999,999
-        if precio > 999999999:
-            raise forms.ValidationError('El precio no puede ser mayor a 999,999,999.')
-        
-        return precio
+            # Convertir formato argentino (100.000,00) a formato decimal (100000.00)
+            # Remover puntos (separadores de miles) y reemplazar coma por punto
+            precio_limpio = precio_str.replace('.', '').replace(',', '.')
+            precio = float(precio_limpio)
+            
+            if precio <= 0:
+                raise forms.ValidationError('El precio debe ser mayor a 0.')
+            elif precio > 999999999:
+                raise forms.ValidationError('El precio no puede ser mayor a 999,999,999.')
+            
+            return precio
+            
+        except ValueError:
+            raise forms.ValidationError(
+                'Formato de precio inválido. Use el formato: 100.000,00 (ej: 150.000,50)'
+            )
     
     def clean_ubicacion(self):
         """Validar la ubicación de la propiedad"""
