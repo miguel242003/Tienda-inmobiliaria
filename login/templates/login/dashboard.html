@@ -1053,9 +1053,20 @@
             }
         }
         
-        /* Estilo de respaldo para cualquier resolución */
+        /* Estilo base para la tabla desktop */
         .cvs-desktop-table {
-            display: block !important;
+            display: block;
+            width: 100%;
+        }
+        
+        .cvs-desktop-table table {
+            display: table;
+            width: 100%;
+        }
+        
+        .cvs-desktop-table th,
+        .cvs-desktop-table td {
+            display: table-cell;
         }
         
         /* Solo ocultar en móviles */
@@ -1065,30 +1076,10 @@
             }
         }
         
-        /* Forzar visualización en resoluciones altas */
-        @media (min-width: 1920px) {
-            .cvs-desktop-table {
-                display: block !important;
-                width: 100% !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-            }
-            
-            .cvs-desktop-table table {
-                display: table !important;
-                width: 100% !important;
-            }
-            
-            .cvs-desktop-table th,
-            .cvs-desktop-table td {
-                display: table-cell !important;
-            }
-        }
-        
         /* Monitores muy grandes (1440px+) */
         @media (min-width: 1440px) {
             .cvs-desktop-table {
-                display: block !important;
+                display: block;
                 max-width: none;
             }
             
@@ -1105,45 +1096,31 @@
         /* Monitores 4K (3840px+) */
         @media (min-width: 3840px) {
             .cvs-desktop-table {
-                display: block !important;
+                display: block;
                 max-width: none;
-                width: 100% !important;
-                visibility: visible !important;
-                opacity: 1 !important;
             }
             
             .cvs-desktop-table table {
                 font-size: 1rem;
                 max-width: 100%;
-                width: 100% !important;
-                display: table !important;
             }
             
             .cvs-desktop-table th,
             .cvs-desktop-table td {
                 padding: 1.5rem 2rem;
                 font-size: 1rem;
-                display: table-cell !important;
             }
             
             .cvs-desktop-table th {
                 font-size: 0.875rem;
                 font-weight: 700;
             }
-            
-            .cvs-desktop-table tbody {
-                display: table-row-group !important;
-            }
-            
-            .cvs-desktop-table thead {
-                display: table-header-group !important;
-            }
         }
         
         /* Monitores ultra grandes (2560px+) */
         @media (min-width: 2560px) and (max-width: 3839px) {
             .cvs-desktop-table {
-                display: block !important;
+                display: block;
                 max-width: none;
             }
             
@@ -8443,7 +8420,58 @@
                 
                 // Función para eliminar CV
                 window.eliminarCV = function(cvId, nombreCompleto) {
-                    if (confirm(`¿Estás seguro de que quieres eliminar el CV de ${nombreCompleto}?\n\nEsta acción no se puede deshacer.`)) {
+                    // Crear modal de confirmación personalizado
+                    const modal = document.createElement('div');
+                    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    modal.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+                            <div class="p-6">
+                                <div class="flex items-center mb-4">
+                                    <div class="flex-shrink-0">
+                                        <i data-lucide="trash-2" class="w-8 h-8 text-red-600"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-lg font-semibold text-gray-900">Eliminar Currículum</h3>
+                                    </div>
+                                </div>
+                                <div class="mb-6">
+                                    <p class="text-sm text-gray-600 mb-2">
+                                        ¿Estás seguro de que quieres eliminar el CV de <strong>${nombreCompleto}</strong>?
+                                    </p>
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                        <div class="flex">
+                                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 mr-2 mt-0.5"></i>
+                                            <p class="text-sm text-red-700">
+                                                Esta acción no se puede deshacer. Se eliminará permanentemente el archivo y todos los datos del candidato.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-3">
+                                    <button id="cancelar-eliminar" class="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                                        Cancelar
+                                    </button>
+                                    <button id="confirmar-eliminar" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
+                                        <i data-lucide="trash-2" class="w-4 h-4 mr-2"></i>
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    lucide.createIcons();
+                    
+                    // Event listeners para los botones
+                    document.getElementById('cancelar-eliminar').addEventListener('click', () => {
+                        document.body.removeChild(modal);
+                    });
+                    
+                    document.getElementById('confirmar-eliminar').addEventListener('click', () => {
+                        // Cerrar modal
+                        document.body.removeChild(modal);
+                        
                         // Mostrar indicador de carga
                         const btnEliminar = event.target.closest('button');
                         const iconoOriginal = btnEliminar.innerHTML;
@@ -8460,12 +8488,14 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // Mostrar mensaje de éxito
-                                alert(data.message);
+                                // Mostrar mensaje de éxito personalizado
+                                mostrarMensajeExito(data.message, nombreCompleto);
                                 // Recargar la página para actualizar la lista
-                                location.reload();
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 2000);
                             } else {
-                                alert('Error: ' + data.message);
+                                mostrarMensajeError(data.message);
                                 // Restaurar botón
                                 btnEliminar.innerHTML = iconoOriginal;
                                 btnEliminar.disabled = false;
@@ -8473,13 +8503,79 @@
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('Error al eliminar el CV. Por favor intenta nuevamente.');
+                            mostrarMensajeError('Error al eliminar el CV. Por favor intenta nuevamente.');
                             // Restaurar botón
                             btnEliminar.innerHTML = iconoOriginal;
                             btnEliminar.disabled = false;
                         });
-                    }
+                    });
                 };
+                
+                // Función para mostrar mensaje de éxito
+                function mostrarMensajeExito(mensaje, nombreCompleto) {
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full';
+                    toast.innerHTML = `
+                        <div class="flex items-center">
+                            <i data-lucide="check-circle" class="w-6 h-6 mr-3"></i>
+                            <div>
+                                <p class="font-semibold">¡CV Eliminado Exitosamente!</p>
+                                <p class="text-sm opacity-90">El currículum de ${nombreCompleto} ha sido eliminado permanentemente.</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(toast);
+                    lucide.createIcons();
+                    
+                    // Animar entrada
+                    setTimeout(() => {
+                        toast.classList.remove('translate-x-full');
+                    }, 100);
+                    
+                    // Auto-remover después de 3 segundos
+                    setTimeout(() => {
+                        toast.classList.add('translate-x-full');
+                        setTimeout(() => {
+                            if (document.body.contains(toast)) {
+                                document.body.removeChild(toast);
+                            }
+                        }, 300);
+                    }, 3000);
+                }
+                
+                // Función para mostrar mensaje de error
+                function mostrarMensajeError(mensaje) {
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-x-full';
+                    toast.innerHTML = `
+                        <div class="flex items-center">
+                            <i data-lucide="alert-circle" class="w-6 h-6 mr-3"></i>
+                            <div>
+                                <p class="font-semibold">Error al Eliminar</p>
+                                <p class="text-sm opacity-90">${mensaje}</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(toast);
+                    lucide.createIcons();
+                    
+                    // Animar entrada
+                    setTimeout(() => {
+                        toast.classList.remove('translate-x-full');
+                    }, 100);
+                    
+                    // Auto-remover después de 4 segundos
+                    setTimeout(() => {
+                        toast.classList.add('translate-x-full');
+                        setTimeout(() => {
+                            if (document.body.contains(toast)) {
+                                document.body.removeChild(toast);
+                            }
+                        }, 300);
+                    }, 4000);
+                }
                 
                 // Event listeners para gestión de reseñas
                 const btnGestionarResenas = document.getElementById('btn-gestionar-resenas');
