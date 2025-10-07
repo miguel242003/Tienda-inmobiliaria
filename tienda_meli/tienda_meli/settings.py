@@ -312,7 +312,7 @@ CONTENT_SECURITY_POLICY = {
             "'unsafe-eval'",    # Necesario para algunos frameworks JS
             'https://cdn.tailwindcss.com',
             'https://cdn.jsdelivr.net',
-            'https://unpkg.com',
+            'https://unpkg.com',  # Lucide icons y otros recursos
             'https://cdnjs.cloudflare.com',
             'https://translate.googleapis.com',  # Google Translate
             'https://www.gstatic.com',  # Google Translate
@@ -340,6 +340,7 @@ CONTENT_SECURITY_POLICY = {
         'connect-src': (
             "'self'",
             'https://cdn.jsdelivr.net',  # Source maps de Bootstrap
+            'https://unpkg.com',  # Lucide icons y otros recursos
             'https://translate.googleapis.com',  # Google Translate
         ),
         'frame-ancestors': ("'none'",),  # Evitar iframe embedding
