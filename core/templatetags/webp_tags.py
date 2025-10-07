@@ -104,12 +104,15 @@ def webp_srcset(image_field, sizes=None):
         original_srcset.append(f"{image_field.url} {width}w")
     
     if webp_srcset:
+        webp_srcset_str = ', '.join(webp_srcset)
+        original_srcset_str = ', '.join(original_srcset)
         return mark_safe(f'''
-        <source srcset="{', '.join(webp_srcset)}" type="image/webp" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 1024px) 1024px, 1920px">
-        <source srcset="{', '.join(original_srcset)}" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 1024px) 1024px, 1920px">
+        <source srcset="{webp_srcset_str}" type="image/webp" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 1024px) 1024px, 1920px">
+        <source srcset="{original_srcset_str}" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 1024px) 1024px, 1920px">
         ''')
     
-    return mark_safe(f'<source srcset="{', '.join(original_srcset)}" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 1024px) 1024px, 1920px">')
+    original_srcset_str = ', '.join(original_srcset)
+    return mark_safe(f'<source srcset="{original_srcset_str}" sizes="(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 1024px) 1024px, 1920px">')
 
 @register.simple_tag
 def webp_optimize_status(image_field):
