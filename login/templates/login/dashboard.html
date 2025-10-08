@@ -3578,7 +3578,7 @@
                                                     <i data-lucide="edit" class="w-4 h-4"></i>
                                                 </a>
                                                 <button type="button" class="text-red-600 hover:text-red-900" 
-                                                        onclick="confirmarEliminar({{ propiedad.id|safe }}, \'{{ propiedad.titulo|escapejs|safe }}\')" 
+                                                        onclick="confirmarEliminar({{ propiedad.id|safe }}, '{{ propiedad.titulo|escapejs }}')" 
                                                         title="Eliminar">
                                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                                                 </button>
@@ -6561,7 +6561,7 @@
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${usuario.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
                                         ${usuario.activo ? 'Activo' : 'Inactivo'}
                                     </span>
-                                    <button onclick="UsuarioModalManager.confirmarEliminarUsuario(${usuario.id}, '${usuario.nombre_completo}')" 
+                                    <button onclick="UsuarioModalManager.confirmarEliminarUsuario(${usuario.id}, \`${usuario.nombre_completo}\`)" 
                                             class="text-red-600 hover:text-red-800 transition-colors" title="Eliminar usuario">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
