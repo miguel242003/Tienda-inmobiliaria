@@ -144,7 +144,7 @@ class WebPOptimizer:
             logger.info(f"Archivo WebP eliminado: {webp_path}")
     
     @classmethod
-    def optimize_image_field(cls, model_instance, field_name, quality=None):
+    def optimize_image_field(cls, model_instance, field_name, quality=None, replace_original=False):
         """
         Optimiza un campo de imagen específico de un modelo
         
@@ -152,6 +152,7 @@ class WebPOptimizer:
             model_instance: Instancia del modelo
             field_name: Nombre del campo de imagen
             quality: Calidad de compresión
+            replace_original: Si True, reemplaza la imagen original con WebP
             
         Returns:
             dict: Estadísticas de la optimización
@@ -173,8 +174,23 @@ class WebPOptimizer:
             original_path = image_field.name
             webp_path = cls.get_webp_path(original_path)
             
-            # Guardar archivo WebP
-            saved_path = default_storage.save(webp_path, webp_file)
+            if replace_original:
+                # Reemplazar la imagen original con WebP
+                # Eliminar archivo original
+                if default_storage.exists(original_path):
+                    default_storage.delete(original_path)
+                
+                # Guardar WebP en la ruta original
+                saved_path = default_storage.save(original_path, webp_file)
+                
+                # Actualizar el campo del modelo para que apunte a la nueva ruta
+                setattr(model_instance, field_name, saved_path)
+                model_instance.save(update_fields=[field_name])
+                
+                logger.info(f"Imagen original reemplazada con WebP: {saved_path}")
+            else:
+                # Guardar archivo WebP separado (comportamiento original)
+                saved_path = default_storage.save(webp_path, webp_file)
             
             return {
                 'status': 'success',
@@ -182,7 +198,8 @@ class WebPOptimizer:
                 'webp_size': webp_size,
                 'saved_percentage': saved_percentage,
                 'webp_path': saved_path,
-                'original_path': original_path
+                'original_path': original_path,
+                'replaced_original': replace_original
             }
             
         except Exception as e:

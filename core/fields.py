@@ -35,11 +35,12 @@ class WebPImageField(models.ImageField):
                     result = WebPOptimizer.optimize_image_field(
                         instance, 
                         self.name, 
-                        quality=self.webp_quality
+                        quality=self.webp_quality,
+                        replace_original=True  # Reemplazar original con WebP
                     )
                     
                     if result['status'] == 'success':
-                        logger.info(f"Imagen optimizada automáticamente: {result['webp_path']}")
+                        logger.info(f"Imagen optimizada y original reemplazada: {result['webp_path']}")
                     else:
                         logger.warning(f"No se pudo optimizar imagen: {result['message']}")
                         

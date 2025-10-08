@@ -4956,11 +4956,15 @@ const fotosData = {
     metros: {{ propiedad.metros_cuadrados }},
     fotoPrincipal: {% if propiedad.get_foto_principal %}'{{ propiedad.get_foto_principal.url }}'{% else %}null{% endif %},
     fotoSecundaria: {% if propiedad.get_foto_secundaria %}'{{ propiedad.get_foto_secundaria.url }}'{% else %}null{% endif %},
+    // Las imágenes ya son WebP (no necesitamos URLs separadas)
+    fotoPrincipalWebP: null,
+    fotoSecundariaWebP: null,
     fotosAdicionales: [
         {% for medio in propiedad.fotos.all %}
         {
             tipo: '{{ medio.tipo_medio }}',
             url: '{% if medio.tipo_medio == "imagen" %}{{ medio.imagen.url }}{% elif medio.tipo_medio == "video" %}{{ medio.video.url }}{% endif %}',
+            urlWebP: null, // Las imágenes ya son WebP
             descripcion: '{{ medio.descripcion|escapejs }}'
         }{% if not forloop.last %},{% endif %}
         {% endfor %}
@@ -5756,6 +5760,7 @@ function loadCurrentImage() {
             viewerVideo.load();
             viewerVideo.style.display = 'block';
         } else {
+            // Las imágenes ya son WebP
             viewerImage.src = currentMedia.url;
             viewerImage.alt = currentMedia.descripcion;
             viewerImage.style.display = 'block';
