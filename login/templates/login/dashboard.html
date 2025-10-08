@@ -7447,6 +7447,8 @@
                     { id: 'id_operacion', type: 'select', required: true },
                     { id: 'id_estado', type: 'select', required: true },
                     { id: 'id_ubicacion', type: 'ubicacion', required: true },
+                    { id: 'id_ciudad', type: 'ciudad', required: true },
+                    { id: 'id_lugares_cercanos', type: 'lugares_cercanos', required: true },
                     { id: 'id_metros_cuadrados', type: 'metros', required: true },
                     { id: 'id_habitaciones', type: 'habitaciones', required: true },
                     { id: 'id_banos', type: 'banos', required: true },
@@ -7528,6 +7530,26 @@
                             return false;
                         } else if (value.length > 200) {
                             this.showPropertyFieldError(input, 'La ubicación no puede tener más de 200 caracteres.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'ciudad':
+                        if (value.length < 2) {
+                            this.showPropertyFieldError(input, 'La ciudad debe tener al menos 2 caracteres.');
+                            return false;
+                        } else if (value.length > 100) {
+                            this.showPropertyFieldError(input, 'La ciudad no puede tener más de 100 caracteres.');
+                            return false;
+                        }
+                        break;
+                        
+                    case 'lugares_cercanos':
+                        if (value.length < 10) {
+                            this.showPropertyFieldError(input, 'Los lugares cercanos deben tener al menos 10 caracteres.');
+                            return false;
+                        } else if (value.length > 500) {
+                            this.showPropertyFieldError(input, 'Los lugares cercanos no pueden tener más de 500 caracteres.');
                             return false;
                         }
                         break;
@@ -7698,6 +7720,8 @@
                     { id: 'id_descripcion', type: 'descripcion', required: true },
                     { id: 'id_precio', type: 'precio', required: true },
                     { id: 'id_ubicacion', type: 'ubicacion', required: true },
+                    { id: 'id_ciudad', type: 'ciudad', required: true },
+                    { id: 'id_lugares_cercanos', type: 'lugares_cercanos', required: true },
                     { id: 'id_metros_cuadrados', type: 'metros', required: true },
                     { id: 'id_habitaciones', type: 'habitaciones', required: true },
                     { id: 'id_banos', type: 'banos', required: true },
