@@ -83,8 +83,14 @@ class FileValidator:
         if not archivo.name:
             raise ValidationError('El archivo no tiene nombre. Por favor, selecciona un archivo válido.')
         
-        # Leer los primeros 2048 bytes para determinar el tipo MIME
-        file_head = archivo.read(2048)
+        # Para archivos grandes, usar una estrategia diferente
+        if archivo.size > 10 * 1024 * 1024:  # Archivos > 10MB
+            # Leer solo los primeros 512 bytes para archivos grandes
+            file_head = archivo.read(512)
+        else:
+            # Leer los primeros 2048 bytes para archivos normales
+            file_head = archivo.read(2048)
+        
         archivo.seek(0)  # Volver al inicio del archivo
         
         # Verificar que el archivo tenga contenido
@@ -99,10 +105,15 @@ class FileValidator:
         try:
             mime = magic.from_buffer(file_head, mime=True)
         except Exception as e:
-            raise ValidationError(
-                f'No se pudo determinar el tipo de archivo. '
-                f'Error: {str(e)}. Por favor, selecciona un archivo de imagen válido.'
-            )
+            # Si falla la detección MIME, intentar con el content_type del archivo
+            if hasattr(archivo, 'content_type') and archivo.content_type:
+                mime = archivo.content_type
+                print(f"DEBUG - Usando content_type como fallback: {mime}")
+            else:
+                raise ValidationError(
+                    f'No se pudo determinar el tipo de archivo. '
+                    f'Error: {str(e)}. Por favor, selecciona un archivo de imagen válido.'
+                )
         
         # Verificar si es un archivo vacío o corrupto
         if mime == 'application/x-empty' or mime == 'inode/x-empty':

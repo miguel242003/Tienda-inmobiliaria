@@ -290,7 +290,26 @@ def crear_propiedad(request):
                         print(f"  - Content-Type: {archivo.content_type}")
                         print(f"  - Charset: {getattr(archivo, 'charset', 'N/A')}")
                         
-                        validar_imagen(archivo, max_mb=20)
+                        # Para archivos grandes, usar validación más permisiva
+                        if archivo.size > 10 * 1024 * 1024:  # > 10MB
+                            print("DEBUG - Archivo grande detectado, usando validación simplificada")
+                            # Validación básica para archivos grandes
+                            if archivo.size > 20 * 1024 * 1024:  # > 20MB
+                                raise ValidationError(f'El archivo es demasiado grande. Máximo permitido: 20MB. Tamaño actual: {archivo.size / (1024*1024):.2f}MB')
+                            
+                            # Verificar que sea una imagen por extensión y content_type
+                            allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
+                            allowed_content_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp']
+                            
+                            extension = archivo.name.split('.')[-1].lower()
+                            if extension not in allowed_extensions:
+                                raise ValidationError(f'Extensión no permitida: .{extension}. Extensiones permitidas: {", ".join(allowed_extensions)}')
+                            
+                            if archivo.content_type not in allowed_content_types:
+                                raise ValidationError(f'Tipo de archivo no permitido: {archivo.content_type}. Tipos permitidos: {", ".join(allowed_content_types)}')
+                        else:
+                            # Validación completa para archivos normales
+                            validar_imagen(archivo, max_mb=20)
                     except ValidationError as e:
                         error_message = f'Imagen principal: {str(e)}'
                         print(f"DEBUG - Error de validación: {error_message}")
@@ -310,7 +329,27 @@ def crear_propiedad(request):
                 
                 if 'imagen_secundaria' in request.FILES:
                     try:
-                        validar_imagen(request.FILES['imagen_secundaria'], max_mb=20)
+                        archivo = request.FILES['imagen_secundaria']
+                        # Para archivos grandes, usar validación más permisiva
+                        if archivo.size > 10 * 1024 * 1024:  # > 10MB
+                            print("DEBUG - Archivo secundario grande detectado, usando validación simplificada")
+                            # Validación básica para archivos grandes
+                            if archivo.size > 20 * 1024 * 1024:  # > 20MB
+                                raise ValidationError(f'El archivo es demasiado grande. Máximo permitido: 20MB. Tamaño actual: {archivo.size / (1024*1024):.2f}MB')
+                            
+                            # Verificar que sea una imagen por extensión y content_type
+                            allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
+                            allowed_content_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp']
+                            
+                            extension = archivo.name.split('.')[-1].lower()
+                            if extension not in allowed_extensions:
+                                raise ValidationError(f'Extensión no permitida: .{extension}. Extensiones permitidas: {", ".join(allowed_extensions)}')
+                            
+                            if archivo.content_type not in allowed_content_types:
+                                raise ValidationError(f'Tipo de archivo no permitido: {archivo.content_type}. Tipos permitidos: {", ".join(allowed_content_types)}')
+                        else:
+                            # Validación completa para archivos normales
+                            validar_imagen(archivo, max_mb=20)
                     except ValidationError as e:
                         error_message = f'Imagen secundaria: {str(e)}'
                         messages.error(request, error_message)
@@ -363,6 +402,18 @@ def crear_propiedad(request):
                 
                 # Guardar las amenidades (relación many-to-many)
                 form.save_m2m()
+                
+                # Optimizar imágenes a WebP después de guardar exitosamente
+                try:
+                    if propiedad.imagen_principal:
+                        print("DEBUG - Optimizando imagen principal a WebP")
+                        propiedad.optimize_image_field('imagen_principal', quality=85)
+                    if propiedad.imagen_secundaria:
+                        print("DEBUG - Optimizando imagen secundaria a WebP")
+                        propiedad.optimize_image_field('imagen_secundaria', quality=85)
+                except Exception as e:
+                    print(f"DEBUG - Error en optimización WebP (no crítico): {e}")
+                    # No fallar la creación por errores de optimización
                 
                 # 🔒 VALIDAR Y MANEJAR archivos adicionales (fotos y videos)
                 archivos_adicionales = request.FILES.getlist('fotos_adicionales')
