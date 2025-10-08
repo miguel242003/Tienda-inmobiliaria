@@ -530,6 +530,16 @@ def editar_propiedad(request, propiedad_id):
                         print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
             
             messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
+            
+            # Manejar respuesta AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                return JsonResponse({
+                    'success': True, 
+                    'message': f'Propiedad "{propiedad.titulo}" actualizada exitosamente.',
+                    'redirect_url': reverse('login:gestionar_propiedades')
+                })
+            
             return redirect('login:gestionar_propiedades')
         else:
             messages.error(request, 'Por favor corrige los errores en el formulario.')

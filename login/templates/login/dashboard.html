@@ -3411,9 +3411,12 @@
                                     <i data-lucide="users" class="w-5 h-5 sm:w-6 sm:h-6 text-green-600"></i>
                                 </div>
                                 <div class="min-w-0 flex-1">
-                                    <div class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 counter-animation" id="totalUsers">{{ staff_users|default:"0"|safe }}</div>
+                                    <div class="text-xl sm:text-2xl font-bold text-gray-900 mb-1 counter-animation" id="totalUsers" data-count="{{ total_users|default:"0"|safe }}">{{ total_users|default:"0"|safe }}</div>
                                     <div class="text-xs sm:text-sm text-gray-600">Total Usuarios</div>
                                 </div>
+                                <button onclick="actualizarContadorUsuarios()" class="ml-2 p-1 text-gray-400 hover:text-green-600 transition-colors" title="Actualizar contador">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                </button>
                             </div>
                 </div>
                         
@@ -7820,7 +7823,8 @@
                 const counters = document.querySelectorAll('[id^="total"]');
                 
                 counters.forEach(counter => {
-                    const target = parseInt(counter.textContent) || 0;
+                    // Usar data-count si está disponible, sino usar textContent
+                    const target = parseInt(counter.getAttribute('data-count') || counter.textContent) || 0;
                     if (target > 0) {
                         counter.textContent = '0';
                         Utils.animateCounter(counter, target);
@@ -8214,6 +8218,31 @@
             }
         }
 
+        // Función para actualizar contador de usuarios
+        function actualizarContadorUsuarios() {
+            const contador = document.getElementById('totalUsers');
+            if (contador) {
+                // Forzar recarga del contador desde el servidor
+                fetch('/login/contar-usuarios-admin/', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const nuevoTotal = data.staff_users_count;
+                        contador.setAttribute('data-count', nuevoTotal);
+                        contador.textContent = nuevoTotal;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error actualizando contador de usuarios:', error);
+                });
+            }
+        }
+
         // Función para generar cards móviles
         function generateMobileCards() {
             const table = document.getElementById('propertiesTable');
@@ -8385,6 +8414,11 @@
                 AnimationManager.init();
                 ActivitiesManager.init();
                 PropertyModalManager.init();
+                
+                // Actualizar contador de usuarios cada 30 segundos
+                setInterval(() => {
+                    actualizarContadorUsuarios();
+                }, 30000);
                 UsuarioModalManager.init();
                 PropertyManager.init();
                 ConfigManager.init();

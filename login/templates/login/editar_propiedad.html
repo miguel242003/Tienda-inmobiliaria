@@ -1807,6 +1807,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('fotos_eliminar', fotoId);
             });
             
+            // Mostrar indicador de carga
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+            
             // Enviar el formulario
             fetch(form.action, {
                 method: 'POST',
@@ -1818,17 +1824,35 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => {
                 if (response.redirected) {
                     window.location.href = response.url;
-                } else {
+                } else if (response.ok) {
                     return response.json();
+                } else {
+                    throw new Error('Error en la respuesta del servidor');
                 }
             })
             .then(data => {
-                if (data && data.success === false) {
+                if (data && data.success) {
+                    // Mostrar mensaje de éxito
+                    alert(data.message || 'Propiedad actualizada exitosamente.');
+                    // Redirigir si se proporciona URL
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    // Restaurar botón en caso de error
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                     alert(data.message || 'Error al actualizar la propiedad.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                // Restaurar botón
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                alert('Error de conexión. Por favor intenta de nuevo.');
                 // Si hay error, enviar el formulario normalmente
                 form.submit();
             });

@@ -580,7 +580,7 @@ def crear_resena(request, slug):
                 })
             else:
                 messages.success(request, 'Reseña enviada exitosamente. Será revisada antes de publicarse.')
-                return redirect('propiedades:detalle', propiedad_id)
+                return redirect('propiedades:detalle', propiedad.slug)
         else:
             # Verificar si es una petición AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

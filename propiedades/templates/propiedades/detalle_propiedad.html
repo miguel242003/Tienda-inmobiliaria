@@ -730,7 +730,7 @@
         </div>
         
         <div class="modal-resena-body">
-            <form id="form-resena" method="post" action="{% url 'propiedades:crear_resena' propiedad.id %}">
+            <form id="form-resena" method="post" action="{% url 'propiedades:crear_resena' propiedad.slug %}">
                 {% csrf_token %}
                 
                 <!-- Información del usuario -->
@@ -6168,6 +6168,20 @@ async function handleResenaSubmit(event) {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
+        
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Response is not JSON:', text);
+            throw new Error('La respuesta del servidor no es válida');
+        }
         
         const result = await response.json();
         
