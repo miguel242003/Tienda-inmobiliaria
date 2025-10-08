@@ -1788,23 +1788,30 @@ document.addEventListener('DOMContentLoaded', function() {
         showFotosPreview();
     };
     
-    // Modificar el envío del formulario
+    // Agregar indicador de carga al botón de envío
     const form = document.querySelector('form');
     if (form) {
-        form.addEventListener('submit', function(e) {
-            console.log('Formulario de edición enviado');
-            console.log('Form action:', form.action);
-            console.log('Form method:', form.method);
-            
-            // Mostrar indicador de carga
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
-            
-            // Permitir que el formulario se envíe normalmente
-            // El indicador de carga se mantendrá hasta que la página se recargue
-        });
+        console.log('Formulario encontrado:', form);
+        console.log('Form action:', form.action);
+        console.log('Form method:', form.method);
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            console.log('Botón de envío encontrado:', submitBtn);
+            submitBtn.addEventListener('click', function(e) {
+                console.log('Botón Guardar Cambios clickeado');
+                console.log('Event:', e);
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+                
+                // Permitir que el formulario se envíe normalmente
+                // No prevenir el comportamiento por defecto
+            });
+        } else {
+            console.error('No se encontró el botón de envío');
+        }
+    } else {
+        console.error('No se encontró el formulario');
     }
 });
 </script>
