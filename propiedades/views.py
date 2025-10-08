@@ -9,7 +9,7 @@ from django.views import View
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django_ratelimit.decorators import ratelimit
-from .models import Propiedad, ClickPropiedad
+from .models import Propiedad, ClickPropiedad, Amenidad
 from .forms import PropiedadForm
 from .validators import validar_imagen, validar_video, validar_imagen_o_video
 import json
