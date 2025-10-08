@@ -1788,30 +1788,25 @@ document.addEventListener('DOMContentLoaded', function() {
         showFotosPreview();
     };
     
-    // Agregar indicador de carga al envío del formulario
+    // Logging simple para debugging
     const form = document.querySelector('form');
     if (form) {
-        console.log('Formulario encontrado:', form);
-        console.log('Form action:', form.action);
-        console.log('Form method:', form.method);
+        console.log('✅ Formulario encontrado');
+        console.log('URL de acción:', form.action);
+        console.log('Método:', form.method);
         
-        // Escuchar el evento submit del formulario en lugar del click del botón
-        form.addEventListener('submit', function(e) {
-            console.log('Formulario enviado');
-            
-            // Mostrar indicador de carga
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
-            }
-            
-            // NO prevenir el comportamiento por defecto
-            // Permitir que el formulario se envíe normalmente
-        });
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            console.log('✅ Botón de envío encontrado');
+        } else {
+            console.error('❌ Botón de envío NO encontrado');
+        }
     } else {
-        console.error('No se encontró el formulario');
+        console.error('❌ Formulario NO encontrado');
     }
+    
+    // NO agregar ningún event listener que pueda interferir con el formulario
+    // Dejar que el formulario funcione de manera estándar
 });
 </script>
 {% endblock %}
