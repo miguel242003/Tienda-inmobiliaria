@@ -221,7 +221,8 @@ class FotoPropiedad(WebPImageFieldMixin, models.Model):
         upload_to='propiedades/fotos/', 
         verbose_name="Imagen",
         blank=True,
-        null=True
+        null=True,
+        auto_optimize=False
     )
     video = models.FileField(
         upload_to='propiedades/videos/',

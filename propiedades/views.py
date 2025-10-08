@@ -417,6 +417,8 @@ def crear_propiedad(request):
                 
                 # 🔒 VALIDAR Y MANEJAR archivos adicionales (fotos y videos)
                 archivos_adicionales = request.FILES.getlist('fotos_adicionales')
+                fotos_creadas = []  # Lista para almacenar las fotos creadas
+                
                 if archivos_adicionales:
                     from .models import FotoPropiedad
                     for i, archivo in enumerate(archivos_adicionales):
@@ -425,24 +427,35 @@ def crear_propiedad(request):
                             archivo_validado, tipo = validar_imagen_o_video(archivo)
                             
                             if tipo == 'video':
-                                FotoPropiedad.objects.create(
+                                foto_obj = FotoPropiedad.objects.create(
                                     propiedad=propiedad,
                                     tipo_medio='video',
                                     video=archivo_validado,
                                     orden=i + 1,
                                     descripcion=f"Video {i + 1} de {propiedad.titulo}"
                                 )
+                                fotos_creadas.append(foto_obj)
                             else:  # imagen
-                                FotoPropiedad.objects.create(
+                                foto_obj = FotoPropiedad.objects.create(
                                     propiedad=propiedad,
                                     tipo_medio='imagen',
                                     imagen=archivo_validado,
                                     orden=i + 1,
                                     descripcion=f"Foto {i + 1} de {propiedad.titulo}"
                                 )
+                                fotos_creadas.append(foto_obj)
                         except ValidationError as e:
                             # Registrar error pero continuar con otros archivos
                             messages.warning(request, f'Archivo "{archivo.name}" no válido: {str(e)}')
+                
+                # Optimizar todas las fotos adicionales a WebP después de guardarlas
+                for foto in fotos_creadas:
+                    if foto.tipo_medio == 'imagen' and foto.imagen:
+                        try:
+                            print(f"DEBUG - Optimizando foto adicional: {foto.descripcion}")
+                            foto.optimize_image_field('imagen', quality=85)
+                        except Exception as e:
+                            print(f"DEBUG - Error optimizando foto adicional (no crítico): {e}")
             
             except Exception as e:
                 error_message = f'Error al crear la propiedad: {str(e)}'
