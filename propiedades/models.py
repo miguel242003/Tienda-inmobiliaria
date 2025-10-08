@@ -3,7 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
-from core.fields import WebPImageFieldMixin
+from core.fields import WebPImageFieldMixin, WebPImageField
 
 class Amenidad(models.Model):
     """Modelo para las amenidades de las propiedades"""
@@ -63,8 +63,8 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                                           help_text="Número total de ambientes (incluye living, comedor, cocina, etc.)")
     balcon = models.BooleanField(default=False, verbose_name="Tiene Balcón", 
                                 help_text="Indica si la propiedad cuenta con balcón")
-    imagen_principal = models.ImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Principal")
-    imagen_secundaria = models.ImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Secundaria")
+    imagen_principal = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Principal")
+    imagen_secundaria = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Secundaria")
     administrador = models.ForeignKey(
         'login.AdminCredentials',
         on_delete=models.SET_NULL,
@@ -217,7 +217,7 @@ class FotoPropiedad(WebPImageFieldMixin, models.Model):
         default='imagen',
         verbose_name="Tipo de Medio"
     )
-    imagen = models.ImageField(
+    imagen = WebPImageField(
         upload_to='propiedades/fotos/', 
         verbose_name="Imagen",
         blank=True,
