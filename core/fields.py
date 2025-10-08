@@ -162,6 +162,10 @@ class WebPImageFieldMixin:
         """Optimiza un campo de imagen específico"""
         return WebPOptimizer.optimize_image_field(self, field_name, quality)
     
+    def optimize_video_field(self, field_name, quality=80):
+        """Optimiza un campo de video específico"""
+        return WebPOptimizer.optimize_video_field(self, field_name, quality)
+    
     def optimize_all_images(self, quality=85):
         """Optimiza todos los campos de imagen del modelo"""
         results = {}

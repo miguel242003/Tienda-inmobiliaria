@@ -4990,6 +4990,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Event listeners para imágenes clickeables (principal y secundaria)
+    const clickableImages = document.querySelectorAll('.clickable-image');
+    clickableImages.forEach((img, index) => {
+        img.addEventListener('click', function() {
+            // Abrir el visor de imágenes con el índice correspondiente
+            // 0 = imagen principal, 1 = imagen secundaria
+            openImageViewer(index);
+        });
+    });
+    
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -5154,6 +5164,12 @@ function verGaleríaCompleta() {
     modal.innerHTML = modalContent;
     document.body.appendChild(modal);
     
+    // Ocultar círculos de redes sociales
+    const socialContainer = document.querySelector('.social-floating-container');
+    if (socialContainer) {
+        socialContainer.style.display = 'none';
+    }
+    
     // Animación de entrada suave
     modal.style.display = 'block';
     modal.style.opacity = '0';
@@ -5183,6 +5199,11 @@ function closeGallery() {
         
         setTimeout(() => {
             modal.remove();
+            // Mostrar nuevamente los círculos de redes sociales
+            const socialContainer = document.querySelector('.social-floating-container');
+            if (socialContainer) {
+                socialContainer.style.display = 'block';
+            }
             // Restaurar scroll del body en móviles
             document.body.style.overflow = '';
             document.body.style.position = '';
@@ -5706,6 +5727,12 @@ function openImageViewer(index) {
     const viewer = document.getElementById('imageViewer');
     viewer.style.display = 'block';
     
+    // Ocultar círculos de redes sociales
+    const socialContainer = document.querySelector('.social-floating-container');
+    if (socialContainer) {
+        socialContainer.style.display = 'none';
+    }
+    
     // Cargar la imagen actual
     loadCurrentImage();
     
@@ -5732,6 +5759,12 @@ function openImageViewerFromGallery(index) {
 function closeImageViewer() {
     const viewer = document.getElementById('imageViewer');
     viewer.style.display = 'none';
+    
+    // Mostrar nuevamente los círculos de redes sociales
+    const socialContainer = document.querySelector('.social-floating-container');
+    if (socialContainer) {
+        socialContainer.style.display = 'block';
+    }
     
     // Restaurar scroll del body
     document.body.style.overflow = '';

@@ -448,7 +448,7 @@ def crear_propiedad(request):
                             # Registrar error pero continuar con otros archivos
                             messages.warning(request, f'Archivo "{archivo.name}" no válido: {str(e)}')
                 
-                # Optimizar todas las fotos adicionales a WebP después de guardarlas
+                # Optimizar todas las fotos y videos adicionales después de guardarlas
                 for foto in fotos_creadas:
                     if foto.tipo_medio == 'imagen' and foto.imagen:
                         try:
@@ -456,6 +456,12 @@ def crear_propiedad(request):
                             foto.optimize_image_field('imagen', quality=85)
                         except Exception as e:
                             print(f"DEBUG - Error optimizando foto adicional (no crítico): {e}")
+                    elif foto.tipo_medio == 'video' and foto.video:
+                        try:
+                            print(f"DEBUG - Optimizando video adicional: {foto.descripcion}")
+                            foto.optimize_video_field('video', quality=80)
+                        except Exception as e:
+                            print(f"DEBUG - Error optimizando video adicional (no crítico): {e}")
             
             except Exception as e:
                 error_message = f'Error al crear la propiedad: {str(e)}'
