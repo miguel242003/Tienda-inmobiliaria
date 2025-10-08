@@ -5751,8 +5751,11 @@ function openImageViewerFromGallery(index) {
     // Cerrar la galería primero
     closeGallery();
     
-    // Abrir el visor de imágenes con el índice correcto
-    openImageViewer(index);
+    // Esperar un momento para que se complete la animación de cierre
+    setTimeout(() => {
+        // Abrir el visor de imágenes con el índice correcto
+        openImageViewer(index);
+    }, 350); // Un poco más que la animación de cierre (300ms)
 }
 
 // Función para cerrar el visor de imágenes
