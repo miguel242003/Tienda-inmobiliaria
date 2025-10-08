@@ -1788,28 +1788,27 @@ document.addEventListener('DOMContentLoaded', function() {
         showFotosPreview();
     };
     
-    // Agregar indicador de carga al botón de envío
+    // Agregar indicador de carga al envío del formulario
     const form = document.querySelector('form');
     if (form) {
         console.log('Formulario encontrado:', form);
         console.log('Form action:', form.action);
         console.log('Form method:', form.method);
         
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            console.log('Botón de envío encontrado:', submitBtn);
-            submitBtn.addEventListener('click', function(e) {
-                console.log('Botón Guardar Cambios clickeado');
-                console.log('Event:', e);
-                this.disabled = true;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
-                
-                // Permitir que el formulario se envíe normalmente
-                // No prevenir el comportamiento por defecto
-            });
-        } else {
-            console.error('No se encontró el botón de envío');
-        }
+        // Escuchar el evento submit del formulario en lugar del click del botón
+        form.addEventListener('submit', function(e) {
+            console.log('Formulario enviado');
+            
+            // Mostrar indicador de carga
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+            }
+            
+            // NO prevenir el comportamiento por defecto
+            // Permitir que el formulario se envíe normalmente
+        });
     } else {
         console.error('No se encontró el formulario');
     }
