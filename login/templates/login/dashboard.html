@@ -7328,44 +7328,65 @@
                         }
                     });
                     
+                    console.log('Respuesta del servidor:', response.status, response.statusText);
+                    console.log('Content-Type:', response.headers.get('content-type'));
+                    
                     if (response.ok) {
-                        const result = await response.json();
-                        if (result.success) {
-                            mostrarMensaje('¡Propiedad creada exitosamente!', 'success');
+                        // Verificar si la respuesta es JSON
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const result = await response.json();
+                            console.log('Resultado JSON:', result);
                             
-                            // Agregar actividad
-                            const titulo = formData.get('titulo') || 'Nueva propiedad';
-                            ActivitiesManager.addActivity(
-                                'property', 
-                                'Propiedad creada', 
-                                `"${titulo}" agregada al catálogo`, 
-                                'home', 
-                                'green'
-                            );
-                            
-                            setTimeout(() => {
-                                this.closeModal();
-                                // Recargar la página para actualizar las estadísticas
-                                window.location.reload();
-                            }, 2000);
-                        } else {
-                            // Mostrar errores específicos del formulario
-                            if (result.errors) {
-                                let errorMessage = result.message || 'Por favor corrige los siguientes errores:';
-                                for (const [field, errors] of Object.entries(result.errors)) {
-                                    errorMessage += `\n- ${field}: ${errors.join(', ')}`;
-                                }
-                                mostrarMensaje(errorMessage, 'danger');
+                            if (result.success) {
+                                mostrarMensaje('¡Propiedad creada exitosamente!', 'success');
+                                
+                                // Agregar actividad
+                                const titulo = formData.get('titulo') || 'Nueva propiedad';
+                                ActivitiesManager.addActivity(
+                                    'property', 
+                                    'Propiedad creada', 
+                                    `"${titulo}" agregada al catálogo`, 
+                                    'home', 
+                                    'green'
+                                );
+                                
+                                setTimeout(() => {
+                                    this.closeModal();
+                                    // Recargar la página para actualizar las estadísticas
+                                    window.location.reload();
+                                }, 2000);
                             } else {
-                                mostrarMensaje(result.message || 'Error al crear la propiedad', 'danger');
+                                // Mostrar errores específicos del formulario
+                                if (result.errors) {
+                                    let errorMessage = result.message || 'Por favor corrige los siguientes errores:';
+                                    for (const [field, errors] of Object.entries(result.errors)) {
+                                        errorMessage += `\n- ${field}: ${errors.join(', ')}`;
+                                    }
+                                    mostrarMensaje(errorMessage, 'danger');
+                                } else {
+                                    mostrarMensaje(result.message || 'Error al crear la propiedad', 'danger');
+                                }
                             }
+                        } else {
+                            // Si no es JSON, mostrar el contenido de la respuesta para debug
+                            const text = await response.text();
+                            console.error('Respuesta no es JSON:', text.substring(0, 200));
+                            mostrarMensaje('Error del servidor: La respuesta no es válida. Por favor intenta de nuevo.', 'danger');
                         }
                     } else {
-                        mostrarMensaje('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
+                        // Manejar errores HTTP
+                        const text = await response.text();
+                        console.error('Error HTTP:', response.status, text.substring(0, 200));
+                        mostrarMensaje(`Error del servidor (${response.status}). Por favor intenta de nuevo.`, 'danger');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
-                    mostrarMensaje('Error al crear la propiedad. Por favor intenta de nuevo.', 'danger');
+                    console.error('Error en la petición:', error);
+                    if (error.name === 'SyntaxError' && error.message.includes('JSON')) {
+                        mostrarMensaje('Error: El servidor devolvió una respuesta no válida. Por favor verifica que el servidor esté funcionando correctamente.', 'danger');
+                    } else {
+                        mostrarMensaje('Error de conexión. Por favor verifica tu conexión a internet e intenta de nuevo.', 'danger');
+                    }
                 } finally {
                     // 🔥 OCULTAR INDICADOR DE PROGRESO
                     this.hideLoadingIndicator();

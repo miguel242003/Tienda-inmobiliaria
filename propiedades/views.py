@@ -284,23 +284,39 @@ def crear_propiedad(request):
                     try:
                         validar_imagen(request.FILES['imagen_principal'], max_mb=20)
                     except ValidationError as e:
-                        messages.error(request, f'Imagen principal: {str(e)}')
-                        return render(request, 'propiedades/crear_propiedad.html', {
-                            'form': form,
-                            'titulo_pagina': 'Crear Nueva Propiedad',
-                            'amenidades': Amenidad.objects.all()
-                        })
+                        error_message = f'Imagen principal: {str(e)}'
+                        messages.error(request, error_message)
+                        # Verificar si es una petición AJAX
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({
+                                'success': False,
+                                'message': error_message
+                            })
+                        else:
+                            return render(request, 'propiedades/crear_propiedad.html', {
+                                'form': form,
+                                'titulo_pagina': 'Crear Nueva Propiedad',
+                                'amenidades': Amenidad.objects.all()
+                            })
                 
                 if 'imagen_secundaria' in request.FILES:
                     try:
                         validar_imagen(request.FILES['imagen_secundaria'], max_mb=20)
                     except ValidationError as e:
-                        messages.error(request, f'Imagen secundaria: {str(e)}')
-                        return render(request, 'propiedades/crear_propiedad.html', {
-                            'form': form,
-                            'titulo_pagina': 'Crear Nueva Propiedad',
-                            'amenidades': Amenidad.objects.all()
-                        })
+                        error_message = f'Imagen secundaria: {str(e)}'
+                        messages.error(request, error_message)
+                        # Verificar si es una petición AJAX
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({
+                                'success': False,
+                                'message': error_message
+                            })
+                        else:
+                            return render(request, 'propiedades/crear_propiedad.html', {
+                                'form': form,
+                                'titulo_pagina': 'Crear Nueva Propiedad',
+                                'amenidades': Amenidad.objects.all()
+                            })
                 
                 propiedad = form.save(commit=False)
                 
@@ -319,16 +335,20 @@ def crear_propiedad(request):
                         propiedad.administrador = admin_creds
                     except AdminCredentials.DoesNotExist:
                         # Si no existe AdminCredentials, mostrar mensaje de error
-                        messages.error(
-                            request, 
-                            'Error: No se encontró tu perfil de administrador. '
-                            'Por favor, completa tu perfil antes de crear propiedades.'
-                        )
-                        return render(request, 'propiedades/crear_propiedad.html', {
-                            'form': form,
-                            'titulo_pagina': 'Crear Nueva Propiedad',
-                            'amenidades': Amenidad.objects.all()
-                        })
+                        error_message = 'Error: No se encontró tu perfil de administrador. Por favor, completa tu perfil antes de crear propiedades.'
+                        messages.error(request, error_message)
+                        # Verificar si es una petición AJAX
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({
+                                'success': False,
+                                'message': error_message
+                            })
+                        else:
+                            return render(request, 'propiedades/crear_propiedad.html', {
+                                'form': form,
+                                'titulo_pagina': 'Crear Nueva Propiedad',
+                                'amenidades': Amenidad.objects.all()
+                            })
                 
                 propiedad.save()
                 
@@ -365,12 +385,20 @@ def crear_propiedad(request):
                             messages.warning(request, f'Archivo "{archivo.name}" no válido: {str(e)}')
             
             except Exception as e:
-                messages.error(request, f'Error al crear la propiedad: {str(e)}')
-                return render(request, 'propiedades/crear_propiedad.html', {
-                    'form': form,
-                    'titulo_pagina': 'Crear Nueva Propiedad',
-                    'amenidades': Amenidad.objects.all()
-                })
+                error_message = f'Error al crear la propiedad: {str(e)}'
+                messages.error(request, error_message)
+                # Verificar si es una petición AJAX
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'message': error_message
+                    })
+                else:
+                    return render(request, 'propiedades/crear_propiedad.html', {
+                        'form': form,
+                        'titulo_pagina': 'Crear Nueva Propiedad',
+                        'amenidades': Amenidad.objects.all()
+                    })
             
             # Verificar si es una petición AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
