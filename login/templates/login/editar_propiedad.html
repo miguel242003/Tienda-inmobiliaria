@@ -1101,7 +1101,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                        <form method="post" enctype="multipart/form-data">
+                        <form method="post" enctype="multipart/form-data" action="{% url 'login:editar_propiedad' propiedad.id %}">
                             {% csrf_token %}
                             
                             <!-- Messages -->
@@ -1792,20 +1792,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Crear un FormData con todos los datos del formulario
-            const formData = new FormData(form);
-            
-            // Agregar las fotos nuevas
-            fotosNuevasSeleccionadas.forEach((file) => {
-                formData.append('fotos_adicionales', file);
-            });
-            
-            // Agregar las fotos a eliminar
-            fotosAEliminar.forEach((fotoId) => {
-                formData.append('fotos_eliminar', fotoId);
-            });
+            console.log('Formulario de edición enviado');
+            console.log('Form action:', form.action);
+            console.log('Form method:', form.method);
             
             // Mostrar indicador de carga
             const submitBtn = form.querySelector('button[type="submit"]');
@@ -1813,49 +1802,8 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
             
-            // Enviar el formulario
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                }
-            })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-            })
-            .then(data => {
-                if (data && data.success) {
-                    // Mostrar mensaje de éxito
-                    alert(data.message || 'Propiedad actualizada exitosamente.');
-                    // Redirigir si se proporciona URL
-                    if (data.redirect_url) {
-                        window.location.href = data.redirect_url;
-                    } else {
-                        window.location.reload();
-                    }
-                } else {
-                    // Restaurar botón en caso de error
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                    alert(data.message || 'Error al actualizar la propiedad.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // Restaurar botón
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-                alert('Error de conexión. Por favor intenta de nuevo.');
-                // Si hay error, enviar el formulario normalmente
-                form.submit();
-            });
+            // Permitir que el formulario se envíe normalmente
+            // El indicador de carga se mantendrá hasta que la página se recargue
         });
     }
 });
