@@ -1230,6 +1230,36 @@
                                     {% endif %}
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                    <label for="{{ form.ambientes.id_for_label }}" class="form-label">
+                                    <i class="fas fa-home me-2"></i>{{ form.ambientes.label }}
+                                    </label>
+                                    {{ form.ambientes }}
+                                    {% if form.ambientes.errors %}
+                                        <div class="text-danger small">{{ form.ambientes.errors.0 }}</div>
+                                    {% endif %}
+                                    {% if form.ambientes.help_text %}
+                                        <div class="form-text">{{ form.ambientes.help_text }}</div>
+                                    {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check form-switch">
+                                    {{ form.balcon }}
+                                    <label for="{{ form.balcon.id_for_label }}" class="form-check-label">
+                                        <i class="fas fa-balcony me-2"></i>{{ form.balcon.label }}
+                                    </label>
+                                    {% if form.balcon.errors %}
+                                        <div class="text-danger small">{{ form.balcon.errors.0 }}</div>
+                                    {% endif %}
+                                    {% if form.balcon.help_text %}
+                                        <div class="form-text">{{ form.balcon.help_text }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                                 </div>
                                 
                     <!-- Sección 3: Ubicación -->

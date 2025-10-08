@@ -219,6 +219,45 @@
                                 </div>
                             </div>
 
+                            <!-- Ambientes y Balcón -->
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.ambientes.id_for_label }}" class="form-label fw-bold">
+                                        <i class="fas fa-home me-2"></i>{{ form.ambientes.label }}
+                                    </label>
+                                    {{ form.ambientes }}
+                                    {% if form.ambientes.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in form.ambientes.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if form.ambientes.help_text %}
+                                        <div class="form-text">{{ form.ambientes.help_text }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check form-switch">
+                                        {{ form.balcon }}
+                                        <label for="{{ form.balcon.id_for_label }}" class="form-check-label fw-bold">
+                                            <i class="fas fa-balcony me-2"></i>{{ form.balcon.label }}
+                                        </label>
+                                        {% if form.balcon.errors %}
+                                            <div class="text-danger mt-1">
+                                                {% for error in form.balcon.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        {% if form.balcon.help_text %}
+                                            <div class="form-text">{{ form.balcon.help_text }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Imágenes -->
                             <div class="mb-4">
                                 <h5 class="mb-3 text-primary">
