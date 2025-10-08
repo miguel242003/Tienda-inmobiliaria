@@ -1818,29 +1818,52 @@ document.addEventListener('DOMContentLoaded', function() {
         // Agregar validación visual antes del envío
         form.addEventListener('submit', function(e) {
             console.log('🚀 Formulario enviado');
+            console.log('📋 Datos del formulario:');
+            
+            // Loggear todos los campos del formulario
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                console.log(`  ${key}: ${value}`);
+            }
             
             // Verificar campos requeridos
             const requiredFields = form.querySelectorAll('[required]');
+            console.log(`🔍 Campos requeridos encontrados: ${requiredFields.length}`);
+            
             let hasErrors = false;
+            let errorFields = [];
             
             requiredFields.forEach(field => {
+                console.log(`🔍 Verificando campo: ${field.name} = "${field.value}"`);
                 if (!field.value.trim()) {
                     field.classList.add('is-invalid');
                     hasErrors = true;
+                    errorFields.push(field.name);
                     console.error('❌ Campo requerido vacío:', field.name);
                 } else {
                     field.classList.remove('is-invalid');
+                    console.log('✅ Campo válido:', field.name);
                 }
             });
             
             if (hasErrors) {
                 e.preventDefault();
                 console.error('❌ Formulario tiene errores de validación');
-                alert('Por favor completa todos los campos requeridos.');
+                console.error('❌ Campos con errores:', errorFields);
+                alert(`Por favor completa los siguientes campos requeridos: ${errorFields.join(', ')}`);
+                
+                // Hacer scroll al primer campo con error
+                const firstError = form.querySelector('.is-invalid');
+                if (firstError) {
+                    console.log('📍 Haciendo scroll al primer error:', firstError.name);
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
                 return false;
             }
             
             console.log('✅ Formulario válido, enviando...');
+            console.log('📤 Enviando formulario a:', form.action);
         });
     } else {
         console.error('❌ Formulario NO encontrado');
