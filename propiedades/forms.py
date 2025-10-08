@@ -254,13 +254,21 @@ class PropiedadForm(forms.ModelForm):
         """Validar la imagen principal"""
         imagen = self.cleaned_data.get('imagen_principal')
         if imagen:
+            # Debug: Log información del archivo
+            print(f"DEBUG FORM - Archivo imagen_principal:")
+            print(f"  - Nombre: {imagen.name}")
+            print(f"  - Tamaño: {imagen.size} bytes")
+            print(f"  - Content-Type: {imagen.content_type}")
+            
             # Validar tipo de archivo
             allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
             if imagen.content_type not in allowed_types:
+                print(f"DEBUG FORM - Tipo no permitido: {imagen.content_type}")
                 raise forms.ValidationError('Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP).')
             
             # Validar tamaño (20MB máximo)
             if imagen.size > 20 * 1024 * 1024:
+                print(f"DEBUG FORM - Tamaño excedido: {imagen.size} bytes")
                 raise forms.ValidationError('La imagen debe ser menor a 20MB.')
         return imagen
     

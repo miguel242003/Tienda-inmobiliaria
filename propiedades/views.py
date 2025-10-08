@@ -282,9 +282,18 @@ def crear_propiedad(request):
                 # 🔒 VALIDAR IMÁGENES PRINCIPALES
                 if 'imagen_principal' in request.FILES:
                     try:
-                        validar_imagen(request.FILES['imagen_principal'], max_mb=20)
+                        archivo = request.FILES['imagen_principal']
+                        # Debug: Log información del archivo
+                        print(f"DEBUG - Archivo imagen_principal:")
+                        print(f"  - Nombre: {archivo.name}")
+                        print(f"  - Tamaño: {archivo.size} bytes")
+                        print(f"  - Content-Type: {archivo.content_type}")
+                        print(f"  - Charset: {getattr(archivo, 'charset', 'N/A')}")
+                        
+                        validar_imagen(archivo, max_mb=20)
                     except ValidationError as e:
                         error_message = f'Imagen principal: {str(e)}'
+                        print(f"DEBUG - Error de validación: {error_message}")
                         messages.error(request, error_message)
                         # Verificar si es una petición AJAX
                         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
