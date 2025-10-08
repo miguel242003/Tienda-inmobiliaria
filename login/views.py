@@ -473,8 +473,15 @@ def editar_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     
     if request.method == 'POST':
+        print("DEBUG - POST recibido para editar propiedad")
+        print(f"DEBUG - Datos POST: {request.POST}")
+        print(f"DEBUG - Archivos FILES: {request.FILES}")
+        
         form = PropiedadForm(request.POST, request.FILES, instance=propiedad)
+        print(f"DEBUG - Formulario válido: {form.is_valid()}")
+        
         if form.is_valid():
+            print("DEBUG - Formulario es válido, guardando...")
             propiedad = form.save(commit=False)
             propiedad.save()
             # Guardar las amenidades (relación many-to-many)
@@ -542,6 +549,8 @@ def editar_propiedad(request, propiedad_id):
             
             return redirect('login:gestionar_propiedades')
         else:
+            print("DEBUG - Formulario NO es válido")
+            print(f"DEBUG - Errores del formulario: {form.errors}")
             messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
         form = PropiedadForm(instance=propiedad)

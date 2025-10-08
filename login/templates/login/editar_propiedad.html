@@ -1864,6 +1864,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('✅ Formulario válido, enviando...');
             console.log('📤 Enviando formulario a:', form.action);
+            
+            // Mostrar indicador de carga
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
+            }
         });
     } else {
         console.error('❌ Formulario NO encontrado');
