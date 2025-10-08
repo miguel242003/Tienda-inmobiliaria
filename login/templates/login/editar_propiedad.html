@@ -1048,6 +1048,19 @@
         body {
             overflow-x: hidden;
         }
+        
+        /* Estilos para validación */
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
 
         /* Tablas responsivas si las hay */
         table {
@@ -1801,12 +1814,37 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             console.error('❌ Botón de envío NO encontrado');
         }
+        
+        // Agregar validación visual antes del envío
+        form.addEventListener('submit', function(e) {
+            console.log('🚀 Formulario enviado');
+            
+            // Verificar campos requeridos
+            const requiredFields = form.querySelectorAll('[required]');
+            let hasErrors = false;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    hasErrors = true;
+                    console.error('❌ Campo requerido vacío:', field.name);
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (hasErrors) {
+                e.preventDefault();
+                console.error('❌ Formulario tiene errores de validación');
+                alert('Por favor completa todos los campos requeridos.');
+                return false;
+            }
+            
+            console.log('✅ Formulario válido, enviando...');
+        });
     } else {
         console.error('❌ Formulario NO encontrado');
     }
-    
-    // NO agregar ningún event listener que pueda interferir con el formulario
-    // Dejar que el formulario funcione de manera estándar
 });
 </script>
 {% endblock %}
