@@ -9,11 +9,15 @@ class ClickTracker {
     }
 
     init() {
+        console.log('🔍 ClickTracker inicializando...');
+        
         // Detectar la página actual
         this.paginaOrigen = this.detectarPaginaOrigen();
+        console.log('📍 Página origen detectada:', this.paginaOrigen);
         
         // Agregar event listeners a todos los botones "Ver Detalle"
         this.agregarEventListeners();
+        console.log('✅ ClickTracker inicializado correctamente');
     }
 
     detectarPaginaOrigen() {
@@ -31,10 +35,13 @@ class ClickTracker {
     }
 
     agregarEventListeners() {
+        console.log('🔍 Buscando enlaces de propiedades...');
+        
         // Buscar todos los enlaces que van a detalle de propiedades
         const enlacesDetalle = document.querySelectorAll('a[href*="/propiedades/"]');
+        console.log(`📊 Encontrados ${enlacesDetalle.length} enlaces de propiedades`);
         
-        enlacesDetalle.forEach(enlace => {
+        enlacesDetalle.forEach((enlace, index) => {
             const href = enlace.getAttribute('href');
             
             // Buscar data-propiedad-id en el enlace o en elementos padre
@@ -49,10 +56,14 @@ class ClickTracker {
             }
             
             if (propiedadId) {
+                console.log(`✅ Enlace ${index + 1}: ID ${propiedadId} - ${href}`);
                 // Agregar event listener para el click
                 enlace.addEventListener('click', (e) => {
+                    console.log(`🖱️ Click detectado en propiedad ${propiedadId}`);
                     this.registrarClick(propiedadId);
                 });
+            } else {
+                console.log(`⚠️ Enlace ${index + 1}: Sin data-propiedad-id - ${href}`);
             }
         });
 
