@@ -151,5 +151,24 @@ class ClickTracker {
 
 // Inicializar el tracker cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    new ClickTracker();
+    console.log('🚀 DOM cargado, inicializando ClickTracker...');
+    try {
+        new ClickTracker();
+        console.log('✅ ClickTracker inicializado exitosamente');
+    } catch (error) {
+        console.error('❌ Error al inicializar ClickTracker:', error);
+    }
 });
+
+// También inicializar inmediatamente si el DOM ya está listo
+if (document.readyState === 'loading') {
+    console.log('⏳ DOM aún cargando, esperando...');
+} else {
+    console.log('⚡ DOM ya listo, inicializando ClickTracker inmediatamente...');
+    try {
+        new ClickTracker();
+        console.log('✅ ClickTracker inicializado exitosamente (inmediato)');
+    } catch (error) {
+        console.error('❌ Error al inicializar ClickTracker (inmediato):', error);
+    }
+}
