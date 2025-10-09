@@ -35,13 +35,20 @@ class ClickTracker {
         const enlacesDetalle = document.querySelectorAll('a[href*="/propiedades/"]');
         
         enlacesDetalle.forEach(enlace => {
-            // Extraer el ID de la propiedad de la URL
             const href = enlace.getAttribute('href');
-            const match = href.match(/\/propiedades\/(\d+)\//);
             
-            if (match) {
-                const propiedadId = match[1];
-                
+            // Buscar data-propiedad-id en el enlace o en elementos padre
+            let propiedadId = enlace.getAttribute('data-propiedad-id');
+            
+            if (!propiedadId) {
+                // Buscar en el elemento padre más cercano que tenga data-propiedad-id
+                const elementoPadre = enlace.closest('[data-propiedad-id]');
+                if (elementoPadre) {
+                    propiedadId = elementoPadre.getAttribute('data-propiedad-id');
+                }
+            }
+            
+            if (propiedadId) {
                 // Agregar event listener para el click
                 enlace.addEventListener('click', (e) => {
                     this.registrarClick(propiedadId);

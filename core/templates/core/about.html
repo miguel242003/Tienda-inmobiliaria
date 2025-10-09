@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load webp_tags %}
 
 {% block title %}Sobre Nosotros - Tienda Inmobiliaria{% endblock %}
 
@@ -130,7 +131,7 @@ body {
   word-wrap: break-word;
 }
 
-/* Imagen móvil */
+/* Imagen móvil - Reemplazado con HTML para soporte WebP */
 .about-main-section::after {
   content: '';
   background-image: url('{% static "images/imgsobrenostros2.jpg" %}');
@@ -592,7 +593,7 @@ body {
   padding: 0 16px;
 }
 
-/* Sección hero con imagen de fondo */
+/* Sección hero con imagen de fondo - Reemplazado con HTML para soporte WebP */
 .values-hero-section {
   position: relative;
   background: url('{% static "images/imgtrabajadores.jpg" %}') center 70%/cover no-repeat;
@@ -1353,6 +1354,72 @@ body {
 }
 
 /* ===== FIN SECCIÓN NUESTROS VALORES ===== */
+
+/* ===== ESTILOS PARA IMÁGENES WEBP CON FALLBACK ===== */
+.about-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.about-image-container picture {
+    width: 100%;
+    height: 100%;
+}
+
+.about-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: opacity 0.3s ease;
+}
+
+.values-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.values-image-container picture {
+    width: 100%;
+    height: 100%;
+}
+
+.values-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 70%;
+    transition: opacity 0.3s ease;
+}
+
+/* Ocultar imágenes de fondo CSS en pantallas grandes */
+@media screen and (min-width: 1200px) {
+    .about-main-section::after {
+        display: none;
+    }
+}
+
+/* Ocultar imagen de fondo CSS en la sección de valores */
+.values-hero-section {
+    background: none !important;
+}
+
+/* Mejorar la compatibilidad con navegadores antiguos */
+.no-picture .about-image-container {
+    background-image: url('{% static "images/imgsobrenostros2.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.no-picture .values-image-container {
+    background-image: url('{% static "images/imgtrabajadores.jpg" %}');
+    background-size: cover;
+    background-position: center 70%;
+    background-repeat: no-repeat;
+}
 </style>
 {% endblock %}
 
@@ -1400,6 +1467,16 @@ body {
             </section>
         </article>
     </div>
+    
+    <!-- Imagen WebP con fallback para la sección principal -->
+    <div class="about-image-container" style="position: absolute; top: 0; right: 0; width: 50%; height: 100%; overflow: hidden; z-index: 1;">
+        <picture style="display: block; width: 100%; height: 100%;">
+            <source srcset="{% static 'images/imgsobrenostros2.webp' %}" type="image/webp">
+            <img src="{% static 'images/imgsobrenostros2.jpg' %}" 
+                 alt="Equipo de trabajo profesional" 
+                 style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+        </picture>
+    </div>
 </main>
 
 <!-- Nuestros Valores -->
@@ -1408,6 +1485,16 @@ body {
 </section>
 
 <section class="values-hero-section" aria-label="Valores corporativos de la empresa">
+    <!-- Imagen WebP con fallback para la sección de valores -->
+    <div class="values-image-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+        <picture style="display: block; width: 100%; height: 100%;">
+            <source srcset="{% static 'images/imgtrabajadores.webp' %}" type="image/webp">
+            <img src="{% static 'images/imgtrabajadores.jpg' %}" 
+                 alt="Equipo de trabajo en oficina" 
+                 style="width: 100%; height: 100%; object-fit: cover; object-position: center 70%;">
+        </picture>
+    </div>
+    
     <div class="values-degradado" aria-hidden="true"></div>
     
     <div class="values-cards-container" role="list" aria-label="Lista de valores corporativos">
@@ -1449,4 +1536,55 @@ body {
     </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Detectar soporte de WebP y aplicar clases correspondientes
+document.addEventListener('DOMContentLoaded', function() {
+    // Detectar soporte de WebP
+    function supportsWebP() {
+        return new Promise((resolve) => {
+            const webP = new Image();
+            webP.onload = webP.onerror = function () {
+                resolve(webP.height === 2);
+            };
+            webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+        });
+    }
+    
+    // Detectar soporte de <picture>
+    function supportsPicture() {
+        return 'HTMLPictureElement' in window;
+    }
+    
+    // Aplicar clases según el soporte
+    supportsWebP().then(webpSupported => {
+        const aboutContainer = document.querySelector('.about-image-container');
+        const valuesContainer = document.querySelector('.values-image-container');
+        
+        if (aboutContainer) {
+            if (!supportsPicture()) {
+                aboutContainer.parentElement.classList.add('no-picture');
+            }
+            if (webpSupported) {
+                aboutContainer.classList.add('webp-supported');
+            } else {
+                aboutContainer.classList.add('webp-not-supported');
+            }
+        }
+        
+        if (valuesContainer) {
+            if (!supportsPicture()) {
+                valuesContainer.parentElement.classList.add('no-picture');
+            }
+            if (webpSupported) {
+                valuesContainer.classList.add('webp-supported');
+            } else {
+                valuesContainer.classList.add('webp-not-supported');
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

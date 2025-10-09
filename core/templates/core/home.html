@@ -10,7 +10,10 @@
     <div class="carousel-container" id="heroCarousel">
         <!-- Elementos del Carrusel -->
         <div class="carousel-item active">
-            <img src="{% static 'images/carousel/interior-1.jpg' %}" alt="Interior moderno elegante" class="carousel-image">
+            <picture class="carousel-image">
+                <source srcset="{% static 'images/carousel/interior-1.webp' %}" type="image/webp">
+                <img src="{% static 'images/carousel/interior-1.jpg' %}" alt="Interior moderno elegante" class="carousel-image">
+            </picture>
             <div class="carousel-overlay">
                 <div class="carousel-content">
                     <h1 class="carousel-title">Encuentra tu hogar ideal</h1>
@@ -28,7 +31,10 @@
         </div>
         
         <div class="carousel-item">
-            <img src="{% static 'images/carousel/interior-2.jpg' %}" alt="Sala de estar contemporánea" class="carousel-image">
+            <picture class="carousel-image">
+                <source srcset="{% static 'images/carousel/interior-2.webp' %}" type="image/webp">
+                <img src="{% static 'images/carousel/interior-2.jpg' %}" alt="Sala de estar contemporánea" class="carousel-image">
+            </picture>
             <div class="carousel-overlay">
                 <div class="carousel-content">
                     <h1 class="carousel-title">Espacios que inspiran</h1>
@@ -107,7 +113,7 @@
                                 
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <h4 class="text-primary mb-0 fw-bold">{{ propiedad.get_precio_formateado }}</h4>
-                                    <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary btn-sm">
+                                    <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary btn-sm" data-propiedad-id="{{ propiedad.id }}">
                                         Ver detalles
                                     </a>
                                 </div>
@@ -162,7 +168,7 @@
                                 
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <h4 class="text-primary mb-0 fw-bold">{{ propiedad.get_precio_formateado }}</h4>
-                                    <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary btn-sm">
+                                    <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary btn-sm" data-propiedad-id="{{ propiedad.id }}">
                                         Ver detalles
                                     </a>
                                 </div>
@@ -189,7 +195,7 @@
         
         <!-- Botón Ver Todas las Propiedades en Alquiler -->
         <div class="text-center mt-5">
-            <a href="{% url 'propiedades:lista' %}?operacion=alquiler" class="btn btn-outline-success btn-lg px-5 py-3 fw-semibold">
+            <a href="{% url 'propiedades:lista' %}" class="btn btn-outline-success btn-lg px-5 py-3 fw-semibold">
                 <i class="fas fa-key me-2"></i>Ver Todas las Propiedades en Alquiler
             </a>
         </div>
@@ -240,8 +246,7 @@
                 <article class="prop-row">
                     <div class="prop-media">
                         {% if propiedad.get_foto_principal %}
-                        <img src="{{ propiedad.get_foto_principal.url }}" 
-                            alt="{{ propiedad.titulo }}">
+                        {% webp_picture propiedad.get_foto_principal propiedad.titulo "img-fluid" True %}
                         {% endif %}
                     </div>
 
@@ -262,7 +267,7 @@
                         <div class="prop-price">{{ propiedad.get_precio_formateado }}</div>
 
                         <!-- Botón opcional -->
-                        <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary btn-lg px-5 py-3 fw-semibold">
+                        <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary btn-lg px-5 py-3 fw-semibold" data-propiedad-id="{{ propiedad.id }}">
                             Ver detalles
                         </a>
                     </div>
@@ -354,7 +359,10 @@
                     
                     <div class="col-lg-6">
                         <div class="consortium-image">
-                            <img src="{% static 'images/edificio verde.jpg' %}" alt="Edificio de Consorcio" class="img-fluid consortium-img">
+                            <picture class="img-fluid consortium-img">
+                                <source srcset="{% static 'images/edificio verde.webp' %}" type="image/webp">
+                                <img src="{% static 'images/edificio verde.jpg' %}" alt="Edificio de Consorcio" class="img-fluid consortium-img">
+                            </picture>
                         </div>
                     </div>
                 </div>
@@ -364,6 +372,17 @@
         <!-- Sección de Testimonios de Clientes -->
         {% if resenas_aprobadas %}
         <section class="testimonials-section">
+            <!-- Imagen WebP con fallback para la sección de testimonios -->
+            <div class="testimonials-image-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+                <picture style="display: block; width: 100%; height: 100%;">
+                    <source srcset="{% static 'images/imagen_convertida.webp' %}" type="image/webp">
+                    <img src="{% static 'images/imagen_convertida.jpg' %}" 
+                         alt="Fondo de testimonios" 
+                         style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </picture>
+                <!-- Degradado superpuesto -->
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(27, 49, 172, 0.4)); z-index: 1;"></div>
+            </div>
           <div class="container py-5">
             <div class="row text-center mb-5">
               <div class="col-lg-8 mx-auto">
@@ -461,6 +480,69 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
+}
+
+/* Estilos para etiquetas picture en el carrusel */
+.carousel-item picture {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.carousel-item picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Estilos para imagen de consorcio */
+.consortium-image picture {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.consortium-image picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Estilos para imagen de testimonios */
+.testimonials-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.testimonials-image-container picture {
+    width: 100%;
+    height: 100%;
+}
+
+.testimonials-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: opacity 0.3s ease;
+}
+
+/* Fallback para navegadores que no soportan <picture> */
+.no-picture .consortium-image {
+    background-image: url('{% static "images/edificio verde.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.no-picture .testimonials-image-container {
+    background-image: url('{% static "images/imagen_convertida.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .carousel-overlay {
@@ -1235,12 +1317,7 @@
 .testimonials-section {
   position: relative;
   min-height: 60vh;
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.4), rgba(27, 49, 172, 0.4)),
-    url("/static/images/imagen_convertida.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: none; /* Reemplazado con HTML para soporte WebP */
   background-attachment: fixed;
   background-position: center center;
 }
@@ -2266,4 +2343,53 @@ window.addEventListener('orientationchange', function() {
 
 <!-- Script de tracking de clics -->
 <script src="{% static 'js/tracking-clics.js' %}"></script>
+
+<script>
+// Detectar soporte de WebP y aplicar clases correspondientes
+document.addEventListener('DOMContentLoaded', function() {
+    // Detectar soporte de WebP
+    function supportsWebP() {
+        return new Promise((resolve) => {
+            const webP = new Image();
+            webP.onload = webP.onerror = function () {
+                resolve(webP.height === 2);
+            };
+            webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+        });
+    }
+    
+    // Detectar soporte de <picture>
+    function supportsPicture() {
+        return 'HTMLPictureElement' in window;
+    }
+    
+    // Aplicar clases según el soporte
+    supportsWebP().then(webpSupported => {
+        const consortiumContainer = document.querySelector('.consortium-image');
+        const testimonialsContainer = document.querySelector('.testimonials-image-container');
+        
+        if (consortiumContainer) {
+            if (!supportsPicture()) {
+                consortiumContainer.parentElement.classList.add('no-picture');
+            }
+            if (webpSupported) {
+                consortiumContainer.classList.add('webp-supported');
+            } else {
+                consortiumContainer.classList.add('webp-not-supported');
+            }
+        }
+        
+        if (testimonialsContainer) {
+            if (!supportsPicture()) {
+                testimonialsContainer.parentElement.classList.add('no-picture');
+            }
+            if (webpSupported) {
+                testimonialsContainer.classList.add('webp-supported');
+            } else {
+                testimonialsContainer.classList.add('webp-not-supported');
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

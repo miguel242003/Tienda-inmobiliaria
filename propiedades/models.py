@@ -63,8 +63,8 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                                           help_text="Número total de ambientes (incluye living, comedor, cocina, etc.)")
     balcon = models.BooleanField(default=False, verbose_name="Tiene Balcón", 
                                 help_text="Indica si la propiedad cuenta con balcón")
-    imagen_principal = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Principal", auto_optimize=False)
-    imagen_secundaria = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Secundaria", auto_optimize=False)
+    imagen_principal = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Principal", auto_optimize=True)
+    imagen_secundaria = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Secundaria", auto_optimize=True)
     administrador = models.ForeignKey(
         'login.AdminCredentials',
         on_delete=models.SET_NULL,
@@ -222,7 +222,7 @@ class FotoPropiedad(WebPImageFieldMixin, models.Model):
         verbose_name="Imagen",
         blank=True,
         null=True,
-        auto_optimize=False
+        auto_optimize=True
     )
     video = models.FileField(
         upload_to='propiedades/videos/',

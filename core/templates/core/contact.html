@@ -1,11 +1,23 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load webp_tags %}
 
 {% block title %}Contacto - Tienda Inmobiliaria{% endblock %}
 
 {% block content %}
 <!-- Contact Section -->
 <section class="contact-unified-section position-relative">
+    <!-- Imagen WebP con fallback para la sección de contacto -->
+    <div class="contact-image-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+        <picture style="display: block; width: 100%; height: 100%;">
+            <!-- WebP para navegadores modernos (si existe) -->
+            <source srcset="{% static 'images/Fondodecontacto.webp' %}" type="image/webp">
+            <!-- Fallback JPG para navegadores antiguos -->
+            <img src="{% static 'images/Fondodecontacto.jpg' %}" 
+                 alt="Oficina de contacto inmobiliaria" 
+                 style="width: 100%; height: 100%; object-fit: cover; object-position: right center;">
+        </picture>
+    </div>
     <div class="container-fluid position-relative" style="max-width: 1280px; z-index: 2; padding: 0 15px;">
         <!-- Hero Title -->
         <div class="row justify-content-center text-center py-3">
@@ -65,23 +77,6 @@
                         </div>
                     </div>
                     
-                    <hr class="info-divider">
-                    
-                    <h4 class="info-label mb-3">SÍGUENOS</h4>
-                    <div class="social-links">
-                        <a href="#" class="social-link" aria-label="Facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="Twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="social-link" aria-label="LinkedIn">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                    </div>
                 </div>
             </div>
             
@@ -282,15 +277,41 @@
     --border: #E5E7EB;
 }
 
-/* Unified Contact Section */
+/* Unified Contact Section - Reemplazado con HTML para soporte WebP */
 .contact-unified-section {
-    background-image: url('{% static 'images/Fondodecontacto.jpg' %}');
+    background: none !important; /* Ocultar imagen de fondo CSS */
+    min-height: 100vh;
+    padding: 1rem 0;
+    position: relative;
+}
+
+/* Estilos para la imagen WebP con fallback */
+.contact-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.contact-image-container picture {
+    width: 100%;
+    height: 100%;
+}
+
+.contact-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right center;
+    transition: opacity 0.3s ease;
+}
+
+/* Fallback para navegadores que no soportan <picture> */
+.no-picture .contact-image-container {
+    background-image: url('{% static "images/Fondodecontacto.jpg" %}');
     background-size: 120%;
     background-position: right center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    min-height: 100vh;
-    padding: 1rem 0;
 }
 
 .hero-text-container {
@@ -454,31 +475,6 @@
     margin: 24px 0;
 }
 
-/* Social Links */
-.social-links {
-    display: flex;
-    gap: 12px;
-}
-
-.social-link {
-    width: 44px;
-    height: 44px;
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-700);
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.social-link:hover {
-    background: var(--brand-600);
-    color: white;
-    border-color: var(--brand-600);
-    transform: scale(1.03);
-}
 
 /* Form Styles */
 .form-title {
@@ -928,10 +924,6 @@
         margin-right: 10px;
     }
     
-    .social-link {
-        width: 40px;
-        height: 40px;
-    }
 }
 
 @media (max-width: 768px) {
@@ -1010,15 +1002,6 @@
         font-size: 1rem;
     }
     
-    .social-link {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
-    }
-    
-    .social-links {
-        gap: 8px;
-    }
     
     .location-title,
     .faq-title {
@@ -1099,11 +1082,6 @@
         font-size: 0.9rem;
     }
     
-    .social-link {
-        width: 32px;
-        height: 32px;
-        font-size: 0.8rem;
-    }
     
     .location-title,
     .faq-title {
@@ -1180,10 +1158,6 @@
         font-size: 16px;
     }
     
-    .social-link {
-        min-width: 44px;
-        min-height: 44px;
-    }
     
     .info-icon {
         min-width: 36px;
@@ -1220,14 +1194,12 @@
         background-attachment: scroll;
     }
     
-    .social-link,
     .btn-cta,
     .form-control,
     .form-select {
         transition: none;
     }
     
-    .social-link:hover,
     .btn-cta:hover {
         transform: none;
     }
@@ -1792,6 +1764,37 @@ window.addEventListener('resize', function() {
     // Debounce para evitar demasiadas llamadas
     clearTimeout(window.resizeTimeout);
     window.resizeTimeout = setTimeout(ajustarLineasAmarillas, 100);
+});
+
+// Detectar soporte de WebP y aplicar clases correspondientes
+function supportsWebP() {
+    return new Promise((resolve) => {
+        const webP = new Image();
+        webP.onload = webP.onerror = function () {
+            resolve(webP.height === 2);
+        };
+        webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+    });
+}
+
+// Detectar soporte de <picture>
+function supportsPicture() {
+    return 'HTMLPictureElement' in window;
+}
+
+// Aplicar clases según el soporte
+supportsWebP().then(webpSupported => {
+    const contactContainer = document.querySelector('.contact-image-container');
+    if (contactContainer) {
+        if (!supportsPicture()) {
+            contactContainer.parentElement.classList.add('no-picture');
+        }
+        if (webpSupported) {
+            contactContainer.classList.add('webp-supported');
+        } else {
+            contactContainer.classList.add('webp-not-supported');
+        }
+    }
 });
 </script>
 {% endblock %}

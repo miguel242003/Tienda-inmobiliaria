@@ -227,7 +227,8 @@ body {
                         
                         <a href="{% url 'propiedades:detalle' propiedad.slug %}" 
                            class="property-card-btn"
-                           aria-label="Ver detalles de {{ propiedad.titulo }}">
+                           aria-label="Ver detalles de {{ propiedad.titulo }}"
+                           data-propiedad-id="{{ propiedad.id }}">
                             Ver Detalles
                         </a>
                     </div>

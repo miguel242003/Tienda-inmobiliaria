@@ -657,7 +657,7 @@
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card h-100 shadow-sm property-card">
                                          {% if propiedad_rel.get_foto_principal %}
-                     <img src="{{ propiedad_rel.get_foto_principal.url }}" class="card-img-top" alt="{{ propiedad_rel.titulo }}" style="height: 200px; object-fit: cover;">
+                     {% webp_picture propiedad_rel.get_foto_principal propiedad_rel.titulo "card-img-top" True %}
                      {% else %}
                      <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                          <i class="fas fa-home fa-3x text-muted"></i>
@@ -671,7 +671,7 @@
                             <h5 class="text-primary mb-0">{{ propiedad_rel.get_precio_formateado }}</h5>
                         </div>
                         <div class="mt-3">
-                            <a href="{% url 'propiedades:detalle' propiedad_rel.id %}" class="btn btn-outline-primary btn-sm">
+                            <a href="{% url 'propiedades:detalle' propiedad_rel.slug %}" class="btn btn-outline-primary btn-sm" data-propiedad-id="{{ propiedad_rel.id }}">
                                 Ver Detalles
                             </a>
                         </div>

@@ -182,7 +182,7 @@ OPCIONES PARA BAJAR EL FILTRO:
                             {% else %}
                                 <h4 class="text-primary mb-0">{{ propiedad.get_precio_formateado }}</h4>
                             {% endif %}
-                            <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary">
+                            <a href="{% url 'propiedades:detalle' propiedad.slug %}" class="btn btn-outline-primary" data-propiedad-id="{{ propiedad.id }}">
                                 Ver Detalles
                             </a>
                         </div>
@@ -282,15 +282,38 @@ OPCIONES PARA BAJAR EL FILTRO:
 document.addEventListener('DOMContentLoaded', function() {
     const carousel = document.getElementById('backgroundCarousel');
     const images = [
-        "{% static 'images/filtropropiedad.jpg' %}",
-        "{% static 'images/filtropropiedad2.jpg' %}"
+        {
+            webp: "{% static 'images/filtropropiedad.webp' %}",
+            jpg: "{% static 'images/filtropropiedad.jpg' %}"
+        },
+        {
+            webp: "{% static 'images/filtropropiedad2.webp' %}",
+            jpg: "{% static 'images/filtropropiedad2.jpg' %}"
+        }
     ];
     
     let currentImageIndex = 0;
     
     function changeBackgroundImage() {
         currentImageIndex = (currentImageIndex + 1) % images.length;
-        carousel.style.backgroundImage = `url('${images[currentImageIndex]}')`;
+        const currentImage = images[currentImageIndex];
+        
+        // Detectar soporte de WebP
+        const supportsWebP = () => {
+            return new Promise((resolve) => {
+                const webP = new Image();
+                webP.onload = webP.onerror = function () {
+                    resolve(webP.height === 2);
+                };
+                webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+            });
+        };
+        
+        // Usar WebP si está disponible, sino JPG
+        supportsWebP().then(webpSupported => {
+            const imageUrl = webpSupported ? currentImage.webp : currentImage.jpg;
+            carousel.style.backgroundImage = `url('${imageUrl}')`;
+        });
     }
     
     // Cambiar imagen cada 5 segundos
