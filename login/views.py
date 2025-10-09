@@ -477,15 +477,26 @@ def editar_propiedad(request, propiedad_id):
         print(f"DEBUG - Datos POST: {request.POST}")
         print(f"DEBUG - Archivos FILES: {request.FILES}")
         
-        form = PropiedadForm(request.POST, request.FILES, instance=propiedad)
+        form = PropiedadForm(request.POST, request.FILES, instance=propiedad, is_edit=True)
         print(f"DEBUG - Formulario válido: {form.is_valid()}")
         
         if form.is_valid():
             print("DEBUG - Formulario es válido, guardando...")
-            propiedad = form.save(commit=False)
-            propiedad.save()
-            # Guardar las amenidades (relación many-to-many)
-            form.save_m2m()
+            try:
+                propiedad = form.save(commit=False)
+                propiedad.save()
+                # Guardar las amenidades (relación many-to-many)
+                form.save_m2m()
+                print("DEBUG - Propiedad guardada exitosamente")
+            except Exception as e:
+                print(f"DEBUG - Error al guardar propiedad: {e}")
+                messages.error(request, f'Error al guardar la propiedad: {str(e)}')
+                return render(request, 'login/editar_propiedad.html', {
+                    'form': form,
+                    'propiedad': propiedad,
+                    'titulo_pagina': 'Editar Propiedad',
+                    'amenidades': Amenidad.objects.all(),
+                })
             
             # Manejar eliminación de fotos adicionales
             fotos_eliminar = request.POST.getlist('fotos_eliminar')
@@ -551,9 +562,19 @@ def editar_propiedad(request, propiedad_id):
         else:
             print("DEBUG - Formulario NO es válido")
             print(f"DEBUG - Errores del formulario: {form.errors}")
-            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            
+            # Mostrar errores específicos del formulario
+            error_messages = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_messages.append(f'{field}: {error}')
+            
+            if error_messages:
+                messages.error(request, f'Errores encontrados: {"; ".join(error_messages)}')
+            else:
+                messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
-        form = PropiedadForm(instance=propiedad)
+        form = PropiedadForm(instance=propiedad, is_edit=True)
     
     from propiedades.models import Amenidad
     

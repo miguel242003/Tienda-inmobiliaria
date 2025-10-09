@@ -4,6 +4,19 @@ from .models import Propiedad, Amenidad, Resena
 class PropiedadForm(forms.ModelForm):
     """Formulario para crear y editar propiedades"""
     
+    def __init__(self, *args, **kwargs):
+        self.is_edit = kwargs.pop('is_edit', False)
+        super().__init__(*args, **kwargs)
+        
+        # Si es edición, hacer algunos campos opcionales
+        if self.is_edit:
+            self.fields['imagen_principal'].required = False
+            self.fields['imagen_secundaria'].required = False
+            self.fields['latitud'].required = False
+            self.fields['longitud'].required = False
+            self.fields['ciudad'].required = False
+            self.fields['lugares_cercanos'].required = False
+    
     class Meta:
         model = Propiedad
         fields = [
@@ -110,7 +123,7 @@ class PropiedadForm(forms.ModelForm):
                 'class': 'form-control',
                 'accept': 'image/jpeg,image/jpg,image/png,image/gif,image/webp',
                 'title': 'Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP)',
-                'required': True
+                'required': False  # No requerido en edición
             }),
             'imagen_secundaria': forms.FileInput(attrs={
                 'class': 'form-control',
@@ -127,7 +140,7 @@ class PropiedadForm(forms.ModelForm):
                 'max': '90',
                 'placeholder': 'Ej: -33.6914783645518',
                 'title': 'La latitud debe estar entre -90 y 90 grados',
-                'required': True
+                'required': False  # No requerido en edición
             }),
             'longitud': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -136,7 +149,7 @@ class PropiedadForm(forms.ModelForm):
                 'max': '180',
                 'placeholder': 'Ej: -65.45524318970048',
                 'title': 'La longitud debe estar entre -180 y 180 grados',
-                'required': True
+                'required': False  # No requerido en edición
             }),
         }
         labels = {
@@ -253,7 +266,8 @@ class PropiedadForm(forms.ModelForm):
     def clean_imagen_principal(self):
         """Validar la imagen principal"""
         imagen = self.cleaned_data.get('imagen_principal')
-        if imagen:
+        if imagen and hasattr(imagen, 'name') and imagen.name and not imagen.name.startswith('propiedades/'):
+            # Solo validar si es un archivo nuevo (no existente)
             # Debug: Log información del archivo
             print(f"DEBUG FORM - Archivo imagen_principal:")
             print(f"  - Nombre: {imagen.name}")
@@ -275,7 +289,8 @@ class PropiedadForm(forms.ModelForm):
     def clean_imagen_secundaria(self):
         """Validar la imagen secundaria"""
         imagen = self.cleaned_data.get('imagen_secundaria')
-        if imagen:
+        if imagen and hasattr(imagen, 'name') and imagen.name and not imagen.name.startswith('propiedades/'):
+            # Solo validar si es un archivo nuevo (no existente)
             # Validar tipo de archivo
             allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
             if imagen.content_type not in allowed_types:
@@ -289,49 +304,43 @@ class PropiedadForm(forms.ModelForm):
     def clean_latitud(self):
         """Validar que la latitud esté en el rango correcto"""
         latitud = self.cleaned_data.get('latitud')
-        if latitud is None:
-            raise forms.ValidationError('La latitud es obligatoria.')
-        if latitud < -90 or latitud > 90:
-            raise forms.ValidationError('La latitud debe estar entre -90 y 90 grados.')
+        if latitud is not None:  # Solo validar si se proporciona
+            if latitud < -90 or latitud > 90:
+                raise forms.ValidationError('La latitud debe estar entre -90 y 90 grados.')
         return latitud
     
     def clean_longitud(self):
         """Validar que la longitud esté en el rango correcto"""
         longitud = self.cleaned_data.get('longitud')
-        if longitud is None:
-            raise forms.ValidationError('La longitud es obligatoria.')
-        if longitud < -180 or longitud > 180:
-            raise forms.ValidationError('La longitud debe estar entre -180 y 180 grados.')
+        if longitud is not None:  # Solo validar si se proporciona
+            if longitud < -180 or longitud > 180:
+                raise forms.ValidationError('La longitud debe estar entre -180 y 180 grados.')
         return longitud
     
     def clean_ciudad(self):
         """Validar la ciudad"""
         ciudad = self.cleaned_data.get('ciudad')
-        if not ciudad or not ciudad.strip():
-            raise forms.ValidationError('La ciudad es obligatoria.')
-        
-        ciudad = ciudad.strip()
-        if len(ciudad) < 2:
-            raise forms.ValidationError('La ciudad debe tener al menos 2 caracteres.')
-        elif len(ciudad) > 100:
-            raise forms.ValidationError('La ciudad no puede tener más de 100 caracteres.')
-        # Validar que solo contenga letras, espacios y guiones
-        import re
-        if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-]+$', ciudad):
-            raise forms.ValidationError('La ciudad solo puede contener letras, espacios y guiones.')
+        if ciudad and ciudad.strip():  # Solo validar si se proporciona
+            ciudad = ciudad.strip()
+            if len(ciudad) < 2:
+                raise forms.ValidationError('La ciudad debe tener al menos 2 caracteres.')
+            elif len(ciudad) > 100:
+                raise forms.ValidationError('La ciudad no puede tener más de 100 caracteres.')
+            # Validar que solo contenga letras, espacios y guiones
+            import re
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-]+$', ciudad):
+                raise forms.ValidationError('La ciudad solo puede contener letras, espacios y guiones.')
         return ciudad
     
     def clean_lugares_cercanos(self):
         """Validar los lugares cercanos"""
         lugares = self.cleaned_data.get('lugares_cercanos')
-        if not lugares or not lugares.strip():
-            raise forms.ValidationError('Los lugares cercanos son obligatorios.')
-        
-        lugares = lugares.strip()
-        if len(lugares) < 10:
-            raise forms.ValidationError('Los lugares cercanos deben tener al menos 10 caracteres.')
-        elif len(lugares) > 500:
-            raise forms.ValidationError('Los lugares cercanos no pueden tener más de 500 caracteres.')
+        if lugares and lugares.strip():  # Solo validar si se proporciona
+            lugares = lugares.strip()
+            if len(lugares) < 10:
+                raise forms.ValidationError('Los lugares cercanos deben tener al menos 10 caracteres.')
+            elif len(lugares) > 500:
+                raise forms.ValidationError('Los lugares cercanos no pueden tener más de 500 caracteres.')
         return lugares
     
     def clean_tipo(self):
