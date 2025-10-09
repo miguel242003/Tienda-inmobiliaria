@@ -267,6 +267,7 @@ def crear_propiedad(request):
     print(f"DEBUG - Iniciando crear_propiedad")
     print(f"DEBUG - Método: {request.method}")
     print(f"DEBUG - Usuario: {request.user}")
+    print(f"DEBUG - Usuario autenticado: {request.user.is_authenticated}")
     
     # Verificar rate limit
     was_limited = getattr(request, 'limited', False)
@@ -282,11 +283,16 @@ def crear_propiedad(request):
         
         try:
             # Crear formulario
+            print(f"DEBUG - Creando PropiedadForm...")
             form = PropiedadForm(request.POST, request.FILES)
-            print(f"DEBUG - Formulario creado")
+            print(f"DEBUG - Formulario creado exitosamente")
             
-            if form.is_valid():
-                print(f"DEBUG - Formulario válido")
+            print(f"DEBUG - Validando formulario...")
+            is_valid = form.is_valid()
+            print(f"DEBUG - Formulario válido: {is_valid}")
+            
+            if is_valid:
+                print(f"DEBUG - Formulario válido, procediendo...")
                 
                 # Crear propiedad
                 propiedad = form.save(commit=False)

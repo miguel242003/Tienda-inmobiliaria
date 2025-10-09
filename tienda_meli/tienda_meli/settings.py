@@ -33,7 +33,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure--ya4&kz0qjq@q%(nd8^&e
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # 🔒 SEGURIDAD: ALLOWED_HOSTS debe ser específico en producción
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver,testserver.localhost').split(',')
 
 # Configuración de dominios confiables para CSRF
 CSRF_TRUSTED_ORIGINS = [
@@ -99,6 +99,7 @@ WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Configuración de base de datos con variables de entorno
+# Usar MySQL en producción, SQLite en desarrollo
 DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
 
 if DB_ENGINE == 'django.db.backends.mysql':

@@ -1,0 +1,17 @@
+[Unit]
+Description=Tienda Inmobiliaria Django App
+After=network.target mysql.service redis.service
+
+[Service]
+Type=exec
+User=www-data
+Group=www-data
+WorkingDirectory=/home/usuario/Tienda-inmobiliaria
+Environment=PATH=/home/usuario/Tienda-inmobiliaria/venv/bin
+ExecStart=/home/usuario/Tienda-inmobiliaria/venv/bin/gunicorn tienda_meli.wsgi:application --bind 127.0.0.1:8000 --workers 3 --worker-class gthread --threads 2 --worker-connections 1000 --max-requests 1000 --max-requests-jitter 100 --timeout 30 --keep-alive 2 --preload
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
