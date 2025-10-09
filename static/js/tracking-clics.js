@@ -69,37 +69,52 @@ class ClickTracker {
     }
 
     async registrarClick(propiedadId) {
+        console.log('Iniciando registro de click para propiedad:', propiedadId);
+        console.log('Página origen:', this.paginaOrigen);
+        
+        const csrfToken = this.getCSRFToken();
+        console.log('CSRF Token:', csrfToken ? 'Encontrado' : 'No encontrado');
+        
         try {
+            const requestData = {
+                propiedad_id: propiedadId,
+                pagina_origen: this.paginaOrigen
+            };
+            
+            console.log('Enviando datos:', requestData);
+            
             const response = await fetch('/propiedades/registrar-click/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken()
+                    'X-CSRFToken': csrfToken
                 },
-                body: JSON.stringify({
-                    propiedad_id: propiedadId,
-                    pagina_origen: this.paginaOrigen
-                })
+                body: JSON.stringify(requestData)
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
             const data = await response.json();
+            console.log('Response data:', data);
             
             if (data.success) {
-                console.log(`Click registrado para propiedad ${propiedadId}`);
+                console.log(`✅ Click registrado para propiedad ${propiedadId}`);
             } else {
-                console.error('Error al registrar click:', data.error);
+                console.error('❌ Error al registrar click:', data.error);
             }
         } catch (error) {
-            console.error('Error de red al registrar click:', error);
+            console.error('❌ Error de red al registrar click:', error);
         }
     }
 
     getCSRFToken() {
-        // Buscar el token CSRF en las cookies o en el DOM
+        // Buscar el token CSRF en las cookies
         const cookies = document.cookie.split(';');
         for (let cookie of cookies) {
             const [name, value] = cookie.trim().split('=');
             if (name === 'csrftoken') {
+                console.log('CSRF token encontrado en cookies:', value);
                 return value;
             }
         }
@@ -107,9 +122,18 @@ class ClickTracker {
         // Si no está en cookies, buscar en el DOM
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
         if (csrfToken) {
+            console.log('CSRF token encontrado en DOM:', csrfToken.value);
             return csrfToken.value;
         }
         
+        // Buscar en meta tags
+        const metaToken = document.querySelector('meta[name=csrf-token]');
+        if (metaToken) {
+            console.log('CSRF token encontrado en meta:', metaToken.content);
+            return metaToken.content;
+        }
+        
+        console.warn('No se encontró token CSRF');
         return '';
     }
 }
