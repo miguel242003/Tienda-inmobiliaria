@@ -131,7 +131,23 @@ body {
   word-wrap: break-word;
 }
 
-/* Imagen móvil - Eliminado para evitar duplicación */
+/* Imagen móvil - WebP con fallback JPG */
+.about-main-section::after {
+  content: '';
+  background-image: url('{% static "images/imgsobrenostros2.webp" %}');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 200px;
+  margin-top: 0;
+  display: block;
+}
+
+/* Fallback JPG para navegadores que no soportan WebP */
+.no-webp .about-main-section::after {
+  background-image: url('{% static "images/imgsobrenostros2.jpg" %}');
+}
 
 /* ===== BREAKPOINTS RESPONSIVOS ===== */
 
@@ -385,7 +401,22 @@ body {
     line-height: 1.6;
   }
   
-  /* Imagen derecha - Eliminado para evitar duplicación */
+  /* Imagen derecha - WebP con fallback JPG */
+  .about-main-section::after {
+    content: '';
+    background-image: url('{% static "images/imgsobrenostros2.webp" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  
+  /* Fallback JPG para navegadores que no soportan WebP */
+  .no-webp .about-main-section::after {
+    background-image: url('{% static "images/imgsobrenostros2.jpg" %}');
+  }
 }
 
 /* ===== DISPOSITIVOS ESPECIALES ===== */
@@ -1335,24 +1366,7 @@ body {
 /* ===== FIN SECCIÓN NUESTROS VALORES ===== */
 
 /* ===== ESTILOS PARA IMÁGENES WEBP CON FALLBACK ===== */
-.about-image-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.about-image-container picture {
-    width: 100%;
-    height: 100%;
-}
-
-.about-image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    transition: opacity 0.3s ease;
-}
+/* Contenedor de imagen eliminado - usando ::after pseudo-elemento */
 
 .values-image-container {
     display: flex;
@@ -1395,187 +1409,7 @@ body {
     background-repeat: no-repeat;
 }
 
-/* Responsive para imágenes WebP en About - Restaurando responsividad original */
-
-/* EXTRA SMALL DEVICES (320px - 575px) */
-@media screen and (min-width: 320px) and (max-width: 575px) {
-    .about-image-container {
-        position: relative;
-        width: 100%;
-        height: 180px;
-        margin-top: 0;
-        display: block;
-    }
-    
-    .about-image-container picture {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-    
-    .about-image-container picture img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-    }
-}
-
-/* SMALL DEVICES (576px - 767px) */
-@media screen and (min-width: 576px) and (max-width: 767px) {
-    .about-image-container {
-        position: relative;
-        width: 100%;
-        height: 220px;
-        margin-top: 0;
-        display: block;
-    }
-    
-    .about-image-container picture {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-    
-    .about-image-container picture img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-    }
-}
-
-/* MEDIUM DEVICES (768px - 991px) */
-@media screen and (min-width: 768px) and (max-width: 991px) {
-    .about-image-container {
-        position: relative;
-        width: 100%;
-        height: 250px;
-        margin-top: 0;
-        display: block;
-    }
-    
-    .about-image-container picture {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-    
-    .about-image-container picture img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-    }
-}
-
-/* LARGE DEVICES (992px - 1199px) */
-@media screen and (min-width: 992px) and (max-width: 1199px) {
-    .about-main-section {
-        background: var(--white);
-        padding: 0;
-        width: 100%;
-        max-width: 1200px;
-        margin: 40px auto;
-        display: grid;
-        grid-template-columns: 50% 50%;
-        gap: 0;
-        height: 500px;
-        min-height: 500px;
-    }
-    
-    .about-container {
-        padding: 0;
-        height: 100%;
-        display: contents;
-    }
-    
-    .about-content {
-        background: var(--light-bg);
-        padding: 32px;
-        margin: 0;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        border-radius: 0;
-    }
-    
-    .about-image-container {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        z-index: 1;
-    }
-    
-    .about-image-container picture {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-    
-    .about-image-container picture img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-    }
-}
-
-/* EXTRA LARGE DEVICES (1200px y más) */
-@media screen and (min-width: 1200px) {
-    .about-main-section {
-        background: var(--white);
-        padding: 0;
-        width: 100%;
-        max-width: 1400px;
-        margin: 60px auto;
-        display: grid;
-        grid-template-columns: 50% 50%;
-        gap: 0;
-        height: 600px;
-        min-height: 600px;
-    }
-    
-    .about-container {
-        padding: 0;
-        height: 100%;
-        display: contents;
-    }
-    
-    .about-content {
-        background: var(--light-bg);
-        padding: 48px;
-        margin: 0;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        border-radius: 0;
-    }
-    
-    .about-image-container {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        z-index: 1;
-    }
-    
-    .about-image-container picture {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-    
-    .about-image-container picture img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-    }
-}
+/* Responsive para imágenes WebP en About - Usando pseudo-elemento ::after */
 </style>
 {% endblock %}
 
@@ -1624,14 +1458,6 @@ body {
         </article>
     </div>
     
-    <!-- Imagen WebP con fallback para la sección principal -->
-    <div class="about-image-container">
-        <picture>
-            <source srcset="{% static 'images/imgsobrenostros2.webp' %}" type="image/webp">
-            <img src="{% static 'images/imgsobrenostros2.jpg' %}" 
-                 alt="Equipo de trabajo profesional">
-        </picture>
-    </div>
 </main>
 
 <!-- Nuestros Valores -->
