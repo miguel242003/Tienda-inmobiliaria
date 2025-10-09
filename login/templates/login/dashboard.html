@@ -5368,6 +5368,8 @@
         // ========================================
         const ChartManager = {
             init() {
+                console.log('=== INICIALIZANDO CHART MANAGER ===');
+                
                 this.propiedadSelect = document.getElementById('propiedad-select');
                 this.totalClicksElement = document.getElementById('total-clicks');
                 this.leyendaMaximo = document.getElementById('leyenda-maximo');
@@ -5379,6 +5381,8 @@
                         datos: [{% for mes_data in clicks_por_mes %}{{ mes_data.clicks|safe }}{% if not forloop.last %},{% endif %}{% endfor %}] 
                     }
                 };
+                
+                console.log('Datos iniciales:', this.datosPropiedades);
             
                 // Agregar datos de propiedades individuales usando JSON seguro
                 try {
@@ -5451,8 +5455,10 @@
                 this.bindEvents();
                 
                 // Ejecutar inmediatamente y con delay para asegurar que funcione
+                console.log('Ejecutando updateChart inicial...');
                 this.updateChart('todas');
                 setTimeout(() => {
+                    console.log('Ejecutando updateChart con delay...');
                     this.updateChart('todas');
                 }, 100);
             },
@@ -5507,6 +5513,15 @@
                 console.log('=== ACTUALIZANDO BARRAS ===');
                 console.log('Barras encontradas:', barras.length);
                 console.log('Números encontrados:', numeros.length);
+                console.log('Datos a mostrar:', datos.datos);
+                
+                // Verificar si el contenedor del gráfico existe
+                const graficoContainer = document.getElementById('grafico-barras');
+                if (!graficoContainer) {
+                    console.error('❌ No se encontró el contenedor del gráfico #grafico-barras');
+                    return;
+                }
+                console.log('✅ Contenedor del gráfico encontrado');
                 
                 const maxValor = Math.max(...datos.datos);
                 console.log('Valor máximo para calcular porcentajes:', maxValor);
