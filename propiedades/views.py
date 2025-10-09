@@ -375,20 +375,27 @@ def crear_propiedad(request):
                 
                 # Asignar el administrador actual a la propiedad
                 if hasattr(request, 'user') and request.user.is_authenticated:
+                    print(f"DEBUG - Usuario autenticado: {request.user}")
                     # Buscar el AdminCredentials correspondiente al usuario
-                    from login.models import AdminCredentials
                     try:
+                        from login.models import AdminCredentials
+                        print(f"DEBUG - Importando AdminCredentials")
+                        
                         # Primero intentar buscar por usuario relacionado
                         if hasattr(request.user, 'admincredentials'):
                             admin_creds = request.user.admincredentials
+                            print(f"DEBUG - AdminCredentials encontrado por relación: {admin_creds}")
                         else:
                             # Si no, buscar por email
                             admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                            print(f"DEBUG - AdminCredentials encontrado por email: {admin_creds}")
                         
                         propiedad.administrador = admin_creds
-                    except AdminCredentials.DoesNotExist:
+                        print(f"DEBUG - Administrador asignado a la propiedad")
+                    except Exception as e:
+                        print(f"DEBUG - Error buscando AdminCredentials: {e}")
                         # Si no existe AdminCredentials, mostrar mensaje de error
-                        error_message = 'Error: No se encontró tu perfil de administrador. Por favor, completa tu perfil antes de crear propiedades.'
+                        error_message = f'Error: No se encontró tu perfil de administrador. Error: {str(e)}'
                         messages.error(request, error_message)
                         # Verificar si es una petición AJAX
                         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -412,72 +419,85 @@ def crear_propiedad(request):
                 
                 # Optimizar imágenes a WebP después de guardar exitosamente
                 try:
+                    print("DEBUG - Iniciando optimización de imágenes")
                     if propiedad.imagen_principal:
                         print("DEBUG - Optimizando imagen principal a WebP")
-                        propiedad.optimize_image_field('imagen_principal', quality=85)
+                        # Comentar temporalmente la optimización para identificar el problema
+                        # propiedad.optimize_image_field('imagen_principal', quality=85)
+                        print("DEBUG - Imagen principal optimizada (deshabilitado temporalmente)")
                     if propiedad.imagen_secundaria:
                         print("DEBUG - Optimizando imagen secundaria a WebP")
-                        propiedad.optimize_image_field('imagen_secundaria', quality=85)
+                        # Comentar temporalmente la optimización para identificar el problema
+                        # propiedad.optimize_image_field('imagen_secundaria', quality=85)
+                        print("DEBUG - Imagen secundaria optimizada (deshabilitado temporalmente)")
+                    print("DEBUG - Optimización de imágenes completada")
                 except Exception as e:
                     print(f"DEBUG - Error en optimización WebP (no crítico): {e}")
+                    import traceback
+                    print(f"DEBUG - Traceback optimización: {traceback.format_exc()}")
                     # No fallar la creación por errores de optimización
                 
-                # 🔒 VALIDAR Y MANEJAR archivos adicionales (fotos y videos)
-                archivos_adicionales = request.FILES.getlist('fotos_adicionales')
-                fotos_creadas = []  # Lista para almacenar las fotos creadas
-                
-                if archivos_adicionales:
-                    from .models import FotoPropiedad
-                    for i, archivo in enumerate(archivos_adicionales):
-                        try:
-                            # Validar archivo (imagen o video)
-                            archivo_validado, tipo = validar_imagen_o_video(archivo)
-                            
-                            if tipo == 'video':
-                                foto_obj = FotoPropiedad.objects.create(
-                                    propiedad=propiedad,
-                                    tipo_medio='video',
-                                    video=archivo_validado,
-                                    orden=i + 1,
-                                    descripcion=f"Video {i + 1} de {propiedad.titulo}"
-                                )
-                                fotos_creadas.append(foto_obj)
-                            else:  # imagen
-                                foto_obj = FotoPropiedad.objects.create(
-                                    propiedad=propiedad,
-                                    tipo_medio='imagen',
-                                    imagen=archivo_validado,
-                                    orden=i + 1,
-                                    descripcion=f"Foto {i + 1} de {propiedad.titulo}"
-                                )
-                                fotos_creadas.append(foto_obj)
-                        except ValidationError as e:
-                            # Registrar error pero continuar con otros archivos
-                            messages.warning(request, f'Archivo "{archivo.name}" no válido: {str(e)}')
-                
-                # Optimizar todas las fotos y videos adicionales después de guardarlas
-                for foto in fotos_creadas:
-                    if foto.tipo_medio == 'imagen' and foto.imagen:
-                        try:
-                            print(f"DEBUG - Optimizando foto adicional: {foto.descripcion}")
-                            foto.optimize_image_field('imagen', quality=85)
-                        except Exception as e:
-                            print(f"DEBUG - Error optimizando foto adicional (no crítico): {e}")
-                    elif foto.tipo_medio == 'video' and foto.video:
-                        try:
-                            print(f"DEBUG - Optimizando video adicional: {foto.descripcion}")
-                            foto.optimize_video_field('video', quality=80)
-                        except Exception as e:
-                            print(f"DEBUG - Error optimizando video adicional (no crítico): {e}")
+                # 🔒 VALIDAR Y MANEJAR archivos adicionales (fotos y videos) - DESHABILITADO TEMPORALMENTE
+                print("DEBUG - Procesamiento de archivos adicionales deshabilitado temporalmente")
+                # archivos_adicionales = request.FILES.getlist('fotos_adicionales')
+                # fotos_creadas = []  # Lista para almacenar las fotos creadas
+                # 
+                # if archivos_adicionales:
+                #     from .models import FotoPropiedad
+                #     for i, archivo in enumerate(archivos_adicionales):
+                #         try:
+                #             # Validar archivo (imagen o video)
+                #             archivo_validado, tipo = validar_imagen_o_video(archivo)
+                #             
+                #             if tipo == 'video':
+                #                 foto_obj = FotoPropiedad.objects.create(
+                #                     propiedad=propiedad,
+                #                     tipo_medio='video',
+                #                     video=archivo_validado,
+                #                     orden=i + 1,
+                #                     descripcion=f"Video {i + 1} de {propiedad.titulo}"
+                #                 )
+                #                 fotos_creadas.append(foto_obj)
+                #             else:  # imagen
+                #                 foto_obj = FotoPropiedad.objects.create(
+                #                     propiedad=propiedad,
+                #                     tipo_medio='imagen',
+                #                     imagen=archivo_validado,
+                #                     orden=i + 1,
+                #                     descripcion=f"Foto {i + 1} de {propiedad.titulo}"
+                #                 )
+                #                 fotos_creadas.append(foto_obj)
+                #         except ValidationError as e:
+                #             # Registrar error pero continuar con otros archivos
+                #             messages.warning(request, f'Archivo "{archivo.name}" no válido: {str(e)}')
+                # 
+                # # Optimizar todas las fotos y videos adicionales después de guardarlas
+                # for foto in fotos_creadas:
+                #     if foto.tipo_medio == 'imagen' and foto.imagen:
+                #         try:
+                #             print(f"DEBUG - Optimizando foto adicional: {foto.descripcion}")
+                #             foto.optimize_image_field('imagen', quality=85)
+                #         except Exception as e:
+                #             print(f"DEBUG - Error optimizando foto adicional (no crítico): {e}")
+                #     elif foto.tipo_medio == 'video' and foto.video:
+                #         try:
+                #             print(f"DEBUG - Optimizando video adicional: {foto.descripcion}")
+                #             foto.optimize_video_field('video', quality=80)
+                #         except Exception as e:
+                #             print(f"DEBUG - Error optimizando video adicional (no crítico): {e}")
             
             except Exception as e:
+                import traceback
                 error_message = f'Error al crear la propiedad: {str(e)}'
+                print(f"DEBUG - ERROR COMPLETO: {error_message}")
+                print(f"DEBUG - TRACEBACK: {traceback.format_exc()}")
                 messages.error(request, error_message)
                 # Verificar si es una petición AJAX
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({
                         'success': False,
-                        'message': error_message
+                        'message': error_message,
+                        'debug': str(e)
                     })
                 else:
                     return render(request, 'propiedades/crear_propiedad.html', {
