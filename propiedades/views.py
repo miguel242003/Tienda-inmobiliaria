@@ -276,8 +276,13 @@ def crear_propiedad(request):
         return redirect('login:dashboard')
     
     if request.method == 'POST':
+        print(f"DEBUG - Iniciando creación de propiedad")
+        print(f"DEBUG - Usuario: {request.user}")
+        print(f"DEBUG - Archivos recibidos: {list(request.FILES.keys())}")
+        
         form = PropiedadForm(request.POST, request.FILES)
         if form.is_valid():
+            print(f"DEBUG - Formulario válido, procediendo a guardar")
             try:
                 # 🔒 VALIDAR IMÁGENES PRINCIPALES
                 if 'imagen_principal' in request.FILES:
@@ -399,9 +404,11 @@ def crear_propiedad(request):
                             })
                 
                 propiedad.save()
+                print(f"DEBUG - Propiedad guardada con ID: {propiedad.id}, Slug: {propiedad.slug}")
                 
                 # Guardar las amenidades (relación many-to-many)
                 form.save_m2m()
+                print(f"DEBUG - Amenidades guardadas")
                 
                 # Optimizar imágenes a WebP después de guardar exitosamente
                 try:
@@ -481,12 +488,22 @@ def crear_propiedad(request):
             
             # Verificar si es una petición AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Propiedad creada exitosamente.',
-                    'propiedad_id': propiedad.id,
-                    'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug])
-                })
+                try:
+                    redirect_url = reverse('propiedades:detalle', args=[propiedad.slug])
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Propiedad creada exitosamente.',
+                        'propiedad_id': propiedad.id,
+                        'redirect_url': redirect_url
+                    })
+                except Exception as e:
+                    print(f"DEBUG - Error generando URL de redirección: {e}")
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Propiedad creada exitosamente.',
+                        'propiedad_id': propiedad.id,
+                        'redirect_url': f'/propiedades/{propiedad.slug}/'
+                    })
             else:
                 messages.success(request, 'Propiedad creada exitosamente.')
                 return redirect('propiedades:detalle', slug=propiedad.slug)

@@ -18,26 +18,26 @@
 {% endif %}
 
 <!-- CV Section -->
-<section style="background: linear-gradient(135deg, #e8e9ea 0%, #d1d3d4 100%); padding: 0; width: 1400px; height: 750px; margin: 60px auto; position: relative; overflow: hidden; border-radius: 0;">
-    <div class="container-fluid h-100" style="padding: 0; height: 100%;">
-        <div class="row h-100" style="height: 100%; margin: 0;">
+<section class="cv-section">
+    <div class="container-fluid">
+        <div class="row">
             <!-- Imagen a la izquierda -->
-            <div class="col-lg-4 p-0" style="height: 100%; overflow: hidden;">
-                <div class="cv-image-container" style="height: 100%; width: 100%; position: relative;">
-                    <picture style="display: block; height: 100%; width: 100%;">
+            <div class="col-lg-4 col-md-12 p-0">
+                <div class="cv-image-container">
+                    <picture>
                         <!-- WebP para navegadores modernos -->
                         <source srcset="{% static 'images/CV2.webp' %}" type="image/webp">
                         <!-- Fallback JPG para navegadores antiguos -->
                         <img src="{% static 'images/cv6.jpg' %}" 
                              alt="Equipo de trabajo profesional" 
-                             style="width: 100%; height: 100%; object-fit: contain; object-position: left center;"
+                             class="cv-image"
                              loading="eager">
                     </picture>
                 </div>
             </div>
             
             <!-- Formulario a la derecha -->
-            <div class="col-lg-8 d-flex align-items-center" style="padding: 40px; height: 100%;">
+            <div class="col-lg-8 col-md-12 d-flex align-items-center cv-form-section">
                 <div style="width: 100%;">
                     <h1 style="font-family: 'Times New Roman', serif; color: #2c3e50; font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; display: block; visibility: visible;">Envíanos tu CV</h1>
                     <h3 class="mb-2" style="color: #e67e22; font-style: italic; font-family: 'Times New Roman', serif; font-size: 1rem;">Únete a nuestro equipo</h3>
@@ -243,70 +243,111 @@
 }
 
 /* ========================================
-   CV APPLICATION SECTION
+   CV APPLICATION SECTION - RESPONSIVE
    ======================================== */
+.cv-section {
+    background: linear-gradient(135deg, #e8e9ea 0%, #d1d3d4 100%);
+    padding: 2rem 0;
+    margin: 2rem auto;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0;
+}
+
 .cv-image-container {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 400px;
+    overflow: hidden;
+    position: relative;
 }
 
 .cv-image-container picture {
     width: 100%;
     height: 100%;
+    display: block;
 }
 
-.cv-image-container img {
+.cv-image {
     width: 100%;
     height: 100%;
     object-fit: contain;
     object-position: left center;
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
 }
 
-/* Mejorar la compatibilidad con navegadores antiguos */
-.cv-image-container picture {
-    display: block;
-    width: 100%;
-    height: 100%;
+.cv-form-section {
+    padding: 2rem;
+    min-height: 400px;
 }
 
-/* Fallback para navegadores que no soportan <picture> */
-.no-picture .cv-image-container {
-    background-image: url('{% static "images/cv6.jpg" %}');
-    background-size: contain;
-    background-position: left center;
-    background-repeat: no-repeat;
-}
-
-/* Responsive para imagen WebP en CV */
+/* Responsive breakpoints */
 @media (max-width: 1200px) {
-    .cv-image-container picture {
-        width: 100%;
-        height: 100%;
-        display: block;
+    .cv-section {
+        margin: 1.5rem auto;
+        padding: 1.5rem 0;
     }
     
-    .cv-image-container picture img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        object-position: left center;
+    .cv-image-container {
+        height: 350px;
+    }
+    
+    .cv-form-section {
+        padding: 1.5rem;
+        min-height: 350px;
+    }
+}
+
+@media (max-width: 992px) {
+    .cv-section {
+        margin: 1rem auto;
+        padding: 1rem 0;
+    }
+    
+    .cv-image-container {
+        height: 300px;
+    }
+    
+    .cv-form-section {
+        padding: 1rem;
+        min-height: 300px;
     }
 }
 
 @media (max-width: 768px) {
-    .cv-image-container picture {
-        width: 100%;
-        height: 100%;
-        display: block;
+    .cv-section {
+        margin: 0.5rem auto;
+        padding: 0.5rem 0;
     }
     
-    .cv-image-container picture img {
-        width: 100%;
-        height: 100%;
+    .cv-image-container {
+        height: 250px;
+    }
+    
+    .cv-image {
         object-fit: cover;
         object-position: center;
+    }
+    
+    .cv-form-section {
+        padding: 1rem;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 576px) {
+    .cv-section {
+        margin: 0;
+        padding: 0;
+    }
+    
+    .cv-image-container {
+        height: 200px;
+    }
+    
+    .cv-form-section {
+        padding: 0.75rem;
     }
 }
 .cv-application-section {
