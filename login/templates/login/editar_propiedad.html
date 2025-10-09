@@ -1871,6 +1871,67 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
             }
+            
+            // Enviar formulario con fetch para manejar la respuesta
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    const successMessage = document.createElement('div');
+                    successMessage.className = 'alert alert-success alert-dismissible fade show';
+                    successMessage.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    
+                    // Insertar mensaje al inicio del formulario
+                    form.insertBefore(successMessage, form.firstChild);
+                    
+                    // Redirigir al dashboard después de 2 segundos
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url || '/login/dashboard/';
+                    }, 2000);
+                } else {
+                    // Mostrar errores
+                    if (data.errors) {
+                        for (const [field, errors] of Object.entries(data.errors)) {
+                            const fieldElement = form.querySelector(`[name="${field}"]`);
+                            if (fieldElement) {
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'text-danger small mt-1';
+                                errorDiv.textContent = errors[0];
+                                fieldElement.parentNode.appendChild(errorDiv);
+                            }
+                        }
+                    }
+                    
+                    // Restaurar botón
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Guardar Cambios';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Restaurar botón en caso de error
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Guardar Cambios';
+                }
+            });
+            
+            return false; // Prevenir envío normal del formulario
         });
     } else {
         console.error('❌ Formulario NO encontrado');

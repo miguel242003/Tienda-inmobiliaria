@@ -555,10 +555,10 @@ def editar_propiedad(request, propiedad_id):
                 return JsonResponse({
                     'success': True, 
                     'message': f'Propiedad "{propiedad.titulo}" actualizada exitosamente.',
-                    'redirect_url': reverse('login:gestionar_propiedades')
+                    'redirect_url': reverse('login:dashboard')
                 })
             
-            return redirect('login:gestionar_propiedades')
+            return redirect('login:dashboard')
         else:
             print("DEBUG - Formulario NO es válido")
             print(f"DEBUG - Errores del formulario: {form.errors}")
