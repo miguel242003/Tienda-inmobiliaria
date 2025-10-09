@@ -347,3 +347,95 @@ def crear_propiedad(request):
         'amenidades': Amenidad.objects.all()
     }
     return render(request, 'propiedades/crear_propiedad.html', context)
+
+@csrf_exempt
+@require_POST
+def registrar_click(request):
+    """Vista AJAX para registrar clics en botones 'Ver Detalle'"""
+    try:
+        data = json.loads(request.body)
+        propiedad_id = data.get('propiedad_id')
+        pagina_origen = data.get('pagina_origen', 'home')
+        
+        if not propiedad_id:
+            return JsonResponse({'success': False, 'error': 'ID de propiedad requerido'})
+        
+        propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+        
+        # Obtener información del request
+        ip_address = request.META.get('REMOTE_ADDR')
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        
+        # Crear el registro de click
+        click = ClickPropiedad.objects.create(
+            propiedad=propiedad,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            pagina_origen=pagina_origen
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'click_id': click.id,
+            'total_clicks': propiedad.get_total_clicks()
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'JSON inválido'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+def crear_resena(request, slug):
+    """Vista para crear una nueva reseña de una propiedad"""
+    propiedad = get_object_or_404(Propiedad, slug=slug)
+    
+    if request.method == 'POST':
+        from .forms import ResenaForm
+        
+        form = ResenaForm(request.POST)
+        if form.is_valid():
+            # Crear la reseña
+            resena = form.save(commit=False)
+            resena.propiedad = propiedad
+            
+            # Obtener IP del usuario
+            ip_address = request.META.get('REMOTE_ADDR')
+            resena.ip_address = ip_address
+            
+            resena.save()
+            
+            # Verificar si es una petición AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Reseña enviada exitosamente. Será revisada antes de publicarse.',
+                    'resena_id': resena.id
+                })
+            else:
+                messages.success(request, 'Reseña enviada exitosamente. Será revisada antes de publicarse.')
+                return redirect('propiedades:detalle', propiedad.slug)
+        else:
+            # Verificar si es una petición AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                # Devolver errores del formulario en formato JSON
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    errors[field] = [str(error) for error in field_errors]
+                
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Por favor corrige los errores en el formulario.',
+                    'errors': errors
+                })
+            else:
+                messages.error(request, 'Por favor corrige los errores en el formulario.')
+    else:
+        from .forms import ResenaForm
+        form = ResenaForm()
+    
+    context = {
+        'form': form,
+        'propiedad': propiedad,
+        'titulo_pagina': f'Escribir Reseña - {propiedad.titulo}'
+    }
+    return render(request, 'propiedades/crear_resena.html', context)
