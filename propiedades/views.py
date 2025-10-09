@@ -262,286 +262,82 @@ def upload_fotos_adicionales(request):
 @ratelimit(key='user', rate='20/h', method='POST', block=False)
 def crear_propiedad(request):
     """
-    Vista para crear una nueva propiedad.
-    
-    🔒 SEGURIDAD:
-    - Rate limiting: Máximo 20 propiedades por hora por usuario
-    - Validación robusta de archivos con python-magic
-    - Verificación de tipo MIME real
+    Vista simplificada para crear una nueva propiedad.
     """
+    print(f"DEBUG - Iniciando crear_propiedad")
+    print(f"DEBUG - Método: {request.method}")
+    print(f"DEBUG - Usuario: {request.user}")
+    
     # Verificar rate limit
     was_limited = getattr(request, 'limited', False)
     if was_limited:
+        print(f"DEBUG - Rate limit excedido")
         messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
         return redirect('login:dashboard')
     
     if request.method == 'POST':
-        print(f"DEBUG - Iniciando creación de propiedad")
-        print(f"DEBUG - Usuario: {request.user}")
-        print(f"DEBUG - Archivos recibidos: {list(request.FILES.keys())}")
+        print(f"DEBUG - Procesando POST")
+        print(f"DEBUG - Datos POST: {dict(request.POST)}")
+        print(f"DEBUG - Archivos: {list(request.FILES.keys())}")
         
-        form = PropiedadForm(request.POST, request.FILES)
-        if form.is_valid():
-            print(f"DEBUG - Formulario válido, procediendo a guardar")
-            try:
-                # 🔒 VALIDAR IMÁGENES PRINCIPALES
-                if 'imagen_principal' in request.FILES:
-                    try:
-                        archivo = request.FILES['imagen_principal']
-                        # Debug: Log información del archivo
-                        print(f"DEBUG - Archivo imagen_principal:")
-                        print(f"  - Nombre: {archivo.name}")
-                        print(f"  - Tamaño: {archivo.size} bytes")
-                        print(f"  - Content-Type: {archivo.content_type}")
-                        print(f"  - Charset: {getattr(archivo, 'charset', 'N/A')}")
-                        
-                        # Para archivos grandes, usar validación más permisiva
-                        if archivo.size > 10 * 1024 * 1024:  # > 10MB
-                            print("DEBUG - Archivo grande detectado, usando validación simplificada")
-                            # Validación básica para archivos grandes
-                            if archivo.size > 20 * 1024 * 1024:  # > 20MB
-                                raise ValidationError(f'El archivo es demasiado grande. Máximo permitido: 20MB. Tamaño actual: {archivo.size / (1024*1024):.2f}MB')
-                            
-                            # Verificar que sea una imagen por extensión y content_type
-                            allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
-                            allowed_content_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp']
-                            
-                            extension = archivo.name.split('.')[-1].lower()
-                            if extension not in allowed_extensions:
-                                raise ValidationError(f'Extensión no permitida: .{extension}. Extensiones permitidas: {", ".join(allowed_extensions)}')
-                            
-                            if archivo.content_type not in allowed_content_types:
-                                raise ValidationError(f'Tipo de archivo no permitido: {archivo.content_type}. Tipos permitidos: {", ".join(allowed_content_types)}')
-                        else:
-                            # Validación completa para archivos normales
-                            validar_imagen(archivo, max_mb=20)
-                    except ValidationError as e:
-                        error_message = f'Imagen principal: {str(e)}'
-                        print(f"DEBUG - Error de validación: {error_message}")
-                        messages.error(request, error_message)
-                        # Verificar si es una petición AJAX
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({
-                                'success': False,
-                                'message': error_message
-                            })
-                        else:
-                            return render(request, 'propiedades/crear_propiedad.html', {
-                                'form': form,
-                                'titulo_pagina': 'Crear Nueva Propiedad',
-                                'amenidades': Amenidad.objects.all()
-                            })
+        try:
+            # Crear formulario
+            form = PropiedadForm(request.POST, request.FILES)
+            print(f"DEBUG - Formulario creado")
+            
+            if form.is_valid():
+                print(f"DEBUG - Formulario válido")
                 
-                if 'imagen_secundaria' in request.FILES:
-                    try:
-                        archivo = request.FILES['imagen_secundaria']
-                        # Para archivos grandes, usar validación más permisiva
-                        if archivo.size > 10 * 1024 * 1024:  # > 10MB
-                            print("DEBUG - Archivo secundario grande detectado, usando validación simplificada")
-                            # Validación básica para archivos grandes
-                            if archivo.size > 20 * 1024 * 1024:  # > 20MB
-                                raise ValidationError(f'El archivo es demasiado grande. Máximo permitido: 20MB. Tamaño actual: {archivo.size / (1024*1024):.2f}MB')
-                            
-                            # Verificar que sea una imagen por extensión y content_type
-                            allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
-                            allowed_content_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp']
-                            
-                            extension = archivo.name.split('.')[-1].lower()
-                            if extension not in allowed_extensions:
-                                raise ValidationError(f'Extensión no permitida: .{extension}. Extensiones permitidas: {", ".join(allowed_extensions)}')
-                            
-                            if archivo.content_type not in allowed_content_types:
-                                raise ValidationError(f'Tipo de archivo no permitido: {archivo.content_type}. Tipos permitidos: {", ".join(allowed_content_types)}')
-                        else:
-                            # Validación completa para archivos normales
-                            validar_imagen(archivo, max_mb=20)
-                    except ValidationError as e:
-                        error_message = f'Imagen secundaria: {str(e)}'
-                        messages.error(request, error_message)
-                        # Verificar si es una petición AJAX
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({
-                                'success': False,
-                                'message': error_message
-                            })
-                        else:
-                            return render(request, 'propiedades/crear_propiedad.html', {
-                                'form': form,
-                                'titulo_pagina': 'Crear Nueva Propiedad',
-                                'amenidades': Amenidad.objects.all()
-                            })
-                
+                # Crear propiedad
                 propiedad = form.save(commit=False)
+                print(f"DEBUG - Propiedad creada en memoria: {propiedad.titulo}")
                 
-                # Asignar el administrador actual a la propiedad
-                if hasattr(request, 'user') and request.user.is_authenticated:
-                    print(f"DEBUG - Usuario autenticado: {request.user}")
-                    # Buscar el AdminCredentials correspondiente al usuario
+                # Asignar administrador
+                if request.user.is_authenticated:
                     try:
                         from login.models import AdminCredentials
-                        print(f"DEBUG - Importando AdminCredentials")
-                        
-                        # Primero intentar buscar por usuario relacionado
-                        if hasattr(request.user, 'admincredentials'):
-                            admin_creds = request.user.admincredentials
-                            print(f"DEBUG - AdminCredentials encontrado por relación: {admin_creds}")
-                        else:
-                            # Si no, buscar por email
-                            admin_creds = AdminCredentials.objects.get(email=request.user.email)
-                            print(f"DEBUG - AdminCredentials encontrado por email: {admin_creds}")
-                        
+                        admin_creds = AdminCredentials.objects.get(email=request.user.email)
                         propiedad.administrador = admin_creds
-                        print(f"DEBUG - Administrador asignado a la propiedad")
+                        print(f"DEBUG - Administrador asignado: {admin_creds}")
                     except Exception as e:
-                        print(f"DEBUG - Error buscando AdminCredentials: {e}")
-                        # Si no existe AdminCredentials, mostrar mensaje de error
-                        error_message = f'Error: No se encontró tu perfil de administrador. Error: {str(e)}'
-                        messages.error(request, error_message)
-                        # Verificar si es una petición AJAX
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({
-                                'success': False,
-                                'message': error_message
-                            })
-                        else:
-                            return render(request, 'propiedades/crear_propiedad.html', {
-                                'form': form,
-                                'titulo_pagina': 'Crear Nueva Propiedad',
-                                'amenidades': Amenidad.objects.all()
-                            })
+                        print(f"DEBUG - Error asignando administrador: {e}")
+                        return JsonResponse({
+                            'success': False,
+                            'message': f'Error asignando administrador: {str(e)}'
+                        })
                 
+                # Guardar propiedad
                 propiedad.save()
-                print(f"DEBUG - Propiedad guardada con ID: {propiedad.id}, Slug: {propiedad.slug}")
+                print(f"DEBUG - Propiedad guardada con ID: {propiedad.id}")
                 
-                # Guardar las amenidades (relación many-to-many)
+                # Guardar amenidades
                 form.save_m2m()
                 print(f"DEBUG - Amenidades guardadas")
                 
-                # Optimizar imágenes a WebP después de guardar exitosamente
-                try:
-                    print("DEBUG - Iniciando optimización de imágenes")
-                    if propiedad.imagen_principal:
-                        print("DEBUG - Optimizando imagen principal a WebP")
-                        # Comentar temporalmente la optimización para identificar el problema
-                        # propiedad.optimize_image_field('imagen_principal', quality=85)
-                        print("DEBUG - Imagen principal optimizada (deshabilitado temporalmente)")
-                    if propiedad.imagen_secundaria:
-                        print("DEBUG - Optimizando imagen secundaria a WebP")
-                        # Comentar temporalmente la optimización para identificar el problema
-                        # propiedad.optimize_image_field('imagen_secundaria', quality=85)
-                        print("DEBUG - Imagen secundaria optimizada (deshabilitado temporalmente)")
-                    print("DEBUG - Optimización de imágenes completada")
-                except Exception as e:
-                    print(f"DEBUG - Error en optimización WebP (no crítico): {e}")
-                    import traceback
-                    print(f"DEBUG - Traceback optimización: {traceback.format_exc()}")
-                    # No fallar la creación por errores de optimización
-                
-                # 🔒 VALIDAR Y MANEJAR archivos adicionales (fotos y videos) - DESHABILITADO TEMPORALMENTE
-                print("DEBUG - Procesamiento de archivos adicionales deshabilitado temporalmente")
-                # archivos_adicionales = request.FILES.getlist('fotos_adicionales')
-                # fotos_creadas = []  # Lista para almacenar las fotos creadas
-                # 
-                # if archivos_adicionales:
-                #     from .models import FotoPropiedad
-                #     for i, archivo in enumerate(archivos_adicionales):
-                #         try:
-                #             # Validar archivo (imagen o video)
-                #             archivo_validado, tipo = validar_imagen_o_video(archivo)
-                #             
-                #             if tipo == 'video':
-                #                 foto_obj = FotoPropiedad.objects.create(
-                #                     propiedad=propiedad,
-                #                     tipo_medio='video',
-                #                     video=archivo_validado,
-                #                     orden=i + 1,
-                #                     descripcion=f"Video {i + 1} de {propiedad.titulo}"
-                #                 )
-                #                 fotos_creadas.append(foto_obj)
-                #             else:  # imagen
-                #                 foto_obj = FotoPropiedad.objects.create(
-                #                     propiedad=propiedad,
-                #                     tipo_medio='imagen',
-                #                     imagen=archivo_validado,
-                #                     orden=i + 1,
-                #                     descripcion=f"Foto {i + 1} de {propiedad.titulo}"
-                #                 )
-                #                 fotos_creadas.append(foto_obj)
-                #         except ValidationError as e:
-                #             # Registrar error pero continuar con otros archivos
-                #             messages.warning(request, f'Archivo "{archivo.name}" no válido: {str(e)}')
-                # 
-                # # Optimizar todas las fotos y videos adicionales después de guardarlas
-                # for foto in fotos_creadas:
-                #     if foto.tipo_medio == 'imagen' and foto.imagen:
-                #         try:
-                #             print(f"DEBUG - Optimizando foto adicional: {foto.descripcion}")
-                #             foto.optimize_image_field('imagen', quality=85)
-                #         except Exception as e:
-                #             print(f"DEBUG - Error optimizando foto adicional (no crítico): {e}")
-                #     elif foto.tipo_medio == 'video' and foto.video:
-                #         try:
-                #             print(f"DEBUG - Optimizando video adicional: {foto.descripcion}")
-                #             foto.optimize_video_field('video', quality=80)
-                #         except Exception as e:
-                #             print(f"DEBUG - Error optimizando video adicional (no crítico): {e}")
-            
-            except Exception as e:
-                import traceback
-                error_message = f'Error al crear la propiedad: {str(e)}'
-                print(f"DEBUG - ERROR COMPLETO: {error_message}")
-                print(f"DEBUG - TRACEBACK: {traceback.format_exc()}")
-                messages.error(request, error_message)
-                # Verificar si es una petición AJAX
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({
-                        'success': False,
-                        'message': error_message,
-                        'debug': str(e)
-                    })
-                else:
-                    return render(request, 'propiedades/crear_propiedad.html', {
-                        'form': form,
-                        'titulo_pagina': 'Crear Nueva Propiedad',
-                        'amenidades': Amenidad.objects.all()
-                    })
-            
-            # Verificar si es una petición AJAX
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                try:
-                    redirect_url = reverse('propiedades:detalle', args=[propiedad.slug])
-                    return JsonResponse({
-                        'success': True,
-                        'message': 'Propiedad creada exitosamente.',
-                        'propiedad_id': propiedad.id,
-                        'redirect_url': redirect_url
-                    })
-                except Exception as e:
-                    print(f"DEBUG - Error generando URL de redirección: {e}")
-                    return JsonResponse({
-                        'success': True,
-                        'message': 'Propiedad creada exitosamente.',
-                        'propiedad_id': propiedad.id,
-                        'redirect_url': f'/propiedades/{propiedad.slug}/'
-                    })
+                # Respuesta exitosa
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Propiedad creada exitosamente.',
+                    'propiedad_id': propiedad.id,
+                    'redirect_url': f'/propiedades/{propiedad.slug}/'
+                })
             else:
-                messages.success(request, 'Propiedad creada exitosamente.')
-                return redirect('propiedades:detalle', slug=propiedad.slug)
-        else:
-            # Verificar si es una petición AJAX
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Devolver errores del formulario en formato JSON
-                errors = {}
-                for field, field_errors in form.errors.items():
-                    errors[field] = [str(error) for error in field_errors]
-                
+                print(f"DEBUG - Formulario inválido: {form.errors}")
                 return JsonResponse({
                     'success': False,
                     'message': 'Por favor corrige los errores en el formulario.',
-                    'errors': errors
+                    'errors': dict(form.errors)
                 })
-            else:
-                messages.error(request, 'Por favor corrige los errores en el formulario.')
+                
+        except Exception as e:
+            import traceback
+            print(f"DEBUG - ERROR: {str(e)}")
+            print(f"DEBUG - TRACEBACK: {traceback.format_exc()}")
+            return JsonResponse({
+                'success': False,
+                'message': f'Error: {str(e)}',
+                'debug': str(e)
+            })
     else:
         form = PropiedadForm()
     
@@ -551,95 +347,3 @@ def crear_propiedad(request):
         'amenidades': Amenidad.objects.all()
     }
     return render(request, 'propiedades/crear_propiedad.html', context)
-
-@csrf_exempt
-@require_POST
-def registrar_click(request):
-    """Vista AJAX para registrar clics en botones 'Ver Detalle'"""
-    try:
-        data = json.loads(request.body)
-        propiedad_id = data.get('propiedad_id')
-        pagina_origen = data.get('pagina_origen', 'home')
-        
-        if not propiedad_id:
-            return JsonResponse({'success': False, 'error': 'ID de propiedad requerido'})
-        
-        propiedad = get_object_or_404(Propiedad, id=propiedad_id)
-        
-        # Obtener información del request
-        ip_address = request.META.get('REMOTE_ADDR')
-        user_agent = request.META.get('HTTP_USER_AGENT', '')
-        
-        # Crear el registro de click
-        click = ClickPropiedad.objects.create(
-            propiedad=propiedad,
-            ip_address=ip_address,
-            user_agent=user_agent,
-            pagina_origen=pagina_origen
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'click_id': click.id,
-            'total_clicks': propiedad.get_total_clicks()
-        })
-        
-    except json.JSONDecodeError:
-        return JsonResponse({'success': False, 'error': 'JSON inválido'})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
-def crear_resena(request, slug):
-    """Vista para crear una nueva reseña de una propiedad"""
-    propiedad = get_object_or_404(Propiedad, slug=slug)
-    
-    if request.method == 'POST':
-        from .forms import ResenaForm
-        
-        form = ResenaForm(request.POST)
-        if form.is_valid():
-            # Crear la reseña
-            resena = form.save(commit=False)
-            resena.propiedad = propiedad
-            
-            # Obtener IP del usuario
-            ip_address = request.META.get('REMOTE_ADDR')
-            resena.ip_address = ip_address
-            
-            resena.save()
-            
-            # Verificar si es una petición AJAX
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Reseña enviada exitosamente. Será revisada antes de publicarse.',
-                    'resena_id': resena.id
-                })
-            else:
-                messages.success(request, 'Reseña enviada exitosamente. Será revisada antes de publicarse.')
-                return redirect('propiedades:detalle', propiedad.slug)
-        else:
-            # Verificar si es una petición AJAX
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Devolver errores del formulario en formato JSON
-                errors = {}
-                for field, field_errors in form.errors.items():
-                    errors[field] = [str(error) for error in field_errors]
-                
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Por favor corrige los errores en el formulario.',
-                    'errors': errors
-                })
-            else:
-                messages.error(request, 'Por favor corrige los errores en el formulario.')
-    else:
-        from .forms import ResenaForm
-        form = ResenaForm()
-    
-    context = {
-        'form': form,
-        'propiedad': propiedad,
-        'titulo_pagina': f'Escribir Reseña - {propiedad.titulo}'
-    }
-    return render(request, 'propiedades/crear_resena.html', context)
