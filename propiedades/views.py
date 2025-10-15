@@ -259,27 +259,6 @@ def upload_fotos_adicionales(request):
     
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
-def debug_view(func):
-    """Decorador para debug de vistas"""
-    def wrapper(request, *args, **kwargs):
-        print(f"=== DEBUG VIEW DECORATOR ===")
-        print(f"Función: {func.__name__}")
-        print(f"URL: {request.path}")
-        print(f"Método: {request.method}")
-        print(f"Usuario: {request.user}")
-        try:
-            result = func(request, *args, **kwargs)
-            print(f"Vista ejecutada exitosamente")
-            return result
-        except Exception as e:
-            print(f"ERROR EN VISTA: {e}")
-            print(f"Tipo: {type(e)}")
-            import traceback
-            print(f"Traceback: {traceback.format_exc()}")
-            raise
-    return wrapper
-
-@debug_view
 @ratelimit(key='user', rate='20/h', method='POST', block=False)
 def crear_propiedad(request):
     """
@@ -293,15 +272,16 @@ def crear_propiedad(request):
     import logging
     logger = logging.getLogger(__name__)
     
+    # Logging específico para producción
+    logger.error(f"=== INICIO CREAR PROPIEDAD ===")
+    logger.error(f"Usuario: {request.user}")
+    logger.error(f"Método: {request.method}")
+    logger.error(f"Headers: {dict(request.headers)}")
+    
     print("=== INICIO CREAR PROPIEDAD ===")
     print(f"Usuario: {request.user}")
     print(f"Método: {request.method}")
     print(f"Headers: {dict(request.headers)}")
-    
-    logger.info(f"=== INICIO CREAR PROPIEDAD ===")
-    logger.info(f"Usuario: {request.user}")
-    logger.info(f"Método: {request.method}")
-    logger.info(f"Headers: {dict(request.headers)}")
     
     # Verificar rate limit
     was_limited = getattr(request, 'limited', False)
@@ -311,24 +291,24 @@ def crear_propiedad(request):
         return redirect('login:dashboard')
 
     if request.method == 'POST':
+        logger.error(f"=== PROCESANDO POST ===")
+        logger.error(f"Datos POST: {dict(request.POST)}")
+        logger.error(f"Archivos FILES: {list(request.FILES.keys())}")
+        
         print("=== PROCESANDO POST ===")
         print(f"Datos POST: {dict(request.POST)}")
         print(f"Archivos FILES: {list(request.FILES.keys())}")
         
-        logger.info(f"=== PROCESANDO POST ===")
-        logger.info(f"Datos POST: {dict(request.POST)}")
-        logger.info(f"Archivos FILES: {list(request.FILES.keys())}")
-        
         form = PropiedadForm(request.POST, request.FILES)
+        logger.error(f"Formulario creado: {form}")
+        logger.error(f"Formulario válido: {form.is_valid()}")
+        
         print(f"Formulario creado: {form}")
         print(f"Formulario válido: {form.is_valid()}")
         
-        logger.info(f"Formulario creado: {form}")
-        logger.info(f"Formulario válido: {form.is_valid()}")
-        
         if not form.is_valid():
-            print(f"Errores del formulario: {form.errors}")
             logger.error(f"Errores del formulario: {form.errors}")
+            print(f"Errores del formulario: {form.errors}")
         
         if form.is_valid():
             print("=== FORMULARIO VÁLIDO ===")
@@ -424,23 +404,23 @@ def crear_propiedad(request):
                 propiedad = form.save(commit=False)
                 
                 # Asignar el administrador actual a la propiedad
+                logger.error(f"=== ASIGNANDO ADMINISTRADOR ===")
+                logger.error(f"Usuario autenticado: {hasattr(request, 'user') and request.user.is_authenticated}")
+                logger.error(f"Usuario: {request.user}")
+                
                 print("=== ASIGNANDO ADMINISTRADOR ===")
                 print(f"Usuario autenticado: {hasattr(request, 'user') and request.user.is_authenticated}")
                 print(f"Usuario: {request.user}")
-                
-                logger.info(f"=== ASIGNANDO ADMINISTRADOR ===")
-                logger.info(f"Usuario autenticado: {hasattr(request, 'user') and request.user.is_authenticated}")
-                logger.info(f"Usuario: {request.user}")
                 
                 if hasattr(request, 'user') and request.user.is_authenticated:
                     # Buscar el AdminCredentials correspondiente al usuario
                     from login.models import AdminCredentials
                     try:
+                        logger.error(f"Buscando AdminCredentials para usuario: {request.user}")
+                        logger.error(f"Email del usuario: {request.user.email}")
+                        
                         print(f"Buscando AdminCredentials para usuario: {request.user}")
                         print(f"Email del usuario: {request.user.email}")
-                        
-                        logger.info(f"Buscando AdminCredentials para usuario: {request.user}")
-                        logger.info(f"Email del usuario: {request.user.email}")
                         
                         # Primero intentar buscar por usuario relacionado
                         if hasattr(request.user, 'admincredentials'):

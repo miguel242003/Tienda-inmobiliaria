@@ -73,7 +73,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',  # Debug toolbar
-    'core.middleware.DebugMiddleware',  # Nuestro middleware de debug
+    # 'core.middleware.DebugMiddleware',  # Deshabilitado temporalmente
 ]
 
 ROOT_URLCONF = 'tienda_meli.tienda_meli.urls'
@@ -100,7 +100,8 @@ WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Configuración de base de datos con variables de entorno
-DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
+# Temporalmente usando SQLite para evitar problemas de MySQL
+DB_ENGINE = 'django.db.backends.sqlite3'
 
 if DB_ENGINE == 'django.db.backends.mysql':
     # Configuración para PRODUCCIÓN con MySQL
