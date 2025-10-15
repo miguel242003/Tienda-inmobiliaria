@@ -15,11 +15,14 @@ if (window.ClickTrackerInitialized) {
     }
 
     window.ClickTracker.prototype.init = function() {
+        console.log('🔍 ClickTracker inicializando...');
         // Detectar la página actual
         this.paginaOrigen = this.detectarPaginaOrigen();
+        console.log('📍 Página origen detectada:', this.paginaOrigen);
         
         // Agregar event listeners a todos los botones "Ver Detalle"
         this.agregarEventListeners();
+        console.log('✅ ClickTracker inicializado correctamente');
     }
 
     window.ClickTracker.prototype.detectarPaginaOrigen = function() {
@@ -37,10 +40,10 @@ if (window.ClickTrackerInitialized) {
     }
 
     window.ClickTracker.prototype.agregarEventListeners = function() {
-        console.log('=== INICIANDO AGREGAR EVENT LISTENERS ===');
+        console.log('🔍 Buscando enlaces de propiedades...');
         // Buscar todos los enlaces que van a detalle de propiedades
         const enlacesDetalle = document.querySelectorAll('a[href*="/propiedades/"]');
-        console.log('Enlaces encontrados:', enlacesDetalle.length);
+        console.log('📊 Encontrados', enlacesDetalle.length, 'enlaces de propiedades');
         
         enlacesDetalle.forEach(enlace => {
             const href = enlace.getAttribute('href');
@@ -57,14 +60,14 @@ if (window.ClickTrackerInitialized) {
             }
             
             if (propiedadId) {
-                console.log('Agregando listener para propiedad:', propiedadId);
+                console.log('✅ Enlace', (enlacesDetalle.length - enlacesDetalle.length + enlacesDetalle.indexOf(enlace) + 1) + ':', 'ID', propiedadId, '-', href);
                 // Agregar event listener para el click
                 enlace.addEventListener('click', (e) => {
-                    console.log('CLICK DETECTADO en propiedad:', propiedadId);
+                    console.log('🎯 CLICK DETECTADO en propiedad:', propiedadId);
                     this.registrarClick(propiedadId);
                 });
             } else {
-                console.log('No se encontró data-propiedad-id para enlace:', href);
+                console.log('⚠️ Enlace', (enlacesDetalle.length - enlacesDetalle.length + enlacesDetalle.indexOf(enlace) + 1) + ':', 'Sin data-propiedad-id -', href);
             }
         });
 
@@ -154,6 +157,7 @@ if (window.ClickTrackerInitialized) {
 
     // Inicializar el tracker cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 DOM cargado, inicializando ClickTracker...');
         new window.ClickTracker();
     });
 }
