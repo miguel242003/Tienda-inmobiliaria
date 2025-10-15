@@ -223,9 +223,14 @@ SESSION_COOKIE_NAME = 'sessionid'
 
 # Configuración de Cookies CSRF
 CSRF_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Permitir acceso por JavaScript
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_AGE = 31449600  # 1 año
+
+# Configuración CSRF menos estricta para desarrollo
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
 
 # Headers de Seguridad para Producción
 if not DEBUG:
