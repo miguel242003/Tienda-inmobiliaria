@@ -3,14 +3,11 @@
  * Registra automáticamente los clics en la base de datos
  */
 
-// Usar una función anónima para evitar conflictos de redeclaración
-(function() {
-    'use strict';
-    
-    // Verificar si ya se inicializó
-    if (window.ClickTrackerInitialized) {
-        return;
-    }
+// Verificar si ya se inicializó para evitar múltiples cargas
+if (window.ClickTrackerInitialized) {
+    console.log('ClickTracker ya inicializado, saltando...');
+} else {
+    window.ClickTrackerInitialized = true;
     
     class ClickTracker {
     constructor() {
@@ -153,7 +150,4 @@
     document.addEventListener('DOMContentLoaded', function() {
         new ClickTracker();
     });
-    
-    // Marcar como inicializado
-    window.ClickTrackerInitialized = true;
-})();
+}
