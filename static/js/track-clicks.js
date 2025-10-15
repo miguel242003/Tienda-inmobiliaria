@@ -7,11 +7,11 @@
     'use strict';
     
     // Verificar si ya se inicializó para evitar múltiples cargas
-    if (window.ClickTrackerInitialized) {
+    if (window.TrackClicksInitialized) {
         return;
     }
     
-    window.ClickTrackerInitialized = true;
+    window.TrackClicksInitialized = true;
     
     // Función simple para registrar clics
     function registrarClick(propiedadId) {
@@ -46,17 +46,26 @@
     
     // Inicializar cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Inicializando tracking de clics...');
+        
         // Buscar todos los enlaces que van a detalle de propiedades
         const enlacesDetalle = document.querySelectorAll('a[href*="/propiedades/"]');
+        console.log('📊 Encontrados', enlacesDetalle.length, 'enlaces de propiedades');
         
-        enlacesDetalle.forEach(enlace => {
+        enlacesDetalle.forEach((enlace, index) => {
             const propiedadId = enlace.getAttribute('data-propiedad-id');
             
             if (propiedadId) {
+                console.log('✅ Enlace', index + 1, ':', 'ID', propiedadId, '-', enlace.href);
                 enlace.addEventListener('click', function(e) {
+                    console.log('🎯 CLICK DETECTADO en propiedad:', propiedadId);
                     registrarClick(propiedadId);
                 });
+            } else {
+                console.log('⚠️ Enlace', index + 1, ':', 'Sin data-propiedad-id -', enlace.href);
             }
         });
+        
+        console.log('✅ Tracking de clics inicializado correctamente');
     });
 })();
