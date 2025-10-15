@@ -210,7 +210,7 @@ RATELIMIT_IP_META_KEY = 'HTTP_X_FORWARDED_FOR'
 # ============================================================================
 
 # Configuración de Sesiones Seguras
-SESSION_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
+SESSION_COOKIE_SECURE = False  # Cambiado a False para permitir HTTP temporalmente
 SESSION_COOKIE_HTTPONLY = True  # No accesible por JavaScript
 SESSION_COOKIE_SAMESITE = 'Lax'  # Protección contra CSRF
 SESSION_COOKIE_AGE = 3600  # 1 hora de sesión
@@ -222,7 +222,7 @@ SESSION_COOKIE_NAME = 'sessionid'
 # Nombre del cookie de sesión
 
 # Configuración de Cookies CSRF
-CSRF_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
+CSRF_COOKIE_SECURE = False  # Cambiado a False para permitir HTTP temporalmente
 CSRF_COOKIE_HTTPONLY = False  # Permitir acceso por JavaScript
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_AGE = 31449600  # 1 año
@@ -234,23 +234,23 @@ CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
 
 # Headers de Seguridad para Producción
 if not DEBUG:
-    # HTTPS/SSL
-    SECURE_SSL_REDIRECT = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # HTTPS/SSL - DESHABILITADO temporalmente hasta configurar SSL
+    SECURE_SSL_REDIRECT = False  # Cambiado a False para permitir HTTP
+    # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     
-    # HSTS (HTTP Strict Transport Security)
-    SECURE_HSTS_SECONDS = 31536000  # 1 año
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+    # HSTS (HTTP Strict Transport Security) - DESHABILITADO temporalmente
+    # SECURE_HSTS_SECONDS = 31536000  # 1 año
+    # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    # SECURE_HSTS_PRELOAD = True
     
     # Seguridad del navegador
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'  # Protección contra Clickjacking
+    X_FRAME_OPTIONS = 'SAMEORIGIN'  # Cambiado a SAMEORIGIN para permitir HTTP
     
-    # Cookies seguras en producción
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # Cookies seguras en producción - DESHABILITADO temporalmente
+    SESSION_COOKIE_SECURE = False  # Cambiado a False para permitir HTTP
+    CSRF_COOKIE_SECURE = False  # Cambiado a False para permitir HTTP
 else:
     # Desarrollo: Sin redirección HTTPS
     SECURE_SSL_REDIRECT = False
