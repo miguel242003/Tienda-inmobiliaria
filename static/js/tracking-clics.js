@@ -9,12 +9,12 @@ if (window.ClickTrackerInitialized) {
 } else {
     window.ClickTrackerInitialized = true;
     
-    class ClickTracker {
-    constructor() {
+    // Usar función en lugar de clase para evitar conflictos
+    function ClickTracker() {
         this.init();
     }
 
-    init() {
+    ClickTracker.prototype.init = function() {
         // Detectar la página actual
         this.paginaOrigen = this.detectarPaginaOrigen();
         
@@ -22,7 +22,7 @@ if (window.ClickTrackerInitialized) {
         this.agregarEventListeners();
     }
 
-    detectarPaginaOrigen() {
+    ClickTracker.prototype.detectarPaginaOrigen = function() {
         const path = window.location.pathname;
         
         if (path === '/' || path.includes('home')) {
@@ -36,7 +36,7 @@ if (window.ClickTrackerInitialized) {
         }
     }
 
-    agregarEventListeners() {
+    ClickTracker.prototype.agregarEventListeners = function() {
         // Buscar todos los enlaces que van a detalle de propiedades
         const enlacesDetalle = document.querySelectorAll('a[href*="/propiedades/"]');
         
@@ -74,7 +74,7 @@ if (window.ClickTrackerInitialized) {
         });
     }
 
-    async registrarClick(propiedadId) {
+    ClickTracker.prototype.registrarClick = async function(propiedadId) {
         console.log('Iniciando registro de click para propiedad:', propiedadId);
         console.log('Página origen:', this.paginaOrigen);
         
@@ -114,7 +114,7 @@ if (window.ClickTrackerInitialized) {
         }
     }
 
-    getCSRFToken() {
+    ClickTracker.prototype.getCSRFToken = function() {
         // Buscar el token CSRF en las cookies
         const cookies = document.cookie.split(';');
         for (let cookie of cookies) {
