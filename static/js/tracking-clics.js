@@ -3,6 +3,8 @@
  * Registra automáticamente los clics en la base de datos
  */
 
+// Verificar si ya existe la clase para evitar redeclaración
+if (typeof ClickTracker === 'undefined') {
 class ClickTracker {
     constructor() {
         this.init();
@@ -138,7 +140,11 @@ class ClickTracker {
     }
 }
 
+}
+
 // Inicializar el tracker cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    new ClickTracker();
+    if (typeof ClickTracker !== 'undefined') {
+        new ClickTracker();
+    }
 });
