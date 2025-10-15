@@ -22,13 +22,13 @@
     <div class="container-fluid h-100" style="padding: 0; height: 100%;">
         <div class="row h-100" style="height: 100%; margin: 0;">
             <!-- Imagen a la izquierda -->
-            <div class="col-lg-4 p-0 d-flex align-items-stretch" style="height: 100%; overflow: hidden;">
-                <div class="cv-image-container" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-start; background-color: #f5f6f7;">
+            <div class="col-lg-4 p-0" style="height: 100%; overflow: hidden;">
+                <div class="cv-image-container" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-start; background-color: #f8f9fa;">
                     <picture style="width: 100%; height: 100%; display: block;">
                         <source srcset="{% static 'images/CV2.webp' %}" type="image/webp">
                         <img src="{% static 'images/cv6.jpg' %}"
                              alt="Equipo de trabajo profesional"
-                             style="width: 100%; height: 100%; object-fit: contain; object-position: left center; display: block; border-radius: 0;"
+                             style="width: 100%; height: 100%; object-fit: contain; object-position: left center; display: block;"
                              loading="eager">
                     </picture>
                 </div>
@@ -37,8 +37,7 @@
             <!-- Formulario a la derecha -->
             <div class="col-lg-8 d-flex align-items-center" style="padding: 40px; height: 100%;">
                 <div style="width: 100%;">
-                    <h1 style="font-family: 'Times New Roman', serif; color: #2c3e50; font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; display: block; visibility: visible;">Envíanos tu CV</h1>
-                    <h3 class="mb-2" style="color: #e67e22; font-style: italic; font-family: 'Times New Roman', serif; font-size: 1rem;">Únete a nuestro equipo</h3>
+                    <h3 class="mb-2" style="color: #e67e22; font-style: italic; font-family: 'Times New Roman', serif; font-size: 1.2rem; font-weight: 600;">Únete a nuestro equipo</h3>
                     <p class="mb-3" style="color: #34495e; line-height: 1.4; font-size: 0.9rem;">Forma parte de una empresa líder en el sector inmobiliario. Completa el formulario y te contactaremos pronto.</p>
                     
                     <!-- CV Form -->
@@ -250,6 +249,7 @@
     align-items: center;
     justify-content: flex-start;
     overflow: hidden;
+    background-color: #f8f9fa;
 }
 
 .cv-image-container img {
@@ -257,6 +257,7 @@
     height: 100%;
     object-fit: contain;
     object-position: left center;
+    display: block;
 }
 
 section[style*="background"] {
