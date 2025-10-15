@@ -293,24 +293,23 @@ def crear_propiedad(request):
     import logging
     logger = logging.getLogger(__name__)
     
-    try:
-        print("=== INICIO CREAR PROPIEDAD ===")
-        print(f"Usuario: {request.user}")
-        print(f"Método: {request.method}")
-        print(f"Headers: {dict(request.headers)}")
-        
-        logger.info(f"=== INICIO CREAR PROPIEDAD ===")
-        logger.info(f"Usuario: {request.user}")
-        logger.info(f"Método: {request.method}")
-        logger.info(f"Headers: {dict(request.headers)}")
-        
-        # Verificar rate limit
-        was_limited = getattr(request, 'limited', False)
-        if was_limited:
-            logger.warning(f"Rate limit excedido para usuario: {request.user}")
-            messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
-            return redirect('login:dashboard')
+    print("=== INICIO CREAR PROPIEDAD ===")
+    print(f"Usuario: {request.user}")
+    print(f"Método: {request.method}")
+    print(f"Headers: {dict(request.headers)}")
     
+    logger.info(f"=== INICIO CREAR PROPIEDAD ===")
+    logger.info(f"Usuario: {request.user}")
+    logger.info(f"Método: {request.method}")
+    logger.info(f"Headers: {dict(request.headers)}")
+    
+    # Verificar rate limit
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        logger.warning(f"Rate limit excedido para usuario: {request.user}")
+        messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
+        return redirect('login:dashboard')
+
     if request.method == 'POST':
         print("=== PROCESANDO POST ===")
         print(f"Datos POST: {dict(request.POST)}")
@@ -619,35 +618,6 @@ def crear_propiedad(request):
         'amenidades': Amenidad.objects.all()
     }
     return render(request, 'propiedades/crear_propiedad.html', context)
-    
-    except Exception as e:
-        print("=== ERROR GENERAL EN CREAR PROPIEDAD ===")
-        print(f"Error: {e}")
-        print(f"Tipo de error: {type(e)}")
-        import traceback
-        print(f"Traceback: {traceback.format_exc()}")
-        
-        logger.error(f"=== ERROR GENERAL EN CREAR PROPIEDAD ===")
-        logger.error(f"Error: {e}")
-        logger.error(f"Tipo de error: {type(e)}")
-        logger.error(f"Traceback: {traceback.format_exc()}")
-        
-        # Si es una petición AJAX, devolver JSON
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': False,
-                'message': f'Error interno del servidor: {str(e)}'
-            })
-        else:
-            # Si no es AJAX, mostrar página de error
-            messages.error(request, f'Error interno del servidor: {str(e)}')
-            form = PropiedadForm()
-            context = {
-                'form': form,
-                'titulo_pagina': 'Crear Nueva Propiedad',
-                'amenidades': Amenidad.objects.all()
-            }
-            return render(request, 'propiedades/crear_propiedad.html', context)
 
 @csrf_exempt
 @require_POST
