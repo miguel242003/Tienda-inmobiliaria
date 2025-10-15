@@ -1,7 +1,7 @@
 /**
  * Script para tracking de clics en botones "Ver Detalle" de propiedades
  * Registra automáticamente los clics en la base de datos
- * Versión: 3.0 - Sin conflictos de nombres
+ * Versión: 4.1 - Sin conflictos de nombres
  * Timestamp: 2025-01-27
  */
 
@@ -17,6 +17,13 @@
         delete window.ClickTracker;
         console.log('✅ ClickTracker eliminado');
     }
+    
+    // Eliminar cualquier referencia a tracking-clics.js
+    const scripts = document.querySelectorAll('script[src*="tracking-clics"]');
+    scripts.forEach(script => {
+        script.remove();
+        console.log('✅ Script tracking-clics.js removido del DOM');
+    });
     
     // Eliminar otras variables conflictivas
     const variablesConflictivas = [
