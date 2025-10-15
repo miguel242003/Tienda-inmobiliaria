@@ -269,15 +269,36 @@ def crear_propiedad(request):
     - Validación robusta de archivos con python-magic
     - Verificación de tipo MIME real
     """
-    # Verificar rate limit
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
-        return redirect('login:dashboard')
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        logger.info(f"=== INICIO CREAR PROPIEDAD ===")
+        logger.info(f"Usuario: {request.user}")
+        logger.info(f"Método: {request.method}")
+        logger.info(f"Headers: {dict(request.headers)}")
+        
+        # Verificar rate limit
+        was_limited = getattr(request, 'limited', False)
+        if was_limited:
+            logger.warning(f"Rate limit excedido para usuario: {request.user}")
+            messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
+            return redirect('login:dashboard')
     
     if request.method == 'POST':
+        logger.info(f"=== PROCESANDO POST ===")
+        logger.info(f"Datos POST: {dict(request.POST)}")
+        logger.info(f"Archivos FILES: {list(request.FILES.keys())}")
+        
         form = PropiedadForm(request.POST, request.FILES)
+        logger.info(f"Formulario creado: {form}")
+        logger.info(f"Formulario válido: {form.is_valid()}")
+        
+        if not form.is_valid():
+            logger.error(f"Errores del formulario: {form.errors}")
+        
         if form.is_valid():
+            logger.info(f"=== FORMULARIO VÁLIDO ===")
             try:
                 # 🔒 VALIDAR IMÁGENES PRINCIPALES
                 if 'imagen_principal' in request.FILES:
@@ -369,21 +390,34 @@ def crear_propiedad(request):
                 propiedad = form.save(commit=False)
                 
                 # Asignar el administrador actual a la propiedad
+                logger.info(f"=== ASIGNANDO ADMINISTRADOR ===")
+                logger.info(f"Usuario autenticado: {hasattr(request, 'user') and request.user.is_authenticated}")
+                logger.info(f"Usuario: {request.user}")
+                
                 if hasattr(request, 'user') and request.user.is_authenticated:
                     # Buscar el AdminCredentials correspondiente al usuario
                     from login.models import AdminCredentials
                     try:
+                        logger.info(f"Buscando AdminCredentials para usuario: {request.user}")
+                        logger.info(f"Email del usuario: {request.user.email}")
+                        
                         # Primero intentar buscar por usuario relacionado
                         if hasattr(request.user, 'admincredentials'):
+                            logger.info(f"AdminCredentials encontrado por relación directa")
                             admin_creds = request.user.admincredentials
                         else:
                             # Si no, buscar por email
+                            logger.info(f"Buscando AdminCredentials por email: {request.user.email}")
                             admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                            logger.info(f"AdminCredentials encontrado por email: {admin_creds}")
                         
                         propiedad.administrador = admin_creds
-                    except AdminCredentials.DoesNotExist:
+                        logger.info(f"Administrador asignado: {admin_creds}")
+                    except AdminCredentials.DoesNotExist as e:
+                        logger.error(f"AdminCredentials.DoesNotExist: {e}")
                         # Si no existe AdminCredentials, mostrar mensaje de error
                         error_message = 'Error: No se encontró tu perfil de administrador. Por favor, completa tu perfil antes de crear propiedades.'
+                        logger.error(f"Error message: {error_message}")
                         messages.error(request, error_message)
                         # Verificar si es una petición AJAX
                         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -397,11 +431,29 @@ def crear_propiedad(request):
                                 'titulo_pagina': 'Crear Nueva Propiedad',
                                 'amenidades': Amenidad.objects.all()
                             })
+                    except Exception as e:
+                        logger.error(f"Error inesperado al buscar AdminCredentials: {e}")
+                        error_message = f'Error inesperado: {str(e)}'
+                        messages.error(request, error_message)
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({
+                                'success': False,
+                                'message': error_message
+                            })
+                        else:
+                            return render(request, 'propiedades/crear_propiedad.html', {
+                                'form': form,
+                                'titulo_pagina': 'Crear Nueva Propiedad',
+                                'amenidades': Amenidad.objects.all()
+                            })
                 
+                logger.info(f"=== GUARDANDO PROPIEDAD ===")
                 propiedad.save()
+                logger.info(f"Propiedad guardada con ID: {propiedad.id}")
                 
                 # Guardar las amenidades (relación many-to-many)
                 form.save_m2m()
+                logger.info(f"Amenidades guardadas")
                 
                 # Optimizar imágenes a WebP después de guardar exitosamente
                 try:
@@ -514,6 +566,30 @@ def crear_propiedad(request):
         'amenidades': Amenidad.objects.all()
     }
     return render(request, 'propiedades/crear_propiedad.html', context)
+    
+    except Exception as e:
+        logger.error(f"=== ERROR GENERAL EN CREAR PROPIEDAD ===")
+        logger.error(f"Error: {e}")
+        logger.error(f"Tipo de error: {type(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        
+        # Si es una petición AJAX, devolver JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': f'Error interno del servidor: {str(e)}'
+            })
+        else:
+            # Si no es AJAX, mostrar página de error
+            messages.error(request, f'Error interno del servidor: {str(e)}')
+            form = PropiedadForm()
+            context = {
+                'form': form,
+                'titulo_pagina': 'Crear Nueva Propiedad',
+                'amenidades': Amenidad.objects.all()
+            }
+            return render(request, 'propiedades/crear_propiedad.html', context)
 
 @csrf_exempt
 @require_POST
