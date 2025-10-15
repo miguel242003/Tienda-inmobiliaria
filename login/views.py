@@ -504,14 +504,16 @@ def editar_propiedad(request, propiedad_id):
                 from propiedades.models import FotoPropiedad
                 FotoPropiedad.objects.filter(id__in=fotos_eliminar, propiedad=propiedad).delete()
             
-            # Optimizar imágenes principales a WebP si se actualizaron
+            # Optimizar imágenes principales a WebP si se actualizaron (DESHABILITADO temporalmente)
             try:
-                if 'imagen_principal' in request.FILES and propiedad.imagen_principal:
-                    print("DEBUG - Optimizando imagen principal a WebP en edición")
-                    propiedad.optimize_image_field('imagen_principal', quality=85)
-                if 'imagen_secundaria' in request.FILES and propiedad.imagen_secundaria:
-                    print("DEBUG - Optimizando imagen secundaria a WebP en edición")
-                    propiedad.optimize_image_field('imagen_secundaria', quality=85)
+                # Comentado temporalmente para evitar errores 500
+                # if 'imagen_principal' in request.FILES and propiedad.imagen_principal:
+                #     print("DEBUG - Optimizando imagen principal a WebP en edición")
+                #     propiedad.optimize_image_field('imagen_principal', quality=85)
+                # if 'imagen_secundaria' in request.FILES and propiedad.imagen_secundaria:
+                #     print("DEBUG - Optimizando imagen secundaria a WebP en edición")
+                #     propiedad.optimize_image_field('imagen_secundaria', quality=85)
+                print("DEBUG - Optimización de imágenes deshabilitada temporalmente")
             except Exception as e:
                 print(f"DEBUG - Error en optimización WebP de imágenes principales (no crítico): {e}")
             
@@ -532,20 +534,22 @@ def editar_propiedad(request, propiedad_id):
                     foto_propiedad.save()
                     fotos_creadas.append(foto_propiedad)
             
-            # Optimizar todas las fotos y videos adicionales nuevos después de guardarlas
+            # Optimizar todas las fotos y videos adicionales nuevos después de guardarlas (DESHABILITADO temporalmente)
             for foto in fotos_creadas:
-                if foto.tipo_medio == 'imagen' and foto.imagen:
-                    try:
-                        print(f"DEBUG - Optimizando foto adicional en edición: {foto.descripcion}")
-                        foto.optimize_image_field('imagen', quality=85)
-                    except Exception as e:
-                        print(f"DEBUG - Error optimizando foto adicional en edición (no crítico): {e}")
-                elif foto.tipo_medio == 'video' and foto.video:
-                    try:
-                        print(f"DEBUG - Optimizando video adicional en edición: {foto.descripcion}")
-                        foto.optimize_video_field('video', quality=80)
-                    except Exception as e:
-                        print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
+                # Comentado temporalmente para evitar errores 500
+                # if foto.tipo_medio == 'imagen' and foto.imagen:
+                #     try:
+                #         print(f"DEBUG - Optimizando foto adicional en edición: {foto.descripcion}")
+                #         foto.optimize_image_field('imagen', quality=85)
+                #     except Exception as e:
+                #         print(f"DEBUG - Error optimizando foto adicional en edición (no crítico): {e}")
+                # elif foto.tipo_medio == 'video' and foto.video:
+                #     try:
+                #         print(f"DEBUG - Optimizando video adicional en edición: {foto.descripcion}")
+                #         foto.optimize_video_field('video', quality=80)
+                #     except Exception as e:
+                #         print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
+                print(f"DEBUG - Optimización de archivo adicional deshabilitada temporalmente: {foto.descripcion}")
             
             messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
             
