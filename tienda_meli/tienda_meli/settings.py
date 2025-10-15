@@ -33,7 +33,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure--ya4&kz0qjq@q%(nd8^&e
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # 🔒 SEGURIDAD: ALLOWED_HOSTS debe ser específico en producción
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver,gisa-nqn.com,www.gisa-nqn.com').split(',')
 
 # Configuración de dominios confiables para CSRF
 CSRF_TRUSTED_ORIGINS = [
