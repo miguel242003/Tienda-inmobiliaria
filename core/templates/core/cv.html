@@ -22,18 +22,16 @@
     <div class="container-fluid h-100" style="padding: 0; height: 100%;">
         <div class="row h-100" style="height: 100%; margin: 0;">
             <!-- Imagen a la izquierda -->
-            <div class="col-lg-4 p-0 cv-image-wrapper">
-                <div class="cv-image-container">
-                    <picture class="cv-image-picture">
+            <div class="col-lg-4 p-0" style="height: 100%; overflow: hidden;">
+                <div class="cv-image-container" style="height: 100%; width: 100%; position: relative;">
+                    <picture style="display: block; height: 100%; width: 100%;">
                         <!-- WebP para navegadores modernos -->
                         <source srcset="{% static 'images/CV2.webp' %}" type="image/webp">
                         <!-- Fallback JPG para navegadores antiguos -->
                         <img src="{% static 'images/cv6.jpg' %}" 
                              alt="Equipo de trabajo profesional" 
-                             class="cv-image"
-                             loading="eager"
-                             decoding="async"
-                             fetchpriority="high">
+                             style="width: 100%; height: 100%; object-fit: contain; object-position: left center;"
+                             loading="eager">
                     </picture>
                 </div>
             </div>
@@ -245,50 +243,32 @@
 }
 
 /* ========================================
-   CV IMAGE RESPONSIVE STYLES
+   CV APPLICATION SECTION
    ======================================== */
-
-/* Contenedor principal de la imagen */
-.cv-image-wrapper {
-    height: 100%;
-    overflow: hidden;
-    position: relative;
-}
-
 .cv-image-container {
-    width: 100%;
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
 }
 
-.cv-image-picture {
+.cv-image-container picture {
     width: 100%;
     height: 100%;
-    display: block;
 }
 
-.cv-image {
+.cv-image-container img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     object-position: left center;
-    transition: all 0.3s ease;
-    border-radius: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* Efectos hover para desktop */
-@media screen and (min-width: 1200px) {
-    .cv-image-container:hover .cv-image {
-        transform: scale(1.02);
-        filter: brightness(1.05);
-    }
-    
-    .cv-image-container {
-        overflow: hidden;
-    }
+/* Mejorar la compatibilidad con navegadores antiguos */
+.cv-image-container picture {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
 /* Fallback para navegadores que no soportan <picture> */
@@ -297,95 +277,36 @@
     background-size: contain;
     background-position: left center;
     background-repeat: no-repeat;
-    background-color: #f8f9fa;
 }
 
-/* Desktop (≥1200px) - Imagen completa */
-@media screen and (min-width: 1200px) {
-    .cv-image-wrapper {
+/* Responsive para imagen WebP en CV */
+@media (max-width: 1200px) {
+    .cv-image-container picture {
+        width: 100%;
         height: 100%;
+        display: block;
     }
     
-    .cv-image {
+    .cv-image-container picture img {
+        width: 100%;
+        height: 100%;
         object-fit: contain;
         object-position: left center;
     }
 }
 
-/* Tablet (768px - 1199px) - Ocultar imagen */
-@media screen and (max-width: 1199px) and (min-width: 768px) {
-    .cv-image-wrapper {
-        display: none !important;
-    }
-}
-
-/* Mobile (≤767px) - Imagen responsiva arriba del formulario */
-@media screen and (max-width: 767px) {
-    .cv-image-wrapper {
-        height: 250px !important;
-        margin-bottom: 20px !important;
-        order: -1;
-        display: block !important;
+@media (max-width: 768px) {
+    .cv-image-container picture {
+        width: 100%;
+        height: 100%;
+        display: block;
     }
     
-    .cv-image-container {
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .cv-image {
+    .cv-image-container picture img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        object-position: center center;
-        border-radius: 12px;
-    }
-}
-
-/* Mobile pequeño (≤480px) */
-@media screen and (max-width: 480px) {
-    .cv-image-wrapper {
-        height: 200px !important;
-        margin-bottom: 15px !important;
-    }
-    
-    .cv-image-container {
-        border-radius: 8px;
-    }
-    
-    .cv-image {
-        border-radius: 8px;
-    }
-}
-
-/* Mobile extra pequeño (≤360px) */
-@media screen and (max-width: 360px) {
-    .cv-image-wrapper {
-        height: 180px !important;
-        margin-bottom: 12px !important;
-    }
-    
-    .cv-image-container {
-        border-radius: 6px;
-    }
-    
-    .cv-image {
-        border-radius: 6px;
-    }
-}
-
-/* Mobile ultra pequeño (≤320px) */
-@media screen and (max-width: 320px) {
-    .cv-image-wrapper {
-        height: 160px !important;
-        margin-bottom: 10px !important;
-    }
-    
-    .cv-image-container {
-        border-radius: 4px;
-    }
-    
-    .cv-image {
-        border-radius: 4px;
+        object-position: center;
     }
 }
 .cv-application-section {
@@ -960,7 +881,10 @@
         font-size: 14px !important;
     }
     
-    /* Ocultar imagen en tablet - ya manejado por .cv-image-wrapper */
+    /* Ocultar imagen en tablet */
+    .col-lg-4 {
+        display: none !important;
+    }
     
     /* Formulario ocupa todo el espacio */
     .col-lg-8 {
@@ -1059,7 +983,21 @@
         flex: none !important;
     }
     
-    /* La imagen ya está manejada por .cv-image-wrapper */
+    .col-lg-4 {
+        order: -1 !important; /* Imagen arriba */
+        height: 200px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Imagen responsiva */
+    .col-lg-4 div {
+        width: 100% !important;
+        height: 100% !important;
+        background-size: contain !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        border-radius: 8px !important;
+    }
     
     /* Formulario responsivo */
     .col-lg-8 {
@@ -1154,7 +1092,9 @@
         font-size: 12px !important;
     }
     
-    /* La altura de la imagen ya está manejada por .cv-image-wrapper */
+    .col-lg-4 {
+        height: 180px !important;
+    }
     
     .col-lg-8 {
         padding: 12px !important;
@@ -1183,7 +1123,9 @@
         padding: 0 16px !important;
     }
     
-    /* La altura de la imagen ya está manejada por .cv-image-wrapper */
+    .col-lg-4 {
+        height: 220px !important;
+    }
 }
 
 /* Dispositivos medianos (768px - 991px) */
@@ -1244,15 +1186,6 @@
         min-height: 48px;
         font-size: 16px;
     }
-    
-    /* Mejoras para imagen en dispositivos táctiles */
-    .cv-image-container {
-        touch-action: manipulation;
-    }
-    
-    .cv-image {
-        pointer-events: none;
-    }
 }
 
 /* Mejoras adicionales para formulario en mobile */
@@ -1299,7 +1232,56 @@
     }
 }
 
-/* Reglas específicas para la imagen responsiva ya están definidas arriba */
+/* Mejoras específicas para imagen en mobile */
+@media screen and (max-width: 767px) {
+    .col-lg-4 {
+        height: 250px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .col-lg-4 div {
+        background-size: contain !important;
+        background-position: center center !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+}
+
+/* Imagen en mobile muy pequeño */
+@media screen and (max-width: 480px) {
+    .col-lg-4 {
+        height: 200px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .col-lg-4 div {
+        border-radius: 8px !important;
+    }
+}
+
+/* Imagen en mobile extra pequeño */
+@media screen and (max-width: 360px) {
+    .col-lg-4 {
+        height: 180px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .col-lg-4 div {
+        border-radius: 6px !important;
+    }
+}
+
+/* Imagen en mobile ultra pequeño */
+@media screen and (max-width: 320px) {
+    .col-lg-4 {
+        height: 160px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .col-lg-4 div {
+        border-radius: 4px !important;
+    }
+}
 </style>
 
 <script>

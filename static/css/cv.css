@@ -80,7 +80,7 @@
 
 /* Image Section */
 .cv-image-section {
-    flex: 0 0 33.333333%;
+    flex: 0 0 40%;
     height: 100%;
     overflow: hidden;
     position: relative;
@@ -89,10 +89,11 @@
 .cv-image {
     width: 100%;
     height: 100%;
-    background-size: contain;
-    background-position: left center;
+    background-size: cover;
+    background-position: center center;
     background-repeat: no-repeat;
     transition: all var(--transition-normal);
+    object-fit: cover;
 }
 
 .cv-image:hover {
@@ -101,7 +102,7 @@
 
 /* Form Section */
 .cv-form-section {
-    flex: 0 0 66.666667%;
+    flex: 0 0 60%;
     display: flex;
     align-items: center;
     padding: 40px;
@@ -382,6 +383,14 @@
         margin: 60px auto !important;
     }
     
+    .cv-image-section {
+        flex: 0 0 40% !important;
+    }
+    
+    .cv-form-section {
+        flex: 0 0 60% !important;
+    }
+    
     .cv-benefits-section {
         width: 100vw !important;
         margin-left: calc(-50vw + 50%) !important;
@@ -389,33 +398,72 @@
     }
 }
 
-/* Tablet (768px - 1199px) */
-@media screen and (max-width: 1199px) and (min-width: 768px) {
+/* Medium Desktop (992px - 1199px) */
+@media screen and (max-width: 1199px) and (min-width: 992px) {
     .cv-application-section {
         width: 100% !important;
-        max-width: 1320px !important;
+        max-width: 1200px !important;
         margin: 60px auto !important;
-        padding: 0 32px !important;
+        padding: 0 24px !important;
         height: auto !important;
-        min-height: 600px !important;
-    }
-    
-    .cv-title {
-        font-size: 32px !important;
+        min-height: 650px !important;
     }
     
     .cv-image-section {
-        display: none !important;
+        flex: 0 0 40% !important;
+        height: 100% !important;
+    }
+    
+    .cv-form-section {
+        flex: 0 0 60% !important;
+        max-width: 60% !important;
+        width: 60% !important;
+    }
+    
+    .cv-image {
+        background-size: cover !important;
+        background-position: center center !important;
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media screen and (max-width: 991px) and (min-width: 768px) {
+    .cv-application-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 40px auto !important;
+        padding: 0 20px !important;
+        height: auto !important;
+        min-height: 500px !important;
+    }
+    
+    .cv-title {
+        font-size: 28px !important;
+    }
+    
+    .cv-image-section {
+        flex: 0 0 100% !important;
+        height: 250px !important;
+        order: -1 !important;
+        margin-bottom: 20px !important;
     }
     
     .cv-form-section {
         flex: 0 0 100% !important;
         max-width: 100% !important;
         width: 100% !important;
+        padding: 20px !important;
     }
     
     .cv-layout {
+        flex-direction: column !important;
         gap: 0 !important;
+    }
+    
+    .cv-image {
+        background-size: cover !important;
+        background-position: center center !important;
+        border-radius: 12px !important;
     }
     
     .cv-benefits-grid {
@@ -458,16 +506,19 @@
     .cv-image-section {
         order: -1 !important;
         height: 300px !important;
+        flex: 0 0 100% !important;
+        width: 100% !important;
     }
     
     .cv-image {
         width: 100% !important;
         height: 100% !important;
-        background-size: contain !important;
+        background-size: cover !important;
         background-position: center center !important;
         background-repeat: no-repeat !important;
         aspect-ratio: 16/9 !important;
         border-radius: 8px !important;
+        object-fit: cover !important;
     }
     
     .cv-form-section {
@@ -524,10 +575,13 @@
     .cv-image-section {
         height: 200px !important;
         margin-bottom: 15px !important;
+        flex: 0 0 100% !important;
     }
     
     .cv-image {
         border-radius: 8px !important;
+        background-size: cover !important;
+        background-position: center center !important;
     }
 }
 
@@ -536,10 +590,13 @@
     .cv-image-section {
         height: 180px !important;
         margin-bottom: 12px !important;
+        flex: 0 0 100% !important;
     }
     
     .cv-image {
         border-radius: 6px !important;
+        background-size: cover !important;
+        background-position: center center !important;
     }
 }
 
@@ -548,10 +605,13 @@
     .cv-image-section {
         height: 160px !important;
         margin-bottom: 10px !important;
+        flex: 0 0 100% !important;
     }
     
     .cv-image {
         border-radius: 4px !important;
+        background-size: cover !important;
+        background-position: center center !important;
     }
 }
 
