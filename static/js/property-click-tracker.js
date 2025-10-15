@@ -9,6 +9,29 @@
 (function() {
     'use strict';
     
+    // ELIMINAR COMPLETAMENTE CUALQUIER CONFLICTO
+    console.log('🧹 ELIMINANDO CONFLICTOS EXISTENTES...');
+    
+    // Eliminar clase ClickTracker si existe
+    if (window.ClickTracker) {
+        delete window.ClickTracker;
+        console.log('✅ ClickTracker eliminado');
+    }
+    
+    // Eliminar otras variables conflictivas
+    const variablesConflictivas = [
+        'TrackClicksInitialized',
+        'PropertyClickTrackerInitialized',
+        'trackClick'
+    ];
+    
+    variablesConflictivas.forEach(variable => {
+        if (window[variable]) {
+            delete window[variable];
+            console.log(`✅ ${variable} eliminado`);
+        }
+    });
+    
     // Verificar si ya se inicializó para evitar múltiples cargas
     if (window.PropertyClickTrackerInitialized) {
         console.warn('⚠️ PropertyClickTracker ya estaba inicializado, evitando duplicado.');
