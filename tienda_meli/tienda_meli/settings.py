@@ -73,6 +73,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',  # Debug toolbar
+    'core.middleware.DebugMiddleware',  # Nuestro middleware de debug
 ]
 
 ROOT_URLCONF = 'tienda_meli.tienda_meli.urls'

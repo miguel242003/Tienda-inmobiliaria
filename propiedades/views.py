@@ -259,6 +259,27 @@ def upload_fotos_adicionales(request):
     
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
+def debug_view(func):
+    """Decorador para debug de vistas"""
+    def wrapper(request, *args, **kwargs):
+        print(f"=== DEBUG VIEW DECORATOR ===")
+        print(f"Función: {func.__name__}")
+        print(f"URL: {request.path}")
+        print(f"Método: {request.method}")
+        print(f"Usuario: {request.user}")
+        try:
+            result = func(request, *args, **kwargs)
+            print(f"Vista ejecutada exitosamente")
+            return result
+        except Exception as e:
+            print(f"ERROR EN VISTA: {e}")
+            print(f"Tipo: {type(e)}")
+            import traceback
+            print(f"Traceback: {traceback.format_exc()}")
+            raise
+    return wrapper
+
+@debug_view
 @ratelimit(key='user', rate='20/h', method='POST', block=False)
 def crear_propiedad(request):
     """
