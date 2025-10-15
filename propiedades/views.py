@@ -273,6 +273,11 @@ def crear_propiedad(request):
     logger = logging.getLogger(__name__)
     
     try:
+        print("=== INICIO CREAR PROPIEDAD ===")
+        print(f"Usuario: {request.user}")
+        print(f"Método: {request.method}")
+        print(f"Headers: {dict(request.headers)}")
+        
         logger.info(f"=== INICIO CREAR PROPIEDAD ===")
         logger.info(f"Usuario: {request.user}")
         logger.info(f"Método: {request.method}")
@@ -286,18 +291,27 @@ def crear_propiedad(request):
             return redirect('login:dashboard')
     
     if request.method == 'POST':
+        print("=== PROCESANDO POST ===")
+        print(f"Datos POST: {dict(request.POST)}")
+        print(f"Archivos FILES: {list(request.FILES.keys())}")
+        
         logger.info(f"=== PROCESANDO POST ===")
         logger.info(f"Datos POST: {dict(request.POST)}")
         logger.info(f"Archivos FILES: {list(request.FILES.keys())}")
         
         form = PropiedadForm(request.POST, request.FILES)
+        print(f"Formulario creado: {form}")
+        print(f"Formulario válido: {form.is_valid()}")
+        
         logger.info(f"Formulario creado: {form}")
         logger.info(f"Formulario válido: {form.is_valid()}")
         
         if not form.is_valid():
+            print(f"Errores del formulario: {form.errors}")
             logger.error(f"Errores del formulario: {form.errors}")
         
         if form.is_valid():
+            print("=== FORMULARIO VÁLIDO ===")
             logger.info(f"=== FORMULARIO VÁLIDO ===")
             try:
                 # 🔒 VALIDAR IMÁGENES PRINCIPALES
@@ -390,6 +404,10 @@ def crear_propiedad(request):
                 propiedad = form.save(commit=False)
                 
                 # Asignar el administrador actual a la propiedad
+                print("=== ASIGNANDO ADMINISTRADOR ===")
+                print(f"Usuario autenticado: {hasattr(request, 'user') and request.user.is_authenticated}")
+                print(f"Usuario: {request.user}")
+                
                 logger.info(f"=== ASIGNANDO ADMINISTRADOR ===")
                 logger.info(f"Usuario autenticado: {hasattr(request, 'user') and request.user.is_authenticated}")
                 logger.info(f"Usuario: {request.user}")
@@ -398,25 +416,34 @@ def crear_propiedad(request):
                     # Buscar el AdminCredentials correspondiente al usuario
                     from login.models import AdminCredentials
                     try:
+                        print(f"Buscando AdminCredentials para usuario: {request.user}")
+                        print(f"Email del usuario: {request.user.email}")
+                        
                         logger.info(f"Buscando AdminCredentials para usuario: {request.user}")
                         logger.info(f"Email del usuario: {request.user.email}")
                         
                         # Primero intentar buscar por usuario relacionado
                         if hasattr(request.user, 'admincredentials'):
+                            print(f"AdminCredentials encontrado por relación directa")
                             logger.info(f"AdminCredentials encontrado por relación directa")
                             admin_creds = request.user.admincredentials
                         else:
                             # Si no, buscar por email
+                            print(f"Buscando AdminCredentials por email: {request.user.email}")
                             logger.info(f"Buscando AdminCredentials por email: {request.user.email}")
                             admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                            print(f"AdminCredentials encontrado por email: {admin_creds}")
                             logger.info(f"AdminCredentials encontrado por email: {admin_creds}")
                         
                         propiedad.administrador = admin_creds
+                        print(f"Administrador asignado: {admin_creds}")
                         logger.info(f"Administrador asignado: {admin_creds}")
                     except AdminCredentials.DoesNotExist as e:
+                        print(f"ERROR: AdminCredentials.DoesNotExist: {e}")
                         logger.error(f"AdminCredentials.DoesNotExist: {e}")
                         # Si no existe AdminCredentials, mostrar mensaje de error
                         error_message = 'Error: No se encontró tu perfil de administrador. Por favor, completa tu perfil antes de crear propiedades.'
+                        print(f"ERROR: {error_message}")
                         logger.error(f"Error message: {error_message}")
                         messages.error(request, error_message)
                         # Verificar si es una petición AJAX
@@ -432,8 +459,10 @@ def crear_propiedad(request):
                                 'amenidades': Amenidad.objects.all()
                             })
                     except Exception as e:
+                        print(f"ERROR INESPERADO al buscar AdminCredentials: {e}")
                         logger.error(f"Error inesperado al buscar AdminCredentials: {e}")
                         error_message = f'Error inesperado: {str(e)}'
+                        print(f"ERROR: {error_message}")
                         messages.error(request, error_message)
                         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                             return JsonResponse({
@@ -447,12 +476,15 @@ def crear_propiedad(request):
                                 'amenidades': Amenidad.objects.all()
                             })
                 
+                print("=== GUARDANDO PROPIEDAD ===")
                 logger.info(f"=== GUARDANDO PROPIEDAD ===")
                 propiedad.save()
+                print(f"Propiedad guardada con ID: {propiedad.id}")
                 logger.info(f"Propiedad guardada con ID: {propiedad.id}")
                 
                 # Guardar las amenidades (relación many-to-many)
                 form.save_m2m()
+                print("Amenidades guardadas")
                 logger.info(f"Amenidades guardadas")
                 
                 # Optimizar imágenes a WebP después de guardar exitosamente
@@ -568,10 +600,15 @@ def crear_propiedad(request):
     return render(request, 'propiedades/crear_propiedad.html', context)
     
     except Exception as e:
+        print("=== ERROR GENERAL EN CREAR PROPIEDAD ===")
+        print(f"Error: {e}")
+        print(f"Tipo de error: {type(e)}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
+        
         logger.error(f"=== ERROR GENERAL EN CREAR PROPIEDAD ===")
         logger.error(f"Error: {e}")
         logger.error(f"Tipo de error: {type(e)}")
-        import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
         
         # Si es una petición AJAX, devolver JSON
