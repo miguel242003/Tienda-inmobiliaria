@@ -3,9 +3,16 @@
  * Registra automáticamente los clics en la base de datos
  */
 
-// Verificar si ya existe la clase para evitar redeclaración
-if (typeof ClickTracker === 'undefined') {
-class ClickTracker {
+// Usar una función anónima para evitar conflictos de redeclaración
+(function() {
+    'use strict';
+    
+    // Verificar si ya se inicializó
+    if (window.ClickTrackerInitialized) {
+        return;
+    }
+    
+    class ClickTracker {
     constructor() {
         this.init();
     }
@@ -140,11 +147,13 @@ class ClickTracker {
     }
 }
 
-}
-
-// Inicializar el tracker cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof ClickTracker !== 'undefined') {
-        new ClickTracker();
     }
-});
+
+    // Inicializar el tracker cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        new ClickTracker();
+    });
+    
+    // Marcar como inicializado
+    window.ClickTrackerInitialized = true;
+})();
