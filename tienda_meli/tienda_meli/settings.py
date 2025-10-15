@@ -100,7 +100,7 @@ WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Configuración de base de datos con variables de entorno
-DB_ENGINE = 'django.db.backends.sqlite3'
+DB_ENGINE = 'django.db.backends.mysql'
 
 if DB_ENGINE == 'django.db.backends.mysql':
     # Configuración para PRODUCCIÓN con MySQL

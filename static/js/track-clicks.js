@@ -1,17 +1,23 @@
 /**
  * Script para tracking de clics en botones "Ver Detalle" de propiedades
  * Registra automáticamente los clics en la base de datos
+ * Versión: 2.1 - Prevención de conflictos y caché
+ * Timestamp: 2025-01-27
  */
 
+// Evitar conflictos con nombres existentes
 (function() {
     'use strict';
     
     // Verificar si ya se inicializó para evitar múltiples cargas
     if (window.TrackClicksInitialized) {
+        console.log('⚠️ TrackClicks ya inicializado, evitando duplicación');
         return;
     }
     
+    // Marcar como inicializado inmediatamente
     window.TrackClicksInitialized = true;
+    console.log('🚀 Inicializando TrackClicks v2.1...');
     
     // Función simple para registrar clics
     function registrarClick(propiedadId) {
@@ -46,7 +52,7 @@
     
     // Inicializar cuando el DOM esté listo
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('🚀 Inicializando tracking de clics...');
+        console.log('🚀 Inicializando tracking de clics v2.0...');
         
         // Buscar todos los enlaces que van a detalle de propiedades
         const enlacesDetalle = document.querySelectorAll('a[href*="/propiedades/"]');
