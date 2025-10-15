@@ -22,15 +22,13 @@
     <div class="container-fluid h-100" style="padding: 0; height: 100%;">
         <div class="row h-100" style="height: 100%; margin: 0;">
             <!-- Imagen a la izquierda -->
-            <div class="col-lg-4 p-0" style="height: 100%; overflow: hidden;">
-                <div class="cv-image-container" style="height: 100%; width: 100%; position: relative; display: flex; align-items: center; justify-content: center;">
-                    <picture style="display: block; height: 100%; width: 100%;">
-                        <!-- WebP para navegadores modernos -->
+            <div class="col-lg-4 p-0 d-flex align-items-stretch" style="height: 100%; overflow: hidden;">
+                <div class="cv-image-container" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-start; background-color: #f5f6f7;">
+                    <picture style="width: 100%; height: 100%; display: block;">
                         <source srcset="{% static 'images/CV2.webp' %}" type="image/webp">
-                        <!-- Fallback JPG para navegadores antiguos -->
-                        <img src="{% static 'images/cv6.jpg' %}" 
-                             alt="Equipo de trabajo profesional" 
-                             style="width: 100%; height: 100%; object-fit: contain; object-position: left center; border-radius: 0;"
+                        <img src="{% static 'images/cv6.jpg' %}"
+                             alt="Equipo de trabajo profesional"
+                             style="width: 100%; height: 100%; object-fit: contain; object-position: left center; display: block; border-radius: 0;"
                              loading="eager">
                     </picture>
                 </div>
@@ -246,11 +244,25 @@
    CV APPLICATION SECTION
    ======================================== */
 .cv-image-container {
+    height: 100%;
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
+    justify-content: flex-start;
     overflow: hidden;
+}
+
+.cv-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: left center;
+}
+
+section[style*="background"] {
+    display: flex;
+    align-items: stretch;
+    height: 750px;
 }
 
 .cv-image-container picture {
