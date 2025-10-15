@@ -5436,8 +5436,10 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                     console.log('Claves disponibles:', Object.keys(datosPropiedadesRaw));
                     
                     {% for propiedad in todas_propiedades %}
-                    const datosPropiedad_{{ propiedad.id|safe }} = datosPropiedadesRaw && datosPropiedadesRaw['{{ propiedad.id|safe|escapejs }}'] ? datosPropiedadesRaw['{{ propiedad.id|safe|escapejs }}'] : null;
-                    console.log(`Datos raw para propiedad {{ propiedad.id|safe }} ({{ propiedad.titulo|escapejs|safe }}):`, datosPropiedad_{{ propiedad.id|safe }});
+                    // Usar string para la clave para que coincida con el value del select
+                    const propiedadId = '{{ propiedad.id|safe|escapejs }}';
+                    const datosPropiedad_{{ propiedad.id|safe }} = datosPropiedadesRaw && datosPropiedadesRaw[propiedadId] ? datosPropiedadesRaw[propiedadId] : null;
+                    console.log(`Datos raw para propiedad ${propiedadId} ({{ propiedad.titulo|escapejs|safe }}):`, datosPropiedad_{{ propiedad.id|safe }});
                     
                     // Validar y procesar datos de la propiedad
                     let totalPropiedad = 0;
@@ -5464,19 +5466,21 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                         console.log(`  - No hay datos válidos para esta propiedad, usando valores por defecto`);
                     }
                     
-                    this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'] = {
+                    // Usar string como clave para que coincida con el value del select
+                    this.datosPropiedades[propiedadId] = {
                         total: totalPropiedad,
                         datos: datosPorMes
                     };
-                    console.log(`Datos finales para propiedad {{ propiedad.id|safe }} ({{ propiedad.titulo|escapejs|safe }}):`, this.datosPropiedades['{{ propiedad.id|safe|escapejs }}']);
-                    console.log(`  - Total final: ${this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'].total}`);
-                    console.log(`  - Datos por mes finales: ${JSON.stringify(this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'].datos)}`);
+                    console.log(`Datos finales para propiedad ${propiedadId} ({{ propiedad.titulo|escapejs|safe }}):`, this.datosPropiedades[propiedadId]);
+                    console.log(`  - Total final: ${this.datosPropiedades[propiedadId].total}`);
+                    console.log(`  - Datos por mes finales: ${JSON.stringify(this.datosPropiedades[propiedadId].datos)}`);
             {% endfor %}
                 } catch (error) {
                     console.error('Error al cargar datos de propiedades:', error);
                     // Fallback: datos por defecto
                     {% for propiedad in todas_propiedades %}
-                    this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'] = {
+                    const propiedadIdFallback = '{{ propiedad.id|safe|escapejs }}';
+                    this.datosPropiedades[propiedadIdFallback] = {
                         total: 0,
                         datos: [0,0,0,0,0,0,0,0,0,0,0,0]
                     };
@@ -5487,34 +5491,29 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                 console.log('=== DATOS FINALES CARGADOS ===');
                 console.log('Todos los datos de propiedades:', this.datosPropiedades);
                 
-                // Verificar específicamente los datos de "casa arleth"
-                console.log('=== VERIFICACIÓN ESPECÍFICA CASA ARLETH ===');
+                // Debug específico de claves
+                console.log('=== DEBUG DE CLAVES ===');
+                const claves = Object.keys(this.datosPropiedades);
+                console.log('Claves encontradas:', claves);
+                console.log('Tipos de claves:');
+                claves.forEach(clave => {
+                    console.log(`  "${clave}" (tipo: ${typeof clave})`);
+                });
+                
+                // Verificar opciones del select
+                const opciones = Array.from(this.propiedadSelect.options);
+                console.log('Opciones del select:');
+                opciones.forEach(opcion => {
+                    console.log(`  Value: "${opcion.value}" (tipo: ${typeof opcion.value})`);
+                });
+                
+                // Verificar datos de propiedades
+                console.log('=== VERIFICACIÓN DE DATOS ===');
                 Object.keys(this.datosPropiedades).forEach(key => {
                     if (key !== 'todas') {
                         console.log(`Propiedad ${key}:`, this.datosPropiedades[key]);
-                        console.log(`  - Total: ${this.datosPropiedades[key].total}`);
-                        console.log(`  - Datos: ${JSON.stringify(this.datosPropiedades[key].datos)}`);
-                        console.log(`  - Datos por mes detallado:`, this.datosPropiedades[key].datos.map((valor, index) => `Mes ${index + 1}: ${valor}`));
                     }
                 });
-                
-                // Verificar que los datos son diferentes entre propiedades
-                console.log('=== COMPARACIÓN DE DATOS ===');
-                const claves = Object.keys(this.datosPropiedades);
-                for (let i = 0; i < claves.length; i++) {
-                    for (let j = i + 1; j < claves.length; j++) {
-                        const clave1 = claves[i];
-                        const clave2 = claves[j];
-                        const datos1 = this.datosPropiedades[clave1];
-                        const datos2 = this.datosPropiedades[clave2];
-                        
-                        const sonIguales = JSON.stringify(datos1.datos) === JSON.stringify(datos2.datos);
-                        console.log(`${clave1} vs ${clave2}: ${sonIguales ? 'IGUALES' : 'DIFERENTES'}`);
-                        if (sonIguales) {
-                            console.log(`  - Ambos tienen: ${JSON.stringify(datos1.datos)}`);
-                        }
-                    }
-                }
             
                 this.bindEvents();
                 
@@ -5536,7 +5535,18 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                 this.propiedadSelect.addEventListener('change', (e) => {
                     console.log('=== CAMBIO DE PROPIEDAD ===');
                     console.log('Nueva propiedad seleccionada:', e.target.value);
+                    console.log('Tipo de valor seleccionado:', typeof e.target.value);
                     console.log('Datos disponibles para esta propiedad:', this.datosPropiedades[e.target.value]);
+                    console.log('Todas las claves disponibles:', Object.keys(this.datosPropiedades));
+                    
+                    // Verificar si la clave existe
+                    if (this.datosPropiedades.hasOwnProperty(e.target.value)) {
+                        console.log('✅ La propiedad existe en los datos');
+                    } else {
+                        console.log('❌ La propiedad NO existe en los datos');
+                        console.log('Claves disponibles:', Object.keys(this.datosPropiedades));
+                    }
+                    
                     this.updateChart(e.target.value);
                 });
             },
