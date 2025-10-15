@@ -108,7 +108,14 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         """Generar slug automáticamente si no existe"""
         if not self.slug:
             from django.utils.text import slugify
-            self.slug = slugify(self.titulo)
+            base_slug = slugify(self.titulo)
+            self.slug = base_slug
+            
+            # Si el slug ya existe, agregar un número al final
+            counter = 1
+            while Propiedad.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                self.slug = f"{base_slug}-{counter}"
+                counter += 1
         super().save(*args, **kwargs)
     
     def get_precio_formateado(self):

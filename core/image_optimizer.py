@@ -185,7 +185,11 @@ class WebPOptimizer:
                 
                 # Actualizar el campo del modelo para que apunte a la nueva ruta
                 setattr(model_instance, field_name, saved_path)
-                model_instance.save(update_fields=[field_name])
+                # Solo guardar si la instancia ya tiene un ID (no es nueva)
+                if model_instance.pk:
+                    model_instance.save(update_fields=[field_name])
+                else:
+                    logger.warning(f"No se puede guardar optimización para instancia sin ID: {field_name}")
                 
                 logger.info(f"Imagen original reemplazada con WebP: {saved_path}")
             else:
