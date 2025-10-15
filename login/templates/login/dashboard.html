@@ -5429,7 +5429,7 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
             
                 // Agregar datos de propiedades individuales usando JSON seguro
                 try {
-                    const datosPropiedadesRaw = {{ clicks_por_propiedad|safe|safe }};
+                    const datosPropiedadesRaw = {{ clicks_por_propiedad|safe }};
                     console.log('=== DATOS RAW DE PROPIEDADES ===');
                     console.log('Datos raw completos:', datosPropiedadesRaw);
                     console.log('Tipo de datos:', typeof datosPropiedadesRaw);
@@ -5438,18 +5438,39 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                     {% for propiedad in todas_propiedades %}
                     const datosPropiedad_{{ propiedad.id|safe }} = datosPropiedadesRaw && datosPropiedadesRaw['{{ propiedad.id|safe|escapejs }}'] ? datosPropiedadesRaw['{{ propiedad.id|safe|escapejs }}'] : null;
                     console.log(`Datos raw para propiedad {{ propiedad.id|safe }} ({{ propiedad.titulo|escapejs|safe }}):`, datosPropiedad_{{ propiedad.id|safe }});
-                    if (datosPropiedad_{{ propiedad.id|safe }}) {
-                        console.log(`  - Total: ${datosPropiedad_{{ propiedad.id|safe }}.clicks_totales}`);
-                        console.log(`  - Por mes: ${JSON.stringify(datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes)}`);
+                    
+                    // Validar y procesar datos de la propiedad
+                    let totalPropiedad = 0;
+                    let datosPorMes = [0,0,0,0,0,0,0,0,0,0,0,0];
+                    
+                    if (datosPropiedad_{{ propiedad.id|safe }} && typeof datosPropiedad_{{ propiedad.id|safe }} === 'object') {
+                        // Validar clicks_totales
+                        if (typeof datosPropiedad_{{ propiedad.id|safe }}.clicks_totales === 'number') {
+                            totalPropiedad = datosPropiedad_{{ propiedad.id|safe }}.clicks_totales;
+                        }
+                        
+                        // Validar clicks_por_mes
+                        if (Array.isArray(datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes)) {
+                            datosPorMes = datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes.slice(0, 12); // Asegurar máximo 12 meses
+                            // Rellenar con ceros si hay menos de 12 meses
+                            while (datosPorMes.length < 12) {
+                                datosPorMes.push(0);
+                            }
+                        }
+                        
+                        console.log(`  - Total validado: ${totalPropiedad}`);
+                        console.log(`  - Por mes validado: ${JSON.stringify(datosPorMes)}`);
+                    } else {
+                        console.log(`  - No hay datos válidos para esta propiedad, usando valores por defecto`);
                     }
                     
                     this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'] = {
-                        total: datosPropiedad_{{ propiedad.id|safe }} ? datosPropiedad_{{ propiedad.id|safe }}.clicks_totales : 0,
-                        datos: datosPropiedad_{{ propiedad.id|safe }} ? datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes : [0,0,0,0,0,0,0,0,0,0,0,0]
+                        total: totalPropiedad,
+                        datos: datosPorMes
                     };
                     console.log(`Datos finales para propiedad {{ propiedad.id|safe }} ({{ propiedad.titulo|escapejs|safe }}):`, this.datosPropiedades['{{ propiedad.id|safe|escapejs }}']);
                     console.log(`  - Total final: ${this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'].total}`);
-                    console.log(`  - Datos finales: ${JSON.stringify(this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'].datos)}`);
+                    console.log(`  - Datos por mes finales: ${JSON.stringify(this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'].datos)}`);
             {% endfor %}
                 } catch (error) {
                     console.error('Error al cargar datos de propiedades:', error);
@@ -5500,9 +5521,14 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                 // Ejecutar inmediatamente y con delay para asegurar que funcione
                 console.log('Ejecutando updateChart inicial...');
                 this.updateChart('todas');
+                
+                // Verificar estado después de la inicialización
                 setTimeout(() => {
                     console.log('Ejecutando updateChart con delay...');
                     this.updateChart('todas');
+                    
+                    // Verificar estado del gráfico
+                    this.verificarEstadoGrafico();
                 }, 100);
             },
 
@@ -5521,12 +5547,35 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                     console.log('Propiedad solicitada:', propiedad);
                     console.log('Datos disponibles:', Object.keys(this.datosPropiedades));
                     
-                    const datos = this.datosPropiedades[propiedad];
-                    if (!datos || !datos.datos || !Array.isArray(datos.datos)) {
-                        console.log('No hay datos válidos para la propiedad:', propiedad);
-                        console.log('Datos encontrados:', datos);
+                    // Validar que la propiedad existe en los datos
+                    if (!this.datosPropiedades.hasOwnProperty(propiedad)) {
+                        console.error(`❌ La propiedad '${propiedad}' no existe en los datos disponibles`);
+                        console.log('Propiedades disponibles:', Object.keys(this.datosPropiedades));
                         return;
                     }
+                    
+                    const datos = this.datosPropiedades[propiedad];
+                    if (!datos) {
+                        console.error(`❌ No hay datos para la propiedad: ${propiedad}`);
+                        return;
+                    }
+                    
+                    // Validar estructura de datos
+                    if (!datos.datos || !Array.isArray(datos.datos)) {
+                        console.error(`❌ Los datos de la propiedad ${propiedad} no tienen la estructura correcta:`, datos);
+                        return;
+                    }
+                    
+                    // Validar que tenemos exactamente 12 meses de datos
+                    if (datos.datos.length !== 12) {
+                        console.warn(`⚠️ La propiedad ${propiedad} tiene ${datos.datos.length} meses de datos, esperados 12`);
+                        // Rellenar con ceros si faltan meses
+                        while (datos.datos.length < 12) {
+                            datos.datos.push(0);
+                        }
+                    }
+                    
+                    console.log('✅ Datos validados correctamente');
                     
                     console.log('=== ACTUALIZANDO GRÁFICO ===');
                     console.log('Propiedad seleccionada:', propiedad);
@@ -5666,8 +5715,47 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                 this.leyendaMaximo.textContent = `Máximo: ${maxValor} clics (${meses[maxIndex]})`;
                 
                 } catch (error) {
-                    console.error('Error al actualizar el gráfico:', error);
+                    console.error('❌ Error al actualizar el gráfico:', error);
+                    console.error('Stack trace:', error.stack);
+                    
+                    // Intentar recuperación con datos por defecto
+                    console.log('🔄 Intentando recuperación con datos por defecto...');
+                    try {
+                        this.datosPropiedades[propiedad] = {
+                            total: 0,
+                            datos: [0,0,0,0,0,0,0,0,0,0,0,0]
+                        };
+                        this.updateChart(propiedad);
+                    } catch (recoveryError) {
+                        console.error('❌ Error en recuperación:', recoveryError);
+                    }
                 }
+            },
+            
+            // Función de utilidad para verificar el estado del gráfico
+            verificarEstadoGrafico() {
+                console.log('=== VERIFICACIÓN DEL ESTADO DEL GRÁFICO ===');
+                console.log('Datos cargados:', Object.keys(this.datosPropiedades));
+                console.log('Total de propiedades:', Object.keys(this.datosPropiedades).length);
+                
+                // Verificar cada propiedad
+                for (const [propId, datos] of Object.entries(this.datosPropiedades)) {
+                    console.log(`Propiedad ${propId}:`, {
+                        total: datos.total,
+                        datosLength: datos.datos ? datos.datos.length : 'undefined',
+                        datos: datos.datos
+                    });
+                }
+                
+                // Verificar elementos del DOM
+                const graficoContainer = document.getElementById('grafico-barras');
+                const barras = document.querySelectorAll('#grafico-barras .bar-chart');
+                const numeros = document.querySelectorAll('#grafico-barras .absolute.inset-0.flex.items-center.justify-center.text-xs.font-semibold.text-white');
+                
+                console.log('Elementos del DOM:');
+                console.log('- Contenedor del gráfico:', graficoContainer ? '✅ Encontrado' : '❌ No encontrado');
+                console.log('- Barras encontradas:', barras.length);
+                console.log('- Números encontrados:', numeros.length);
             }
         };
 

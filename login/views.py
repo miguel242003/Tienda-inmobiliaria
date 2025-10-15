@@ -376,46 +376,52 @@ def dashboard(request):
             'clicks': clicks_mes
         })
     
-    # Clics por propiedad
+    # Clics por propiedad - Optimizado con una sola consulta
     clicks_por_propiedad = {}
-    for propiedad in todas_propiedades:
-        # Obtener clics por mes para el año actual
-        clicks_por_mes_propiedad = []
-        for mes in range(1, 13):  # Del 1 al 12 (enero a diciembre)
-            # Crear fechas de inicio y fin del mes
-            fecha_inicio = timezone.datetime(año_actual, mes, 1)
-            if mes == 12:
-                fecha_fin = timezone.datetime(año_actual + 1, 1, 1)
-            else:
-                fecha_fin = timezone.datetime(año_actual, mes + 1, 1)
-            
-            # Convertir a timezone aware
-            fecha_inicio = timezone.make_aware(fecha_inicio)
-            fecha_fin = timezone.make_aware(fecha_fin)
-            
-            clicks_mes = ClickPropiedad.objects.filter(
-                propiedad=propiedad,
-                fecha_click__gte=fecha_inicio,
-                fecha_click__lt=fecha_fin
-            ).count()
-            
-            clicks_por_mes_propiedad.append(clicks_mes)
-        
-        # Calcular total de clics para esta propiedad específica
-        total_clicks_propiedad = sum(clicks_por_mes_propiedad)
-        
-        clicks_por_propiedad[propiedad.id] = {
-            'clicks_totales': total_clicks_propiedad,
-            'clicks_por_mes': clicks_por_mes_propiedad
-        }
-        
-        # Debug: imprimir datos de cada propiedad
-        print(f"Propiedad {propiedad.id} ({propiedad.titulo}): Total={total_clicks_propiedad}, Por mes={clicks_por_mes_propiedad}")
     
-    # Debug: imprimir todos los datos generados
-    print("=== DATOS FINALES GENERADOS ===")
+    # Obtener todos los clics del año actual de una vez
+    fecha_inicio_año = timezone.datetime(año_actual, 1, 1)
+    fecha_fin_año = timezone.datetime(año_actual + 1, 1, 1)
+    fecha_inicio_año = timezone.make_aware(fecha_inicio_año)
+    fecha_fin_año = timezone.make_aware(fecha_fin_año)
+    
+    # Consulta optimizada: obtener todos los clics del año agrupados por propiedad y mes
+    from django.db.models import Count
+    from django.db.models.functions import Extract
+    
+    clicks_agrupados = ClickPropiedad.objects.filter(
+        fecha_click__gte=fecha_inicio_año,
+        fecha_click__lt=fecha_fin_año
+    ).values(
+        'propiedad_id', 
+        'fecha_click__month'
+    ).annotate(
+        total_clicks=Count('id')
+    ).order_by('propiedad_id', 'fecha_click__month')
+    
+    # Inicializar todas las propiedades con datos en cero
+    for propiedad in todas_propiedades:
+        clicks_por_propiedad[propiedad.id] = {
+            'clicks_totales': 0,
+            'clicks_por_mes': [0] * 12  # 12 meses inicializados en 0
+        }
+    
+    # Procesar los datos agrupados
+    for click_data in clicks_agrupados:
+        prop_id = click_data['propiedad_id']
+        mes = click_data['fecha_click__month'] - 1  # Convertir a índice 0-based
+        total = click_data['total_clicks']
+        
+        if prop_id in clicks_por_propiedad:
+            clicks_por_propiedad[prop_id]['clicks_por_mes'][mes] = total
+            clicks_por_propiedad[prop_id]['clicks_totales'] += total
+    
+    # Debug: imprimir datos generados
+    print("=== DATOS OPTIMIZADOS GENERADOS ===")
     for prop_id, datos in clicks_por_propiedad.items():
-        print(f"Propiedad {prop_id}: Total={datos['clicks_totales']}, Por mes={datos['clicks_por_mes']}")
+        propiedad = next((p for p in todas_propiedades if p.id == prop_id), None)
+        titulo = propiedad.titulo if propiedad else f"Propiedad {prop_id}"
+        print(f"Propiedad {prop_id} ({titulo}): Total={datos['clicks_totales']}, Por mes={datos['clicks_por_mes']}")
     
     # Convertir clicks_por_propiedad a JSON para el template
     import json
@@ -504,16 +510,14 @@ def editar_propiedad(request, propiedad_id):
                 from propiedades.models import FotoPropiedad
                 FotoPropiedad.objects.filter(id__in=fotos_eliminar, propiedad=propiedad).delete()
             
-            # Optimizar imágenes principales a WebP si se actualizaron (DESHABILITADO temporalmente)
+            # Optimizar imágenes principales a WebP si se actualizaron
             try:
-                # Comentado temporalmente para evitar errores 500
-                # if 'imagen_principal' in request.FILES and propiedad.imagen_principal:
-                #     print("DEBUG - Optimizando imagen principal a WebP en edición")
-                #     propiedad.optimize_image_field('imagen_principal', quality=85)
-                # if 'imagen_secundaria' in request.FILES and propiedad.imagen_secundaria:
-                #     print("DEBUG - Optimizando imagen secundaria a WebP en edición")
-                #     propiedad.optimize_image_field('imagen_secundaria', quality=85)
-                print("DEBUG - Optimización de imágenes deshabilitada temporalmente")
+                if 'imagen_principal' in request.FILES and propiedad.imagen_principal:
+                    print("DEBUG - Optimizando imagen principal a WebP en edición")
+                    propiedad.optimize_image_field('imagen_principal', quality=85)
+                if 'imagen_secundaria' in request.FILES and propiedad.imagen_secundaria:
+                    print("DEBUG - Optimizando imagen secundaria a WebP en edición")
+                    propiedad.optimize_image_field('imagen_secundaria', quality=85)
             except Exception as e:
                 print(f"DEBUG - Error en optimización WebP de imágenes principales (no crítico): {e}")
             
@@ -534,22 +538,20 @@ def editar_propiedad(request, propiedad_id):
                     foto_propiedad.save()
                     fotos_creadas.append(foto_propiedad)
             
-            # Optimizar todas las fotos y videos adicionales nuevos después de guardarlas (DESHABILITADO temporalmente)
+            # Optimizar todas las fotos y videos adicionales nuevos después de guardarlas
             for foto in fotos_creadas:
-                # Comentado temporalmente para evitar errores 500
-                # if foto.tipo_medio == 'imagen' and foto.imagen:
-                #     try:
-                #         print(f"DEBUG - Optimizando foto adicional en edición: {foto.descripcion}")
-                #         foto.optimize_image_field('imagen', quality=85)
-                #     except Exception as e:
-                #         print(f"DEBUG - Error optimizando foto adicional en edición (no crítico): {e}")
-                # elif foto.tipo_medio == 'video' and foto.video:
-                #     try:
-                #         print(f"DEBUG - Optimizando video adicional en edición: {foto.descripcion}")
-                #         foto.optimize_video_field('video', quality=80)
-                #     except Exception as e:
-                #         print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
-                print(f"DEBUG - Optimización de archivo adicional deshabilitada temporalmente: {foto.descripcion}")
+                if foto.tipo_medio == 'imagen' and foto.imagen:
+                    try:
+                        print(f"DEBUG - Optimizando foto adicional en edición: {foto.descripcion}")
+                        foto.optimize_image_field('imagen', quality=85)
+                    except Exception as e:
+                        print(f"DEBUG - Error optimizando foto adicional en edición (no crítico): {e}")
+                elif foto.tipo_medio == 'video' and foto.video:
+                    try:
+                        print(f"DEBUG - Optimizando video adicional en edición: {foto.descripcion}")
+                        foto.optimize_video_field('video', quality=80)
+                    except Exception as e:
+                        print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
             
             messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
             
