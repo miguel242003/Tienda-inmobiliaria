@@ -100,7 +100,6 @@ WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Configuración de base de datos con variables de entorno
-# Temporalmente usando SQLite para evitar problemas de MySQL
 DB_ENGINE = 'django.db.backends.sqlite3'
 
 if DB_ENGINE == 'django.db.backends.mysql':
@@ -108,11 +107,11 @@ if DB_ENGINE == 'django.db.backends.mysql':
     DATABASES = {
         'default': {
             'ENGINE': DB_ENGINE,
-            'NAME': config('DB_NAME', default='tienda_inmobiliaria_prod'),
-            'USER': config('DB_USER', default='tienda_user'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='3306'),
+            'NAME': 'tienda_inmobiliaria_prod',
+            'USER': 'tienda_user',
+            'PASSWORD': 'M@s_242003!',
+            'HOST': 'localhost',
+            'PORT': '3306',
             'OPTIONS': {
                 'charset': 'utf8mb4',
                 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
