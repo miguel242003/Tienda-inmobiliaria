@@ -19,25 +19,70 @@
     window.TrackClicksInitialized = true;
     console.log('🚀 Inicializando TrackClicks v2.1...');
     
-    // Función simple para registrar clics
+    // Función mejorada para registrar clics
     function registrarClick(propiedadId) {
         console.log('Registrando click para propiedad:', propiedadId);
         
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || 
-                         document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='))?.split('=')[1];
+        // Obtener token CSRF de múltiples fuentes
+        let csrfToken = null;
         
-        fetch('/propiedades/registrar-click/', {
+        // 1. Buscar en input hidden
+        const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfInput) {
+            csrfToken = csrfInput.value;
+            console.log('✅ Token CSRF encontrado en input hidden');
+        }
+        
+        // 2. Buscar en cookies
+        if (!csrfToken) {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const trimmed = cookie.trim();
+                if (trimmed.startsWith('csrftoken=')) {
+                    csrfToken = trimmed.split('=')[1];
+                    console.log('✅ Token CSRF encontrado en cookies');
+                    break;
+                }
+            }
+        }
+        
+        // 3. Buscar en meta tag
+        if (!csrfToken) {
+            const metaTag = document.querySelector('meta[name="csrf-token"]');
+            if (metaTag) {
+                csrfToken = metaTag.getAttribute('content');
+                console.log('✅ Token CSRF encontrado en meta tag');
+            }
+        }
+        
+        if (!csrfToken) {
+            console.warn('⚠️ No se encontró token CSRF, intentando sin él');
+        }
+        
+        // Preparar headers
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        if (csrfToken) {
+            headers['X-CSRFToken'] = csrfToken;
+        }
+        
+        fetch('/propiedades/registrar-click', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
+            headers: headers,
             body: JSON.stringify({
                 propiedad_id: propiedadId,
                 pagina_origen: window.location.pathname.includes('buscar') ? 'buscar' : 'home'
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 console.log('✅ Click registrado exitosamente');
