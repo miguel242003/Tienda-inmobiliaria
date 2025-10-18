@@ -24,6 +24,7 @@ urlpatterns = [
     path('aprobar-resena/<int:resena_id>/', views.aprobar_resena, name='aprobar_resena'),
     path('rechazar-resena/<int:resena_id>/', views.rechazar_resena, name='rechazar_resena'),
     path('eliminar-resena/', views.eliminar_resena, name='eliminar_resena'),
+    path('dashboard-clicks-data/', views.dashboard_clicks_data, name='dashboard_clicks_data'),
     
     # URLs para 2FA
     path('setup-2fa/', views.setup_2fa, name='setup_2fa'),

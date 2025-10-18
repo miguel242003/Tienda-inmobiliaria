@@ -454,6 +454,108 @@ def dashboard(request):
     
     return render(request, 'login/dashboard.html', context)
 
+@login_required
+def dashboard_clicks_data(request):
+    """Endpoint AJAX para obtener datos actualizados de clics"""
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'No tienes permisos'}, status=403)
+    
+    try:
+        from propiedades.models import ClickPropiedad
+        from datetime import datetime
+        import json
+        
+        # Obtener todas las propiedades
+        todas_propiedades = Propiedad.objects.all().order_by('titulo')
+        
+        # Obtener estadísticas de clics
+        total_clicks = ClickPropiedad.objects.count()
+        
+        # Clics por mes (año actual completo: enero a diciembre)
+        clicks_por_mes = []
+        meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                         'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+        
+        # Mostrar los 12 meses del año actual
+        now = timezone.now()
+        año_actual = now.year
+        
+        for mes in range(1, 13):  # Del 1 al 12 (enero a diciembre)
+            # Crear fechas de inicio y fin del mes
+            fecha_inicio = timezone.datetime(año_actual, mes, 1)
+            if mes == 12:
+                fecha_fin = timezone.datetime(año_actual + 1, 1, 1)
+            else:
+                fecha_fin = timezone.datetime(año_actual, mes + 1, 1)
+            
+            # Convertir a timezone aware
+            fecha_inicio = timezone.make_aware(fecha_inicio)
+            fecha_fin = timezone.make_aware(fecha_fin)
+            
+            clicks_mes = ClickPropiedad.objects.filter(
+                fecha_click__gte=fecha_inicio,
+                fecha_click__lt=fecha_fin
+            ).count()
+            
+            clicks_por_mes.append({
+                'mes': meses_nombres[mes - 1],
+                'clicks': clicks_mes
+            })
+        
+        # Clics por propiedad - Optimizado con una sola consulta
+        clicks_por_propiedad = {}
+        
+        # Obtener todos los clics del año actual de una vez
+        fecha_inicio_año = timezone.datetime(año_actual, 1, 1)
+        fecha_fin_año = timezone.datetime(año_actual + 1, 1, 1)
+        fecha_inicio_año = timezone.make_aware(fecha_inicio_año)
+        fecha_fin_año = timezone.make_aware(fecha_fin_año)
+        
+        # Consulta optimizada: obtener todos los clics del año agrupados por propiedad y mes
+        from django.db.models import Count
+        from django.db.models.functions import Extract
+        
+        clicks_agrupados = ClickPropiedad.objects.filter(
+            fecha_click__gte=fecha_inicio_año,
+            fecha_click__lt=fecha_fin_año
+        ).values(
+            'propiedad_id', 
+            'fecha_click__month'
+        ).annotate(
+            total_clicks=Count('id')
+        ).order_by('propiedad_id', 'fecha_click__month')
+        
+        # Inicializar todas las propiedades con datos en cero
+        for propiedad in todas_propiedades:
+            clicks_por_propiedad[propiedad.id] = {
+                'clicks_totales': 0,
+                'clicks_por_mes': [0] * 12  # 12 meses inicializados en 0
+            }
+        
+        # Procesar los datos agrupados
+        for click_data in clicks_agrupados:
+            prop_id = click_data['propiedad_id']
+            mes_raw = click_data['fecha_click__month']
+            
+            # Verificar que mes_raw no sea None
+            if mes_raw is not None:
+                mes = mes_raw - 1  # Convertir a índice 0-based
+                total = click_data['total_clicks']
+                
+                if prop_id in clicks_por_propiedad:
+                    clicks_por_propiedad[prop_id]['clicks_por_mes'][mes] = total
+                    clicks_por_propiedad[prop_id]['clicks_totales'] += total
+        
+        return JsonResponse({
+            'success': True,
+            'total_clicks': total_clicks,
+            'clicks_por_mes': clicks_por_mes,
+            'clicks_por_propiedad': clicks_por_propiedad
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 def admin_logout(request):
     """Cerrar sesión del administrador"""
     logout(request)

@@ -5723,6 +5723,67 @@
                 console.log('- Contenedor del gráfico:', graficoContainer ? '✅ Encontrado' : '❌ No encontrado');
                 console.log('- Barras encontradas:', barras.length);
                 console.log('- Números encontrados:', numeros.length);
+            },
+
+            // Nueva función para actualizar datos desde el servidor
+            async actualizarDatosDesdeServidor() {
+                try {
+                    console.log('🔄 Actualizando datos de clics desde el servidor...');
+                    
+                    const response = await fetch('{% url "login:dashboard_clicks_data" %}', {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        console.log('✅ Datos actualizados desde el servidor:', data);
+                        
+                        // Actualizar datos de "todas"
+                        this.datosPropiedades['todas'] = {
+                            total: data.total_clicks,
+                            datos: data.clicks_por_mes.map(mes => mes.clicks)
+                        };
+                        
+                        // Actualizar datos de propiedades individuales
+                        for (const [propId, propData] of Object.entries(data.clicks_por_propiedad)) {
+                            this.datosPropiedades[propId] = {
+                                total: propData.clicks_totales,
+                                datos: propData.clicks_por_mes
+                            };
+                        }
+                        
+                        // Actualizar el gráfico con la propiedad actualmente seleccionada
+                        const propiedadActual = this.propiedadSelect.value;
+                        this.updateChart(propiedadActual);
+                        
+                        console.log('✅ Gráfico actualizado con datos del servidor');
+                    } else {
+                        console.error('❌ Error en respuesta del servidor:', data.error);
+                    }
+                } catch (error) {
+                    console.error('❌ Error al actualizar datos desde el servidor:', error);
+                }
+            },
+
+            // Función para iniciar actualización automática
+            iniciarActualizacionAutomatica() {
+                console.log('🔄 Iniciando actualización automática del gráfico de clics...');
+                
+                // Actualizar cada 30 segundos
+                setInterval(() => {
+                    this.actualizarDatosDesdeServidor();
+                }, 30000); // 30 segundos
+                
+                console.log('✅ Actualización automática configurada cada 30 segundos');
             }
         };
 
@@ -8527,6 +8588,9 @@
                 AnimationManager.init();
                 ActivitiesManager.init();
                 PropertyModalManager.init();
+                
+                // Iniciar actualización automática del gráfico de clics
+                ChartManager.iniciarActualizacionAutomatica();
                 
                 // Actualizar contador de usuarios cada 30 segundos
                 setInterval(() => {
