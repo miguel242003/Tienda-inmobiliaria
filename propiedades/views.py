@@ -73,7 +73,24 @@ def lista_propiedades(request):
 
 def detalle_propiedad(request, slug):
     """Vista para mostrar el detalle de una propiedad"""
-    propiedad = get_object_or_404(Propiedad, slug=slug)
+    try:
+        propiedad = Propiedad.objects.get(slug=slug)
+    except Propiedad.DoesNotExist:
+        # Si no se encuentra por slug, buscar por título similar
+        # Esto maneja casos donde el slug cambió pero la URL antigua sigue siendo accesible
+        from django.utils.text import slugify
+        from django.shortcuts import redirect
+        
+        # Buscar propiedades que tengan un slug similar o que el título genere un slug similar
+        propiedades_similares = Propiedad.objects.all()
+        for prop in propiedades_similares:
+            if slugify(prop.titulo) == slug or prop.slug.startswith(slug.split('-')[0]):
+                # Redirigir a la URL correcta
+                return redirect('propiedades:detalle', slug=prop.slug)
+        
+        # Si no se encuentra ninguna coincidencia, mostrar 404
+        from django.shortcuts import get_object_or_404
+        propiedad = get_object_or_404(Propiedad, slug=slug)
     
     # Procesar formulario de contacto si es POST
     if request.method == 'POST':

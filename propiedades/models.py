@@ -105,9 +105,11 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         return self.titulo
     
     def save(self, *args, **kwargs):
-        """Generar slug automáticamente si no existe"""
-        if not self.slug:
-            from django.utils.text import slugify
+        """Generar slug automáticamente si no existe o actualizar si cambió el título"""
+        from django.utils.text import slugify
+        
+        # Si no existe slug o si el título cambió, generar/actualizar slug
+        if not self.slug or (self.pk and self.titulo != self._get_original_titulo()):
             base_slug = slugify(self.titulo)
             self.slug = base_slug
             
@@ -117,6 +119,16 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                 self.slug = f"{base_slug}-{counter}"
                 counter += 1
         super().save(*args, **kwargs)
+    
+    def _get_original_titulo(self):
+        """Obtener el título original de la base de datos"""
+        if self.pk:
+            try:
+                original = Propiedad.objects.get(pk=self.pk)
+                return original.titulo
+            except Propiedad.DoesNotExist:
+                return None
+        return None
     
     def get_precio_formateado(self):
         # 🔥 FORMATO ARGENTINO: 110.000 en lugar de 110,000.00
