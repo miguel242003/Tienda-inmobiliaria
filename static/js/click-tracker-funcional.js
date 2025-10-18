@@ -1,11 +1,17 @@
 /**
  * Sistema de Tracking de Clics - FUNCIONAL
- * Versión: 1.0 - Sin conflictos, completamente funcional
+ * Versión: 2.0 - Sin conflictos, completamente funcional
  */
 (function() {
     'use strict';
     
-    console.log('🚀 Inicializando ClickTracker Funcional v1.0...');
+    // Limpiar variables globales conflictivas
+    if (typeof window.ClickTracker !== 'undefined') {
+        console.log('🧹 Limpiando ClickTracker anterior...');
+        delete window.ClickTracker;
+    }
+    
+    console.log('🚀 Inicializando ClickTracker Funcional v2.0...');
     
     // Variables globales
     let clickTracker = null;
