@@ -266,338 +266,119 @@ from django.contrib.auth.decorators import login_required
 def crear_propiedad(request):
     """
     Vista para crear una nueva propiedad.
-    
-    🔒 SEGURIDAD:
-    - Rate limiting: Máximo 20 propiedades por hora por usuario
-    - Validación robusta de archivos con python-magic
-    - Verificación de tipo MIME real
     """
-    import logging
-    logger = logging.getLogger(__name__)
-    
-    # Logging específico para producción
-    logger.error(f"=== INICIO CREAR PROPIEDAD ===")
-    logger.error(f"Usuario: {request.user}")
-    logger.error(f"Método: {request.method}")
-    logger.error(f"Headers: {dict(request.headers)}")
-    
-    print("=== INICIO CREAR PROPIEDAD ===")
-    print(f"Usuario: {request.user}")
-    print(f"Método: {request.method}")
-    print(f"Headers: {dict(request.headers)}")
-    
-    # Verificar rate limit
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        logger.warning(f"Rate limit excedido para usuario: {request.user}")
-        messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
-        return redirect('login:dashboard')
+    try:
+        print(f"=== INICIO CREAR PROPIEDAD ===")
+        print(f"Usuario: {request.user}")
+        print(f"Método: {request.method}")
+        print(f"Es AJAX: {request.headers.get('X-Requested-With') == 'XMLHttpRequest'}")
+        
+        # Verificar rate limit
+        was_limited = getattr(request, 'limited', False)
+        if was_limited:
+            messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
+            return redirect('login:dashboard')
 
-    if request.method == 'POST':
-        logger.error(f"=== PROCESANDO POST ===")
-        logger.error(f"Datos POST: {dict(request.POST)}")
-        logger.error(f"Archivos FILES: {list(request.FILES.keys())}")
-        
-        print("=== PROCESANDO POST ===")
-        print(f"Datos POST: {dict(request.POST)}")
-        print(f"Archivos FILES: {list(request.FILES.keys())}")
-        
-        form = PropiedadForm(request.POST, request.FILES)
-        logger.error(f"Formulario creado: {form}")
-        logger.error(f"Formulario válido: {form.is_valid()}")
-        
-        print(f"Formulario creado: {form}")
-        print(f"Formulario válido: {form.is_valid()}")
-        
-        if not form.is_valid():
-            logger.error(f"Errores del formulario: {form.errors}")
-            print(f"Errores del formulario: {form.errors}")
-        
-        if form.is_valid():
-            print("=== FORMULARIO VÁLIDO ===")
-            logger.info(f"=== FORMULARIO VÁLIDO ===")
-            try:
-                # 🔒 VALIDAR IMÁGENES PRINCIPALES
-                if 'imagen_principal' in request.FILES:
-                    try:
-                        archivo = request.FILES['imagen_principal']
-                        # Debug: Log información del archivo
-                        print(f"DEBUG - Archivo imagen_principal:")
-                        print(f"  - Nombre: {archivo.name}")
-                        print(f"  - Tamaño: {archivo.size} bytes")
-                        print(f"  - Content-Type: {archivo.content_type}")
-                        print(f"  - Charset: {getattr(archivo, 'charset', 'N/A')}")
-                        
-                        # Para archivos grandes, usar validación más permisiva
-                        if archivo.size > 10 * 1024 * 1024:  # > 10MB
-                            print("DEBUG - Archivo grande detectado, usando validación simplificada")
-                            # Validación básica para archivos grandes
-                            if archivo.size > 20 * 1024 * 1024:  # > 20MB
-                                raise ValidationError(f'El archivo es demasiado grande. Máximo permitido: 20MB. Tamaño actual: {archivo.size / (1024*1024):.2f}MB')
-                            
-                            # Verificar que sea una imagen por extensión y content_type
-                            allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
-                            allowed_content_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp']
-                            
-                            extension = archivo.name.split('.')[-1].lower()
-                            if extension not in allowed_extensions:
-                                raise ValidationError(f'Extensión no permitida: .{extension}. Extensiones permitidas: {", ".join(allowed_extensions)}')
-                            
-                            if archivo.content_type not in allowed_content_types:
-                                raise ValidationError(f'Tipo de archivo no permitido: {archivo.content_type}. Tipos permitidos: {", ".join(allowed_content_types)}')
-                        else:
-                            # Validación completa para archivos normales
-                            validar_imagen(archivo, max_mb=20)
-                    except ValidationError as e:
-                        error_message = f'Imagen principal: {str(e)}'
-                        print(f"DEBUG - Error de validación: {error_message}")
-                        messages.error(request, error_message)
-                        # Verificar si es una petición AJAX
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({
-                                'success': False,
-                                'message': error_message
-                            })
-                        else:
-                            return render(request, 'propiedades/crear_propiedad.html', {
-                                'form': form,
-                                'titulo_pagina': 'Crear Nueva Propiedad',
-                                'amenidades': Amenidad.objects.all()
-                            })
-                
-                if 'imagen_secundaria' in request.FILES:
-                    try:
-                        archivo = request.FILES['imagen_secundaria']
-                        # Para archivos grandes, usar validación más permisiva
-                        if archivo.size > 10 * 1024 * 1024:  # > 10MB
-                            print("DEBUG - Archivo secundario grande detectado, usando validación simplificada")
-                            # Validación básica para archivos grandes
-                            if archivo.size > 20 * 1024 * 1024:  # > 20MB
-                                raise ValidationError(f'El archivo es demasiado grande. Máximo permitido: 20MB. Tamaño actual: {archivo.size / (1024*1024):.2f}MB')
-                            
-                            # Verificar que sea una imagen por extensión y content_type
-                            allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
-                            allowed_content_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/bmp']
-                            
-                            extension = archivo.name.split('.')[-1].lower()
-                            if extension not in allowed_extensions:
-                                raise ValidationError(f'Extensión no permitida: .{extension}. Extensiones permitidas: {", ".join(allowed_extensions)}')
-                            
-                            if archivo.content_type not in allowed_content_types:
-                                raise ValidationError(f'Tipo de archivo no permitido: {archivo.content_type}. Tipos permitidos: {", ".join(allowed_content_types)}')
-                        else:
-                            # Validación completa para archivos normales
-                            validar_imagen(archivo, max_mb=20)
-                    except ValidationError as e:
-                        error_message = f'Imagen secundaria: {str(e)}'
-                        messages.error(request, error_message)
-                        # Verificar si es una petición AJAX
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({
-                                'success': False,
-                                'message': error_message
-                            })
-                        else:
-                            return render(request, 'propiedades/crear_propiedad.html', {
-                                'form': form,
-                                'titulo_pagina': 'Crear Nueva Propiedad',
-                                'amenidades': Amenidad.objects.all()
-                            })
-                
-                propiedad = form.save(commit=False)
-                
-                # Asignar el administrador actual a la propiedad
-                logger.error(f"=== ASIGNANDO ADMINISTRADOR ===")
-                logger.error(f"Usuario autenticado: {hasattr(request, 'user') and request.user.is_authenticated}")
-                logger.error(f"Usuario: {request.user}")
-                
-                print("=== ASIGNANDO ADMINISTRADOR ===")
-                print(f"Usuario autenticado: {hasattr(request, 'user') and request.user.is_authenticated}")
-                print(f"Usuario: {request.user}")
-                
-                if hasattr(request, 'user') and request.user.is_authenticated:
-                    # Buscar el AdminCredentials correspondiente al usuario
-                    from login.models import AdminCredentials
-                    try:
-                        logger.error(f"Buscando AdminCredentials para usuario: {request.user}")
-                        logger.error(f"Email del usuario: {request.user.email}")
-                        
-                        print(f"Buscando AdminCredentials para usuario: {request.user}")
-                        print(f"Email del usuario: {request.user.email}")
-                        
-                        admin_creds = None
-                        
-                        # Primero intentar buscar por usuario relacionado
-                        if hasattr(request.user, 'admincredentials'):
-                            print(f"AdminCredentials encontrado por relación directa")
-                            logger.info(f"AdminCredentials encontrado por relación directa")
-                            admin_creds = request.user.admincredentials
-                        else:
-                            # Si no, buscar por email
-                            print(f"Buscando AdminCredentials por email: {request.user.email}")
-                            logger.info(f"Buscando AdminCredentials por email: {request.user.email}")
-                            try:
+        if request.method == 'POST':
+            print("=== PROCESANDO POST ===")
+            form = PropiedadForm(request.POST, request.FILES)
+            
+            if form.is_valid():
+                print("=== FORMULARIO VÁLIDO ===")
+                try:
+                    propiedad = form.save(commit=False)
+                    
+                    # Asignar administrador
+                    if hasattr(request, 'user') and request.user.is_authenticated:
+                        from login.models import AdminCredentials
+                        try:
+                            if hasattr(request.user, 'admincredentials'):
+                                admin_creds = request.user.admincredentials
+                            else:
                                 admin_creds = AdminCredentials.objects.get(email=request.user.email)
-                                print(f"AdminCredentials encontrado por email: {admin_creds}")
-                                logger.info(f"AdminCredentials encontrado por email: {admin_creds}")
-                            except AdminCredentials.DoesNotExist:
-                                print(f"AdminCredentials no encontrado por email")
-                                logger.warning(f"AdminCredentials no encontrado por email: {request.user.email}")
-                                # Intentar crear AdminCredentials automáticamente
-                                try:
-                                    admin_creds = AdminCredentials.objects.create(
-                                        user=request.user,
-                                        email=request.user.email,
-                                        nombre=request.user.first_name or 'Administrador',
-                                        apellido=request.user.last_name or 'Sistema',
-                                        password='temp_password_123'  # Contraseña temporal
-                                    )
-                                    print(f"AdminCredentials creado automáticamente: {admin_creds}")
-                                    logger.info(f"AdminCredentials creado automáticamente: {admin_creds}")
-                                except Exception as create_error:
-                                    print(f"Error al crear AdminCredentials: {create_error}")
-                                    logger.error(f"Error al crear AdminCredentials: {create_error}")
-                                    admin_creds = None
-                        
-                        if admin_creds:
                             propiedad.administrador = admin_creds
                             print(f"Administrador asignado: {admin_creds}")
-                            logger.info(f"Administrador asignado: {admin_creds}")
-                        else:
-                            # Si no se pudo encontrar o crear AdminCredentials, continuar sin asignar
-                            print(f"ADVERTENCIA: No se pudo asignar administrador a la propiedad")
-                            logger.warning(f"No se pudo asignar administrador a la propiedad")
-                            # No fallar la creación por esto, solo registrar la advertencia
-                            
-                    except Exception as e:
-                        print(f"ERROR INESPERADO al buscar AdminCredentials: {e}")
-                        logger.error(f"Error inesperado al buscar AdminCredentials: {e}")
-                        # No fallar la creación por errores de AdminCredentials
-                        print(f"ADVERTENCIA: Continuando sin asignar administrador debido a error: {e}")
-                        logger.warning(f"Continuando sin asignar administrador debido a error: {e}")
-                
-                print("=== GUARDANDO PROPIEDAD ===")
-                logger.info(f"=== GUARDANDO PROPIEDAD ===")
-                propiedad.save()
-                print(f"Propiedad guardada con ID: {propiedad.id}")
-                logger.info(f"Propiedad guardada con ID: {propiedad.id}")
-                
-                # Guardar las amenidades (relación many-to-many)
-                form.save_m2m()
-                print("Amenidades guardadas")
-                logger.info(f"Amenidades guardadas")
-                
-                # Optimizar imágenes a WebP después de guardar exitosamente
-                try:
-                    if propiedad.imagen_principal:
-                        print("DEBUG - Optimizando imagen principal a WebP")
-                        propiedad.optimize_image_field('imagen_principal', quality=85)
-                    if propiedad.imagen_secundaria:
-                        print("DEBUG - Optimizando imagen secundaria a WebP")
-                        propiedad.optimize_image_field('imagen_secundaria', quality=85)
+                        except AdminCredentials.DoesNotExist:
+                            print("ADVERTENCIA: No se encontró AdminCredentials")
+                        except Exception as e:
+                            print(f"ADVERTENCIA: Error al buscar AdminCredentials: {e}")
+                    
+                    propiedad.save()
+                    form.save_m2m()
+                    print(f"Propiedad guardada con ID: {propiedad.id}")
+                    
+                    # Verificar si es una petición AJAX
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({
+                            'success': True,
+                            'message': 'Propiedad creada exitosamente.',
+                            'propiedad_id': propiedad.id,
+                            'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug])
+                        })
+                    else:
+                        messages.success(request, 'Propiedad creada exitosamente.')
+                        return redirect('propiedades:detalle', slug=propiedad.slug)
+                        
                 except Exception as e:
-                    print(f"DEBUG - Error en optimización WebP (no crítico): {e}")
-                    # No fallar la creación por errores de optimización
+                    error_message = f'Error al crear la propiedad: {str(e)}'
+                    print(f"ERROR: {error_message}")
+                    messages.error(request, error_message)
+                    
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({
+                            'success': False,
+                            'message': error_message
+                        })
+                    else:
+                        return render(request, 'propiedades/crear_propiedad.html', {
+                            'form': form,
+                            'titulo_pagina': 'Crear Nueva Propiedad',
+                            'amenidades': Amenidad.objects.all()
+                        })
+            else:
+                print(f"Errores del formulario: {form.errors}")
                 
-                # 🔒 VALIDAR Y MANEJAR archivos adicionales (fotos y videos)
-                archivos_adicionales = request.FILES.getlist('fotos_adicionales')
-                fotos_creadas = []  # Lista para almacenar las fotos creadas
-                
-                if archivos_adicionales:
-                    from .models import FotoPropiedad
-                    for i, archivo in enumerate(archivos_adicionales):
-                        try:
-                            # Validar archivo (imagen o video)
-                            archivo_validado, tipo = validar_imagen_o_video(archivo)
-                            
-                            if tipo == 'video':
-                                foto_obj = FotoPropiedad.objects.create(
-                                    propiedad=propiedad,
-                                    tipo_medio='video',
-                                    video=archivo_validado,
-                                    orden=i + 1,
-                                    descripcion=f"Video {i + 1} de {propiedad.titulo}"
-                                )
-                                fotos_creadas.append(foto_obj)
-                            else:  # imagen
-                                foto_obj = FotoPropiedad.objects.create(
-                                    propiedad=propiedad,
-                                    tipo_medio='imagen',
-                                    imagen=archivo_validado,
-                                    orden=i + 1,
-                                    descripcion=f"Foto {i + 1} de {propiedad.titulo}"
-                                )
-                                fotos_creadas.append(foto_obj)
-                        except ValidationError as e:
-                            # Registrar error pero continuar con otros archivos
-                            messages.warning(request, f'Archivo "{archivo.name}" no válido: {str(e)}')
-                
-                # Optimizar todas las fotos y videos adicionales después de guardarlas
-                for foto in fotos_creadas:
-                    if foto.tipo_medio == 'imagen' and foto.imagen:
-                        try:
-                            print(f"DEBUG - Optimizando foto adicional: {foto.descripcion}")
-                            foto.optimize_image_field('imagen', quality=85)
-                        except Exception as e:
-                            print(f"DEBUG - Error optimizando foto adicional (no crítico): {e}")
-                    elif foto.tipo_medio == 'video' and foto.video:
-                        try:
-                            print(f"DEBUG - Optimizando video adicional: {foto.descripcion}")
-                            foto.optimize_video_field('video', quality=80)
-                        except Exception as e:
-                            print(f"DEBUG - Error optimizando video adicional (no crítico): {e}")
-            
-            except Exception as e:
-                error_message = f'Error al crear la propiedad: {str(e)}'
-                messages.error(request, error_message)
-                # Verificar si es una petición AJAX
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    errors = {}
+                    for field, field_errors in form.errors.items():
+                        errors[field] = [str(error) for error in field_errors]
+                    
                     return JsonResponse({
                         'success': False,
-                        'message': error_message
+                        'message': 'Por favor corrige los errores en el formulario.',
+                        'errors': errors
                     })
                 else:
-                    return render(request, 'propiedades/crear_propiedad.html', {
-                        'form': form,
-                        'titulo_pagina': 'Crear Nueva Propiedad',
-                        'amenidades': Amenidad.objects.all()
-                    })
-            
-            # Verificar si es una petición AJAX
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': 'Propiedad creada exitosamente.',
-                    'propiedad_id': propiedad.id,
-                    'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug])
-                })
-            else:
-                messages.success(request, 'Propiedad creada exitosamente.')
-                return redirect('propiedades:detalle', slug=propiedad.slug)
+                    messages.error(request, 'Por favor corrige los errores en el formulario.')
         else:
-            # Verificar si es una petición AJAX
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Devolver errores del formulario en formato JSON
-                errors = {}
-                for field, field_errors in form.errors.items():
-                    errors[field] = [str(error) for error in field_errors]
-                
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Por favor corrige los errores en el formulario.',
-                    'errors': errors
-                })
-            else:
-                messages.error(request, 'Por favor corrige los errores en el formulario.')
-    else:
-        form = PropiedadForm()
-    
-    context = {
-        'form': form,
-        'titulo_pagina': 'Crear Nueva Propiedad',
-        'amenidades': Amenidad.objects.all()
-    }
-    return render(request, 'propiedades/crear_propiedad.html', context)
+            form = PropiedadForm()
+        
+        context = {
+            'form': form,
+            'titulo_pagina': 'Crear Nueva Propiedad',
+            'amenidades': Amenidad.objects.all()
+        }
+        return render(request, 'propiedades/crear_propiedad.html', context)
+        
+    except Exception as e:
+        print(f"ERROR CRÍTICO en crear_propiedad: {e}")
+        import traceback
+        print(f"Traceback: {traceback.format_exc()}")
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': f'Error interno del servidor: {str(e)}'
+            })
+        else:
+            messages.error(request, f'Error interno del servidor: {str(e)}')
+            form = PropiedadForm()
+            context = {
+                'form': form,
+                'titulo_pagina': 'Crear Nueva Propiedad',
+                'amenidades': Amenidad.objects.all()
+            }
+            return render(request, 'propiedades/crear_propiedad.html', context)
 
 @csrf_exempt
 @require_POST
