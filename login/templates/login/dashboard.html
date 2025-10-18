@@ -5291,24 +5291,19 @@
         const Utils = {
             // Obtener color según escala de calor (basado en rangos absolutos)
             getHeatColor(value, maxValue = null) {
-                console.log(`Evaluando color para valor: ${value}, máximo: ${maxValue}`);
                 
                 // Si no hay valor, usar verde (escala de calor)
                 if (value === 0) {
-                    console.log(`Valor ${value} -> Verde (bajo - escala de calor)`);
                     return DashboardConfig.colors.bajo; // Verde para 0 clics
                 }
                 
                 // Usar rangos absolutos: 0-60 → 61-150 → 151+
                 if (value <= 60) {
-                    console.log(`Valor ${value} -> Verde (bajo - rango absoluto)`);
                     return DashboardConfig.colors.bajo; // Verde para 0-60 clics
                 }
                 if (value <= 150) {
-                    console.log(`Valor ${value} -> Amarillo (medio - rango absoluto)`);
                     return DashboardConfig.colors.medio; // Amarillo para 61-150 clics
                 }
-                console.log(`Valor ${value} -> Rojo (alto - rango absoluto)`);
                 return DashboardConfig.colors.alto; // Rojo para 151+ clics
             },
 
@@ -5388,7 +5383,6 @@
                     }
                 };
                 
-                console.log('Datos iniciales:', this.datosPropiedades);
             
                 // Agregar datos de propiedades individuales usando JSON seguro
                 try {
