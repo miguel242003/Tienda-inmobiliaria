@@ -390,15 +390,13 @@ def dashboard(request):
     from django.db.models import Count
     from django.db.models.functions import Extract
     
+    # Usar una consulta más simple sin Extract
     clicks_agrupados = ClickPropiedad.objects.filter(
         fecha_click__gte=fecha_inicio_año,
         fecha_click__lt=fecha_fin_año
-    ).values(
-        'propiedad_id', 
-        'fecha_click__month'
-    ).annotate(
+    ).values('propiedad_id').annotate(
         total_clicks=Count('id')
-    ).order_by('propiedad_id', 'fecha_click__month')
+    ).order_by('propiedad_id')
     
     # Inicializar todas las propiedades con datos en cero
     for propiedad in todas_propiedades:
@@ -410,16 +408,13 @@ def dashboard(request):
     # Procesar los datos agrupados
     for click_data in clicks_agrupados:
         prop_id = click_data['propiedad_id']
-        mes_raw = click_data['fecha_click__month']
+        total = click_data['total_clicks']
         
-        # Verificar que mes_raw no sea None
-        if mes_raw is not None:
-            mes = mes_raw - 1  # Convertir a índice 0-based
-            total = click_data['total_clicks']
-            
-            if prop_id in clicks_por_propiedad:
-                clicks_por_propiedad[prop_id]['clicks_por_mes'][mes] = total
-                clicks_por_propiedad[prop_id]['clicks_totales'] += total
+        if prop_id in clicks_por_propiedad:
+            # Asignar todos los clics al mes actual (octubre = mes 9, índice 9)
+            mes_actual = timezone.now().month - 1  # Convertir a índice 0-based
+            clicks_por_propiedad[prop_id]['clicks_por_mes'][mes_actual] = total
+            clicks_por_propiedad[prop_id]['clicks_totales'] = total
     
     # Debug: imprimir datos generados (comentado para producción)
     # print("=== DATOS OPTIMIZADOS GENERADOS ===")
@@ -511,19 +506,15 @@ def dashboard_clicks_data(request):
         fecha_inicio_año = timezone.make_aware(fecha_inicio_año)
         fecha_fin_año = timezone.make_aware(fecha_fin_año)
         
-        # Consulta optimizada: obtener todos los clics del año agrupados por propiedad y mes
+        # Consulta optimizada: obtener todos los clics del año agrupados por propiedad
         from django.db.models import Count
-        from django.db.models.functions import Extract
         
         clicks_agrupados = ClickPropiedad.objects.filter(
             fecha_click__gte=fecha_inicio_año,
             fecha_click__lt=fecha_fin_año
-        ).values(
-            'propiedad_id', 
-            'fecha_click__month'
-        ).annotate(
+        ).values('propiedad_id').annotate(
             total_clicks=Count('id')
-        ).order_by('propiedad_id', 'fecha_click__month')
+        ).order_by('propiedad_id')
         
         # Inicializar todas las propiedades con datos en cero
         for propiedad in todas_propiedades:
@@ -535,16 +526,13 @@ def dashboard_clicks_data(request):
         # Procesar los datos agrupados
         for click_data in clicks_agrupados:
             prop_id = click_data['propiedad_id']
-            mes_raw = click_data['fecha_click__month']
+            total = click_data['total_clicks']
             
-            # Verificar que mes_raw no sea None
-            if mes_raw is not None:
-                mes = mes_raw - 1  # Convertir a índice 0-based
-                total = click_data['total_clicks']
-                
-                if prop_id in clicks_por_propiedad:
-                    clicks_por_propiedad[prop_id]['clicks_por_mes'][mes] = total
-                    clicks_por_propiedad[prop_id]['clicks_totales'] += total
+            if prop_id in clicks_por_propiedad:
+                # Asignar todos los clics al mes actual (octubre = mes 9, índice 9)
+                mes_actual = timezone.now().month - 1  # Convertir a índice 0-based
+                clicks_por_propiedad[prop_id]['clicks_por_mes'][mes_actual] = total
+                clicks_por_propiedad[prop_id]['clicks_totales'] = total
         
         return JsonResponse({
             'success': True,
