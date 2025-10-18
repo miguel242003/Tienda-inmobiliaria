@@ -45,11 +45,15 @@ class WebPOptimizer:
             max_dimension = cls.MAX_DIMENSION
             
         try:
-            # Abrir la imagen
-            if hasattr(image_file, 'read'):
-                image = Image.open(image_file)
-            else:
-                image = Image.open(image_file.path)
+            # Abrir la imagen de manera segura
+            try:
+                if hasattr(image_file, 'read'):
+                    image = Image.open(image_file)
+                else:
+                    image = Image.open(image_file.path)
+            except Exception as e:
+                logger.error(f"Error al abrir la imagen: {e}")
+                return image_file, 0, 0, 0
             
             # Verificar si ya es WebP
             if image.format == 'WEBP':
@@ -61,9 +65,18 @@ class WebPOptimizer:
                 logger.warning(f"Formato no soportado para conversión: {image.format}")
                 return image_file, 0, 0, 0
             
-            # Obtener tamaño original
-            original_size = len(image_file.read()) if hasattr(image_file, 'read') else os.path.getsize(image_file.path)
-            image_file.seek(0) if hasattr(image_file, 'seek') else None
+            # Obtener tamaño original de manera segura
+            try:
+                if hasattr(image_file, 'read'):
+                    # Para archivos en memoria, leer y hacer seek
+                    original_size = len(image_file.read())
+                    image_file.seek(0)
+                else:
+                    # Para archivos en disco, usar os.path.getsize
+                    original_size = os.path.getsize(image_file.path)
+            except Exception as e:
+                logger.warning(f"Error al obtener tamaño del archivo: {e}")
+                original_size = 0
             
             # Redimensionar si es necesario
             if max(image.size) > max_dimension:
@@ -80,14 +93,17 @@ class WebPOptimizer:
             elif image.mode != 'RGB':
                 image = image.convert('RGB')
             
-            # Crear archivo WebP en memoria
-            webp_buffer = BytesIO()
-            image.save(webp_buffer, format='WEBP', quality=quality, optimize=True)
-            webp_buffer.seek(0)
-            
-            # Obtener tamaño del WebP
-            webp_size = len(webp_buffer.getvalue())
-            webp_buffer.seek(0)
+            # Crear archivo WebP en memoria de manera segura
+            try:
+                webp_buffer = BytesIO()
+                image.save(webp_buffer, format='WEBP', quality=quality, optimize=True)
+                webp_buffer.seek(0)
+                
+                # Obtener tamaño del WebP
+                webp_size = len(webp_buffer.getvalue())
+            except Exception as e:
+                logger.error(f"Error al crear archivo WebP: {e}")
+                return image_file, 0, 0, 0
             
             # Calcular porcentaje de ahorro
             saved_percentage = ((original_size - webp_size) / original_size * 100) if original_size > 0 else 0

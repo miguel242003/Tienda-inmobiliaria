@@ -307,6 +307,18 @@ def crear_propiedad(request):
                     form.save_m2m()
                     print(f"Propiedad guardada con ID: {propiedad.id}")
                     
+                    # Deshabilitar optimización WebP temporalmente para evitar errores
+                    # try:
+                    #     if propiedad.imagen_principal:
+                    #         print("DEBUG - Optimizando imagen principal a WebP")
+                    #         propiedad.optimize_image_field('imagen_principal', quality=85)
+                    #     if propiedad.imagen_secundaria:
+                    #         print("DEBUG - Optimizando imagen secundaria a WebP")
+                    #         propiedad.optimize_image_field('imagen_secundaria', quality=85)
+                    # except Exception as e:
+                    #     print(f"DEBUG - Error en optimización WebP (no crítico): {e}")
+                    #     # No fallar la creación por errores de optimización
+                    
                     # Verificar si es una petición AJAX
                     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                         return JsonResponse({
