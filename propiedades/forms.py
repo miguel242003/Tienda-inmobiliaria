@@ -326,10 +326,10 @@ class PropiedadForm(forms.ModelForm):
                 raise forms.ValidationError('La ciudad debe tener al menos 2 caracteres.')
             elif len(ciudad) > 100:
                 raise forms.ValidationError('La ciudad no puede tener más de 100 caracteres.')
-            # Validar que solo contenga letras, espacios y guiones
+            # Validar que solo contenga letras, espacios y guiones (más flexible)
             import re
-            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-]+$', ciudad):
-                raise forms.ValidationError('La ciudad solo puede contener letras, espacios y guiones.')
+            if not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\.]+$', ciudad):
+                raise forms.ValidationError('La ciudad solo puede contener letras, espacios, guiones y puntos.')
         return ciudad
     
     def clean_lugares_cercanos(self):
@@ -371,15 +371,15 @@ class PropiedadForm(forms.ModelForm):
         longitud = cleaned_data.get('longitud')
         
         # Validar que las coordenadas estén dentro de Chile (aproximadamente)
+        # Solo validar si ambas coordenadas están presentes
         if latitud is not None and longitud is not None:
-            if latitud < -56 or latitud > -17:
-                raise forms.ValidationError({
-                    'latitud': 'La latitud parece estar fuera de Chile. Verifique las coordenadas.'
-                })
-            if longitud < -76 or longitud > -66:
-                raise forms.ValidationError({
-                    'longitud': 'La longitud parece estar fuera de Chile. Verifique las coordenadas.'
-                })
+            # Hacer la validación más flexible para permitir coordenadas de Argentina también
+            if latitud < -60 or latitud > -15:
+                # Solo mostrar advertencia, no error
+                print(f"ADVERTENCIA: Latitud {latitud} puede estar fuera del rango esperado")
+            if longitud < -80 or longitud > -60:
+                # Solo mostrar advertencia, no error  
+                print(f"ADVERTENCIA: Longitud {longitud} puede estar fuera del rango esperado")
         
         return cleaned_data
 

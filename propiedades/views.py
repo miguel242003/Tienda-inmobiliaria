@@ -288,21 +288,48 @@ def crear_propiedad(request):
                 try:
                     propiedad = form.save(commit=False)
                     
-                    # Asignar administrador
+                    # Asignar administrador de forma más robusta
                     if hasattr(request, 'user') and request.user.is_authenticated:
                         from login.models import AdminCredentials
                         try:
+                            # Intentar obtener AdminCredentials de diferentes formas
+                            admin_creds = None
+                            
+                            # Método 1: Relación directa
                             if hasattr(request.user, 'admincredentials'):
                                 admin_creds = request.user.admincredentials
+                                print(f"AdminCredentials encontrado por relación directa: {admin_creds}")
+                            
+                            # Método 2: Buscar por email
+                            if not admin_creds:
+                                try:
+                                    admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                                    print(f"AdminCredentials encontrado por email: {admin_creds}")
+                                except AdminCredentials.DoesNotExist:
+                                    print("No se encontró AdminCredentials por email")
+                            
+                            # Método 3: Crear uno nuevo si no existe
+                            if not admin_creds:
+                                print("Creando nuevo AdminCredentials...")
+                                admin_creds = AdminCredentials.objects.create(
+                                    email=request.user.email,
+                                    nombre=request.user.get_full_name() or request.user.username,
+                                    telefono='',
+                                    activo=True
+                                )
+                                print(f"AdminCredentials creado: {admin_creds}")
+                            
+                            if admin_creds:
+                                propiedad.administrador = admin_creds
+                                print(f"Administrador asignado: {admin_creds}")
                             else:
-                                admin_creds = AdminCredentials.objects.get(email=request.user.email)
-                            propiedad.administrador = admin_creds
-                            print(f"Administrador asignado: {admin_creds}")
-                        except AdminCredentials.DoesNotExist:
-                            print("ADVERTENCIA: No se encontró AdminCredentials")
+                                print("ADVERTENCIA: No se pudo asignar administrador")
+                                
                         except Exception as e:
-                            print(f"ADVERTENCIA: Error al buscar AdminCredentials: {e}")
+                            print(f"ADVERTENCIA: Error al manejar AdminCredentials: {e}")
+                            # No fallar la creación por problemas de administrador
                     
+                    # Guardar la propiedad
                     propiedad.save()
                     form.save_m2m()
                     print(f"Propiedad guardada con ID: {propiedad.id}")
@@ -334,12 +361,20 @@ def crear_propiedad(request):
                 except Exception as e:
                     error_message = f'Error al crear la propiedad: {str(e)}'
                     print(f"ERROR: {error_message}")
-                    messages.error(request, error_message)
+                    print(f"Tipo de error: {type(e).__name__}")
+                    import traceback
+                    print(f"Traceback completo: {traceback.format_exc()}")
+                    
+                    # Mensaje de error más amigable para el usuario
+                    user_friendly_message = "Hubo un problema al crear la propiedad. Por favor, verifica los datos e intenta nuevamente."
+                    
+                    messages.error(request, user_friendly_message)
                     
                     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                         return JsonResponse({
                             'success': False,
-                            'message': error_message
+                            'message': user_friendly_message,
+                            'error_details': str(e) if DEBUG else None
                         })
                     else:
                         return render(request, 'propiedades/crear_propiedad.html', {
@@ -349,11 +384,20 @@ def crear_propiedad(request):
                         })
             else:
                 print(f"Errores del formulario: {form.errors}")
+                print(f"Errores no-field: {form.non_field_errors()}")
+                
+                # Mostrar errores específicos en consola para debugging
+                for field, errors in form.errors.items():
+                    print(f"Campo '{field}': {errors}")
                 
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     errors = {}
                     for field, field_errors in form.errors.items():
                         errors[field] = [str(error) for error in field_errors]
+                    
+                    # Incluir errores no-field también
+                    if form.non_field_errors():
+                        errors['__all__'] = [str(error) for error in form.non_field_errors()]
                     
                     return JsonResponse({
                         'success': False,
@@ -374,16 +418,21 @@ def crear_propiedad(request):
         
     except Exception as e:
         print(f"ERROR CRÍTICO en crear_propiedad: {e}")
+        print(f"Tipo de error: {type(e).__name__}")
         import traceback
-        print(f"Traceback: {traceback.format_exc()}")
+        print(f"Traceback completo: {traceback.format_exc()}")
+        
+        # Mensaje de error más amigable
+        user_friendly_message = "Ha ocurrido un error inesperado. Por favor, intenta nuevamente o contacta al administrador."
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
-                'message': f'Error interno del servidor: {str(e)}'
+                'message': user_friendly_message,
+                'error_details': str(e) if DEBUG else None
             })
         else:
-            messages.error(request, f'Error interno del servidor: {str(e)}')
+            messages.error(request, user_friendly_message)
             form = PropiedadForm()
             context = {
                 'form': form,
