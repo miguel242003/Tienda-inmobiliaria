@@ -5256,7 +5256,6 @@
                     if (aceptadasElementMobile) aceptadasElementMobile.textContent = data.estadisticas.aceptadas || 0;
                     if (rechazadasElementMobile) rechazadasElementMobile.textContent = data.estadisticas.rechazadas || 0;
                     
-                    console.log('Estadísticas de reseñas cargadas:', data.estadisticas);
                 }
             } catch (error) {
                 console.error('Error al cargar estadísticas de reseñas:', error);
@@ -5375,7 +5374,7 @@
         // ========================================
         const ChartManager = {
             init() {
-                console.log('=== INICIALIZANDO CHART MANAGER ===');
+                console.log('Dashboard JavaScript cargado');
                 
                 this.propiedadSelect = document.getElementById('propiedad-select');
                 this.totalClicksElement = document.getElementById('total-clicks');
@@ -5394,16 +5393,11 @@
                 // Agregar datos de propiedades individuales usando JSON seguro
                 try {
                     const datosPropiedadesRaw = {{ clicks_por_propiedad|safe }};
-                    console.log('=== DATOS RAW DE PROPIEDADES ===');
-                    console.log('Datos raw completos:', datosPropiedadesRaw);
-                    console.log('Tipo de datos:', typeof datosPropiedadesRaw);
-                    console.log('Claves disponibles:', Object.keys(datosPropiedadesRaw));
                     
                     {% for propiedad in todas_propiedades %}
                     // Usar string para la clave para que coincida con el value del select
                     const propiedadId_{{ propiedad.id|safe }} = '{{ propiedad.id|safe|escapejs }}';
                     const datosPropiedad_{{ propiedad.id|safe }} = datosPropiedadesRaw && datosPropiedadesRaw[propiedadId_{{ propiedad.id|safe }}] ? datosPropiedadesRaw[propiedadId_{{ propiedad.id|safe }}] : null;
-                    console.log(`Datos raw para propiedad ${propiedadId_{{ propiedad.id|safe }}} ({{ propiedad.titulo|escapejs|safe }}):`, datosPropiedad_{{ propiedad.id|safe }});
                     
                     // Validar y procesar datos de la propiedad
                     let totalPropiedad_{{ propiedad.id|safe }} = 0;
@@ -5424,10 +5418,7 @@
                             }
                         }
                         
-                        console.log(`  - Total validado: ${totalPropiedad_{{ propiedad.id|safe }}}`);
-                        console.log(`  - Por mes validado: ${JSON.stringify(datosPorMes_{{ propiedad.id|safe }})}`);
                     } else {
-                        console.log(`  - No hay datos válidos para esta propiedad, usando valores por defecto`);
                     }
                     
                     // Usar string como clave para que coincida con el value del select
@@ -5435,9 +5426,6 @@
                         total: totalPropiedad_{{ propiedad.id|safe }},
                         datos: datosPorMes_{{ propiedad.id|safe }}
                     };
-                    console.log(`Datos finales para propiedad ${propiedadId_{{ propiedad.id|safe }}} ({{ propiedad.titulo|escapejs|safe }}):`, this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}]);
-                    console.log(`  - Total final: ${this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}].total}`);
-                    console.log(`  - Datos por mes finales: ${JSON.stringify(this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}].datos)}`);
             {% endfor %}
                 } catch (error) {
                     console.error('Error al cargar datos de propiedades:', error);
@@ -5451,66 +5439,21 @@
                     {% endfor %}
                 }
                 
-                // Log final de todos los datos cargados
-                console.log('=== DATOS FINALES CARGADOS ===');
-                console.log('Todos los datos de propiedades:', this.datosPropiedades);
-                
-                // Debug específico de claves
-                console.log('=== DEBUG DE CLAVES ===');
-                const claves = Object.keys(this.datosPropiedades);
-                console.log('Claves encontradas:', claves);
-                console.log('Tipos de claves:');
-                claves.forEach(clave => {
-                    console.log(`  "${clave}" (tipo: ${typeof clave})`);
-                });
-                
-                // Verificar opciones del select
-                const opciones = Array.from(this.propiedadSelect.options);
-                console.log('Opciones del select:');
-                opciones.forEach(opcion => {
-                    console.log(`  Value: "${opcion.value}" (tipo: ${typeof opcion.value})`);
-                });
-                
-                // Verificar datos de propiedades
-                console.log('=== VERIFICACIÓN DE DATOS ===');
-                Object.keys(this.datosPropiedades).forEach(key => {
-                    if (key !== 'todas') {
-                        console.log(`Propiedad ${key}:`, this.datosPropiedades[key]);
-                    }
-                });
             
                 this.bindEvents();
                 
-                // Ejecutar inmediatamente y con delay para asegurar que funcione
-                console.log('Ejecutando updateChart inicial...');
+                // Ejecutar inicialización
                 this.updateChart('todas');
                 
                 // Verificar estado después de la inicialización
                 setTimeout(() => {
-                    console.log('Ejecutando updateChart con delay...');
                     this.updateChart('todas');
-                    
-                    // Verificar estado del gráfico
                     this.verificarEstadoGrafico();
                 }, 100);
             },
 
             bindEvents() {
                 this.propiedadSelect.addEventListener('change', (e) => {
-                    console.log('=== CAMBIO DE PROPIEDAD ===');
-                    console.log('Nueva propiedad seleccionada:', e.target.value);
-                    console.log('Tipo de valor seleccionado:', typeof e.target.value);
-                    console.log('Datos disponibles para esta propiedad:', this.datosPropiedades[e.target.value]);
-                    console.log('Todas las claves disponibles:', Object.keys(this.datosPropiedades));
-                    
-                    // Verificar si la clave existe
-                    if (this.datosPropiedades.hasOwnProperty(e.target.value)) {
-                        console.log('✅ La propiedad existe en los datos');
-                    } else {
-                        console.log('❌ La propiedad NO existe en los datos');
-                        console.log('Claves disponibles:', Object.keys(this.datosPropiedades));
-                    }
-                    
                     this.updateChart(e.target.value);
                 });
                 
@@ -5518,7 +5461,6 @@
                 const btnActualizar = document.getElementById('btn-actualizar-grafico');
                 if (btnActualizar) {
                     btnActualizar.addEventListener('click', () => {
-                        console.log('🔄 Actualizando gráfico manualmente...');
                         
                         // Efecto visual
                         btnActualizar.style.transform = 'rotate(360deg)';
@@ -5534,9 +5476,6 @@
 
             updateChart(propiedad) {
                 try {
-                    console.log('=== INICIANDO ACTUALIZACIÓN DE GRÁFICO ===');
-                    console.log('Propiedad solicitada:', propiedad);
-                    console.log('Datos disponibles:', Object.keys(this.datosPropiedades));
                     
                     // Validar que la propiedad existe en los datos
                     if (!this.datosPropiedades.hasOwnProperty(propiedad)) {
@@ -5566,14 +5505,6 @@
                         }
                     }
                     
-                    console.log('✅ Datos validados correctamente');
-                    
-                    console.log('=== ACTUALIZANDO GRÁFICO ===');
-                    console.log('Propiedad seleccionada:', propiedad);
-                    console.log('Datos encontrados:', datos);
-                    console.log('Total de clics:', datos.total);
-                    console.log('Datos por mes:', datos.datos);
-                    console.log('Datos por mes (detallado):', datos.datos.map((valor, index) => `Mes ${index + 1}: ${valor}`));
                     
                     // Verificar si los datos son diferentes a "todas"
                     if (propiedad !== 'todas') {
@@ -5587,16 +5518,11 @@
                 
                 // Actualizar total
                 this.totalClicksElement.textContent = datos.total.toLocaleString();
-                console.log('Total actualizado en el DOM:', datos.total.toLocaleString());
                 
                 // Actualizar barras - usar selector más específico
                 const barras = document.querySelectorAll('#grafico-barras .bar-chart');
                 const numeros = document.querySelectorAll('#grafico-barras .absolute.inset-0.flex.items-center.justify-center.text-xs.font-semibold.text-white');
                 
-                console.log('=== ACTUALIZANDO BARRAS ===');
-                console.log('Barras encontradas:', barras.length);
-                console.log('Números encontrados:', numeros.length);
-                console.log('Datos a mostrar:', datos.datos);
                 
                 // Verificar si el contenedor del gráfico existe
                 const graficoContainer = document.getElementById('grafico-barras');
@@ -5604,10 +5530,8 @@
                     console.error('❌ No se encontró el contenedor del gráfico #grafico-barras');
                     return;
                 }
-                console.log('✅ Contenedor del gráfico encontrado');
                 
                 const maxValor = Math.max(...datos.datos);
-                console.log('Valor máximo para calcular porcentajes:', maxValor);
                 
                 barras.forEach((barra, index) => {
                     if (index < datos.datos.length) {
@@ -5628,7 +5552,6 @@
                             porcentaje = escalado + 10; // Base del 10% + escalado proporcional
                         }
                         
-                        console.log(`Procesando barra ${index}: valor=${valor}, porcentaje=${porcentaje}%`);
                         
                         // Aplicar color basado en la escala de calor (dinámico)
                         const color = Utils.getHeatColor(valor, maxValor);
@@ -5664,7 +5587,6 @@
                             contenedorBarra.style.setProperty('transition', 'all 0.3s ease', 'important');
                         }
                         
-                        console.log(`Barra ${index} actualizada: valor=${valor}, color=${color}, altura=${porcentaje}%`);
                         
                         // Actualizar el atributo data-value
                         barra.setAttribute('data-value', valor);
@@ -5678,26 +5600,11 @@
                             } else {
                                 numeros[index].style.color = 'white';
                             }
-                            console.log(`Número ${index} actualizado a: ${valor}`);
                         }
                     }
                 });
                 
-                // Verificar que las barras se actualizaron correctamente
-                console.log('=== VERIFICACIÓN FINAL DE BARRAS ===');
-                barras.forEach((barra, index) => {
-                    console.log(`Barra ${index} final:`, {
-                        height: barra.style.height,
-                        backgroundColor: barra.style.backgroundColor,
-                        dataValue: barra.getAttribute('data-value'),
-                        textContent: numeros[index] ? numeros[index].textContent : 'N/A'
-                    });
-                });
                 
-                // Verificar que las barras se actualizaron correctamente
-                console.log('=== VERIFICACIÓN POST-ACTUALIZACIÓN ===');
-                const barrasVerificacion = document.querySelectorAll('#grafico-barras .bar-chart');
-                console.log('Barras después de actualización:', barrasVerificacion.length);
                 
                 // Actualizar máximo en la leyenda
                 const maxIndex = datos.datos.indexOf(maxValor);
@@ -5725,34 +5632,12 @@
             
             // Función de utilidad para verificar el estado del gráfico
             verificarEstadoGrafico() {
-                console.log('=== VERIFICACIÓN DEL ESTADO DEL GRÁFICO ===');
-                console.log('Datos cargados:', Object.keys(this.datosPropiedades));
-                console.log('Total de propiedades:', Object.keys(this.datosPropiedades).length);
-                
-                // Verificar cada propiedad
-                for (const [propId, datos] of Object.entries(this.datosPropiedades)) {
-                    console.log(`Propiedad ${propId}:`, {
-                        total: datos.total,
-                        datosLength: datos.datos ? datos.datos.length : 'undefined',
-                        datos: datos.datos
-                    });
-                }
-                
-                // Verificar elementos del DOM
-                const graficoContainer = document.getElementById('grafico-barras');
-                const barras = document.querySelectorAll('#grafico-barras .bar-chart');
-                const numeros = document.querySelectorAll('#grafico-barras .absolute.inset-0.flex.items-center.justify-center.text-xs.font-semibold.text-white');
-                
-                console.log('Elementos del DOM:');
-                console.log('- Contenedor del gráfico:', graficoContainer ? '✅ Encontrado' : '❌ No encontrado');
-                console.log('- Barras encontradas:', barras.length);
-                console.log('- Números encontrados:', numeros.length);
+                // Verificación silenciosa del estado del gráfico
             },
 
             // Nueva función para actualizar datos desde el servidor
             async actualizarDatosDesdeServidor() {
                 try {
-                    console.log('🔄 Actualizando datos de clics desde el servidor...');
                     
                     const response = await fetch('{% url "login:dashboard_clicks_data" %}', {
                         method: 'GET',
@@ -6000,7 +5885,6 @@
             },
 
             async handleFormSubmit() {
-                console.log('=== INICIANDO ACTUALIZACIÓN DE PERFIL ===');
                 
                 // Validar campos antes de enviar
                 if (!this.validateForm()) {
@@ -6081,7 +5965,6 @@
             },
 
             validateForm() {
-                console.log('=== VALIDANDO FORMULARIO ===');
                 let isValid = true;
                 
                 // Limpiar errores anteriores
@@ -6812,7 +6695,6 @@
             },
 
             validateCreateUserForm() {
-                console.log('=== VALIDANDO FORMULARIO DE CREAR USUARIO ===');
                 let isValid = true;
                 
                 // Limpiar errores anteriores
@@ -7671,7 +7553,6 @@
             // ========================================
             
             validatePropertyForm() {
-                console.log('=== VALIDANDO FORMULARIO DE PROPIEDAD ===');
                 let isValid = true;
                 
                 // Limpiar errores previos
@@ -7951,7 +7832,6 @@
             },
 
             initPropertyRealTimeValidation() {
-                console.log('Inicializando validación en tiempo real para formulario de propiedad');
                 
                 // Campos de texto y número
                 const textFields = [
@@ -8078,12 +7958,6 @@
                 const currentDateShortElement = document.getElementById('currentDateShort');
                 const currentDateMinimalElement = document.getElementById('currentDateMinimal');
                 
-                console.log('Actualizando fecha...', { 
-                    currentDateFullElement, 
-                    currentDateMediumElement, 
-                    currentDateShortElement, 
-                    currentDateMinimalElement 
-                });
                 
                 // Función para formatear fecha directamente
                 const formatDate = (date, options) => {
@@ -8099,7 +7973,6 @@
                 if (currentDateFullElement) {
                     const formattedDate = formatDate(currentDate, optionsFull);
                     currentDateFullElement.textContent = formattedDate;
-                    console.log('Fecha completa actualizada:', formattedDate);
                 } else {
                     console.log('Elemento currentDateFull no encontrado');
                 }
@@ -8108,7 +7981,6 @@
                 if (currentDateMediumElement) {
                     const formattedDate = formatDate(currentDate, optionsMedium);
                     currentDateMediumElement.textContent = formattedDate;
-                    console.log('Fecha media actualizada:', formattedDate);
                 } else {
                     console.log('Elemento currentDateMedium no encontrado');
                 }
@@ -8117,7 +7989,6 @@
                 if (currentDateShortElement) {
                     const formattedDate = formatDate(currentDate, optionsShort);
                     currentDateShortElement.textContent = formattedDate;
-                    console.log('Fecha corta actualizada:', formattedDate);
                 } else {
                     console.log('Elemento currentDateShort no encontrado');
                 }
@@ -8126,7 +7997,6 @@
                 if (currentDateMinimalElement) {
                     const formattedDate = formatDate(currentDate, optionsMinimal);
                     currentDateMinimalElement.textContent = formattedDate;
-                    console.log('Fecha mínima actualizada:', formattedDate);
                 } else {
                     console.log('Elemento currentDateMinimal no encontrado');
                 }
@@ -10782,7 +10652,6 @@
                     const element = document.getElementById(id);
                     if (element) {
                         element.textContent = currentDate.toLocaleDateString('es-ES', opts);
-                        console.log(`Fecha actualizada en ${id}:`, element.textContent);
                     } else {
                         console.log(`Elemento ${id} no encontrado`);
                     }
