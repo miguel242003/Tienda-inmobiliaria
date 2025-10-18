@@ -5437,9 +5437,9 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                     
                     {% for propiedad in todas_propiedades %}
                     // Usar string para la clave para que coincida con el value del select
-                    const propiedadId = '{{ propiedad.id|safe|escapejs }}';
-                    const datosPropiedad_{{ propiedad.id|safe }} = datosPropiedadesRaw && datosPropiedadesRaw[propiedadId] ? datosPropiedadesRaw[propiedadId] : null;
-                    console.log(`Datos raw para propiedad ${propiedadId} ({{ propiedad.titulo|escapejs|safe }}):`, datosPropiedad_{{ propiedad.id|safe }});
+                    const propiedadId_{{ propiedad.id|safe }} = '{{ propiedad.id|safe|escapejs }}';
+                    const datosPropiedad_{{ propiedad.id|safe }} = datosPropiedadesRaw && datosPropiedadesRaw[propiedadId_{{ propiedad.id|safe }}] ? datosPropiedadesRaw[propiedadId_{{ propiedad.id|safe }}] : null;
+                    console.log(`Datos raw para propiedad ${propiedadId_{{ propiedad.id|safe }}} ({{ propiedad.titulo|escapejs|safe }}):`, datosPropiedad_{{ propiedad.id|safe }});
                     
                     // Validar y procesar datos de la propiedad
                     let totalPropiedad = 0;
@@ -5467,20 +5467,20 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                     }
                     
                     // Usar string como clave para que coincida con el value del select
-                    this.datosPropiedades[propiedadId] = {
+                    this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}] = {
                         total: totalPropiedad,
                         datos: datosPorMes
                     };
-                    console.log(`Datos finales para propiedad ${propiedadId} ({{ propiedad.titulo|escapejs|safe }}):`, this.datosPropiedades[propiedadId]);
-                    console.log(`  - Total final: ${this.datosPropiedades[propiedadId].total}`);
-                    console.log(`  - Datos por mes finales: ${JSON.stringify(this.datosPropiedades[propiedadId].datos)}`);
+                    console.log(`Datos finales para propiedad ${propiedadId_{{ propiedad.id|safe }}} ({{ propiedad.titulo|escapejs|safe }}):`, this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}]);
+                    console.log(`  - Total final: ${this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}].total}`);
+                    console.log(`  - Datos por mes finales: ${JSON.stringify(this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}].datos)}`);
             {% endfor %}
                 } catch (error) {
                     console.error('Error al cargar datos de propiedades:', error);
                     // Fallback: datos por defecto
                     {% for propiedad in todas_propiedades %}
-                    const propiedadIdFallback = '{{ propiedad.id|safe|escapejs }}';
-                    this.datosPropiedades[propiedadIdFallback] = {
+                    const propiedadIdFallback_{{ propiedad.id|safe }} = '{{ propiedad.id|safe|escapejs }}';
+                    this.datosPropiedades[propiedadIdFallback_{{ propiedad.id|safe }}] = {
                         total: 0,
                         datos: [0,0,0,0,0,0,0,0,0,0,0,0]
                     };
