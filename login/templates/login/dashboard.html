@@ -5442,34 +5442,34 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                     console.log(`Datos raw para propiedad ${propiedadId_{{ propiedad.id|safe }}} ({{ propiedad.titulo|escapejs|safe }}):`, datosPropiedad_{{ propiedad.id|safe }});
                     
                     // Validar y procesar datos de la propiedad
-                    let totalPropiedad = 0;
-                    let datosPorMes = [0,0,0,0,0,0,0,0,0,0,0,0];
+                    let totalPropiedad_{{ propiedad.id|safe }} = 0;
+                    let datosPorMes_{{ propiedad.id|safe }} = [0,0,0,0,0,0,0,0,0,0,0,0];
                     
                     if (datosPropiedad_{{ propiedad.id|safe }} && typeof datosPropiedad_{{ propiedad.id|safe }} === 'object') {
                         // Validar clicks_totales
                         if (typeof datosPropiedad_{{ propiedad.id|safe }}.clicks_totales === 'number') {
-                            totalPropiedad = datosPropiedad_{{ propiedad.id|safe }}.clicks_totales;
+                            totalPropiedad_{{ propiedad.id|safe }} = datosPropiedad_{{ propiedad.id|safe }}.clicks_totales;
                         }
                         
                         // Validar clicks_por_mes
                         if (Array.isArray(datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes)) {
-                            datosPorMes = datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes.slice(0, 12); // Asegurar máximo 12 meses
+                            datosPorMes_{{ propiedad.id|safe }} = datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes.slice(0, 12); // Asegurar máximo 12 meses
                             // Rellenar con ceros si hay menos de 12 meses
-                            while (datosPorMes.length < 12) {
-                                datosPorMes.push(0);
+                            while (datosPorMes_{{ propiedad.id|safe }}.length < 12) {
+                                datosPorMes_{{ propiedad.id|safe }}.push(0);
                             }
                         }
                         
-                        console.log(`  - Total validado: ${totalPropiedad}`);
-                        console.log(`  - Por mes validado: ${JSON.stringify(datosPorMes)}`);
+                        console.log(`  - Total validado: ${totalPropiedad_{{ propiedad.id|safe }}}`);
+                        console.log(`  - Por mes validado: ${JSON.stringify(datosPorMes_{{ propiedad.id|safe }})}`);
                     } else {
                         console.log(`  - No hay datos válidos para esta propiedad, usando valores por defecto`);
                     }
                     
                     // Usar string como clave para que coincida con el value del select
                     this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}] = {
-                        total: totalPropiedad,
-                        datos: datosPorMes
+                        total: totalPropiedad_{{ propiedad.id|safe }},
+                        datos: datosPorMes_{{ propiedad.id|safe }}
                     };
                     console.log(`Datos finales para propiedad ${propiedadId_{{ propiedad.id|safe }}} ({{ propiedad.titulo|escapejs|safe }}):`, this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}]);
                     console.log(`  - Total final: ${this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}].total}`);
