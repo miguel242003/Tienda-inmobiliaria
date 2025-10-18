@@ -259,6 +259,9 @@ def upload_fotos_adicionales(request):
     
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
+from django.contrib.auth.decorators import login_required
+
+@login_required
 @ratelimit(key='user', rate='20/h', method='POST', block=False)
 def crear_propiedad(request):
     """
@@ -422,6 +425,8 @@ def crear_propiedad(request):
                         print(f"Buscando AdminCredentials para usuario: {request.user}")
                         print(f"Email del usuario: {request.user.email}")
                         
+                        admin_creds = None
+                        
                         # Primero intentar buscar por usuario relacionado
                         if hasattr(request.user, 'admincredentials'):
                             print(f"AdminCredentials encontrado por relación directa")
@@ -431,50 +436,45 @@ def crear_propiedad(request):
                             # Si no, buscar por email
                             print(f"Buscando AdminCredentials por email: {request.user.email}")
                             logger.info(f"Buscando AdminCredentials por email: {request.user.email}")
-                            admin_creds = AdminCredentials.objects.get(email=request.user.email)
-                            print(f"AdminCredentials encontrado por email: {admin_creds}")
-                            logger.info(f"AdminCredentials encontrado por email: {admin_creds}")
+                            try:
+                                admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                                print(f"AdminCredentials encontrado por email: {admin_creds}")
+                                logger.info(f"AdminCredentials encontrado por email: {admin_creds}")
+                            except AdminCredentials.DoesNotExist:
+                                print(f"AdminCredentials no encontrado por email")
+                                logger.warning(f"AdminCredentials no encontrado por email: {request.user.email}")
+                                # Intentar crear AdminCredentials automáticamente
+                                try:
+                                    admin_creds = AdminCredentials.objects.create(
+                                        user=request.user,
+                                        email=request.user.email,
+                                        nombre=request.user.first_name or 'Administrador',
+                                        apellido=request.user.last_name or 'Sistema',
+                                        password='temp_password_123'  # Contraseña temporal
+                                    )
+                                    print(f"AdminCredentials creado automáticamente: {admin_creds}")
+                                    logger.info(f"AdminCredentials creado automáticamente: {admin_creds}")
+                                except Exception as create_error:
+                                    print(f"Error al crear AdminCredentials: {create_error}")
+                                    logger.error(f"Error al crear AdminCredentials: {create_error}")
+                                    admin_creds = None
                         
-                        propiedad.administrador = admin_creds
-                        print(f"Administrador asignado: {admin_creds}")
-                        logger.info(f"Administrador asignado: {admin_creds}")
-                    except AdminCredentials.DoesNotExist as e:
-                        print(f"ERROR: AdminCredentials.DoesNotExist: {e}")
-                        logger.error(f"AdminCredentials.DoesNotExist: {e}")
-                        # Si no existe AdminCredentials, mostrar mensaje de error
-                        error_message = 'Error: No se encontró tu perfil de administrador. Por favor, completa tu perfil antes de crear propiedades.'
-                        print(f"ERROR: {error_message}")
-                        logger.error(f"Error message: {error_message}")
-                        messages.error(request, error_message)
-                        # Verificar si es una petición AJAX
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({
-                                'success': False,
-                                'message': error_message
-                            })
+                        if admin_creds:
+                            propiedad.administrador = admin_creds
+                            print(f"Administrador asignado: {admin_creds}")
+                            logger.info(f"Administrador asignado: {admin_creds}")
                         else:
-                            return render(request, 'propiedades/crear_propiedad.html', {
-                                'form': form,
-                                'titulo_pagina': 'Crear Nueva Propiedad',
-                                'amenidades': Amenidad.objects.all()
-                            })
+                            # Si no se pudo encontrar o crear AdminCredentials, continuar sin asignar
+                            print(f"ADVERTENCIA: No se pudo asignar administrador a la propiedad")
+                            logger.warning(f"No se pudo asignar administrador a la propiedad")
+                            # No fallar la creación por esto, solo registrar la advertencia
+                            
                     except Exception as e:
                         print(f"ERROR INESPERADO al buscar AdminCredentials: {e}")
                         logger.error(f"Error inesperado al buscar AdminCredentials: {e}")
-                        error_message = f'Error inesperado: {str(e)}'
-                        print(f"ERROR: {error_message}")
-                        messages.error(request, error_message)
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({
-                                'success': False,
-                                'message': error_message
-                            })
-                        else:
-                            return render(request, 'propiedades/crear_propiedad.html', {
-                                'form': form,
-                                'titulo_pagina': 'Crear Nueva Propiedad',
-                                'amenidades': Amenidad.objects.all()
-                            })
+                        # No fallar la creación por errores de AdminCredentials
+                        print(f"ADVERTENCIA: Continuando sin asignar administrador debido a error: {e}")
+                        logger.warning(f"Continuando sin asignar administrador debido a error: {e}")
                 
                 print("=== GUARDANDO PROPIEDAD ===")
                 logger.info(f"=== GUARDANDO PROPIEDAD ===")
