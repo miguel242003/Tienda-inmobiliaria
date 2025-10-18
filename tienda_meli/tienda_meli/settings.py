@@ -74,7 +74,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'csp',  # Content Security Policy
     'compressor',  # Minificación de CSS/JS
-    'debug_toolbar',  # Debug toolbar (solo desarrollo)
+    # 'debug_toolbar',  # Debug toolbar (solo desarrollo) - DESHABILITADO
     'core',
     'propiedades',
     'login',
@@ -89,7 +89,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',  # Debug toolbar
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',  # Debug toolbar - DESHABILITADO
     # 'core.middleware.DebugMiddleware',  # Deshabilitado temporalmente
 ]
 
