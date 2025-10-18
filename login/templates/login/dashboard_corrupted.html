@@ -1,4 +1,47 @@
-{% load static %}
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$ cat ~/deploy.sh | grep -A 5 -B 5 "tienda_inmobiliaria"
+    exit 1
+fi
+echo ""
+
+echo -e "${YELLOW}🔄 Paso 6/6: Reiniciando Gunicorn...${NC}"
+sudo supervisorctl restart tienda_inmobiliaria
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Gunicorn reiniciado correctamente${NC}"
+else
+    echo -e "${RED}❌ Error al reiniciar Gunicorn${NC}"
+    exit 1
+--
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo -e "🌐 Tu sitio está actualizado en: ${GREEN}https://gisa-nqn.com${NC}"
+echo ""
+echo -e "📊 Estado de servicios:"
+sudo supervisorctl status tienda_inmobiliaria
+echo ""
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$ ^C
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$ sudo cat /etc/nginx/sites-available/gisa-nqn.com
+cat: /etc/nginx/sites-available/gisa-nqn.com: No such file or directory
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$ sudo nano /etc/nginx/sites-available/gisa-nqn.com
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$ sudo nano /etc/nginx/sites-available/gisa-nqn.com
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$ ls -la /etc/nginx/sites-available/
+total 28
+drwxr-xr-x 2 root root 4096 Oct  9 08:10 .
+drwxr-xr-x 8 root root 4096 Oct  4 00:16 ..
+-rw-r--r-- 1 root root  507 Oct  8 03:21 default
+-rw-r--r-- 1 root root   95 Oct  9 08:10 gisa-nqn.com
+-rw------- 1 root root  523 Oct  9 07:41 tienda-inmobiliaria.save
+-rw-r--r-- 1 root root 1169 Oct  9 06:42 tienda_inmobiliaria
+-rw-r--r-- 1 root root  891 Oct  7 02:34 tienda_inmobiliaria.backup.20251007_023419
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$ ls -la /etc/nginx/sites-enabled/
+total 8
+drwxr-xr-x 2 root root 4096 Oct  8 03:17 .
+drwxr-xr-x 8 root root 4096 Oct  4 00:16 ..
+lrwxrwxrwx 1 root root   34 Oct  8 03:17 default -> /etc/nginx/sites-available/default
+lrwxrwxrwx 1 root root   46 Oct  3 23:57 tienda_inmobiliaria -> /etc/nginx/sites-available/tienda_inmobiliaria
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$ sudo cat /etc/nginx/nginx.conf}
+cat: /etc/nginx/nginx.conf}: No such file or directory
+(venv) deploy@vps-534a0040:~/Tienda-inmobiliaria$
+(venv) deploy@vps-534a00{% load static %}
 <!DOCTYPE html>
 <!-- eslint-disable -->
 <!-- @typescript-eslint/disable -->
