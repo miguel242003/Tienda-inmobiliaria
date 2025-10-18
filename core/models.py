@@ -127,12 +127,17 @@ class CVSubmission(models.Model):
         """Retorna el tamaño del archivo en formato legible"""
         if self.cv_file:
             try:
-                size = self.cv_file.size
-                for unit in ['B', 'KB', 'MB', 'GB']:
-                    if size < 1024.0:
-                        return f"{size:.1f} {unit}"
-                    size /= 1024.0
-            except (FileNotFoundError, OSError):
+                # Verificar si el archivo existe antes de obtener el tamaño
+                if hasattr(self.cv_file, 'storage') and self.cv_file.storage.exists(self.cv_file.name):
+                    size = self.cv_file.size
+                    for unit in ['B', 'KB', 'MB', 'GB']:
+                        if size < 1024.0:
+                            return f"{size:.1f} {unit}"
+                        size /= 1024.0
+                    return f"{size:.1f} TB"
+                else:
+                    return "Archivo no encontrado"
+            except (FileNotFoundError, OSError, ValueError):
                 return "Archivo no encontrado"
         return "N/A"
     
