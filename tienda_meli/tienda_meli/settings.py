@@ -35,6 +35,22 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # 🔒 SEGURIDAD: ALLOWED_HOSTS debe ser específico en producción
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver').split(',')
 
+# Asegurar que siempre tengamos los hosts básicos
+base_hosts = ['localhost', '127.0.0.1', 'testserver']
+for host in base_hosts:
+    if host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(host)
+
+# Para desarrollo, agregar más hosts permitidos
+if DEBUG:
+    ALLOWED_HOSTS.extend(['*', '0.0.0.0'])
+else:
+    # En producción, asegurar que los hosts estén configurados correctamente
+    if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
+        ALLOWED_HOSTS = ['gisa-nqn.com', 'www.gisa-nqn.com']
+
+# Configuración de seguridad (ya manejada más abajo en el archivo)
+
 # Configuración de dominios confiables para CSRF
 CSRF_TRUSTED_ORIGINS = [
     'https://gisa-nqn.com',
@@ -254,6 +270,9 @@ if not DEBUG:
 else:
     # Desarrollo: Sin redirección HTTPS
     SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
     X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Algoritmos de Hash de Contraseñas (orden de preferencia)
