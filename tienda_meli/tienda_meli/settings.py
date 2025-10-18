@@ -103,15 +103,15 @@ WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 DB_ENGINE = 'django.db.backends.mysql'
 
 if DB_ENGINE == 'django.db.backends.mysql':
-    # Configuración para PRODUCCIÓN con MySQL
+    # Configuración para PRODUCCIÓN con MySQL usando variables de entorno
     DATABASES = {
         'default': {
             'ENGINE': DB_ENGINE,
-            'NAME': 'tienda_inmobiliaria_prod',
-            'USER': 'tienda_user',
-            'PASSWORD': 'M@s_242003!',
-            'HOST': 'localhost',
-            'PORT': '3306',
+            'NAME': config('DB_NAME', default='tienda_inmobiliaria_prod'),
+            'USER': config('DB_USER', default='tienda_user'),
+            'PASSWORD': config('DB_PASSWORD', default='M@s_242003!'),
+            'HOST': config('DB_HOST', default='51.79.65.251'),
+            'PORT': config('DB_PORT', default='3306'),
             'OPTIONS': {
                 'charset': 'utf8mb4',
                 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
