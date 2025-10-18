@@ -21,8 +21,8 @@
 <section class="cv-section">
     <div class="container-fluid cv-container">
         <div class="row cv-row">
-            <!-- Imagen a la izquierda -->
-            <div class="col-12 col-lg-4 cv-image-col">
+            <!-- Imagen a la izquierda - Solo visible en desktop -->
+            <div class="col-12 col-lg-4 cv-image-col d-none d-lg-block">
                 <div class="cv-image-container">
                     <picture>
                         <source srcset="{% static 'images/CV2.webp' %}" type="image/webp">
@@ -34,7 +34,7 @@
                 </div>
             </div>
 
-            <!-- Formulario a la derecha -->
+            <!-- Formulario - Ocupa todo el ancho en móviles/tablets, 8/12 en desktop -->
             <div class="col-12 col-lg-8 cv-form-col">
                 <div class="cv-content">
                     <h3 class="cv-title">Únete a nuestro equipo</h3>
@@ -313,80 +313,60 @@
    RESPONSIVE BREAKPOINTS
    ======================================== */
 
-/* Tablet (768px - 991px) */
+/* Tablet (768px - 991px) - Sin imagen */
 @media (max-width: 991.98px) {
     .cv-section {
         margin: 40px auto;
         min-height: auto;
+        max-width: 100%;
     }
     
     .cv-form-col {
         padding: 30px 20px;
+        width: 100%;
     }
     
-    .cv-image-col {
-        height: 300px;
-    }
-    
-    .cv-image-container {
-        height: 300px;
-    }
-    
-    .cv-image {
-        height: 100%;
-        object-fit: cover;
+    .cv-content {
+        max-width: 600px;
+        margin: 0 auto;
     }
 }
 
-/* Mobile (576px - 767px) */
+/* Mobile (576px - 767px) - Sin imagen */
 @media (max-width: 767.98px) {
     .cv-section {
         margin: 20px auto;
         min-height: auto;
+        max-width: 100%;
     }
     
     .cv-form-col {
         padding: 20px 15px;
+        width: 100%;
     }
     
-    .cv-image-col {
-        height: 250px;
-    }
-    
-    .cv-image-container {
-        height: 250px;
-    }
-    
-    .cv-image {
-        height: 100%;
-        object-fit: cover;
-        object-position: center center;
+    .cv-content {
+        max-width: 100%;
+        margin: 0;
     }
 }
 
-/* Small Mobile (max 575px) */
+/* Small Mobile (max 575px) - Sin imagen */
 @media (max-width: 575.98px) {
     .cv-section {
         margin: 10px auto;
         min-height: auto;
+        max-width: 100%;
     }
     
     .cv-form-col {
         padding: 15px 10px;
+        width: 100%;
     }
     
-    .cv-image-col {
-        height: 200px;
-    }
-    
-    .cv-image-container {
-        height: 200px;
-    }
-    
-    .cv-image {
-        height: 100%;
-        object-fit: cover;
-        object-position: center center;
+    .cv-content {
+        max-width: 100%;
+        margin: 0;
     }
 }
 
