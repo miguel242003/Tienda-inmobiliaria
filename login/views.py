@@ -287,7 +287,8 @@ def dashboard(request):
         return redirect('core:home')
     
     # Optimizar la consulta del usuario para incluir AdminCredentials
-    request.user = User.objects.select_related('admincredentials').get(id=request.user.id)
+    # No reasignar request.user, solo obtener los datos necesarios
+    user_with_credentials = User.objects.select_related('admincredentials').get(id=request.user.id)
     
     # Obtener estadísticas básicas
     total_users = User.objects.count()

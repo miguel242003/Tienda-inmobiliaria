@@ -33,16 +33,16 @@
                     </picture>
                 </div>
             </div>
-            
+
             <!-- Formulario a la derecha -->
             <div class="col-lg-8 d-flex align-items-center" style="padding: 40px; height: 100%;">
                 <div style="width: 100%;">
                     <h3 class="mb-2" style="color: #e67e22; font-style: italic; font-family: 'Times New Roman', serif; font-size: 1.2rem; font-weight: 600;">Únete a nuestro equipo</h3>
                     <p class="mb-3" style="color: #34495e; line-height: 1.4; font-size: 0.9rem;">Forma parte de una empresa líder en el sector inmobiliario. Completa el formulario y te contactaremos pronto.</p>
-                    
+
                     <!-- CV Form -->
                     <div class="cv-form-card" style="background: #ffffff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                        
+
                         <form method="post" enctype="multipart/form-data" id="cvForm">
                             {% csrf_token %}
                             <div class="row g-1">
@@ -73,7 +73,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
+
                             <div class="row g-1 mt-1">
                                 <div class="col-md-6">
                                     <label for="{{ form.telefono.id_for_label }}" class="form-label">
@@ -102,7 +102,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
+
                             <div class="row g-1 mt-1">
                                 <div class="col-md-6">
                                     <label for="{{ form.anos_experiencia.id_for_label }}" class="form-label">{{ form.anos_experiencia.label }}</label>
@@ -127,7 +127,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
+
                             <div class="mt-1">
                                 <label for="{{ form.cv_file.id_for_label }}" class="form-label">
                                     {{ form.cv_file.label }} <span class="required">*</span>
@@ -142,7 +142,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="mt-1">
                                 <label for="{{ form.carta_presentacion.id_for_label }}" class="form-label">{{ form.carta_presentacion.label }}</label>
                                 {{ form.carta_presentacion }}
@@ -154,7 +154,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="mt-2">
                                 <button type="submit" 
                                         class="btn-cta w-100"
@@ -301,7 +301,7 @@ section[style*="background"] {
         height: 100%;
         display: block;
     }
-    
+
     .cv-image-container picture img {
         width: 100%;
         height: 100%;
@@ -316,7 +316,7 @@ section[style*="background"] {
         height: 100%;
         display: block;
     }
-    
+
     .cv-image-container picture img {
         width: 100%;
         height: 100%;
@@ -809,7 +809,7 @@ section[style*="background"] {
         border-radius: 0 !important;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     .benefits-section {
         width: 100vw !important;
         margin-left: calc(-50vw + 50%) !important;
@@ -832,7 +832,7 @@ section[style*="background"] {
         margin-left: -50vw !important;
         margin-right: -50vw !important;
     }
-    
+
     .benefits-container {
         max-width: 1200px !important;
         margin: 0 auto !important;
@@ -840,7 +840,7 @@ section[style*="background"] {
         position: relative !important;
         z-index: 1 !important;
     }
-    
+
     /* Footer también debe ocupar todo el ancho */
     footer, .footer {
         width: 100vw !important;
@@ -867,7 +867,7 @@ section[style*="background"] {
         border-radius: 0 !important;
         box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     /* Mensajes en tablet */
     .messages {
         margin: 16px auto 30px auto !important;
@@ -875,32 +875,32 @@ section[style*="background"] {
         width: 85% !important;
         padding: 0 16px !important;
     }
-    
+
     .messages .alert {
         font-size: 14px !important;
         padding: 14px 18px !important;
         border-radius: 10px !important;
     }
-    
+
     /* Tipografía tablet */
     h1 {
         font-size: 28px !important;
         margin-bottom: 8px !important;
     }
-    
+
     h3 {
         font-size: 16px !important;
     }
-    
+
     p {
         font-size: 14px !important;
     }
-    
+
     /* Ocultar imagen en tablet */
     .col-lg-4 {
         display: none !important;
     }
-    
+
     /* Formulario ocupa todo el espacio */
     .col-lg-8 {
         flex: 0 0 100% !important;
@@ -908,29 +908,29 @@ section[style*="background"] {
         width: 100% !important;
         padding: 30px !important;
     }
-    
+
     /* Formulario más compacto */
     .cv-form-card {
         padding: 20px !important;
         border-radius: 16px !important;
     }
-    
+
     /* Campos del formulario en tablet */
     .form-control, .form-select {
         padding: 12px 16px !important;
         font-size: 16px !important;
     }
-    
+
     .form-label {
         font-size: 14px !important;
         margin-bottom: 6px !important;
     }
-    
+
     .btn-cta {
         padding: 14px 24px !important;
         font-size: 16px !important;
     }
-    
+
     /* Benefits responsive */
     .benefits-grid {
         gap: 20px;
@@ -951,7 +951,7 @@ section[style*="background"] {
         border-radius: 0 !important;
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     /* Mensajes en mobile */
     .messages {
         margin: 12px auto 20px auto !important;
@@ -959,51 +959,51 @@ section[style*="background"] {
         width: 90% !important;
         padding: 0 12px !important;
     }
-    
+
     .messages .alert {
         font-size: 13px !important;
         padding: 12px 16px !important;
         border-radius: 8px !important;
         margin-bottom: 8px !important;
     }
-    
+
     /* Tipografía mobile */
     h1 {
         font-size: 24px !important;
         margin-bottom: 6px !important;
         text-align: center !important;
     }
-    
+
     h3 {
         font-size: 14px !important;
         text-align: center !important;
     }
-    
+
     p {
         font-size: 13px !important;
         line-height: 1.5 !important;
         text-align: center !important;
         margin-bottom: 20px !important;
     }
-    
+
     /* Stack vertical - imagen arriba */
     .row {
         flex-direction: column !important;
         gap: 0 !important;
     }
-    
+
     .col-lg-4, .col-lg-8 {
         width: 100% !important;
         max-width: 100% !important;
         flex: none !important;
     }
-    
+
     .col-lg-4 {
         order: -1 !important; /* Imagen arriba */
         height: 200px !important;
         margin-bottom: 20px !important;
     }
-    
+
     /* Imagen responsiva */
     .col-lg-4 div {
         width: 100% !important;
@@ -1013,32 +1013,32 @@ section[style*="background"] {
         background-repeat: no-repeat !important;
         border-radius: 8px !important;
     }
-    
+
     /* Formulario responsivo */
     .col-lg-8 {
         padding: 16px !important;
     }
-    
+
     /* Formulario más compacto en mobile */
     .cv-form-card {
         padding: 16px !important;
         border-radius: 16px !important;
         margin: 0 !important;
     }
-    
+
     /* Campos del formulario en mobile */
     .row.g-1 {
         flex-direction: column !important;
         gap: 0 !important;
     }
-    
+
     .col-md-6 {
         width: 100% !important;
         max-width: 100% !important;
         flex: none !important;
         margin-bottom: 8px !important;
     }
-    
+
     /* Campos más grandes para touch */
     .form-control, .form-select {
         padding: 14px 16px !important;
@@ -1046,13 +1046,13 @@ section[style*="background"] {
         border-radius: 8px !important;
         margin-bottom: 4px !important;
     }
-    
+
     .form-label {
         font-size: 14px !important;
         margin-bottom: 6px !important;
         font-weight: 600 !important;
     }
-    
+
     .btn-cta {
         padding: 16px 24px !important;
         font-size: 16px !important;
@@ -1060,12 +1060,12 @@ section[style*="background"] {
         width: 100% !important;
         margin-top: 8px !important;
     }
-    
+
     .form-text {
         font-size: 12px !important;
         margin-top: 4px !important;
     }
-    
+
     /* Benefits responsive */
     .benefits-grid {
         grid-template-columns: 1fr;
@@ -1073,15 +1073,15 @@ section[style*="background"] {
         max-width: 100%;
         padding: 0 16px;
     }
-    
+
     .benefit-item {
         padding: 12px;
     }
-    
+
     .benefit-content h5 {
         font-size: 14px;
     }
-    
+
     .benefit-content p {
         font-size: 12px;
     }
@@ -1094,37 +1094,37 @@ section[style*="background"] {
         padding: 0 12px !important;
         border-radius: 0 !important;
     }
-    
+
     h1 {
         font-size: 22px !important;
     }
-    
+
     h3 {
         font-size: 13px !important;
     }
-    
+
     p {
         font-size: 12px !important;
     }
-    
+
     .col-lg-4 {
         height: 180px !important;
     }
-    
+
     .col-lg-8 {
         padding: 12px !important;
     }
-    
+
     .cv-form-card {
         padding: 12px !important;
         border-radius: 16px !important;
     }
-    
+
     .form-control, .form-select {
         padding: 12px 14px !important;
         font-size: 16px !important;
     }
-    
+
     .btn-cta {
         padding: 14px 20px !important;
         font-size: 15px !important;
@@ -1137,7 +1137,7 @@ section[style*="background"] {
         margin: 20px auto !important;
         padding: 0 16px !important;
     }
-    
+
     .col-lg-4 {
         height: 220px !important;
     }
@@ -1164,12 +1164,12 @@ section[style*="background"] {
     body {
         overflow-x: hidden !important;
     }
-    
+
     * {
         max-width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Benefits section en mobile también debe ocupar todo el ancho */
     .benefits-section {
         width: 100vw !important;
@@ -1196,7 +1196,7 @@ section[style*="background"] {
         min-height: 44px;
         font-size: 16px;
     }
-    
+
     .btn-cta {
         min-height: 48px;
         font-size: 16px;
@@ -1210,22 +1210,22 @@ section[style*="background"] {
         margin: 0 10px !important;
         border-radius: 16px !important;
     }
-    
+
     .form-control, .form-select {
         font-size: 16px !important; /* Previene zoom en iOS */
         padding: 12px 14px !important;
     }
-    
+
     .btn-cta {
         padding: 14px 20px !important;
         font-size: 16px !important;
     }
-    
+
     .form-label {
         font-size: 14px !important;
         margin-bottom: 6px !important;
     }
-    
+
     .form-text {
         font-size: 12px !important;
     }
@@ -1237,11 +1237,11 @@ section[style*="background"] {
         padding: 1.25rem !important;
         border-radius: 16px !important;
     }
-    
+
     .form-control, .form-select {
         padding: 10px 12px !important;
     }
-    
+
     .btn-cta {
         padding: 12px 18px !important;
     }
@@ -1253,7 +1253,7 @@ section[style*="background"] {
         height: 250px !important;
         margin-bottom: 20px !important;
     }
-    
+
     .col-lg-4 div {
         background-size: contain !important;
         background-position: center center !important;
@@ -1268,7 +1268,7 @@ section[style*="background"] {
         height: 200px !important;
         margin-bottom: 15px !important;
     }
-    
+
     .col-lg-4 div {
         border-radius: 8px !important;
     }
@@ -1280,7 +1280,7 @@ section[style*="background"] {
         height: 180px !important;
         margin-bottom: 12px !important;
     }
-    
+
     .col-lg-4 div {
         border-radius: 6px !important;
     }
@@ -1292,7 +1292,7 @@ section[style*="background"] {
         height: 160px !important;
         margin-bottom: 10px !important;
     }
-    
+
     .col-lg-4 div {
         border-radius: 4px !important;
     }
@@ -1345,18 +1345,18 @@ section[style*="width: 1400px"] .col-lg-4 {
 function setupRealTimeValidation() {
     const form = document.getElementById('cvForm');
     const inputs = form.querySelectorAll('input, select, textarea');
-    
+
     inputs.forEach(input => {
         // Validación en tiempo real mientras el usuario escribe
         input.addEventListener('input', function() {
             validateField(this);
         });
-        
+
         // Validación al perder el foco
         input.addEventListener('blur', function() {
             validateField(this);
         });
-        
+
         // Validación especial para archivos
         if (input.type === 'file') {
             input.addEventListener('change', function() {
@@ -1370,21 +1370,21 @@ function setupRealTimeValidation() {
 function validateField(field) {
     const value = field.value.trim();
     const fieldName = field.name;
-    
+
     // Limpiar validaciones previas
     field.classList.remove('is-invalid', 'is-valid');
-    
+
     // Remover mensajes de error existentes
     const existingError = field.parentNode.querySelector('.field-error-message');
     if (existingError) {
         existingError.remove();
     }
-    
+
     // Validar solo si hay valor o si es requerido
     if (value || field.required) {
         let isValid = true;
         let errorMessage = '';
-        
+
         // Validación de nombre completo
         if (fieldName === 'nombre_completo') {
             if (!value) {
@@ -1401,7 +1401,7 @@ function validateField(field) {
                 errorMessage = 'El nombre solo puede contener letras, espacios, guiones, apostrofes y puntos.';
             }
         }
-        
+
         // Validación de email
         else if (fieldName === 'email') {
             if (!value) {
@@ -1415,7 +1415,7 @@ function validateField(field) {
                 errorMessage = 'Por favor ingresa un correo electrónico válido.';
             }
         }
-        
+
         // Validación de teléfono
         else if (fieldName === 'telefono' && value) {
             const cleanPhone = value.replace(/[^\d+]/g, '');
@@ -1430,7 +1430,7 @@ function validateField(field) {
                 errorMessage = 'El teléfono solo puede contener números y opcionalmente un + al inicio.';
             }
         }
-        
+
         // Validación de posición de interés
         else if (fieldName === 'posicion_interes') {
             if (!value) {
@@ -1438,7 +1438,7 @@ function validateField(field) {
                 errorMessage = 'Debes seleccionar una posición de interés.';
             }
         }
-        
+
         // Validación de carta de presentación
         else if (fieldName === 'carta_presentacion' && value) {
             if (value.length > 2000) {
@@ -1449,7 +1449,7 @@ function validateField(field) {
                 errorMessage = 'La carta de presentación no puede estar vacía.';
             }
         }
-        
+
         // Aplicar validación
         if (isValid) {
             field.classList.add('is-valid');
@@ -1463,39 +1463,39 @@ function validateField(field) {
 // Función para validar archivos
 function validateFileInput(fileInput) {
     const file = fileInput.files[0];
-    
+
     // Limpiar validaciones previas
     fileInput.classList.remove('is-invalid', 'is-valid');
-    
+
     // Remover mensajes de error existentes
     const existingError = fileInput.parentNode.querySelector('.field-error-message');
     if (existingError) {
         existingError.remove();
     }
-    
+
     if (file) {
         let isValid = true;
         let errorMessage = '';
-        
+
         // Validar tamaño del archivo (5MB)
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             isValid = false;
             errorMessage = 'El archivo no puede ser mayor a 5MB.';
         }
-        
+
         // Validar tipo de archivo
         const allowedTypes = [
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ];
-        
+
         if (!allowedTypes.includes(file.type)) {
             isValid = false;
             errorMessage = 'Solo se permiten archivos PDF, DOC o DOCX.';
         }
-        
+
         // Validar extensión del archivo
         const allowedExtensions = ['.pdf', '.doc', '.docx'];
         const fileExtension = '.' + file.name.toLowerCase().split('.').pop();
@@ -1503,7 +1503,7 @@ function validateFileInput(fileInput) {
             isValid = false;
             errorMessage = 'Solo se permiten archivos PDF, DOC o DOCX.';
         }
-        
+
         // Aplicar validación
         if (isValid) {
             fileInput.classList.add('is-valid');
@@ -1525,24 +1525,24 @@ function showFieldError(field, message) {
 // Form submission enhancement
 function handleFormSubmission() {
     const form = document.getElementById('cvForm');
-    
+
     form.addEventListener('submit', function(e) {
         // Validar todos los campos antes de enviar
         const isValid = validateAllFields();
-        
+
         if (!isValid) {
             e.preventDefault();
             showFormError('Por favor corrige los errores antes de enviar el formulario.');
             return;
         }
-        
+
         const submitBtn = this.querySelector('.btn-cta');
         const originalText = submitBtn.innerHTML;
-        
+
         // Show loading state
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
         submitBtn.disabled = true;
-        
+
         // Re-enable button after 10 seconds in case of error
         setTimeout(() => {
             submitBtn.innerHTML = originalText;
@@ -1556,14 +1556,14 @@ function validateAllFields() {
     const form = document.getElementById('cvForm');
     const inputs = form.querySelectorAll('input, select, textarea');
     let isFormValid = true;
-    
+
     inputs.forEach(input => {
         validateField(input);
         if (input.classList.contains('is-invalid')) {
             isFormValid = false;
         }
     });
-    
+
     return isFormValid;
 }
 
@@ -1574,7 +1574,7 @@ function showFormError(message) {
     if (existingError) {
         existingError.remove();
     }
-    
+
     // Crear nuevo mensaje de error
     const errorDiv = document.createElement('div');
     errorDiv.className = 'form-error-message alert alert-danger alert-dismissible fade show';
@@ -1583,11 +1583,11 @@ function showFormError(message) {
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
-    
+
     // Insertar al inicio del formulario
     const form = document.getElementById('cvForm');
     form.insertBefore(errorDiv, form.firstChild);
-    
+
     // Scroll al error
     errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -1608,13 +1608,13 @@ function setupFilePreview() {
                         <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)
                     </small>
                 `;
-                
+
                 // Remove previous file info
                 const existingInfo = this.parentNode.querySelector('.file-info');
                 if (existingInfo) {
                     existingInfo.remove();
                 }
-                
+
                 this.parentNode.appendChild(fileInfo);
             }
         });
@@ -1626,18 +1626,18 @@ function setupCharacterCounter() {
     const cartaInput = document.getElementById('id_carta_presentacion');
     if (cartaInput) {
         const maxLength = 2000;
-        
+
         // Crear contador
         const counter = document.createElement('div');
         counter.className = 'character-counter';
         counter.textContent = `0 / ${maxLength} caracteres`;
         cartaInput.parentNode.appendChild(counter);
-        
+
         // Actualizar contador
         function updateCounter() {
             const length = cartaInput.value.length;
             counter.textContent = `${length} / ${maxLength} caracteres`;
-            
+
             // Cambiar color según la longitud
             counter.classList.remove('warning', 'danger');
             if (length > maxLength * 0.9) {
@@ -1647,13 +1647,13 @@ function setupCharacterCounter() {
                 counter.classList.add('danger');
             }
         }
-        
+
         // Event listeners
         cartaInput.addEventListener('input', updateCounter);
         cartaInput.addEventListener('paste', function() {
             setTimeout(updateCounter, 10);
         });
-        
+
         // Validación en tiempo real
         cartaInput.addEventListener('input', function() {
             if (this.value.length > maxLength) {
@@ -1670,7 +1670,7 @@ document.addEventListener('DOMContentLoaded', function() {
     handleFormSubmission();
     setupFilePreview();
     setupCharacterCounter();
-    
+
     // Auto-dismiss alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
@@ -1686,7 +1686,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 5000);
     });
-    
+
     // Scroll to form when message appears
     if (alerts.length > 0) {
         const formSection = document.querySelector('section[style*="width: 1400px"]');
@@ -1730,4 +1730,3 @@ supportsWebP().then(webpSupported => {
     }
 });
 </script>
-{% endblock %}
