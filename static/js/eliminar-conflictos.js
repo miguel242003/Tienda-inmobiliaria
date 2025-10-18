@@ -41,7 +41,9 @@
     
     console.log('✅ Limpieza completa finalizada');
     
-    // 4. Cargar el script funcional después de la limpieza
+    // 4. Cargar el script funcional después de la limpieza (DESHABILITADO)
+    // El script silencioso se carga directamente en base.html
+    /*
     setTimeout(() => {
         console.log('🚀 Cargando script funcional...');
         const script = document.createElement('script');
@@ -50,5 +52,6 @@
         script.onerror = () => console.error('❌ Error al cargar script funcional');
         document.head.appendChild(script);
     }, 100);
+    */
     
 })();
