@@ -1,18 +1,12 @@
 /**
- * Sistema de Tracking de Clics - VERSIÓN SIMPLE
- * Registra clics directamente sin endpoint AJAX
+ * Sistema de Tracking de Clics - VERSIÓN SILENCIOSA
+ * Registra clics sin mostrar mensajes en consola
  */
 (function() {
     'use strict';
     
-    // Solo mostrar mensaje inicial si hay problemas
-    // console.log('🚀 Inicializando ClickTracker Simple...');
-    
     // Función para registrar clic directamente
-    function registrarClickSimple(propiedadId, paginaOrigen = 'home') {
-        // Solo mostrar en modo debug
-        // console.log('🎯 Registrando clic simple para propiedad:', propiedadId);
-        
+    function registrarClickSilent(propiedadId, paginaOrigen = 'home') {
         // Crear un elemento oculto para enviar el clic
         const form = document.createElement('form');
         form.method = 'POST';
@@ -44,9 +38,6 @@
         // Agregar al DOM y enviar
         document.body.appendChild(form);
         form.submit();
-        
-        // Solo mostrar confirmación importante
-        console.log('✅ Click registrado correctamente');
     }
     
     // Función para obtener token CSRF
@@ -67,8 +58,6 @@
             }
         }
         
-        // Solo mostrar warning si no se encuentra
-        console.warn('⚠️ No se encontró token CSRF');
         return '';
     }
     
@@ -86,10 +75,7 @@
                 const paginaOrigen = window.location.pathname.includes('buscar') ? 'buscar' : 'home';
                 
                 // Registrar clic
-                registrarClickSimple(propiedadId, paginaOrigen);
-                
-                // Continuar con la navegación normal
-                // No prevenir el comportamiento por defecto
+                registrarClickSilent(propiedadId, paginaOrigen);
             });
         });
         
@@ -101,7 +87,7 @@
             
             boton.addEventListener('click', function(e) {
                 const paginaOrigen = window.location.pathname.includes('buscar') ? 'buscar' : 'home';
-                registrarClickSimple(propiedadId, paginaOrigen);
+                registrarClickSilent(propiedadId, paginaOrigen);
             });
         });
     }
@@ -134,8 +120,8 @@
     }
     
     // Exponer funciones globalmente para debugging
-    window.ClickTrackerSimple = {
-        registrarClick: registrarClickSimple,
+    window.ClickTrackerSilent = {
+        registrarClick: registrarClickSilent,
         detectarClics: detectarClics,
         version: '1.0'
     };
