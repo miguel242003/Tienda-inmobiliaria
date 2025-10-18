@@ -1297,6 +1297,43 @@ section[style*="background"] {
         border-radius: 4px !important;
     }
 }
+
+/* --- FIX: Imagen CV ocupando altura completa --- */
+.cv-image-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+.cv-image-container img {
+  height: 100% !important;
+  width: auto !important; /* Evita que se estire horizontalmente */
+  object-fit: contain !important;
+  object-position: left center !important;
+  display: block !important;
+}
+
+/* Forzar altura completa en el contenedor principal */
+section[style*="width: 1400px"] .row {
+  height: 100% !important;
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+section[style*="width: 1400px"] .col-lg-4,
+section[style*="width: 1400px"] .col-lg-8 {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+section[style*="width: 1400px"] .col-lg-4 {
+  justify-content: center !important;
+  background-color: #f8f9fa;
+}
 </style>
 
 <script>
