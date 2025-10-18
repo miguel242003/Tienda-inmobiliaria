@@ -409,12 +409,16 @@ def dashboard(request):
     # Procesar los datos agrupados
     for click_data in clicks_agrupados:
         prop_id = click_data['propiedad_id']
-        mes = click_data['fecha_click__month'] - 1  # Convertir a índice 0-based
-        total = click_data['total_clicks']
+        mes_raw = click_data['fecha_click__month']
         
-        if prop_id in clicks_por_propiedad:
-            clicks_por_propiedad[prop_id]['clicks_por_mes'][mes] = total
-            clicks_por_propiedad[prop_id]['clicks_totales'] += total
+        # Verificar que mes_raw no sea None
+        if mes_raw is not None:
+            mes = mes_raw - 1  # Convertir a índice 0-based
+            total = click_data['total_clicks']
+            
+            if prop_id in clicks_por_propiedad:
+                clicks_por_propiedad[prop_id]['clicks_por_mes'][mes] = total
+                clicks_por_propiedad[prop_id]['clicks_totales'] += total
     
     # Debug: imprimir datos generados
     print("=== DATOS OPTIMIZADOS GENERADOS ===")
