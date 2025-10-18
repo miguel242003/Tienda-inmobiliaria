@@ -30,7 +30,8 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure--ya4&kz0qjq@q%(nd8^&e
 
 # ADVERTENCIA DE SEGURIDAD: ¡no ejecutes con debug activado en producción!
 # 🔒 SEGURIDAD: DEBUG=False por defecto (más seguro)
-DEBUG = config('DEBUG', default=False, cast=bool)
+# TEMPORAL: Forzar DEBUG=True para desarrollo
+DEBUG = True  # config('DEBUG', default=False, cast=bool)
 
 # 🔒 SEGURIDAD: ALLOWED_HOSTS debe ser específico en producción
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver').split(',')
