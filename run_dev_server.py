@@ -21,7 +21,7 @@ def run_dev_server():
     try:
         # Ejecutar el servidor de desarrollo
         subprocess.run([
-            sys.executable, 'manage.py', 'runserver', '8000'
+            'python3', 'manage.py', 'runserver', '8000'
         ], cwd=Path(__file__).parent)
     except KeyboardInterrupt:
         print("\n🛑 Servidor detenido por el usuario")
