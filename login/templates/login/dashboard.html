@@ -3254,11 +3254,18 @@
                             <!-- Título del Gráfico -->
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-sm font-medium text-gray-600">Clics Mensuales</h3>
-                                <div class="text-right">
+                                <div class="flex items-center space-x-3">
+                                    <button id="btn-actualizar-grafico" 
+                                            class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                            title="Actualizar datos del gráfico">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    </button>
+                                    <div class="text-right">
                                         <div class="text-2xl font-bold text-blue-600 counter-animation" id="total-clicks">{{ total_clicks|default:"0"|safe }}</div>
-                                    <div class="text-xs text-gray-500">Total este año</div>
-                    </div>
-                </div>
+                                        <div class="text-xs text-gray-500">Total este año</div>
+                                    </div>
+                                </div>
+                            </div>
                 
                             <!-- Gráfico de Barras Verticales -->
                             <div class="h-64 flex items-end justify-between space-x-1 sm:space-x-2 px-2" id="grafico-barras">
@@ -5506,6 +5513,23 @@
                     
                     this.updateChart(e.target.value);
                 });
+                
+                // Botón de actualizar gráfico
+                const btnActualizar = document.getElementById('btn-actualizar-grafico');
+                if (btnActualizar) {
+                    btnActualizar.addEventListener('click', () => {
+                        console.log('🔄 Actualizando gráfico manualmente...');
+                        
+                        // Efecto visual
+                        btnActualizar.style.transform = 'rotate(360deg)';
+                        btnActualizar.style.color = '#3B82F6';
+                        
+                        // Recargar la página para obtener datos actualizados
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 300);
+                    });
+                }
             },
 
             updateChart(propiedad) {
@@ -5778,12 +5802,29 @@
             iniciarActualizacionAutomatica() {
                 console.log('🔄 Iniciando actualización automática del gráfico de clics...');
                 
-                // Actualizar cada 30 segundos
+                // Verificar si estamos en la sección del dashboard
+                let isDashboardVisible = false;
+                
+                // Función para verificar si el dashboard está visible
+                const checkDashboardVisibility = () => {
+                    const dashboardSection = document.getElementById('dashboard-content');
+                    if (dashboardSection) {
+                        isDashboardVisible = !dashboardSection.classList.contains('hidden') && 
+                                           dashboardSection.style.display !== 'none';
+                    }
+                    return isDashboardVisible;
+                };
+                
+                // Actualizar cada 30 segundos solo si el dashboard está visible
                 setInterval(() => {
-                    this.actualizarDatosDesdeServidor();
+                    if (checkDashboardVisibility()) {
+                        console.log('🔄 Dashboard visible - actualizando datos...');
+                        // Recargar la página para obtener datos actualizados
+                        window.location.reload();
+                    }
                 }, 30000); // 30 segundos
                 
-                console.log('✅ Actualización automática configurada cada 30 segundos');
+                console.log('✅ Actualización automática configurada cada 30 segundos (solo cuando dashboard visible)');
             }
         };
 
