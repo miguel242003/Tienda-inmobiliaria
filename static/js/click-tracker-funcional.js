@@ -11,7 +11,7 @@
         delete window.ClickTracker;
     }
     
-    console.log('🚀 Inicializando ClickTracker Funcional v2.0...');
+    console.log('🚀 Inicializando ClickTracker Funcional v3.0...');
     
     // Variables globales
     let clickTracker = null;
