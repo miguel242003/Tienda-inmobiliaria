@@ -421,12 +421,12 @@ def dashboard(request):
                 clicks_por_propiedad[prop_id]['clicks_por_mes'][mes] = total
                 clicks_por_propiedad[prop_id]['clicks_totales'] += total
     
-    # Debug: imprimir datos generados
-    print("=== DATOS OPTIMIZADOS GENERADOS ===")
-    for prop_id, datos in clicks_por_propiedad.items():
-        propiedad = next((p for p in todas_propiedades if p.id == prop_id), None)
-        titulo = propiedad.titulo if propiedad else f"Propiedad {prop_id}"
-        print(f"Propiedad {prop_id} ({titulo}): Total={datos['clicks_totales']}, Por mes={datos['clicks_por_mes']}")
+    # Debug: imprimir datos generados (comentado para producción)
+    # print("=== DATOS OPTIMIZADOS GENERADOS ===")
+    # for prop_id, datos in clicks_por_propiedad.items():
+    #     propiedad = next((p for p in todas_propiedades if p.id == prop_id), None)
+    #     titulo = propiedad.titulo if propiedad else f"Propiedad {prop_id}"
+    #     print(f"Propiedad {prop_id} ({titulo}): Total={datos['clicks_totales']}, Por mes={datos['clicks_por_mes']}")
     
     # Convertir clicks_por_propiedad a JSON para el template
     import json
@@ -484,23 +484,23 @@ def editar_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     
     if request.method == 'POST':
-        print("DEBUG - POST recibido para editar propiedad")
-        print(f"DEBUG - Datos POST: {request.POST}")
-        print(f"DEBUG - Archivos FILES: {request.FILES}")
+        # print("DEBUG - POST recibido para editar propiedad")
+        # print(f"DEBUG - Datos POST: {request.POST}")
+        # print(f"DEBUG - Archivos FILES: {request.FILES}")
         
         form = PropiedadForm(request.POST, request.FILES, instance=propiedad, is_edit=True)
-        print(f"DEBUG - Formulario válido: {form.is_valid()}")
+        # print(f"DEBUG - Formulario válido: {form.is_valid()}")
         
         if form.is_valid():
-            print("DEBUG - Formulario es válido, guardando...")
+            # print("DEBUG - Formulario es válido, guardando...")
             try:
                 propiedad = form.save(commit=False)
                 propiedad.save()
                 # Guardar las amenidades (relación many-to-many)
                 form.save_m2m()
-                print("DEBUG - Propiedad guardada exitosamente")
+                # print("DEBUG - Propiedad guardada exitosamente")
             except Exception as e:
-                print(f"DEBUG - Error al guardar propiedad: {e}")
+                # print(f"DEBUG - Error al guardar propiedad: {e}")
                 messages.error(request, f'Error al guardar la propiedad: {str(e)}')
                 return render(request, 'login/editar_propiedad.html', {
                     'form': form,
@@ -518,13 +518,14 @@ def editar_propiedad(request, propiedad_id):
             # Optimizar imágenes principales a WebP si se actualizaron
             try:
                 if 'imagen_principal' in request.FILES and propiedad.imagen_principal:
-                    print("DEBUG - Optimizando imagen principal a WebP en edición")
+                    # print("DEBUG - Optimizando imagen principal a WebP en edición")
                     propiedad.optimize_image_field('imagen_principal', quality=85)
                 if 'imagen_secundaria' in request.FILES and propiedad.imagen_secundaria:
-                    print("DEBUG - Optimizando imagen secundaria a WebP en edición")
+                    # print("DEBUG - Optimizando imagen secundaria a WebP en edición")
                     propiedad.optimize_image_field('imagen_secundaria', quality=85)
             except Exception as e:
-                print(f"DEBUG - Error en optimización WebP de imágenes principales (no crítico): {e}")
+                # print(f"DEBUG - Error en optimización WebP de imágenes principales (no crítico): {e}")
+                pass
             
             # Manejar archivos adicionales (fotos y videos) nuevos
             archivos_adicionales = request.FILES.getlist('fotos_adicionales')
@@ -547,16 +548,18 @@ def editar_propiedad(request, propiedad_id):
             for foto in fotos_creadas:
                 if foto.tipo_medio == 'imagen' and foto.imagen:
                     try:
-                        print(f"DEBUG - Optimizando foto adicional en edición: {foto.descripcion}")
+                        # print(f"DEBUG - Optimizando foto adicional en edición: {foto.descripcion}")
                         foto.optimize_image_field('imagen', quality=85)
                     except Exception as e:
-                        print(f"DEBUG - Error optimizando foto adicional en edición (no crítico): {e}")
+                        # print(f"DEBUG - Error optimizando foto adicional en edición (no crítico): {e}")
+                        pass
                 elif foto.tipo_medio == 'video' and foto.video:
                     try:
-                        print(f"DEBUG - Optimizando video adicional en edición: {foto.descripcion}")
+                        # print(f"DEBUG - Optimizando video adicional en edición: {foto.descripcion}")
                         foto.optimize_video_field('video', quality=80)
                     except Exception as e:
-                        print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
+                        # print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
+                        pass
             
             messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
             
@@ -571,8 +574,8 @@ def editar_propiedad(request, propiedad_id):
             
             return redirect('login:dashboard')
         else:
-            print("DEBUG - Formulario NO es válido")
-            print(f"DEBUG - Errores del formulario: {form.errors}")
+            # print("DEBUG - Formulario NO es válido")
+            # print(f"DEBUG - Errores del formulario: {form.errors}")
             
             # Mostrar errores específicos del formulario
             error_messages = []
@@ -641,13 +644,13 @@ def eliminar_propiedad_ajax(request, propiedad_id):
 @login_required
 def actualizar_perfil(request):
     """Vista AJAX para actualizar el perfil del administrador"""
-    print(f"=== ACTUALIZAR PERFIL - Usuario: {request.user.email} ===")
-    print(f"Método: {request.method}")
-    print(f"POST data: {request.POST}")
-    print(f"FILES: {request.FILES}")
+    # print(f"=== ACTUALIZAR PERFIL - Usuario: {request.user.email} ===")
+    # print(f"Método: {request.method}")
+    # print(f"POST data: {request.POST}")
+    # print(f"FILES: {request.FILES}")
     
     if not request.user.is_staff:
-        print("Error: Usuario no es staff")
+        # print("Error: Usuario no es staff")
         return JsonResponse({'success': False, 'message': 'No tienes permisos para actualizar el perfil.'})
     
     if request.method == 'POST':
@@ -656,9 +659,9 @@ def actualizar_perfil(request):
             from .models import AdminCredentials
             try:
                 admin_creds = request.user.admincredentials
-                print(f"AdminCredentials encontrado: {admin_creds}")
+                # print(f"AdminCredentials encontrado: {admin_creds}")
             except AdminCredentials.DoesNotExist:
-                print("AdminCredentials no existe, creando uno nuevo")
+                # print("AdminCredentials no existe, creando uno nuevo")
                 admin_creds = AdminCredentials.objects.create(
                     user=request.user,
                     nombre=request.user.first_name or 'Administrador',
@@ -667,7 +670,7 @@ def actualizar_perfil(request):
                     telefono='+52-1-33-00000000',
                     password='temp_password_123'
                 )
-                print(f"AdminCredentials creado: {admin_creds}")
+                # print(f"AdminCredentials creado: {admin_creds}")
             
             # Validar campos antes de actualizar
             nombre = request.POST.get('nombre', '').strip()
@@ -702,31 +705,31 @@ def actualizar_perfil(request):
             admin_creds.apellido = apellido
             admin_creds.telefono = request.POST.get('telefono', admin_creds.telefono)
             
-            print(f"Campos actualizados:")
-            print(f"  Nombre: {nombre_anterior} -> {admin_creds.nombre}")
-            print(f"  Apellido: {apellido_anterior} -> {admin_creds.apellido}")
-            print(f"  Teléfono: {telefono_anterior} -> {admin_creds.telefono}")
+            # print(f"Campos actualizados:")
+            # print(f"  Nombre: {nombre_anterior} -> {admin_creds.nombre}")
+            # print(f"  Apellido: {apellido_anterior} -> {admin_creds.apellido}")
+            # print(f"  Teléfono: {telefono_anterior} -> {admin_creds.telefono}")
             
             # Fecha de nacimiento
             fecha_nacimiento = request.POST.get('fecha_nacimiento')
             if fecha_nacimiento:
                 from datetime import datetime
                 admin_creds.fecha_nacimiento = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
-                print(f"Fecha de nacimiento actualizada: {admin_creds.fecha_nacimiento}")
+                # print(f"Fecha de nacimiento actualizada: {admin_creds.fecha_nacimiento}")
             
             # Foto de perfil
             if 'foto_perfil' in request.FILES:
                 admin_creds.foto_perfil = request.FILES['foto_perfil']
-                print(f"Foto de perfil actualizada: {admin_creds.foto_perfil}")
+                # print(f"Foto de perfil actualizada: {admin_creds.foto_perfil}")
             
             admin_creds.save()
-            print("AdminCredentials guardado exitosamente")
+            # print("AdminCredentials guardado exitosamente")
             
             # Actualizar también el usuario de Django
             request.user.first_name = admin_creds.nombre
             request.user.last_name = admin_creds.apellido
             request.user.save()
-            print("Usuario de Django actualizado exitosamente")
+            # print("Usuario de Django actualizado exitosamente")
             
             # Preparar respuesta
             response_data = {
@@ -737,18 +740,18 @@ def actualizar_perfil(request):
             # Incluir URL de la foto si existe
             if admin_creds.foto_perfil:
                 response_data['foto_url'] = admin_creds.foto_perfil.url
-                print(f"URL de foto incluida: {response_data['foto_url']}")
+                # print(f"URL de foto incluida: {response_data['foto_url']}")
             
-            print(f"Respuesta final: {response_data}")
+            # print(f"Respuesta final: {response_data}")
             return JsonResponse(response_data)
             
         except Exception as e:
-            print(f"Error al actualizar perfil: {str(e)}")
+            # print(f"Error al actualizar perfil: {str(e)}")
             import traceback
             traceback.print_exc()
             return JsonResponse({'success': False, 'message': f'Error al actualizar el perfil: {str(e)}'})
     
-    print("Método no permitido")
+    # print("Método no permitido")
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 @login_required
@@ -762,13 +765,13 @@ def crear_nuevo_usuario_admin(request):
     - Validación exhaustiva de todos los campos
     - Protección contra spam de usuarios
     """
-    print(f"=== CREAR NUEVO USUARIO ADMIN - Usuario: {request.user.email} ===")
-    print(f"Método: {request.method}")
-    print(f"POST data: {request.POST}")
-    print(f"FILES: {request.FILES}")
+    # print(f"=== CREAR NUEVO USUARIO ADMIN - Usuario: {request.user.email} ===")
+    # print(f"Método: {request.method}")
+    # print(f"POST data: {request.POST}")
+    # print(f"FILES: {request.FILES}")
     
     if not request.user.is_staff:
-        print("Error: Usuario no es staff")
+        # print("Error: Usuario no es staff")
         return JsonResponse({'success': False, 'message': 'No tienes permisos para crear usuarios administrativos.'})
     
     if request.method == 'POST':
@@ -841,9 +844,10 @@ def crear_nuevo_usuario_admin(request):
                     return JsonResponse({'success': False, 'message': 'Formato de fecha inválido.'})
             
             form = NuevoUsuarioAdminForm(request.POST, request.FILES)
-            print(f"Formulario válido: {form.is_valid()}")
+            # print(f"Formulario válido: {form.is_valid()}")
             if not form.is_valid():
-                print(f"Errores del formulario: {form.errors}")
+                # print(f"Errores del formulario: {form.errors}")
+                pass
             
             if form.is_valid():
                 # Crear usuario administrador primero
@@ -955,64 +959,65 @@ def cambiar_password(request):
             nueva_password = request.POST.get('nueva_password')
             confirmar_password = request.POST.get('confirmar_nueva_password')
             
-            print(f"=== DEBUG CAMBIO CONTRASEÑA ===")
-            print(f"Usuario: {request.user.username}")
-            print(f"Password actual recibida: {password_actual}")
-            print(f"Nueva password: {nueva_password}")
-            print(f"Confirmar password: {confirmar_password}")
-            print(f"User password en DB: {request.user.password}")
+            # print(f"=== DEBUG CAMBIO CONTRASEÑA ===")
+            # print(f"Usuario: {request.user.username}")
+            # print(f"Password actual recibida: {password_actual}")
+            # print(f"Nueva password: {nueva_password}")
+            # print(f"Confirmar password: {confirmar_password}")
+            # print(f"User password en DB: {request.user.password}")
             
             # Validaciones básicas
             if not nueva_password or not confirmar_password:
-                print("Error: Campos incompletos")
+                # print("Error: Campos incompletos")
                 return JsonResponse({'success': False, 'message': 'Por favor completa todos los campos.'})
             
             if nueva_password != confirmar_password:
-                print("Error: Contraseñas no coinciden")
+                # print("Error: Contraseñas no coinciden")
                 return JsonResponse({'success': False, 'message': 'Las contraseñas no coinciden.'})
             
             if len(nueva_password) < 8:
-                print("Error: Contraseña muy corta")
+                # print("Error: Contraseña muy corta")
                 return JsonResponse({'success': False, 'message': 'La contraseña debe tener al menos 8 caracteres.'})
             
             # Verificar contraseña actual si se proporcionó
             if password_actual:
-                print(f"Verificando contraseña actual...")
-                print(f"Password ingresada: {password_actual}")
-                print(f"Password en User: {request.user.password}")
+                # print(f"Verificando contraseña actual...")
+                # print(f"Password ingresada: {password_actual}")
+                # print(f"Password en User: {request.user.password}")
                 
                 # Verificar contra User.password
                 user_check = check_password(password_actual, request.user.password)
-                print(f"Verificación contra User.password: {user_check}")
+                # print(f"Verificación contra User.password: {user_check}")
                 
                 # También verificar contra AdminCredentials.password
                 try:
                     admin_creds = request.user.admincredentials
                     admin_check = check_password(password_actual, admin_creds.password)
-                    print(f"Verificación contra AdminCredentials.password: {admin_check}")
-                    print(f"AdminCredentials password: {admin_creds.password}")
+                    # print(f"Verificación contra AdminCredentials.password: {admin_check}")
+                    # print(f"AdminCredentials password: {admin_creds.password}")
                 except AdminCredentials.DoesNotExist:
-                    print("No se encontraron AdminCredentials")
+                    # print("No se encontraron AdminCredentials")
                     admin_check = False
                 
                 # Aceptar si cualquiera de las dos verificaciones es correcta
                 if not user_check and not admin_check:
-                    print("Error: Contraseña actual incorrecta en ambos modelos")
+                    # print("Error: Contraseña actual incorrecta en ambos modelos")
                     return JsonResponse({'success': False, 'message': 'La contraseña actual es incorrecta.'})
                 else:
-                    print("Contraseña actual verificada correctamente")
+                    # print("Contraseña actual verificada correctamente")
+                    pass
             else:
                 # Si no hay contraseña actual, verificar que esté verificado por SMS
                 # (Esta verificación se haría con una sesión o token temporal)
                 # Por ahora, requerimos contraseña actual
-                print("Error: No se proporcionó contraseña actual")
+                # print("Error: No se proporcionó contraseña actual")
                 return JsonResponse({'success': False, 'message': 'Debes ingresar tu contraseña actual.'})
             
             # Cambiar la contraseña
-            print(f"=== CAMBIO DE CONTRASEÑA ===")
-            print(f"Usuario: {request.user.username}")
-            print(f"Email: {request.user.email}")
-            print(f"Nueva contraseña: {nueva_password}")
+            # print(f"=== CAMBIO DE CONTRASEÑA ===")
+            # print(f"Usuario: {request.user.username}")
+            # print(f"Email: {request.user.email}")
+            # print(f"Nueva contraseña: {nueva_password}")
             
             # Cambiar contraseña en User
             request.user.set_password(nueva_password)
@@ -1024,14 +1029,14 @@ def cambiar_password(request):
                 from django.contrib.auth.hashers import make_password
                 admin_creds.password = make_password(nueva_password)
                 admin_creds.save()
-                print(f"Contraseña actualizada en AdminCredentials también")
+                # print(f"Contraseña actualizada en AdminCredentials también")
             except AdminCredentials.DoesNotExist:
-                print(f"Error: No se encontraron AdminCredentials para el usuario")
+                # print(f"Error: No se encontraron AdminCredentials para el usuario")
                 return JsonResponse({'success': False, 'message': 'Error: No se encontraron credenciales de administrador.'})
             
             # Verificar que se guardó correctamente
             user_updated = User.objects.get(id=request.user.id)
-            print(f"Contraseña guardada correctamente en User: {user_updated.password}")
+            # print(f"Contraseña guardada correctamente en User: {user_updated.password}")
             
             return JsonResponse({'success': True, 'message': 'Contraseña cambiada exitosamente.'})
             
@@ -1062,7 +1067,7 @@ def enviar_codigo_sms(request):
                 
                 # En un entorno real, aquí enviarías el SMS usando un servicio como Twilio
                 # Por ahora, simularemos el envío
-                print(f"CÓDIGO SMS para {telefono}: {codigo}")
+                # print(f"CÓDIGO SMS para {telefono}: {codigo}")
                 
                 # Guardar el código en la sesión (en producción usarías Redis o base de datos)
                 request.session['sms_code'] = codigo
@@ -1528,5 +1533,5 @@ def send_password_reset_email(email, code):
         )
         return True
     except Exception as e:
-        print(f"Error enviando email: {e}")
+        # print(f"Error enviando email: {e}")
         return False
