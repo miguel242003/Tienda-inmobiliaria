@@ -12,19 +12,19 @@ SELECT
     email,
     date_joined
 FROM auth_user 
-WHERE email != 'xmiguelastorgax@gmail.com' OR username != 'xmiguelastorgax@gmail.com';
+WHERE username != 'xmiguelastorgax@gmail.com';
 
 -- 2. Eliminar credenciales de administrador asociadas a usuarios que se van a eliminar
 -- (excepto la de xmiguelastorgax@gmail.com)
 DELETE FROM login_admincredentials 
 WHERE user_id IN (
     SELECT id FROM auth_user 
-    WHERE email != 'xmiguelastorgax@gmail.com' AND username != 'xmiguelastorgax@gmail.com'
+    WHERE username != 'xmiguelastorgax@gmail.com'
 );
 
 -- 3. Eliminar usuarios (excepto xmiguelastorgax@gmail.com)
 DELETE FROM auth_user 
-WHERE email != 'xmiguelastorgax@gmail.com' AND username != 'xmiguelastorgax@gmail.com';
+WHERE username != 'xmiguelastorgax@gmail.com';
 
 -- 4. Verificar que solo queda el usuario deseado
 SELECT 
