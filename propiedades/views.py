@@ -9,6 +9,7 @@ from django.views import View
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django_ratelimit.decorators import ratelimit
+from django.conf import settings
 from .models import Propiedad, ClickPropiedad, Amenidad
 from .forms import PropiedadForm
 from .validators import validar_imagen, validar_video, validar_imagen_o_video
@@ -272,6 +273,8 @@ def crear_propiedad(request):
         print(f"Usuario: {request.user}")
         print(f"Método: {request.method}")
         print(f"Es AJAX: {request.headers.get('X-Requested-With') == 'XMLHttpRequest'}")
+        print(f"DEBUG: {settings.DEBUG}")
+        print(f"Database: {settings.DATABASES['default']['ENGINE']}")
         
         # Verificar rate limit
         was_limited = getattr(request, 'limited', False)
@@ -281,6 +284,19 @@ def crear_propiedad(request):
 
         if request.method == 'POST':
             print("=== PROCESANDO POST ===")
+            print(f"Datos POST: {request.POST}")
+            print(f"Archivos FILES: {request.FILES}")
+            
+            # Validar datos básicos antes de crear el formulario
+            if not request.POST.get('titulo'):
+                error_msg = "El título es requerido"
+                print(f"ERROR: {error_msg}")
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'message': error_msg})
+                else:
+                    messages.error(request, error_msg)
+                    return redirect('login:dashboard')
+            
             form = PropiedadForm(request.POST, request.FILES)
             
             if form.is_valid():
@@ -290,49 +306,87 @@ def crear_propiedad(request):
                     
                     # Asignar administrador de forma más robusta
                     if hasattr(request, 'user') and request.user.is_authenticated:
-                        from login.models import AdminCredentials
                         try:
-                            # Intentar obtener AdminCredentials de diferentes formas
-                            admin_creds = None
-                            
-                            # Método 1: Relación directa
-                            if hasattr(request.user, 'admincredentials'):
-                                admin_creds = request.user.admincredentials
-                                print(f"AdminCredentials encontrado por relación directa: {admin_creds}")
-                            
-                            # Método 2: Buscar por email
-                            if not admin_creds:
-                                try:
-                                    admin_creds = AdminCredentials.objects.get(email=request.user.email)
-                                    print(f"AdminCredentials encontrado por email: {admin_creds}")
-                                except AdminCredentials.DoesNotExist:
-                                    print("No se encontró AdminCredentials por email")
-                            
-                            # Método 3: Crear uno nuevo si no existe
-                            if not admin_creds:
-                                print("Creando nuevo AdminCredentials...")
-                                admin_creds = AdminCredentials.objects.create(
-                                    email=request.user.email,
-                                    nombre=request.user.get_full_name() or request.user.username,
-                                    telefono='',
-                                    activo=True
-                                )
-                                print(f"AdminCredentials creado: {admin_creds}")
-                            
-                            if admin_creds:
-                                propiedad.administrador = admin_creds
-                                print(f"Administrador asignado: {admin_creds}")
-                            else:
-                                print("ADVERTENCIA: No se pudo asignar administrador")
+                            from login.models import AdminCredentials
+                        except ImportError as import_error:
+                            print(f"ERROR: No se pudo importar AdminCredentials: {import_error}")
+                            # Continuar sin asignar administrador
+                            AdminCredentials = None
+                        
+                        if AdminCredentials:
+                            try:
+                                # Intentar obtener AdminCredentials de diferentes formas
+                                admin_creds = None
                                 
-                        except Exception as e:
-                            print(f"ADVERTENCIA: Error al manejar AdminCredentials: {e}")
-                            # No fallar la creación por problemas de administrador
+                                # Método 1: Relación directa
+                                if hasattr(request.user, 'admincredentials'):
+                                    admin_creds = request.user.admincredentials
+                                    print(f"AdminCredentials encontrado por relación directa: {admin_creds}")
+                                
+                                # Método 2: Buscar por email
+                                if not admin_creds:
+                                    try:
+                                        admin_creds = AdminCredentials.objects.get(email=request.user.email)
+                                        print(f"AdminCredentials encontrado por email: {admin_creds}")
+                                    except AdminCredentials.DoesNotExist:
+                                        print("No se encontró AdminCredentials por email")
+                                
+                                # Método 3: Crear uno nuevo si no existe
+                                if not admin_creds:
+                                    print("Creando nuevo AdminCredentials...")
+                                    admin_creds = AdminCredentials.objects.create(
+                                        email=request.user.email,
+                                        nombre=request.user.get_full_name() or request.user.username,
+                                        telefono='',
+                                        activo=True
+                                    )
+                                    print(f"AdminCredentials creado: {admin_creds}")
+                                
+                                if admin_creds:
+                                    propiedad.administrador = admin_creds
+                                    print(f"Administrador asignado: {admin_creds}")
+                                else:
+                                    print("ADVERTENCIA: No se pudo asignar administrador")
+                                    
+                            except Exception as e:
+                                print(f"ADVERTENCIA: Error al manejar AdminCredentials: {e}")
+                                # No fallar la creación por problemas de administrador
                     
-                    # Guardar la propiedad
-                    propiedad.save()
-                    form.save_m2m()
-                    print(f"Propiedad guardada con ID: {propiedad.id}")
+                    # Guardar la propiedad con manejo de errores específicos
+                    try:
+                        propiedad.save()
+                        print(f"Propiedad guardada con ID: {propiedad.id}")
+                    except Exception as db_error:
+                        print(f"ERROR al guardar propiedad: {db_error}")
+                        print(f"Tipo de error: {type(db_error).__name__}")
+                        
+                        # Manejar errores específicos de base de datos
+                        if 'Duplicate entry' in str(db_error):
+                            error_msg = "Ya existe una propiedad con estos datos. Por favor, verifica la información."
+                        elif 'Connection' in str(db_error):
+                            error_msg = "Error de conexión con la base de datos. Intenta nuevamente."
+                        elif 'Permission' in str(db_error):
+                            error_msg = "Error de permisos. Contacta al administrador."
+                        else:
+                            error_msg = f"Error al guardar la propiedad: {str(db_error)}"
+                        
+                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                            return JsonResponse({'success': False, 'message': error_msg})
+                        else:
+                            messages.error(request, error_msg)
+                            return render(request, 'propiedades/crear_propiedad.html', {
+                                'form': form,
+                                'titulo_pagina': 'Crear Nueva Propiedad',
+                                'amenidades': Amenidad.objects.all()
+                            })
+                    
+                    # Guardar relaciones many-to-many
+                    try:
+                        form.save_m2m()
+                        print("Relaciones many-to-many guardadas")
+                    except Exception as m2m_error:
+                        print(f"WARNING: Error guardando relaciones M2M: {m2m_error}")
+                        # No fallar por errores de M2M, pero registrar
                     
                     # Deshabilitar optimización WebP temporalmente para evitar errores
                     # try:
@@ -422,14 +476,30 @@ def crear_propiedad(request):
         import traceback
         print(f"Traceback completo: {traceback.format_exc()}")
         
-        # Mensaje de error más amigable
-        user_friendly_message = "Ha ocurrido un error inesperado. Por favor, intenta nuevamente o contacta al administrador."
+        # Manejar errores específicos de producción
+        error_type = type(e).__name__
+        
+        if 'DatabaseError' in error_type or 'OperationalError' in error_type:
+            user_friendly_message = "Error de conexión con la base de datos. Por favor, intenta nuevamente en unos minutos."
+        elif 'PermissionDenied' in error_type:
+            user_friendly_message = "No tienes permisos para realizar esta acción."
+        elif 'ValidationError' in error_type:
+            user_friendly_message = "Los datos proporcionados no son válidos. Por favor, verifica la información."
+        elif 'ImportError' in error_type:
+            user_friendly_message = "Error de configuración del sistema. Contacta al administrador."
+        else:
+            user_friendly_message = "Ha ocurrido un error inesperado. Por favor, intenta nuevamente o contacta al administrador."
+        
+        # Log del error para debugging
+        print(f"ERROR DETALLADO: {str(e)}")
+        print(f"USER AGENT: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
+        print(f"REMOTE ADDR: {request.META.get('REMOTE_ADDR', 'Unknown')}")
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
                 'message': user_friendly_message,
-                'error_details': str(e) if DEBUG else None
+                'error_details': str(e) if settings.DEBUG else None
             })
         else:
             messages.error(request, user_friendly_message)
