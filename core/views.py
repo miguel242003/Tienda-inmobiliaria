@@ -158,6 +158,9 @@ def cv(request):
                 # Enviar email de confirmación al candidato
                 send_cv_confirmation_email(cv_submission)
                 
+                # Enviar email de notificación al administrador
+                send_cv_notification_email(cv_submission)
+                
                 messages.success(
                     request, 
                     '¡CV enviado exitosamente! Hemos recibido tu currículum y te contactaremos pronto si tu perfil coincide con nuestras necesidades.'
