@@ -161,13 +161,25 @@ class FileValidator:
         Returns:
             str: Nombre de archivo sanitizado
         """
+        import unicodedata
+        
         # Obtener nombre y extensión
         nombre_original = archivo.name
         nombre_base = os.path.splitext(nombre_original)[0]
         extension = os.path.splitext(nombre_original)[1]
         
+        # Normalizar caracteres Unicode (NFD) para separar acentos de letras
+        nombre_normalizado = unicodedata.normalize('NFD', nombre_base)
+        
+        # Remover caracteres diacríticos (acentos, tildes, etc.)
+        nombre_sin_acentos = ''.join(
+            char for char in nombre_normalizado 
+            if unicodedata.category(char) != 'Mn'
+        )
+        
         # Remover caracteres peligrosos (solo permitir alfanuméricos, guiones y guiones bajos)
-        nombre_limpio = re.sub(r'[^a-zA-Z0-9._-]', '_', nombre_base)
+        # Usar una expresión regular más específica para evitar problemas con Unicode
+        nombre_limpio = re.sub(r'[^\w.-]', '_', nombre_sin_acentos)
         
         # Limitar longitud del nombre
         nombre_limpio = nombre_limpio[:100]
