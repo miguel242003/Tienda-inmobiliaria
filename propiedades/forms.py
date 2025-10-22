@@ -270,9 +270,14 @@ class PropiedadForm(forms.ModelForm):
             # Solo validar si es un archivo nuevo (no existente)
             # Debug: Log información del archivo
             print(f"DEBUG FORM - Archivo imagen_principal:")
-            print(f"  - Nombre: {imagen.name}")
+            print(f"  - Nombre original: {imagen.name}")
             print(f"  - Tamaño: {imagen.size} bytes")
             print(f"  - Content-Type: {imagen.content_type}")
+            
+            # Aplicar sanitización del nombre de archivo
+            from .validators import FileValidator
+            FileValidator.sanitizar_nombre_archivo(imagen)
+            print(f"  - Nombre sanitizado: {imagen.name}")
             
             # Validar tipo de archivo
             allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
@@ -291,6 +296,10 @@ class PropiedadForm(forms.ModelForm):
         imagen = self.cleaned_data.get('imagen_secundaria')
         if imagen and hasattr(imagen, 'name') and imagen.name and not imagen.name.startswith('propiedades/'):
             # Solo validar si es un archivo nuevo (no existente)
+            # Aplicar sanitización del nombre de archivo
+            from .validators import FileValidator
+            FileValidator.sanitizar_nombre_archivo(imagen)
+            
             # Validar tipo de archivo
             allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
             if imagen.content_type not in allowed_types:
