@@ -243,6 +243,8 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         from django.conf import settings
         from django.templatetags.static import static
         from core.utils import obtener_ruta_static_imagen
+        import os
+        from pathlib import Path
         
         if not self.imagen_principal:
             return None
@@ -253,8 +255,13 @@ class Propiedad(WebPImageFieldMixin, models.Model):
             propiedad_slug=self.slug, 
             es_principal=True
         )
+        
+        # Verificar que el archivo realmente existe antes de retornar la URL estática
         if ruta_static:
-            return static(ruta_static)
+            static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+            ruta_completa = static_dir / os.path.basename(ruta_static)
+            if ruta_completa.exists():
+                return static(ruta_static)
         
         # Si no existe en static, usar la de media
         return self.imagen_principal.url
@@ -264,6 +271,8 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         from django.conf import settings
         from django.templatetags.static import static
         from core.utils import obtener_ruta_static_imagen
+        import os
+        from pathlib import Path
         
         if not self.imagen_secundaria:
             return None
@@ -274,8 +283,13 @@ class Propiedad(WebPImageFieldMixin, models.Model):
             propiedad_slug=self.slug, 
             es_principal=False
         )
+        
+        # Verificar que el archivo realmente existe antes de retornar la URL estática
         if ruta_static:
-            return static(ruta_static)
+            static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+            ruta_completa = static_dir / os.path.basename(ruta_static)
+            if ruta_completa.exists():
+                return static(ruta_static)
         
         # Si no existe en static, usar la de media
         return self.imagen_secundaria.url

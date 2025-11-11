@@ -4954,8 +4954,8 @@ const fotosData = {
     ambientes: {{ propiedad.ambientes }},
     balcon: {{ propiedad.balcon|yesno:"true,false" }},
     metros: {{ propiedad.metros_cuadrados }},
-    fotoPrincipal: {% if propiedad.imagen_principal %}{% if propiedad.get_foto_principal_static_url %}'{{ propiedad.get_foto_principal_static_url }}'{% else %}'{{ propiedad.imagen_principal.url }}'{% endif %}{% else %}null{% endif %},
-    fotoSecundaria: {% if propiedad.imagen_secundaria %}{% if propiedad.get_foto_secundaria_static_url %}'{{ propiedad.get_foto_secundaria_static_url }}'{% else %}'{{ propiedad.imagen_secundaria.url }}'{% endif %}{% else %}null{% endif %},
+    fotoPrincipal: {% if propiedad.imagen_principal %}'{{ propiedad.get_foto_principal_static_url|default:propiedad.imagen_principal.url }}'{% else %}null{% endif %},
+    fotoSecundaria: {% if propiedad.imagen_secundaria %}'{{ propiedad.get_foto_secundaria_static_url|default:propiedad.imagen_secundaria.url }}'{% else %}null{% endif %},
     // Las imágenes ya son WebP desde static (no necesitamos URLs separadas)
     fotoPrincipalWebP: null,
     fotoSecundariaWebP: null,
