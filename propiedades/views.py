@@ -318,8 +318,18 @@ def crear_propiedad(request):
             
             if form.is_valid():
                 print("=== FORMULARIO VÁLIDO ===")
+                print(f"Archivos recibidos: {list(request.FILES.keys())}")
                 try:
                     propiedad = form.save(commit=False)
+                    
+                    # Verificar que las imágenes se asignaron correctamente
+                    if 'imagen_principal' in request.FILES:
+                        print(f"Imagen principal recibida: {request.FILES['imagen_principal'].name}")
+                    if 'imagen_secundaria' in request.FILES:
+                        print(f"Imagen secundaria recibida: {request.FILES['imagen_secundaria'].name}")
+                    
+                    print(f"Antes de guardar - Imagen principal: {propiedad.imagen_principal}")
+                    print(f"Antes de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
                     
                     # Asignar administrador de forma más robusta
                     if hasattr(request, 'user') and request.user.is_authenticated:
@@ -373,6 +383,10 @@ def crear_propiedad(request):
                     try:
                         propiedad.save()
                         print(f"Propiedad guardada con ID: {propiedad.id}")
+                        print(f"Después de guardar - Imagen principal: {propiedad.imagen_principal}")
+                        print(f"Después de guardar - Imagen principal name: {propiedad.imagen_principal.name if propiedad.imagen_principal else 'None'}")
+                        print(f"Después de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
+                        print(f"Después de guardar - Imagen secundaria name: {propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else 'None'}")
                     except Exception as db_error:
                         print(f"ERROR al guardar propiedad: {db_error}")
                         print(f"Tipo de error: {type(db_error).__name__}")

@@ -142,19 +142,52 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         
         # Copiar imágenes a static después de guardar (convertidas a WebP)
         # Solo copiar si la imagen cambió o es nueva
+        import logging
+        logger = logging.getLogger(__name__)
+        
         if self.imagen_principal:
-            imagen_principal_cambio = not imagen_principal_original or self.imagen_principal.name != imagen_principal_original
-            if imagen_principal_cambio or not imagen_principal_existia:
-                # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
-                nombre_archivo = f"{self.slug}-principal"
-                copiar_imagen_a_static(self.imagen_principal, nombre_archivo, quality=85)
+            try:
+                # Verificar que el archivo existe antes de copiar
+                from django.core.files.storage import default_storage
+                if default_storage.exists(self.imagen_principal.name):
+                    imagen_principal_cambio = not imagen_principal_original or self.imagen_principal.name != imagen_principal_original
+                    if imagen_principal_cambio or not imagen_principal_existia:
+                        # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
+                        nombre_archivo = f"{self.slug}-principal"
+                        logger.info(f"Copiando imagen principal a static: {nombre_archivo}")
+                        resultado = copiar_imagen_a_static(self.imagen_principal, nombre_archivo, quality=85)
+                        if resultado:
+                            logger.info(f"Imagen principal copiada exitosamente: {resultado}")
+                        else:
+                            logger.warning(f"No se pudo copiar imagen principal a static")
+                else:
+                    logger.warning(f"Imagen principal no existe en storage: {self.imagen_principal.name}")
+            except Exception as e:
+                logger.error(f"Error al copiar imagen principal a static: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
         
         if self.imagen_secundaria:
-            imagen_secundaria_cambio = not imagen_secundaria_original or self.imagen_secundaria.name != imagen_secundaria_original
-            if imagen_secundaria_cambio or not imagen_secundaria_existia:
-                # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
-                nombre_archivo = f"{self.slug}-secundaria"
-                copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
+            try:
+                # Verificar que el archivo existe antes de copiar
+                from django.core.files.storage import default_storage
+                if default_storage.exists(self.imagen_secundaria.name):
+                    imagen_secundaria_cambio = not imagen_secundaria_original or self.imagen_secundaria.name != imagen_secundaria_original
+                    if imagen_secundaria_cambio or not imagen_secundaria_existia:
+                        # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
+                        nombre_archivo = f"{self.slug}-secundaria"
+                        logger.info(f"Copiando imagen secundaria a static: {nombre_archivo}")
+                        resultado = copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
+                        if resultado:
+                            logger.info(f"Imagen secundaria copiada exitosamente: {resultado}")
+                        else:
+                            logger.warning(f"No se pudo copiar imagen secundaria a static")
+                else:
+                    logger.warning(f"Imagen secundaria no existe en storage: {self.imagen_secundaria.name}")
+            except Exception as e:
+                logger.error(f"Error al copiar imagen secundaria a static: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
     
     def _get_original_titulo(self):
         """Obtener el título original de la base de datos"""
