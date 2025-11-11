@@ -302,7 +302,10 @@ def crear_propiedad(request):
         if request.method == 'POST':
             print("=== PROCESANDO POST ===")
             print(f"Datos POST: {request.POST}")
-            print(f"Archivos FILES: {request.FILES}")
+            print(f"Archivos FILES: {list(request.FILES.keys())}")
+            for key in request.FILES:
+                file = request.FILES[key]
+                print(f"  - {key}: {file.name} ({file.size} bytes, {file.content_type})")
             
             # Validar datos básicos antes de crear el formulario
             if not request.POST.get('titulo'):
@@ -387,6 +390,32 @@ def crear_propiedad(request):
                         print(f"Después de guardar - Imagen principal name: {propiedad.imagen_principal.name if propiedad.imagen_principal else 'None'}")
                         print(f"Después de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
                         print(f"Después de guardar - Imagen secundaria name: {propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else 'None'}")
+                        
+                        # Verificar que los archivos existen físicamente
+                        from django.core.files.storage import default_storage
+                        if propiedad.imagen_principal:
+                            existe = default_storage.exists(propiedad.imagen_principal.name)
+                            print(f"Imagen principal existe en storage: {existe}")
+                            if existe:
+                                try:
+                                    path = propiedad.imagen_principal.path
+                                    print(f"Imagen principal path: {path}")
+                                    import os
+                                    print(f"Imagen principal existe en filesystem: {os.path.exists(path)}")
+                                except Exception as e:
+                                    print(f"Error al obtener path de imagen principal: {e}")
+                        
+                        if propiedad.imagen_secundaria:
+                            existe = default_storage.exists(propiedad.imagen_secundaria.name)
+                            print(f"Imagen secundaria existe en storage: {existe}")
+                            if existe:
+                                try:
+                                    path = propiedad.imagen_secundaria.path
+                                    print(f"Imagen secundaria path: {path}")
+                                    import os
+                                    print(f"Imagen secundaria existe en filesystem: {os.path.exists(path)}")
+                                except Exception as e:
+                                    print(f"Error al obtener path de imagen secundaria: {e}")
                     except Exception as db_error:
                         print(f"ERROR al guardar propiedad: {db_error}")
                         print(f"Tipo de error: {type(db_error).__name__}")
