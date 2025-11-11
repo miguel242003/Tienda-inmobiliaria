@@ -473,6 +473,70 @@ def crear_propiedad(request):
                         logger.warning(f"WARNING: Error guardando relaciones M2M: {m2m_error}")
                         # No fallar por errores de M2M, pero registrar
                     
+                    # Guardar fotos y videos adicionales
+                    try:
+                        archivos_adicionales = request.FILES.getlist('fotos_adicionales')
+                        if archivos_adicionales:
+                            logger.info(f"Procesando {len(archivos_adicionales)} archivos adicionales")
+                            from .models import FotoPropiedad
+                            fotos_creadas = []
+                            
+                            for i, archivo in enumerate(archivos_adicionales):
+                                try:
+                                    # Determinar si es imagen o video
+                                    tipo_medio = 'video' if archivo.content_type.startswith('video/') else 'imagen'
+                                    logger.debug(f"Archivo {i+1}: {archivo.name} - Tipo: {tipo_medio} - Content-Type: {archivo.content_type}")
+                                    
+                                    foto_propiedad = FotoPropiedad(
+                                        propiedad=propiedad, 
+                                        tipo_medio=tipo_medio,
+                                        orden=i + 1,
+                                        descripcion=f"Foto adicional {i + 1}"
+                                    )
+                                    
+                                    if tipo_medio == 'imagen':
+                                        foto_propiedad.imagen = archivo
+                                    else:
+                                        foto_propiedad.video = archivo
+                                    
+                                    foto_propiedad.save()
+                                    fotos_creadas.append(foto_propiedad)
+                                    logger.info(f"Archivo adicional {i+1} guardado exitosamente: {archivo.name}")
+                                    
+                                except Exception as e:
+                                    logger.error(f"Error al guardar archivo adicional {i+1} ({archivo.name}): {e}")
+                                    import traceback
+                                    logger.error(traceback.format_exc())
+                                    # Continuar con los demás archivos
+                            
+                            logger.info(f"Total de archivos adicionales guardados: {len(fotos_creadas)}/{len(archivos_adicionales)}")
+                            
+                            # Optimizar todas las fotos adicionales a WebP después de guardarlas
+                            for foto in fotos_creadas:
+                                if foto.tipo_medio == 'imagen' and foto.imagen:
+                                    try:
+                                        logger.debug(f"Optimizando foto adicional a WebP: {foto.descripcion}")
+                                        foto.optimize_image_field('imagen', quality=85)
+                                        logger.info(f"Foto adicional optimizada exitosamente: {foto.descripcion}")
+                                    except Exception as e:
+                                        logger.warning(f"Error optimizando foto adicional (no crítico): {e}")
+                                        # No fallar por errores de optimización
+                                elif foto.tipo_medio == 'video' and foto.video:
+                                    try:
+                                        logger.debug(f"Optimizando video adicional: {foto.descripcion}")
+                                        foto.optimize_video_field('video', quality=80)
+                                        logger.info(f"Video adicional optimizado exitosamente: {foto.descripcion}")
+                                    except Exception as e:
+                                        logger.warning(f"Error optimizando video adicional (no crítico): {e}")
+                                        # No fallar por errores de optimización
+                        else:
+                            logger.debug("No se recibieron archivos adicionales")
+                    except Exception as e:
+                        logger.error(f"Error al procesar archivos adicionales: {e}")
+                        import traceback
+                        logger.error(traceback.format_exc())
+                        # No fallar la creación por errores en archivos adicionales
+                    
                     # Deshabilitar optimización WebP temporalmente para evitar errores
                     # try:
                     #     if propiedad.imagen_principal:
