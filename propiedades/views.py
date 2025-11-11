@@ -77,15 +77,16 @@ def lista_propiedades(request):
 def detalle_propiedad(request, slug):
     """Vista para mostrar el detalle de una propiedad"""
     try:
-        propiedad = Propiedad.objects.get(slug=slug)
+        # Solo mostrar propiedades disponibles (excluir eliminadas)
+        propiedad = Propiedad.objects.get(slug=slug, estado='disponible')
     except Propiedad.DoesNotExist:
         # Si no se encuentra por slug, buscar por título similar
         # Esto maneja casos donde el slug cambió pero la URL antigua sigue siendo accesible
         from django.utils.text import slugify
         from django.shortcuts import redirect
         
-        # Buscar propiedades que tengan un slug similar o que el título genere un slug similar
-        propiedades_similares = Propiedad.objects.all()
+        # Buscar propiedades disponibles que tengan un slug similar o que el título genere un slug similar
+        propiedades_similares = Propiedad.objects.filter(estado='disponible')
         for prop in propiedades_similares:
             if slugify(prop.titulo) == slug or prop.slug.startswith(slug.split('-')[0]):
                 # Redirigir a la URL correcta
@@ -93,7 +94,7 @@ def detalle_propiedad(request, slug):
         
         # Si no se encuentra ninguna coincidencia, mostrar 404
         from django.shortcuts import get_object_or_404
-        propiedad = get_object_or_404(Propiedad, slug=slug)
+        propiedad = get_object_or_404(Propiedad, slug=slug, estado='disponible')
     
     # Procesar formulario de contacto si es POST
     if request.method == 'POST':
@@ -143,7 +144,8 @@ def detalle_propiedad(request, slug):
     # Obtener propiedades relacionadas
     propiedades_relacionadas = Propiedad.objects.filter(
         tipo=propiedad.tipo,
-        operacion=propiedad.operacion
+        operacion=propiedad.operacion,
+        estado='disponible'  # Solo mostrar propiedades disponibles
     ).exclude(id=propiedad.id)[:3]
     
     # Obtener reseñas aprobadas de la propiedad
@@ -251,7 +253,8 @@ def upload_fotos_adicionales(request):
             if not propiedad_id or not fotos:
                 return JsonResponse({'success': False, 'error': 'Datos incompletos'})
             
-            propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+            # Solo permitir agregar fotos a propiedades disponibles (excluir eliminadas)
+            propiedad = get_object_or_404(Propiedad, id=propiedad_id, estado='disponible')
             
             # Guardar cada foto
             fotos_guardadas = []
@@ -672,7 +675,8 @@ def registrar_click(request):
         if not propiedad_id:
             return JsonResponse({'success': False, 'error': 'ID de propiedad requerido'})
         
-        propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+        # Solo permitir registrar clics en propiedades disponibles (excluir eliminadas)
+        propiedad = get_object_or_404(Propiedad, id=propiedad_id, estado='disponible')
         
         # Obtener información del request
         ip_address = request.META.get('REMOTE_ADDR')
@@ -699,7 +703,8 @@ def registrar_click(request):
 
 def crear_resena(request, slug):
     """Vista para crear una nueva reseña de una propiedad"""
-    propiedad = get_object_or_404(Propiedad, slug=slug)
+    # Solo permitir crear reseñas en propiedades disponibles (excluir eliminadas)
+    propiedad = get_object_or_404(Propiedad, slug=slug, estado='disponible')
     
     if request.method == 'POST':
         from .forms import ResenaForm

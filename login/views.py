@@ -346,8 +346,10 @@ def dashboard(request):
     from propiedades.models import ClickPropiedad
     from datetime import datetime, timedelta
     
-    # Total de clics
-    total_clicks = ClickPropiedad.objects.count()
+    # Total de clics (excluir propiedades eliminadas)
+    total_clicks = ClickPropiedad.objects.filter(
+        propiedad__isnull=False  # Excluir clics de propiedades eliminadas
+    ).count()
     
     # Clics por mes (año actual completo: enero a diciembre)
     clicks_por_mes = []
@@ -371,7 +373,8 @@ def dashboard(request):
         
         clicks_mes = ClickPropiedad.objects.filter(
             fecha_click__gte=fecha_inicio,
-            fecha_click__lt=fecha_fin
+            fecha_click__lt=fecha_fin,
+            propiedad__isnull=False  # Excluir clics de propiedades eliminadas
         ).count()
         
         clicks_por_mes.append({
@@ -471,8 +474,10 @@ def dashboard_clicks_data(request):
         # Obtener todas las propiedades existentes (excluir eliminadas)
         todas_propiedades = Propiedad.objects.all().order_by('titulo')
         
-        # Obtener estadísticas de clics
-        total_clicks = ClickPropiedad.objects.count()
+        # Obtener estadísticas de clics (excluir propiedades eliminadas)
+        total_clicks = ClickPropiedad.objects.filter(
+            propiedad__isnull=False  # Excluir clics de propiedades eliminadas
+        ).count()
         
         # Clics por mes (año actual completo: enero a diciembre)
         clicks_por_mes = []
