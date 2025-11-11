@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.templatetags.static import static
 from core.image_optimizer import WebPOptimizer
 import logging
 
@@ -229,4 +230,98 @@ def obtener_ruta_static_imagen(imagen_field, propiedad_slug=None, es_principal=T
     except Exception as e:
         logger.error(f"Error al verificar ruta estática: {e}")
         return None
+
+
+def eliminar_imagenes_static_propiedad(propiedad_slug):
+    """
+    Elimina las imágenes estáticas (WebP) de una propiedad desde static/images/propiedades/
+    
+    Args:
+        propiedad_slug: Slug de la propiedad
+    
+    Returns:
+        dict: Resultado de la eliminación con lista de archivos eliminados
+    """
+    archivos_eliminados = []
+    archivos_no_encontrados = []
+    
+    try:
+        static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+        
+        if not static_dir.exists():
+            logger.warning(f"Directorio static/images/propiedades/ no existe")
+            return {
+                'success': False,
+                'message': 'Directorio static/images/propiedades/ no existe',
+                'archivos_eliminados': [],
+                'archivos_no_encontrados': []
+            }
+        
+        # Buscar y eliminar imagen principal
+        for ext in ['.webp', '.jpg', '.jpeg', '.png', '.gif']:
+            nombre_principal = f"{propiedad_slug}-principal{ext}"
+            ruta_principal = static_dir / nombre_principal
+            
+            if ruta_principal.exists():
+                try:
+                    ruta_principal.unlink()
+                    archivos_eliminados.append(nombre_principal)
+                    logger.info(f"Imagen principal eliminada: {nombre_principal}")
+                except Exception as e:
+                    logger.error(f"Error al eliminar imagen principal {nombre_principal}: {e}")
+            else:
+                # Buscar variaciones con sufijos numéricos
+                for i in range(1, 100):
+                    nombre_variacion = f"{propiedad_slug}-principal-{i}{ext}"
+                    ruta_variacion = static_dir / nombre_variacion
+                    if ruta_variacion.exists():
+                        try:
+                            ruta_variacion.unlink()
+                            archivos_eliminados.append(nombre_variacion)
+                            logger.info(f"Imagen principal eliminada: {nombre_variacion}")
+                        except Exception as e:
+                            logger.error(f"Error al eliminar imagen principal {nombre_variacion}: {e}")
+        
+        # Buscar y eliminar imagen secundaria
+        for ext in ['.webp', '.jpg', '.jpeg', '.png', '.gif']:
+            nombre_secundaria = f"{propiedad_slug}-secundaria{ext}"
+            ruta_secundaria = static_dir / nombre_secundaria
+            
+            if ruta_secundaria.exists():
+                try:
+                    ruta_secundaria.unlink()
+                    archivos_eliminados.append(nombre_secundaria)
+                    logger.info(f"Imagen secundaria eliminada: {nombre_secundaria}")
+                except Exception as e:
+                    logger.error(f"Error al eliminar imagen secundaria {nombre_secundaria}: {e}")
+            else:
+                # Buscar variaciones con sufijos numéricos
+                for i in range(1, 100):
+                    nombre_variacion = f"{propiedad_slug}-secundaria-{i}{ext}"
+                    ruta_variacion = static_dir / nombre_variacion
+                    if ruta_variacion.exists():
+                        try:
+                            ruta_variacion.unlink()
+                            archivos_eliminados.append(nombre_variacion)
+                            logger.info(f"Imagen secundaria eliminada: {nombre_variacion}")
+                        except Exception as e:
+                            logger.error(f"Error al eliminar imagen secundaria {nombre_variacion}: {e}")
+        
+        return {
+            'success': True,
+            'message': f'Eliminadas {len(archivos_eliminados)} imágenes estáticas',
+            'archivos_eliminados': archivos_eliminados,
+            'archivos_no_encontrados': archivos_no_encontrados
+        }
+        
+    except Exception as e:
+        logger.error(f"Error al eliminar imágenes estáticas de propiedad {propiedad_slug}: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return {
+            'success': False,
+            'message': f'Error al eliminar imágenes: {str(e)}',
+            'archivos_eliminados': archivos_eliminados,
+            'archivos_no_encontrados': archivos_no_encontrados
+        }
 

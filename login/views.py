@@ -701,6 +701,16 @@ def eliminar_propiedad(request, propiedad_id):
     
     if request.method == 'POST':
         titulo = propiedad.titulo
+        slug = propiedad.slug
+        
+        # Eliminar imágenes estáticas antes de eliminar la propiedad
+        from core.utils import eliminar_imagenes_static_propiedad
+        resultado = eliminar_imagenes_static_propiedad(slug)
+        if resultado['success']:
+            print(f"Imágenes estáticas eliminadas: {resultado['archivos_eliminados']}")
+        else:
+            print(f"Advertencia al eliminar imágenes estáticas: {resultado['message']}")
+        
         propiedad.delete()
         messages.success(request, f'Propiedad "{titulo}" eliminada exitosamente.')
         return redirect('login:gestionar_propiedades')
@@ -720,6 +730,16 @@ def eliminar_propiedad_ajax(request, propiedad_id):
         try:
             propiedad = get_object_or_404(Propiedad, id=propiedad_id)
             titulo = propiedad.titulo
+            slug = propiedad.slug
+            
+            # Eliminar imágenes estáticas antes de eliminar la propiedad
+            from core.utils import eliminar_imagenes_static_propiedad
+            resultado = eliminar_imagenes_static_propiedad(slug)
+            if resultado['success']:
+                print(f"Imágenes estáticas eliminadas: {resultado['archivos_eliminados']}")
+            else:
+                print(f"Advertencia al eliminar imágenes estáticas: {resultado['message']}")
+            
             propiedad.delete()
             return JsonResponse({
                 'success': True, 
