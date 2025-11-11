@@ -329,7 +329,8 @@ def dashboard(request):
     from core.models import CVSubmission
     cvs_recientes = CVSubmission.objects.all().order_by('-fecha_envio')[:10]
     
-    # Obtener todas las propiedades para el selector del gráfico
+    # Obtener todas las propiedades disponibles para el selector del gráfico
+    # Excluir propiedades eliminadas (solo mostrar las que existen)
     todas_propiedades = Propiedad.objects.all().order_by('titulo')
     
     # Importar el formulario para el modal
@@ -391,9 +392,11 @@ def dashboard(request):
     from django.db.models.functions import Extract
     
     # Usar una consulta más simple sin Extract
+    # Filtrar solo clics de propiedades que existen (excluir propiedades eliminadas)
     clicks_agrupados = ClickPropiedad.objects.filter(
         fecha_click__gte=fecha_inicio_año,
-        fecha_click__lt=fecha_fin_año
+        fecha_click__lt=fecha_fin_año,
+        propiedad__isnull=False  # Asegurar que la propiedad existe
     ).values('propiedad_id').annotate(
         total_clicks=Count('id')
     ).order_by('propiedad_id')
@@ -406,11 +409,15 @@ def dashboard(request):
         }
     
     # Procesar los datos agrupados
+    # Obtener IDs de propiedades existentes para filtrar
+    ids_propiedades_existentes = set(todas_propiedades.values_list('id', flat=True))
+    
     for click_data in clicks_agrupados:
         prop_id = click_data['propiedad_id']
         total = click_data['total_clicks']
         
-        if prop_id in clicks_por_propiedad:
+        # Solo procesar si la propiedad existe
+        if prop_id in ids_propiedades_existentes and prop_id in clicks_por_propiedad:
             # Asignar todos los clics al mes actual (octubre = mes 9, índice 9)
             mes_actual = timezone.now().month - 1  # Convertir a índice 0-based
             clicks_por_propiedad[prop_id]['clicks_por_mes'][mes_actual] = total
@@ -460,7 +467,7 @@ def dashboard_clicks_data(request):
         from datetime import datetime
         import json
         
-        # Obtener todas las propiedades
+        # Obtener todas las propiedades existentes (excluir eliminadas)
         todas_propiedades = Propiedad.objects.all().order_by('titulo')
         
         # Obtener estadísticas de clics
@@ -511,7 +518,8 @@ def dashboard_clicks_data(request):
         
         clicks_agrupados = ClickPropiedad.objects.filter(
             fecha_click__gte=fecha_inicio_año,
-            fecha_click__lt=fecha_fin_año
+            fecha_click__lt=fecha_fin_año,
+            propiedad__isnull=False  # Asegurar que la propiedad existe
         ).values('propiedad_id').annotate(
             total_clicks=Count('id')
         ).order_by('propiedad_id')
@@ -524,11 +532,15 @@ def dashboard_clicks_data(request):
             }
         
         # Procesar los datos agrupados
+        # Obtener IDs de propiedades existentes para filtrar
+        ids_propiedades_existentes = set(todas_propiedades.values_list('id', flat=True))
+        
         for click_data in clicks_agrupados:
             prop_id = click_data['propiedad_id']
             total = click_data['total_clicks']
             
-            if prop_id in clicks_por_propiedad:
+            # Solo procesar si la propiedad existe
+            if prop_id in ids_propiedades_existentes and prop_id in clicks_por_propiedad:
                 # Asignar todos los clics al mes actual (octubre = mes 9, índice 9)
                 mes_actual = timezone.now().month - 1  # Convertir a índice 0-based
                 clicks_por_propiedad[prop_id]['clicks_por_mes'][mes_actual] = total
@@ -582,15 +594,41 @@ def editar_propiedad(request, propiedad_id):
         # print(f"DEBUG - Formulario válido: {form.is_valid()}")
         
         if form.is_valid():
-            # print("DEBUG - Formulario es válido, guardando...")
+            # Guardar referencias a las imágenes antiguas antes de guardar
+            imagen_principal_antigua = propiedad.imagen_principal.name if propiedad.imagen_principal else None
+            imagen_secundaria_antigua = propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else None
+            slug_antiguo = propiedad.slug
+            
+            # Verificar si se están cambiando las imágenes
+            imagen_principal_cambio = 'imagen_principal' in request.FILES
+            imagen_secundaria_cambio = 'imagen_secundaria' in request.FILES
+            
             try:
                 propiedad = form.save(commit=False)
                 propiedad.save()
                 # Guardar las amenidades (relación many-to-many)
                 form.save_m2m()
-                # print("DEBUG - Propiedad guardada exitosamente")
+                
+                # Refrescar desde la base de datos para obtener las nuevas rutas
+                propiedad.refresh_from_db()
+                
+                # Si se cambió alguna imagen, eliminar las imágenes estáticas antiguas
+                # El método save() del modelo ya copió las nuevas imágenes a static
+                if (imagen_principal_cambio or imagen_secundaria_cambio) and slug_antiguo:
+                    from core.utils import eliminar_imagenes_static_propiedad
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info(f"Eliminando imágenes estáticas antiguas de propiedad {slug_antiguo}")
+                    resultado = eliminar_imagenes_static_propiedad(slug_antiguo)
+                    if resultado['success']:
+                        logger.info(f"Imágenes estáticas antiguas eliminadas: {resultado['archivos_eliminados']}")
+                    else:
+                        logger.warning(f"No se pudieron eliminar todas las imágenes estáticas: {resultado['message']}")
+                
             except Exception as e:
-                # print(f"DEBUG - Error al guardar propiedad: {e}")
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error al guardar propiedad: {e}")
                 messages.error(request, f'Error al guardar la propiedad: {str(e)}')
                 return render(request, 'login/editar_propiedad.html', {
                     'form': form,
@@ -605,51 +643,67 @@ def editar_propiedad(request, propiedad_id):
                 from propiedades.models import FotoPropiedad
                 FotoPropiedad.objects.filter(id__in=fotos_eliminar, propiedad=propiedad).delete()
             
-            # Optimizar imágenes principales a WebP si se actualizaron
-            try:
-                if 'imagen_principal' in request.FILES and propiedad.imagen_principal:
-                    # print("DEBUG - Optimizando imagen principal a WebP en edición")
-                    propiedad.optimize_image_field('imagen_principal', quality=85)
-                if 'imagen_secundaria' in request.FILES and propiedad.imagen_secundaria:
-                    # print("DEBUG - Optimizando imagen secundaria a WebP en edición")
-                    propiedad.optimize_image_field('imagen_secundaria', quality=85)
-            except Exception as e:
-                # print(f"DEBUG - Error en optimización WebP de imágenes principales (no crítico): {e}")
-                pass
-            
             # Manejar archivos adicionales (fotos y videos) nuevos
             archivos_adicionales = request.FILES.getlist('fotos_adicionales')
             fotos_creadas = []
             if archivos_adicionales:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"Procesando {len(archivos_adicionales)} archivos adicionales en edición")
                 from propiedades.models import FotoPropiedad
-                for archivo in archivos_adicionales:
-                    # Determinar si es imagen o video
-                    tipo_medio = 'video' if archivo.content_type.startswith('video/') else 'imagen'
-                    
-                    foto_propiedad = FotoPropiedad(propiedad=propiedad, tipo_medio=tipo_medio)
-                    if tipo_medio == 'imagen':
-                        foto_propiedad.imagen = archivo
-                    else:
-                        foto_propiedad.video = archivo
-                    foto_propiedad.save()
-                    fotos_creadas.append(foto_propiedad)
+                
+                # Obtener el último orden de las fotos existentes para continuar la numeración
+                from django.db.models import Max
+                ultimo_orden = propiedad.fotos.aggregate(Max('orden'))['orden__max'] or 0
+                
+                for i, archivo in enumerate(archivos_adicionales):
+                    try:
+                        # Determinar si es imagen o video
+                        tipo_medio = 'video' if archivo.content_type.startswith('video/') else 'imagen'
+                        logger.debug(f"Archivo {i+1}: {archivo.name} - Tipo: {tipo_medio} - Content-Type: {archivo.content_type}")
+                        
+                        foto_propiedad = FotoPropiedad(
+                            propiedad=propiedad, 
+                            tipo_medio=tipo_medio,
+                            orden=ultimo_orden + i + 1,
+                            descripcion=f"Foto adicional {ultimo_orden + i + 1}"
+                        )
+                        if tipo_medio == 'imagen':
+                            foto_propiedad.imagen = archivo
+                        else:
+                            foto_propiedad.video = archivo
+                        foto_propiedad.save()
+                        fotos_creadas.append(foto_propiedad)
+                        logger.info(f"Archivo adicional {i+1} guardado exitosamente: {archivo.name}")
+                    except Exception as e:
+                        logger.error(f"Error al guardar archivo adicional {i+1} ({archivo.name}): {e}")
+                        import traceback
+                        logger.error(traceback.format_exc())
+                        # Continuar con los demás archivos
+                
+                logger.info(f"Total de archivos adicionales guardados: {len(fotos_creadas)}/{len(archivos_adicionales)}")
             
             # Optimizar todas las fotos y videos adicionales nuevos después de guardarlas
-            for foto in fotos_creadas:
-                if foto.tipo_medio == 'imagen' and foto.imagen:
-                    try:
-                        # print(f"DEBUG - Optimizando foto adicional en edición: {foto.descripcion}")
-                        foto.optimize_image_field('imagen', quality=85)
-                    except Exception as e:
-                        # print(f"DEBUG - Error optimizando foto adicional en edición (no crítico): {e}")
-                        pass
-                elif foto.tipo_medio == 'video' and foto.video:
-                    try:
-                        # print(f"DEBUG - Optimizando video adicional en edición: {foto.descripcion}")
-                        foto.optimize_video_field('video', quality=80)
-                    except Exception as e:
-                        # print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
-                        pass
+            if fotos_creadas:
+                import logging
+                logger = logging.getLogger(__name__)
+                for foto in fotos_creadas:
+                    if foto.tipo_medio == 'imagen' and foto.imagen:
+                        try:
+                            logger.debug(f"Optimizando foto adicional a WebP: {foto.descripcion}")
+                            foto.optimize_image_field('imagen', quality=85)
+                            logger.info(f"Foto adicional optimizada exitosamente: {foto.descripcion}")
+                        except Exception as e:
+                            logger.warning(f"Error optimizando foto adicional (no crítico): {e}")
+                            # No fallar por errores de optimización
+                    elif foto.tipo_medio == 'video' and foto.video:
+                        try:
+                            logger.debug(f"Optimizando video adicional: {foto.descripcion}")
+                            foto.optimize_video_field('video', quality=80)
+                            logger.info(f"Video adicional optimizado exitosamente: {foto.descripcion}")
+                        except Exception as e:
+                            logger.warning(f"Error optimizando video adicional (no crítico): {e}")
+                            # No fallar por errores de optimización
             
             messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
             

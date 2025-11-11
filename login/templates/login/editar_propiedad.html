@@ -1378,7 +1378,7 @@
                                         </div>
                                         <div class="image-preview-container mt-3" id="preview-imagen-principal">
                                             {% if propiedad.imagen_principal %}
-                                                <img src="{{ propiedad.imagen_principal.url }}" alt="Imagen principal actual" style="max-width: 100%; height: auto;" id="img-principal-actual">
+                                                <img src="{% if propiedad.get_foto_principal_static_url %}{{ propiedad.get_foto_principal_static_url }}{% else %}{{ propiedad.imagen_principal.url }}{% endif %}" alt="Imagen principal actual" style="max-width: 100%; height: auto;" id="img-principal-actual">
                                                 <div class="image-status-badge">
                                                     <i class="fas fa-check-circle me-1"></i>Actual
                                                 </div>
@@ -1412,7 +1412,7 @@
                                         </div>
                                         <div class="image-preview-container mt-3" id="preview-imagen-secundaria">
                                             {% if propiedad.imagen_secundaria %}
-                                                <img src="{{ propiedad.imagen_secundaria.url }}" alt="Imagen secundaria actual" style="max-width: 100%; height: auto;" id="img-secundaria-actual">
+                                                <img src="{% if propiedad.get_foto_secundaria_static_url %}{{ propiedad.get_foto_secundaria_static_url }}{% else %}{{ propiedad.imagen_secundaria.url }}{% endif %}" alt="Imagen secundaria actual" style="max-width: 100%; height: auto;" id="img-secundaria-actual">
                                                 <div class="image-status-badge">
                                                     <i class="fas fa-check-circle me-1"></i>Actual
                                                 </div>
@@ -1820,8 +1820,10 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Formulario enviado');
             console.log('📋 Datos del formulario:');
             
-            // Loggear todos los campos del formulario
+            // Crear FormData una sola vez para reutilizarlo
             const formData = new FormData(form);
+            
+            // Loggear todos los campos del formulario
             for (let [key, value] of formData.entries()) {
                 console.log(`  ${key}: ${value}`);
             }
@@ -1872,8 +1874,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Guardando...';
             }
             
-            // Enviar formulario con fetch para manejar la respuesta
-            const formData = new FormData(form);
+            // Enviar formulario con fetch para manejar la respuesta (reutilizar formData)
             
             fetch(form.action, {
                 method: 'POST',
