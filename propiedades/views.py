@@ -300,12 +300,18 @@ def crear_propiedad(request):
             return redirect('login:dashboard')
 
         if request.method == 'POST':
-            print("=== PROCESANDO POST ===")
-            print(f"Datos POST: {request.POST}")
-            print(f"Archivos FILES: {list(request.FILES.keys())}")
+            import logging
+            logger = logging.getLogger('propiedades.views')
+            
+            logger.info("=== PROCESANDO POST ===")
+            logger.info(f"Datos POST: {request.POST}")
+            logger.info(f"Archivos FILES: {list(request.FILES.keys())}")
             for key in request.FILES:
                 file = request.FILES[key]
-                print(f"  - {key}: {file.name} ({file.size} bytes, {file.content_type})")
+                logger.info(f"  - {key}: {file.name} ({file.size} bytes, {file.content_type})")
+            
+            print("=== PROCESANDO POST ===")
+            print(f"Archivos FILES: {list(request.FILES.keys())}")
             
             # Validar datos básicos antes de crear el formulario
             if not request.POST.get('titulo'):
@@ -320,17 +326,27 @@ def crear_propiedad(request):
             form = PropiedadForm(request.POST, request.FILES)
             
             if form.is_valid():
+                import logging
+                logger = logging.getLogger('propiedades.views')
+                
+                logger.info("=== FORMULARIO VÁLIDO ===")
+                logger.info(f"Archivos recibidos: {list(request.FILES.keys())}")
                 print("=== FORMULARIO VÁLIDO ===")
                 print(f"Archivos recibidos: {list(request.FILES.keys())}")
+                
                 try:
                     propiedad = form.save(commit=False)
                     
                     # Verificar que las imágenes se asignaron correctamente
                     if 'imagen_principal' in request.FILES:
+                        logger.info(f"Imagen principal recibida: {request.FILES['imagen_principal'].name}")
                         print(f"Imagen principal recibida: {request.FILES['imagen_principal'].name}")
                     if 'imagen_secundaria' in request.FILES:
+                        logger.info(f"Imagen secundaria recibida: {request.FILES['imagen_secundaria'].name}")
                         print(f"Imagen secundaria recibida: {request.FILES['imagen_secundaria'].name}")
                     
+                    logger.info(f"Antes de guardar - Imagen principal: {propiedad.imagen_principal}")
+                    logger.info(f"Antes de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
                     print(f"Antes de guardar - Imagen principal: {propiedad.imagen_principal}")
                     print(f"Antes de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
                     
@@ -384,37 +400,47 @@ def crear_propiedad(request):
                     
                     # Guardar la propiedad con manejo de errores específicos
                     try:
+                        import logging
+                        logger = logging.getLogger('propiedades.views')
+                        
                         propiedad.save()
+                        logger.info(f"Propiedad guardada con ID: {propiedad.id}")
+                        logger.info(f"Después de guardar - Imagen principal name: {propiedad.imagen_principal.name if propiedad.imagen_principal else 'None'}")
+                        logger.info(f"Después de guardar - Imagen secundaria name: {propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else 'None'}")
                         print(f"Propiedad guardada con ID: {propiedad.id}")
-                        print(f"Después de guardar - Imagen principal: {propiedad.imagen_principal}")
-                        print(f"Después de guardar - Imagen principal name: {propiedad.imagen_principal.name if propiedad.imagen_principal else 'None'}")
-                        print(f"Después de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
-                        print(f"Después de guardar - Imagen secundaria name: {propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else 'None'}")
+                        print(f"Imagen principal name: {propiedad.imagen_principal.name if propiedad.imagen_principal else 'None'}")
+                        print(f"Imagen secundaria name: {propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else 'None'}")
                         
                         # Verificar que los archivos existen físicamente
                         from django.core.files.storage import default_storage
                         if propiedad.imagen_principal:
                             existe = default_storage.exists(propiedad.imagen_principal.name)
+                            logger.info(f"Imagen principal existe en storage: {existe}")
                             print(f"Imagen principal existe en storage: {existe}")
                             if existe:
                                 try:
                                     path = propiedad.imagen_principal.path
-                                    print(f"Imagen principal path: {path}")
                                     import os
-                                    print(f"Imagen principal existe en filesystem: {os.path.exists(path)}")
+                                    existe_fs = os.path.exists(path)
+                                    logger.info(f"Imagen principal path: {path}, existe en filesystem: {existe_fs}")
+                                    print(f"Imagen principal path: {path}, existe: {existe_fs}")
                                 except Exception as e:
+                                    logger.error(f"Error al obtener path de imagen principal: {e}")
                                     print(f"Error al obtener path de imagen principal: {e}")
                         
                         if propiedad.imagen_secundaria:
                             existe = default_storage.exists(propiedad.imagen_secundaria.name)
+                            logger.info(f"Imagen secundaria existe en storage: {existe}")
                             print(f"Imagen secundaria existe en storage: {existe}")
                             if existe:
                                 try:
                                     path = propiedad.imagen_secundaria.path
-                                    print(f"Imagen secundaria path: {path}")
                                     import os
-                                    print(f"Imagen secundaria existe en filesystem: {os.path.exists(path)}")
+                                    existe_fs = os.path.exists(path)
+                                    logger.info(f"Imagen secundaria path: {path}, existe en filesystem: {existe_fs}")
+                                    print(f"Imagen secundaria path: {path}, existe: {existe_fs}")
                                 except Exception as e:
+                                    logger.error(f"Error al obtener path de imagen secundaria: {e}")
                                     print(f"Error al obtener path de imagen secundaria: {e}")
                     except Exception as db_error:
                         print(f"ERROR al guardar propiedad: {db_error}")
@@ -462,11 +488,46 @@ def crear_propiedad(request):
                     
                     # Verificar si es una petición AJAX
                     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        # Preparar información de debug para la respuesta
+                        debug_info = {
+                            'propiedad_id': propiedad.id,
+                            'slug': propiedad.slug,
+                            'imagen_principal': {
+                                'tiene_imagen': bool(propiedad.imagen_principal),
+                                'nombre': propiedad.imagen_principal.name if propiedad.imagen_principal else None,
+                                'existe_en_storage': False,
+                                'copiada_a_static': False
+                            },
+                            'imagen_secundaria': {
+                                'tiene_imagen': bool(propiedad.imagen_secundaria),
+                                'nombre': propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else None,
+                                'existe_en_storage': False,
+                                'copiada_a_static': False
+                            }
+                        }
+                        
+                        # Verificar estado de las imágenes
+                        from django.core.files.storage import default_storage
+                        from core.utils import obtener_ruta_static_imagen
+                        
+                        if propiedad.imagen_principal:
+                            debug_info['imagen_principal']['existe_en_storage'] = default_storage.exists(propiedad.imagen_principal.name)
+                            ruta_static = obtener_ruta_static_imagen(propiedad.imagen_principal, propiedad.slug, True)
+                            debug_info['imagen_principal']['copiada_a_static'] = bool(ruta_static)
+                            debug_info['imagen_principal']['ruta_static'] = ruta_static
+                        
+                        if propiedad.imagen_secundaria:
+                            debug_info['imagen_secundaria']['existe_en_storage'] = default_storage.exists(propiedad.imagen_secundaria.name)
+                            ruta_static = obtener_ruta_static_imagen(propiedad.imagen_secundaria, propiedad.slug, False)
+                            debug_info['imagen_secundaria']['copiada_a_static'] = bool(ruta_static)
+                            debug_info['imagen_secundaria']['ruta_static'] = ruta_static
+                        
                         return JsonResponse({
                             'success': True,
                             'message': 'Propiedad creada exitosamente.',
                             'propiedad_id': propiedad.id,
-                            'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug])
+                            'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug]),
+                            'debug_info': debug_info
                         })
                     else:
                         messages.success(request, 'Propiedad creada exitosamente.')

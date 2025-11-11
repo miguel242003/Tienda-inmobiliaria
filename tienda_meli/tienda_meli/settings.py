@@ -316,8 +316,26 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'verbose',
         },
+        'propiedades_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'propiedades.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
+        'propiedades.views': {
+            'handlers': ['propiedades_file', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'core.utils': {
+            'handlers': ['propiedades_file', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'django.security': {
             'handlers': ['security_file'],
             'level': 'WARNING',
