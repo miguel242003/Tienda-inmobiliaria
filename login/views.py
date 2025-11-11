@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.urls import reverse
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 import bleach
