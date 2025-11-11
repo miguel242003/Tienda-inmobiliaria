@@ -1260,13 +1260,7 @@
 
                             <div class="col-md-6 mb-3">
                                 <div class="form-check form-switch">
-                                    <input type="hidden" name="{{ form.balcon.name }}" value="False">
-                                    <input type="checkbox" 
-                                           name="{{ form.balcon.name }}" 
-                                           id="{{ form.balcon.id_for_label }}" 
-                                           class="form-check-input" 
-                                           value="True"
-                                           {% if propiedad.balcon %}checked{% endif %}>
+                                    {{ form.balcon }}
                                     <label for="{{ form.balcon.id_for_label }}" class="form-check-label">
                                         <i class="fas fa-balcony me-2"></i>{{ form.balcon.label }}
                                     </label>

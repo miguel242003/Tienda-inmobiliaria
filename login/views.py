@@ -579,13 +579,14 @@ def gestionar_propiedades(request):
 @login_required
 def editar_propiedad(request, propiedad_id):
     """Vista para editar una propiedad existente"""
-    if not request.user.is_staff:
-        messages.error(request, 'No tienes permisos para editar propiedades.')
-        return redirect('core:home')
-    
-    propiedad = get_object_or_404(Propiedad, id=propiedad_id)
-    
-    if request.method == 'POST':
+    try:
+        if not request.user.is_staff:
+            messages.error(request, 'No tienes permisos para editar propiedades.')
+            return redirect('core:home')
+        
+        propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+        
+        if request.method == 'POST':
         # print("DEBUG - POST recibido para editar propiedad")
         # print(f"DEBUG - Datos POST: {request.POST}")
         # print(f"DEBUG - Archivos FILES: {request.FILES}")
@@ -627,8 +628,20 @@ def editar_propiedad(request, propiedad_id):
                 
             except Exception as e:
                 import logging
+                import traceback
                 logger = logging.getLogger(__name__)
                 logger.error(f"Error al guardar propiedad: {e}")
+                logger.error(traceback.format_exc())
+                
+                # Si es petición AJAX, devolver JSON
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    from django.http import JsonResponse
+                    return JsonResponse({
+                        'success': False,
+                        'message': f'Error al guardar la propiedad: {str(e)}',
+                        'error_details': str(e) if settings.DEBUG else None
+                    }, status=500)
+                
                 messages.error(request, f'Error al guardar la propiedad: {str(e)}')
                 return render(request, 'login/editar_propiedad.html', {
                     'form': form,
@@ -718,8 +731,27 @@ def editar_propiedad(request, propiedad_id):
             
             return redirect('login:dashboard')
         else:
-            # print("DEBUG - Formulario NO es válido")
-            # print(f"DEBUG - Errores del formulario: {form.errors}")
+            # Formulario no válido
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Formulario no válido: {form.errors}")
+            
+            # Si es petición AJAX, devolver JSON con errores
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse
+                errors = {}
+                for field, field_errors in form.errors.items():
+                    errors[field] = [str(error) for error in field_errors]
+                
+                # Incluir errores no-field también
+                if form.non_field_errors():
+                    errors['__all__'] = [str(error) for error in form.non_field_errors()]
+                
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Por favor corrige los errores en el formulario.',
+                    'errors': errors
+                }, status=400)
             
             # Mostrar errores específicos del formulario
             error_messages = []
@@ -731,18 +763,37 @@ def editar_propiedad(request, propiedad_id):
                 messages.error(request, f'Errores encontrados: {"; ".join(error_messages)}')
             else:
                 messages.error(request, 'Por favor corrige los errores en el formulario.')
-    else:
-        form = PropiedadForm(instance=propiedad, is_edit=True)
+        else:
+            form = PropiedadForm(instance=propiedad, is_edit=True)
+        
+        from propiedades.models import Amenidad
+        
+        context = {
+            'form': form,
+            'propiedad': propiedad,
+            'titulo_pagina': 'Editar Propiedad',
+            'amenidades': Amenidad.objects.all(),
+        }
+        return render(request, 'login/editar_propiedad.html', context)
     
-    from propiedades.models import Amenidad
-    
-    context = {
-        'form': form,
-        'propiedad': propiedad,
-        'titulo_pagina': 'Editar Propiedad',
-        'amenidades': Amenidad.objects.all(),
-    }
-    return render(request, 'login/editar_propiedad.html', context)
+    except Exception as e:
+        import logging
+        import traceback
+        logger = logging.getLogger(__name__)
+        logger.critical(f"Error crítico en editar_propiedad: {e}")
+        logger.critical(traceback.format_exc())
+        
+        # Si es petición AJAX, devolver JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.http import JsonResponse
+            return JsonResponse({
+                'success': False,
+                'message': f'Error inesperado al editar la propiedad: {str(e)}',
+                'error_details': str(e) if settings.DEBUG else None
+            }, status=500)
+        
+        messages.error(request, f'Error inesperado: {str(e)}')
+        return redirect('login:dashboard')
 
 @login_required
 def eliminar_propiedad(request, propiedad_id):
