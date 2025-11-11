@@ -214,8 +214,12 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         if not self.imagen_principal:
             return None
         
-        # Buscar en static primero
-        ruta_static = obtener_ruta_static_imagen(self.imagen_principal)
+        # Buscar en static primero (pasar slug y es_principal=True)
+        ruta_static = obtener_ruta_static_imagen(
+            self.imagen_principal, 
+            propiedad_slug=self.slug, 
+            es_principal=True
+        )
         if ruta_static:
             return static(ruta_static)
         
@@ -231,8 +235,12 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         if not self.imagen_secundaria:
             return None
         
-        # Buscar en static primero
-        ruta_static = obtener_ruta_static_imagen(self.imagen_secundaria)
+        # Buscar en static primero (pasar slug y es_principal=False)
+        ruta_static = obtener_ruta_static_imagen(
+            self.imagen_secundaria, 
+            propiedad_slug=self.slug, 
+            es_principal=False
+        )
         if ruta_static:
             return static(ruta_static)
         
