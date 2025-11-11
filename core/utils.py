@@ -28,21 +28,62 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
         return None
     
     try:
-        # Obtener la ruta del archivo en media
-        ruta_media = imagen_field.path
-        
-        # Verificar que el archivo existe
-        if not os.path.exists(ruta_media):
-            logger.warning(f"El archivo no existe en media: {ruta_media}")
-            return None
+        # Obtener la ruta del archivo en media usando default_storage
+        # Usar path si está disponible, sino usar default_storage
+        try:
+            ruta_media = imagen_field.path
+            if not os.path.exists(ruta_media):
+                # Si path no funciona, intentar con default_storage
+                if default_storage.exists(imagen_field.name):
+                    # Leer el archivo desde storage
+                    with default_storage.open(imagen_field.name, 'rb') as f:
+                        contenido = f.read()
+                    # Crear un archivo temporal para procesar
+                    from tempfile import NamedTemporaryFile
+                    import tempfile
+                    temp_file = NamedTemporaryFile(delete=False, suffix=os.path.splitext(imagen_field.name)[1])
+                    temp_file.write(contenido)
+                    temp_file.close()
+                    ruta_media = temp_file.name
+                else:
+                    logger.warning(f"El archivo no existe en storage: {imagen_field.name}")
+                    return None
+        except (AttributeError, NotImplementedError):
+            # Si no tiene path, usar default_storage directamente
+            if default_storage.exists(imagen_field.name):
+                with default_storage.open(imagen_field.name, 'rb') as f:
+                    contenido = f.read()
+                from tempfile import NamedTemporaryFile
+                temp_file = NamedTemporaryFile(delete=False, suffix=os.path.splitext(imagen_field.name)[1])
+                temp_file.write(contenido)
+                temp_file.close()
+                ruta_media = temp_file.name
+            else:
+                logger.warning(f"El archivo no existe en storage: {imagen_field.name}")
+                return None
         
         # Convertir la imagen a WebP
-        webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
-            imagen_field, 
-            quality=quality,
-            max_dimension=2048,  # Redimensionar si es muy grande
-            preserve_original=True
-        )
+        # Si usamos un archivo temporal, necesitamos pasarlo correctamente
+        try:
+            # Intentar usar el campo directamente
+            webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
+                imagen_field, 
+                quality=quality,
+                max_dimension=2048,  # Redimensionar si es muy grande
+                preserve_original=True
+            )
+        except Exception as e:
+            # Si falla, intentar con el archivo temporal
+            logger.warning(f"Error al convertir con imagen_field, intentando con archivo temporal: {e}")
+            from django.core.files import File
+            with open(ruta_media, 'rb') as f:
+                temp_image_field = File(f, name=os.path.basename(imagen_field.name))
+                webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
+                    temp_image_field, 
+                    quality=quality,
+                    max_dimension=2048,
+                    preserve_original=True
+                )
         
         if webp_size == 0:
             logger.warning(f"No se pudo convertir la imagen a WebP: {imagen_field.name}")
@@ -78,6 +119,13 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
             webp_file.seek(0)  # Asegurar que estamos al inicio del archivo
             f.write(webp_file.read())
         
+        # Limpiar archivo temporal si se creó
+        if 'temp_file' in locals() and os.path.exists(ruta_media) and ruta_media != imagen_field.path:
+            try:
+                os.unlink(ruta_media)
+            except:
+                pass
+        
         # Ruta relativa desde static/images/propiedades/
         ruta_relativa = f"images/propiedades/{nombre_final}"
         
@@ -87,6 +135,15 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
         
     except Exception as e:
         logger.error(f"Error al copiar imagen a static: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        # Limpiar archivo temporal si se creó
+        if 'temp_file' in locals() and 'ruta_media' in locals() and os.path.exists(ruta_media):
+            try:
+                if ruta_media != getattr(imagen_field, 'path', None):
+                    os.unlink(ruta_media)
+            except:
+                pass
         return None
 
 

@@ -3,6 +3,7 @@ Template tags para manejo de imágenes WebP
 """
 
 import os
+import logging
 from django import template
 from django.utils.safestring import mark_safe
 from django.core.files.storage import default_storage
@@ -35,6 +36,7 @@ def webp_picture(image_field, alt_text="", css_class="", lazy_loading=True, widt
     from core.utils import obtener_ruta_static_imagen
     
     original_url = None
+    webp_url = None
     # Intentar obtener el slug de la propiedad si es posible
     propiedad_slug = None
     es_principal = True
@@ -111,13 +113,30 @@ def webp_picture(image_field, alt_text="", css_class="", lazy_loading=True, widt
             else:
                 webp_url = None
     else:
-        # Usar archivo de media
-        original_url = image_field.url
+        # Usar archivo de media como fallback
+        try:
+            original_url = image_field.url
+        except (AttributeError, ValueError) as e:
+            # Si no se puede obtener la URL, retornar imagen placeholder
+            logger = logging.getLogger(__name__)
+            logger.warning(f"No se pudo obtener URL de imagen: {e}")
+            return mark_safe(f'<div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;"><i class="fas fa-image fa-3x text-muted"></i></div>')
+        
+        # Buscar versión WebP en media
         webp_path = WebPOptimizer.get_webp_path(image_field.name)
         webp_url = None
         
         if webp_path and default_storage.exists(webp_path):
-            webp_url = default_storage.url(webp_path)
+            try:
+                webp_url = default_storage.url(webp_path)
+            except:
+                webp_url = None
+    
+    # Asegurar que tenemos una URL válida
+    if not original_url:
+        logger = logging.getLogger(__name__)
+        logger.warning("No se pudo obtener URL de imagen, retornando placeholder")
+        return mark_safe(f'<div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;"><i class="fas fa-image fa-3x text-muted"></i></div>')
     
     # Construir atributos de la imagen
     img_attrs = [f'alt="{alt_text}"']
