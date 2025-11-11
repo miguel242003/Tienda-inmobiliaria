@@ -7433,39 +7433,6 @@
                             console.log('Resultado JSON:', result);
                             
                             if (result.success) {
-                                // Mostrar información de debug en consola
-                                if (result.debug_info) {
-                                    console.log('=== DEBUG INFO - Propiedad Creada ===');
-                                    console.log('Propiedad ID:', result.debug_info.propiedad_id);
-                                    console.log('Slug:', result.debug_info.slug);
-                                    console.log('Imagen Principal:', result.debug_info.imagen_principal);
-                                    console.log('Imagen Secundaria:', result.debug_info.imagen_secundaria);
-                                    console.log('=====================================');
-                                    
-                                    // Mostrar advertencias si hay problemas
-                                    if (result.debug_info.imagen_principal.tiene_imagen) {
-                                        if (!result.debug_info.imagen_principal.existe_en_storage) {
-                                            console.warn('⚠️ Imagen principal NO existe en storage');
-                                        }
-                                        if (!result.debug_info.imagen_principal.copiada_a_static) {
-                                            console.warn('⚠️ Imagen principal NO copiada a static');
-                                        } else {
-                                            console.log('✅ Imagen principal copiada a static:', result.debug_info.imagen_principal.ruta_static);
-                                        }
-                                    }
-                                    
-                                    if (result.debug_info.imagen_secundaria.tiene_imagen) {
-                                        if (!result.debug_info.imagen_secundaria.existe_en_storage) {
-                                            console.warn('⚠️ Imagen secundaria NO existe en storage');
-                                        }
-                                        if (!result.debug_info.imagen_secundaria.copiada_a_static) {
-                                            console.warn('⚠️ Imagen secundaria NO copiada a static');
-                                        } else {
-                                            console.log('✅ Imagen secundaria copiada a static:', result.debug_info.imagen_secundaria.ruta_static);
-                                        }
-                                    }
-                                }
-                                
                                 mostrarMensaje('¡Propiedad creada exitosamente!', 'success');
                                 
                                 // Agregar actividad

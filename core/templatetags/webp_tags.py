@@ -92,27 +92,34 @@ def webp_picture(image_field, alt_text="", css_class="", lazy_loading=True, widt
     
     ruta_static = obtener_ruta_static_imagen(image_field, propiedad_slug, es_principal)
     
+    # Verificar que el archivo estático realmente existe antes de usarlo
+    archivo_static_existe = False
     if ruta_static:
-        # Usar archivo estático
-        original_url = static(ruta_static)
-        # Si el archivo estático ya es WebP, usarlo directamente
-        if ruta_static.endswith('.webp'):
-            webp_url = original_url  # Ya es WebP, usar la misma URL
-        else:
-            # Si no es WebP, buscar versión WebP en la misma ubicación
-            import os
-            from django.conf import settings
-            from pathlib import Path
-            
-            static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
-            nombre_base, ext = os.path.splitext(os.path.basename(ruta_static))
-            webp_path_static = static_dir / f"{nombre_base}.webp"
-            
-            if webp_path_static.exists():
-                webp_url = static(f"images/propiedades/{nombre_base}.webp")
+        import os
+        from django.conf import settings
+        from pathlib import Path
+        
+        static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+        ruta_completa = static_dir / os.path.basename(ruta_static)
+        
+        # Solo usar static si el archivo realmente existe
+        if ruta_completa.exists():
+            archivo_static_existe = True
+            original_url = static(ruta_static)
+            # Si el archivo estático ya es WebP, usarlo directamente
+            if ruta_static.endswith('.webp'):
+                webp_url = original_url  # Ya es WebP, usar la misma URL
             else:
-                webp_url = None
-    else:
+                # Si no es WebP, buscar versión WebP en la misma ubicación
+                nombre_base, ext = os.path.splitext(os.path.basename(ruta_static))
+                webp_path_static = static_dir / f"{nombre_base}.webp"
+                
+                if webp_path_static.exists():
+                    webp_url = static(f"images/propiedades/{nombre_base}.webp")
+                else:
+                    webp_url = None
+    
+    if not archivo_static_existe:
         # Usar archivo de media como fallback
         try:
             original_url = image_field.url
