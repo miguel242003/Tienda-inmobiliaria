@@ -31,37 +31,53 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
     try:
         # Obtener la ruta del archivo en media usando default_storage
         # Usar path si está disponible, sino usar default_storage
+        # Intentar obtener la ruta del archivo de diferentes formas
+        ruta_media = None
+        temp_file = None
+        
         try:
-            ruta_media = imagen_field.path
-            if not os.path.exists(ruta_media):
-                # Si path no funciona, intentar con default_storage
+            # Método 1: Intentar usar path directamente
+            try:
+                ruta_media = imagen_field.path
+                if os.path.exists(ruta_media):
+                    logger.debug(f"Archivo encontrado en path: {ruta_media}")
+                else:
+                    ruta_media = None
+            except (AttributeError, NotImplementedError, ValueError):
+                ruta_media = None
+            
+            # Método 2: Si path no funciona, usar default_storage
+            if not ruta_media or not os.path.exists(ruta_media):
                 if default_storage.exists(imagen_field.name):
-                    # Leer el archivo desde storage
+                    # Leer el archivo desde storage y crear temporal
                     with default_storage.open(imagen_field.name, 'rb') as f:
                         contenido = f.read()
-                    # Crear un archivo temporal para procesar
                     from tempfile import NamedTemporaryFile
-                    import tempfile
                     temp_file = NamedTemporaryFile(delete=False, suffix=os.path.splitext(imagen_field.name)[1])
                     temp_file.write(contenido)
                     temp_file.close()
                     ruta_media = temp_file.name
+                    logger.debug(f"Archivo leído desde storage y guardado en temporal: {ruta_media}")
                 else:
                     logger.warning(f"El archivo no existe en storage: {imagen_field.name}")
-                    return None
-        except (AttributeError, NotImplementedError):
-            # Si no tiene path, usar default_storage directamente
-            if default_storage.exists(imagen_field.name):
-                with default_storage.open(imagen_field.name, 'rb') as f:
-                    contenido = f.read()
-                from tempfile import NamedTemporaryFile
-                temp_file = NamedTemporaryFile(delete=False, suffix=os.path.splitext(imagen_field.name)[1])
-                temp_file.write(contenido)
-                temp_file.close()
-                ruta_media = temp_file.name
-            else:
-                logger.warning(f"El archivo no existe en storage: {imagen_field.name}")
-                return None
+                    # Intentar una vez más después de un pequeño retraso
+                    import time
+                    time.sleep(0.5)
+                    if default_storage.exists(imagen_field.name):
+                        with default_storage.open(imagen_field.name, 'rb') as f:
+                            contenido = f.read()
+                        from tempfile import NamedTemporaryFile
+                        temp_file = NamedTemporaryFile(delete=False, suffix=os.path.splitext(imagen_field.name)[1])
+                        temp_file.write(contenido)
+                        temp_file.close()
+                        ruta_media = temp_file.name
+                        logger.info(f"Archivo encontrado en segundo intento: {ruta_media}")
+                    else:
+                        logger.error(f"El archivo no existe en storage después de reintento: {imagen_field.name}")
+                        return None
+        except Exception as e:
+            logger.error(f"Error al obtener ruta del archivo: {e}")
+            return None
         
         # Convertir la imagen a WebP
         # Si usamos un archivo temporal, necesitamos pasarlo correctamente

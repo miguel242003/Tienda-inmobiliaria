@@ -298,6 +298,11 @@ LOGGING = {
             'format': '[{levelname}] {asctime} {module} {process:d} {thread:d} {message}',
             'style': '{',
         },
+        'detailed': {
+            'format': '[{levelname}] {asctime} {name} {funcName}:{lineno} - {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
     },
     'handlers': {
         'file': {
@@ -316,6 +321,14 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'verbose',
         },
+        'debug_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'debug_imagenes.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10MB
+            'backupCount': 10,  # Mantener más backups para debugging
+            'formatter': 'detailed',
+        },
     },
     'loggers': {
         'django.security': {
@@ -327,6 +340,16 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'WARNING',
             'propagate': True,
+        },
+        'propiedades': {
+            'handlers': ['debug_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'core': {
+            'handlers': ['debug_file'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     },
 }

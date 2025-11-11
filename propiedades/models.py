@@ -143,13 +143,26 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         # Copiar imágenes a static después de guardar (convertidas a WebP)
         # Solo copiar si la imagen cambió o es nueva
         import logging
+        import time
         logger = logging.getLogger(__name__)
+        
+        # Pequeño retraso para asegurar que los archivos estén completamente guardados
+        time.sleep(0.1)
         
         if self.imagen_principal:
             try:
-                # Verificar que el archivo existe antes de copiar
+                # Verificar que el archivo existe antes de copiar (intentar varias veces)
                 from django.core.files.storage import default_storage
-                if default_storage.exists(self.imagen_principal.name):
+                max_intentos = 5
+                archivo_existe = False
+                
+                for intento in range(max_intentos):
+                    if default_storage.exists(self.imagen_principal.name):
+                        archivo_existe = True
+                        break
+                    time.sleep(0.2)  # Esperar un poco antes de reintentar
+                
+                if archivo_existe:
                     imagen_principal_cambio = not imagen_principal_original or self.imagen_principal.name != imagen_principal_original
                     if imagen_principal_cambio or not imagen_principal_existia:
                         # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
@@ -161,7 +174,7 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                         else:
                             logger.warning(f"No se pudo copiar imagen principal a static")
                 else:
-                    logger.warning(f"Imagen principal no existe en storage: {self.imagen_principal.name}")
+                    logger.warning(f"Imagen principal no existe en storage después de {max_intentos} intentos: {self.imagen_principal.name}")
             except Exception as e:
                 logger.error(f"Error al copiar imagen principal a static: {e}")
                 import traceback
@@ -169,9 +182,18 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         
         if self.imagen_secundaria:
             try:
-                # Verificar que el archivo existe antes de copiar
+                # Verificar que el archivo existe antes de copiar (intentar varias veces)
                 from django.core.files.storage import default_storage
-                if default_storage.exists(self.imagen_secundaria.name):
+                max_intentos = 5
+                archivo_existe = False
+                
+                for intento in range(max_intentos):
+                    if default_storage.exists(self.imagen_secundaria.name):
+                        archivo_existe = True
+                        break
+                    time.sleep(0.2)  # Esperar un poco antes de reintentar
+                
+                if archivo_existe:
                     imagen_secundaria_cambio = not imagen_secundaria_original or self.imagen_secundaria.name != imagen_secundaria_original
                     if imagen_secundaria_cambio or not imagen_secundaria_existia:
                         # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
@@ -183,7 +205,7 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                         else:
                             logger.warning(f"No se pudo copiar imagen secundaria a static")
                 else:
-                    logger.warning(f"Imagen secundaria no existe en storage: {self.imagen_secundaria.name}")
+                    logger.warning(f"Imagen secundaria no existe en storage después de {max_intentos} intentos: {self.imagen_secundaria.name}")
             except Exception as e:
                 logger.error(f"Error al copiar imagen secundaria a static: {e}")
                 import traceback

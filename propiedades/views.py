@@ -14,7 +14,10 @@ from .models import Propiedad, ClickPropiedad, Amenidad
 from .forms import PropiedadForm
 from .validators import validar_imagen, validar_video, validar_imagen_o_video
 import json
+import logging
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+logger = logging.getLogger(__name__)
 
 # Crea tus vistas aquí.
 
@@ -286,12 +289,12 @@ def crear_propiedad(request):
     Vista para crear una nueva propiedad.
     """
     try:
-        print(f"=== INICIO CREAR PROPIEDAD ===")
-        print(f"Usuario: {request.user}")
-        print(f"Método: {request.method}")
-        print(f"Es AJAX: {request.headers.get('X-Requested-With') == 'XMLHttpRequest'}")
-        print(f"DEBUG: {settings.DEBUG}")
-        print(f"Database: {settings.DATABASES['default']['ENGINE']}")
+        logger.debug("=== INICIO CREAR PROPIEDAD ===")
+        logger.debug(f"Usuario: {request.user}")
+        logger.debug(f"Método: {request.method}")
+        logger.debug(f"Es AJAX: {request.headers.get('X-Requested-With') == 'XMLHttpRequest'}")
+        logger.debug(f"DEBUG: {settings.DEBUG}")
+        logger.debug(f"Database: {settings.DATABASES['default']['ENGINE']}")
         
         # Verificar rate limit
         was_limited = getattr(request, 'limited', False)
@@ -300,17 +303,17 @@ def crear_propiedad(request):
             return redirect('login:dashboard')
 
         if request.method == 'POST':
-            print("=== PROCESANDO POST ===")
-            print(f"Datos POST: {request.POST}")
-            print(f"Archivos FILES: {list(request.FILES.keys())}")
+            logger.debug("=== PROCESANDO POST ===")
+            logger.debug(f"Datos POST: {request.POST}")
+            logger.debug(f"Archivos FILES: {list(request.FILES.keys())}")
             for key in request.FILES:
                 file = request.FILES[key]
-                print(f"  - {key}: {file.name} ({file.size} bytes, {file.content_type})")
+                logger.debug(f"  - {key}: {file.name} ({file.size} bytes, {file.content_type})")
             
             # Validar datos básicos antes de crear el formulario
             if not request.POST.get('titulo'):
                 error_msg = "El título es requerido"
-                print(f"ERROR: {error_msg}")
+                logger.error(f"ERROR: {error_msg}")
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({'success': False, 'message': error_msg})
                 else:
@@ -320,26 +323,26 @@ def crear_propiedad(request):
             form = PropiedadForm(request.POST, request.FILES)
             
             if form.is_valid():
-                print("=== FORMULARIO VÁLIDO ===")
-                print(f"Archivos recibidos: {list(request.FILES.keys())}")
+                logger.info("=== FORMULARIO VÁLIDO ===")
+                logger.info(f"Archivos recibidos: {list(request.FILES.keys())}")
                 try:
                     propiedad = form.save(commit=False)
                     
                     # Verificar que las imágenes se asignaron correctamente
                     if 'imagen_principal' in request.FILES:
-                        print(f"Imagen principal recibida: {request.FILES['imagen_principal'].name}")
+                        logger.info(f"Imagen principal recibida: {request.FILES['imagen_principal'].name}")
                     if 'imagen_secundaria' in request.FILES:
-                        print(f"Imagen secundaria recibida: {request.FILES['imagen_secundaria'].name}")
+                        logger.info(f"Imagen secundaria recibida: {request.FILES['imagen_secundaria'].name}")
                     
-                    print(f"Antes de guardar - Imagen principal: {propiedad.imagen_principal}")
-                    print(f"Antes de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
+                    logger.debug(f"Antes de guardar - Imagen principal: {propiedad.imagen_principal}")
+                    logger.debug(f"Antes de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
                     
                     # Asignar administrador de forma más robusta
                     if hasattr(request, 'user') and request.user.is_authenticated:
                         try:
                             from login.models import AdminCredentials
                         except ImportError as import_error:
-                            print(f"ERROR: No se pudo importar AdminCredentials: {import_error}")
+                            logger.error(f"ERROR: No se pudo importar AdminCredentials: {import_error}")
                             # Continuar sin asignar administrador
                             AdminCredentials = None
                         
@@ -351,74 +354,96 @@ def crear_propiedad(request):
                                 # Método 1: Relación directa
                                 if hasattr(request.user, 'admincredentials'):
                                     admin_creds = request.user.admincredentials
-                                    print(f"AdminCredentials encontrado por relación directa: {admin_creds}")
+                                    logger.debug(f"AdminCredentials encontrado por relación directa: {admin_creds}")
                                 
                                 # Método 2: Buscar por email
                                 if not admin_creds:
                                     try:
                                         admin_creds = AdminCredentials.objects.get(email=request.user.email)
-                                        print(f"AdminCredentials encontrado por email: {admin_creds}")
+                                        logger.debug(f"AdminCredentials encontrado por email: {admin_creds}")
                                     except AdminCredentials.DoesNotExist:
-                                        print("No se encontró AdminCredentials por email")
+                                        logger.debug("No se encontró AdminCredentials por email")
                                 
                                 # Método 3: Crear uno nuevo si no existe
                                 if not admin_creds:
-                                    print("Creando nuevo AdminCredentials...")
+                                    logger.info("Creando nuevo AdminCredentials...")
                                     admin_creds = AdminCredentials.objects.create(
                                         email=request.user.email,
                                         nombre=request.user.get_full_name() or request.user.username,
                                         telefono='',
                                         activo=True
                                     )
-                                    print(f"AdminCredentials creado: {admin_creds}")
+                                    logger.info(f"AdminCredentials creado: {admin_creds}")
                                 
                                 if admin_creds:
                                     propiedad.administrador = admin_creds
-                                    print(f"Administrador asignado: {admin_creds}")
+                                    logger.debug(f"Administrador asignado: {admin_creds}")
                                 else:
-                                    print("ADVERTENCIA: No se pudo asignar administrador")
+                                    logger.warning("ADVERTENCIA: No se pudo asignar administrador")
                                     
                             except Exception as e:
-                                print(f"ADVERTENCIA: Error al manejar AdminCredentials: {e}")
+                                logger.warning(f"ADVERTENCIA: Error al manejar AdminCredentials: {e}")
                                 # No fallar la creación por problemas de administrador
                     
                     # Guardar la propiedad con manejo de errores específicos
                     try:
+                        # IMPORTANTE: Refrescar la propiedad después de guardar para asegurar que las imágenes estén disponibles
                         propiedad.save()
-                        print(f"Propiedad guardada con ID: {propiedad.id}")
-                        print(f"Después de guardar - Imagen principal: {propiedad.imagen_principal}")
-                        print(f"Después de guardar - Imagen principal name: {propiedad.imagen_principal.name if propiedad.imagen_principal else 'None'}")
-                        print(f"Después de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
-                        print(f"Después de guardar - Imagen secundaria name: {propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else 'None'}")
+                        logger.info(f"Propiedad guardada con ID: {propiedad.id}")
+                        
+                        # Refrescar desde la base de datos para asegurar que los campos de imagen estén actualizados
+                        propiedad.refresh_from_db()
+                        
+                        logger.debug(f"Después de guardar - Imagen principal: {propiedad.imagen_principal}")
+                        logger.debug(f"Después de guardar - Imagen principal name: {propiedad.imagen_principal.name if propiedad.imagen_principal else 'None'}")
+                        logger.debug(f"Después de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
+                        logger.debug(f"Después de guardar - Imagen secundaria name: {propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else 'None'}")
                         
                         # Verificar que los archivos existen físicamente
+                        import time
                         from django.core.files.storage import default_storage
+                        
+                        # Esperar un momento para que los archivos se guarden completamente
+                        time.sleep(0.3)
+                        
                         if propiedad.imagen_principal:
                             existe = default_storage.exists(propiedad.imagen_principal.name)
-                            print(f"Imagen principal existe en storage: {existe}")
+                            logger.debug(f"Imagen principal existe en storage: {existe}")
                             if existe:
                                 try:
                                     path = propiedad.imagen_principal.path
-                                    print(f"Imagen principal path: {path}")
+                                    logger.debug(f"Imagen principal path: {path}")
                                     import os
-                                    print(f"Imagen principal existe en filesystem: {os.path.exists(path)}")
+                                    logger.debug(f"Imagen principal existe en filesystem: {os.path.exists(path)}")
                                 except Exception as e:
-                                    print(f"Error al obtener path de imagen principal: {e}")
+                                    logger.warning(f"Error al obtener path de imagen principal: {e}")
+                            else:
+                                logger.warning(f"ADVERTENCIA: Imagen principal no existe en storage inmediatamente después de guardar")
+                                # Intentar nuevamente después de un momento
+                                time.sleep(0.5)
+                                existe_retry = default_storage.exists(propiedad.imagen_principal.name)
+                                logger.debug(f"Imagen principal existe en storage (retry): {existe_retry}")
                         
                         if propiedad.imagen_secundaria:
                             existe = default_storage.exists(propiedad.imagen_secundaria.name)
-                            print(f"Imagen secundaria existe en storage: {existe}")
+                            logger.debug(f"Imagen secundaria existe en storage: {existe}")
                             if existe:
                                 try:
                                     path = propiedad.imagen_secundaria.path
-                                    print(f"Imagen secundaria path: {path}")
+                                    logger.debug(f"Imagen secundaria path: {path}")
                                     import os
-                                    print(f"Imagen secundaria existe en filesystem: {os.path.exists(path)}")
+                                    logger.debug(f"Imagen secundaria existe en filesystem: {os.path.exists(path)}")
                                 except Exception as e:
-                                    print(f"Error al obtener path de imagen secundaria: {e}")
+                                    logger.warning(f"Error al obtener path de imagen secundaria: {e}")
+                            else:
+                                logger.warning(f"ADVERTENCIA: Imagen secundaria no existe en storage inmediatamente después de guardar")
+                                # Intentar nuevamente después de un momento
+                                time.sleep(0.5)
+                                existe_retry = default_storage.exists(propiedad.imagen_secundaria.name)
+                                logger.debug(f"Imagen secundaria existe en storage (retry): {existe_retry}")
                     except Exception as db_error:
-                        print(f"ERROR al guardar propiedad: {db_error}")
-                        print(f"Tipo de error: {type(db_error).__name__}")
+                        logger.error(f"ERROR al guardar propiedad: {db_error}")
+                        logger.error(f"Tipo de error: {type(db_error).__name__}")
                         
                         # Manejar errores específicos de base de datos
                         if 'Duplicate entry' in str(db_error):
@@ -443,9 +468,9 @@ def crear_propiedad(request):
                     # Guardar relaciones many-to-many
                     try:
                         form.save_m2m()
-                        print("Relaciones many-to-many guardadas")
+                        logger.debug("Relaciones many-to-many guardadas")
                     except Exception as m2m_error:
-                        print(f"WARNING: Error guardando relaciones M2M: {m2m_error}")
+                        logger.warning(f"WARNING: Error guardando relaciones M2M: {m2m_error}")
                         # No fallar por errores de M2M, pero registrar
                     
                     # Deshabilitar optimización WebP temporalmente para evitar errores
@@ -474,10 +499,10 @@ def crear_propiedad(request):
                         
                 except Exception as e:
                     error_message = f'Error al crear la propiedad: {str(e)}'
-                    print(f"ERROR: {error_message}")
-                    print(f"Tipo de error: {type(e).__name__}")
+                    logger.error(f"ERROR: {error_message}")
+                    logger.error(f"Tipo de error: {type(e).__name__}")
                     import traceback
-                    print(f"Traceback completo: {traceback.format_exc()}")
+                    logger.error(f"Traceback completo: {traceback.format_exc()}")
                     
                     # Mensaje de error más amigable para el usuario
                     user_friendly_message = "Hubo un problema al crear la propiedad. Por favor, verifica los datos e intenta nuevamente."
@@ -497,12 +522,12 @@ def crear_propiedad(request):
                             'amenidades': Amenidad.objects.all()
                         })
             else:
-                print(f"Errores del formulario: {form.errors}")
-                print(f"Errores no-field: {form.non_field_errors()}")
+                logger.warning(f"Errores del formulario: {form.errors}")
+                logger.warning(f"Errores no-field: {form.non_field_errors()}")
                 
                 # Mostrar errores específicos en consola para debugging
                 for field, errors in form.errors.items():
-                    print(f"Campo '{field}': {errors}")
+                    logger.warning(f"Campo '{field}': {errors}")
                 
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     errors = {}
@@ -531,10 +556,10 @@ def crear_propiedad(request):
         return render(request, 'propiedades/crear_propiedad.html', context)
         
     except Exception as e:
-        print(f"ERROR CRÍTICO en crear_propiedad: {e}")
-        print(f"Tipo de error: {type(e).__name__}")
+        logger.critical(f"ERROR CRÍTICO en crear_propiedad: {e}")
+        logger.critical(f"Tipo de error: {type(e).__name__}")
         import traceback
-        print(f"Traceback completo: {traceback.format_exc()}")
+        logger.critical(f"Traceback completo: {traceback.format_exc()}")
         
         # Manejar errores específicos de producción
         error_type = type(e).__name__
@@ -551,9 +576,9 @@ def crear_propiedad(request):
             user_friendly_message = "Ha ocurrido un error inesperado. Por favor, intenta nuevamente o contacta al administrador."
         
         # Log del error para debugging
-        print(f"ERROR DETALLADO: {str(e)}")
-        print(f"USER AGENT: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
-        print(f"REMOTE ADDR: {request.META.get('REMOTE_ADDR', 'Unknown')}")
+        logger.error(f"ERROR DETALLADO: {str(e)}")
+        logger.error(f"USER AGENT: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
+        logger.error(f"REMOTE ADDR: {request.META.get('REMOTE_ADDR', 'Unknown')}")
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
