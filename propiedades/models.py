@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
 from core.fields import WebPImageFieldMixin, WebPImageField
+from core.utils import copiar_imagen_a_static
 
 class Amenidad(models.Model):
     """Modelo para las amenidades de las propiedades"""
@@ -108,6 +109,23 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         """Generar slug automáticamente si no existe o actualizar si cambió el título"""
         from django.utils.text import slugify
         
+        # Guardar referencias a las imágenes antes de guardar
+        imagen_principal_existia = self.pk and self.imagen_principal
+        imagen_secundaria_existia = self.pk and self.imagen_secundaria
+        
+        # Obtener las rutas originales si es una edición
+        if self.pk:
+            try:
+                original = Propiedad.objects.get(pk=self.pk)
+                imagen_principal_original = original.imagen_principal.name if original.imagen_principal else None
+                imagen_secundaria_original = original.imagen_secundaria.name if original.imagen_secundaria else None
+            except Propiedad.DoesNotExist:
+                imagen_principal_original = None
+                imagen_secundaria_original = None
+        else:
+            imagen_principal_original = None
+            imagen_secundaria_original = None
+        
         # Si no existe slug o si el título cambió, generar/actualizar slug
         if not self.slug or (self.pk and self.titulo != self._get_original_titulo()):
             base_slug = slugify(self.titulo)
@@ -118,7 +136,25 @@ class Propiedad(WebPImageFieldMixin, models.Model):
             while Propiedad.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
                 self.slug = f"{base_slug}-{counter}"
                 counter += 1
+        
+        # Guardar primero para que las imágenes se guarden en media
         super().save(*args, **kwargs)
+        
+        # Copiar imágenes a static después de guardar (convertidas a WebP)
+        # Solo copiar si la imagen cambió o es nueva
+        if self.imagen_principal:
+            imagen_principal_cambio = not imagen_principal_original or self.imagen_principal.name != imagen_principal_original
+            if imagen_principal_cambio or not imagen_principal_existia:
+                # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
+                nombre_archivo = f"{self.slug}-principal"
+                copiar_imagen_a_static(self.imagen_principal, nombre_archivo, quality=85)
+        
+        if self.imagen_secundaria:
+            imagen_secundaria_cambio = not imagen_secundaria_original or self.imagen_secundaria.name != imagen_secundaria_original
+            if imagen_secundaria_cambio or not imagen_secundaria_existia:
+                # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
+                nombre_archivo = f"{self.slug}-secundaria"
+                copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
     
     def _get_original_titulo(self):
         """Obtener el título original de la base de datos"""
@@ -146,7 +182,12 @@ class Propiedad(WebPImageFieldMixin, models.Model):
     def get_foto_principal(self):
         """Retorna la foto principal o la primera foto disponible"""
         if self.imagen_principal:
-            return self.imagen_principal
+            # Agregar referencia a la propiedad para que el tag pueda obtener el slug
+            imagen = self.imagen_principal
+            if not hasattr(imagen, '_propiedad'):
+                imagen._propiedad = self
+                imagen._es_principal = True
+            return imagen
         elif self.fotos.exists():
             return self.fotos.first().imagen
         return None
@@ -154,10 +195,49 @@ class Propiedad(WebPImageFieldMixin, models.Model):
     def get_foto_secundaria(self):
         """Retorna la foto secundaria o la segunda foto disponible"""
         if self.imagen_secundaria:
-            return self.imagen_secundaria
+            # Agregar referencia a la propiedad para que el tag pueda obtener el slug
+            imagen = self.imagen_secundaria
+            if not hasattr(imagen, '_propiedad'):
+                imagen._propiedad = self
+                imagen._es_principal = False
+            return imagen
         elif self.fotos.count() >= 2:
             return self.fotos.all()[1].imagen
         return None
+    
+    def get_foto_principal_static_url(self):
+        """Retorna la URL estática de la imagen principal si existe, sino la de media"""
+        from django.conf import settings
+        from django.templatetags.static import static
+        from core.utils import obtener_ruta_static_imagen
+        
+        if not self.imagen_principal:
+            return None
+        
+        # Buscar en static primero
+        ruta_static = obtener_ruta_static_imagen(self.imagen_principal)
+        if ruta_static:
+            return static(ruta_static)
+        
+        # Si no existe en static, usar la de media
+        return self.imagen_principal.url
+    
+    def get_foto_secundaria_static_url(self):
+        """Retorna la URL estática de la imagen secundaria si existe, sino la de media"""
+        from django.conf import settings
+        from django.templatetags.static import static
+        from core.utils import obtener_ruta_static_imagen
+        
+        if not self.imagen_secundaria:
+            return None
+        
+        # Buscar en static primero
+        ruta_static = obtener_ruta_static_imagen(self.imagen_secundaria)
+        if ruta_static:
+            return static(ruta_static)
+        
+        # Si no existe en static, usar la de media
+        return self.imagen_secundaria.url
     
     
     def get_foto_por_posicion(self, posicion):
