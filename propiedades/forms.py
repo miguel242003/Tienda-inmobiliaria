@@ -116,8 +116,9 @@ class PropiedadForm(forms.ModelForm):
                 'title': 'Los ambientes deben estar entre 0 y 30',
                 'required': True
             }),
-            'balcon': forms.RadioSelect(attrs={
-                'class': 'form-check-input'
+            'balcon': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'type': 'checkbox'
             }),
             'imagen_principal': forms.FileInput(attrs={
                 'class': 'form-control',
