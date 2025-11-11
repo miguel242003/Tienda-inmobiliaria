@@ -36,17 +36,30 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
         temp_file = None
         
         try:
-            # Método 1: Intentar usar path directamente
+            # Método 1: Intentar usar path directamente (más confiable en desarrollo)
             try:
                 ruta_media = imagen_field.path
                 if os.path.exists(ruta_media):
                     logger.debug(f"Archivo encontrado en path: {ruta_media}")
                 else:
                     ruta_media = None
-            except (AttributeError, NotImplementedError, ValueError):
+                    logger.debug(f"Archivo no existe en path: {imagen_field.path}")
+            except (AttributeError, NotImplementedError, ValueError) as e:
+                logger.debug(f"No se pudo usar path directamente: {e}")
                 ruta_media = None
             
-            # Método 2: Si path no funciona, usar default_storage
+            # Método 2: Si path no funciona, intentar construir la ruta manualmente
+            if not ruta_media or not os.path.exists(ruta_media):
+                try:
+                    from django.conf import settings
+                    ruta_manual = Path(settings.MEDIA_ROOT) / imagen_field.name
+                    if os.path.exists(ruta_manual):
+                        ruta_media = str(ruta_manual)
+                        logger.debug(f"Archivo encontrado en ruta manual: {ruta_media}")
+                except Exception as e:
+                    logger.debug(f"Error al construir ruta manual: {e}")
+            
+            # Método 3: Si path no funciona, usar default_storage
             if not ruta_media or not os.path.exists(ruta_media):
                 if default_storage.exists(imagen_field.name):
                     # Leer el archivo desde storage y crear temporal
@@ -73,34 +86,76 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
                         ruta_media = temp_file.name
                         logger.info(f"Archivo encontrado en segundo intento: {ruta_media}")
                     else:
-                        logger.error(f"El archivo no existe en storage después de reintento: {imagen_field.name}")
-                        return None
+                        # Último intento: verificar si existe físicamente en MEDIA_ROOT
+                        try:
+                            from django.conf import settings
+                            ruta_fisica = Path(settings.MEDIA_ROOT) / imagen_field.name
+                            if os.path.exists(ruta_fisica):
+                                ruta_media = str(ruta_fisica)
+                                logger.info(f"Archivo encontrado físicamente en MEDIA_ROOT: {ruta_media}")
+                            else:
+                                logger.error(f"El archivo no existe en storage ni físicamente: {imagen_field.name} (buscado en: {ruta_fisica})")
+                                return None
+                        except Exception as e:
+                            logger.error(f"Error al verificar archivo físicamente: {e}")
+                            logger.error(f"El archivo no existe en storage después de reintento: {imagen_field.name}")
+                            return None
         except Exception as e:
             logger.error(f"Error al obtener ruta del archivo: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             return None
         
         # Convertir la imagen a WebP
-        # Si usamos un archivo temporal, necesitamos pasarlo correctamente
+        # Si tenemos una ruta física (ya sea temporal o del filesystem), usarla directamente
+        webp_file = None
+        original_size = 0
+        webp_size = 0
+        saved_percentage = 0
+        
         try:
-            # Intentar usar el campo directamente
-            webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
-                imagen_field, 
-                quality=quality,
-                max_dimension=2048,  # Redimensionar si es muy grande
-                preserve_original=True
-            )
-        except Exception as e:
-            # Si falla, intentar con el archivo temporal
-            logger.warning(f"Error al convertir con imagen_field, intentando con archivo temporal: {e}")
-            from django.core.files import File
-            with open(ruta_media, 'rb') as f:
-                temp_image_field = File(f, name=os.path.basename(imagen_field.name))
+            # Si tenemos una ruta física, usarla directamente (más confiable)
+            if ruta_media and os.path.exists(ruta_media):
+                from django.core.files import File
+                with open(ruta_media, 'rb') as f:
+                    temp_image_field = File(f, name=os.path.basename(imagen_field.name))
+                    webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
+                        temp_image_field, 
+                        quality=quality,
+                        max_dimension=2048,
+                        preserve_original=True
+                    )
+                    logger.debug(f"Imagen convertida usando ruta física: {ruta_media}")
+            else:
+                # Si no tenemos ruta física, intentar usar el campo directamente
+                logger.debug("Intentando convertir usando imagen_field directamente")
                 webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
-                    temp_image_field, 
+                    imagen_field, 
                     quality=quality,
-                    max_dimension=2048,
+                    max_dimension=2048,  # Redimensionar si es muy grande
                     preserve_original=True
                 )
+        except Exception as e:
+            # Si falla, intentar con el campo directamente si no lo hemos intentado
+            if ruta_media and os.path.exists(ruta_media):
+                logger.warning(f"Error al convertir con ruta física, intentando con imagen_field: {e}")
+                try:
+                    webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
+                        imagen_field, 
+                        quality=quality,
+                        max_dimension=2048,
+                        preserve_original=True
+                    )
+                except Exception as e2:
+                    logger.error(f"Error al convertir imagen a WebP: {e2}")
+                    import traceback
+                    logger.error(traceback.format_exc())
+                    return None
+            else:
+                logger.error(f"Error al convertir imagen a WebP: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
+                return None
         
         if webp_size == 0:
             logger.warning(f"No se pudo convertir la imagen a WebP: {imagen_field.name}")
