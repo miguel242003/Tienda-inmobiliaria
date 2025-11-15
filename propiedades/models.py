@@ -201,12 +201,18 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                         logger.info(f"🔄 Convirtiendo imagen principal a WebP: {nombre_archivo}")
                         logger.info(f"   Archivo completo: {self.imagen_principal.name}")
                         logger.info(f"   Intentando llamar a copiar_imagen_a_static...")
+                        logger.info(f"   self.imagen_principal: {self.imagen_principal}")
+                        logger.info(f"   self.imagen_principal.name: {self.imagen_principal.name if self.imagen_principal else None}")
+                        logger.info(f"   nombre_archivo: {nombre_archivo}")
                         self._conversion_messages.append(f"🔄 Convirtiendo imagen principal a WebP...")
                         logger.info(f"   Mensajes después de agregar: {len(self._conversion_messages)}")
                         try:
+                            logger.info(f"   Llamando a copiar_imagen_a_static ahora...")
+                            logger.info(f"   Parámetros: imagen_field={self.imagen_principal}, nombre={nombre_archivo}, quality=85")
                             resultado = copiar_imagen_a_static(self.imagen_principal, nombre_archivo, quality=85)
-                            logger.info(f"   Resultado de copiar_imagen_a_static: {resultado}")
-                            if resultado:
+                            logger.info(f"   ✅ copiar_imagen_a_static retornó: {resultado}")
+                            logger.info(f"   Tipo de resultado: {type(resultado)}")
+                            if resultado is not None:
                                 logger.info(f"✅ Imagen principal convertida y copiada exitosamente: {resultado}")
                                 self._conversion_messages.append(f"✅ Imagen principal convertida exitosamente: {resultado}")
                             else:
@@ -262,9 +268,12 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                         self._conversion_messages.append(f"🔄 Convirtiendo imagen secundaria a WebP...")
                         logger.info(f"   Mensajes después de agregar: {len(self._conversion_messages)}")
                         try:
+                            logger.info(f"   Llamando a copiar_imagen_a_static ahora...")
+                            logger.info(f"   Parámetros: imagen_field={self.imagen_secundaria}, nombre={nombre_archivo}, quality=85")
                             resultado = copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
-                            logger.info(f"   Resultado de copiar_imagen_a_static: {resultado}")
-                            if resultado:
+                            logger.info(f"   ✅ copiar_imagen_a_static retornó: {resultado}")
+                            logger.info(f"   Tipo de resultado: {type(resultado)}")
+                            if resultado is not None:
                                 logger.info(f"✅ Imagen secundaria convertida y copiada exitosamente: {resultado}")
                                 self._conversion_messages.append(f"✅ Imagen secundaria convertida exitosamente: {resultado}")
                             else:

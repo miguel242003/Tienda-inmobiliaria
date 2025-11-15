@@ -10,7 +10,8 @@ from django.templatetags.static import static
 from core.image_optimizer import WebPOptimizer
 import logging
 
-logger = logging.getLogger(__name__)
+# Usar el logger de 'core' que está configurado en settings
+logger = logging.getLogger('core')
 
 
 def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
