@@ -54,8 +54,17 @@
             }
         })
         .catch(error => {
+            // No mostrar error si la petición fue cancelada por navegación
+            if (error.name === 'AbortError' || error.message === 'Failed to fetch' || 
+                document.visibilityState === 'hidden' || document.hidden) {
+                // La petición fue cancelada, no mostrar error
+                return;
+            }
             console.error('❌ Error de red:', error);
-            mostrarNotificacion('Error de conexión', 'error');
+            // Solo mostrar error si la página sigue visible
+            if (!document.hidden) {
+                mostrarNotificacion('Error de conexión', 'error');
+            }
         });
     }
     

@@ -10,8 +10,28 @@
         delete window.ClickTracker;
     }
     
+    // Variable para almacenar peticiones activas
+    let peticionesActivas = new Set();
+    
+    // Cancelar todas las peticiones cuando la página se descarga
+    window.addEventListener('beforeunload', function() {
+        peticionesActivas.forEach(controller => {
+            try {
+                controller.abort();
+            } catch (e) {
+                // Ignorar errores al cancelar
+            }
+        });
+        peticionesActivas.clear();
+    });
+    
     // Función principal para registrar clics
     function registrarClick(propiedadId, paginaOrigen = 'home') {
+        // No registrar si la página está siendo descargada
+        if (document.visibilityState === 'hidden' || document.hidden) {
+            return;
+        }
+        
         // Obtener token CSRF
         const csrfToken = obtenerTokenCSRF();
         
@@ -21,6 +41,10 @@
             pagina_origen: paginaOrigen
         };
         
+        // Crear AbortController para poder cancelar la petición
+        const controller = new AbortController();
+        peticionesActivas.add(controller);
+        
         // Enviar petición AJAX
         fetch('/propiedades/registrar-click/', {
             method: 'POST',
@@ -28,10 +52,17 @@
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrfToken
             },
-            body: JSON.stringify(datos)
+            body: JSON.stringify(datos),
+            signal: controller.signal
         })
-        .then(response => response.json())
+        .then(response => {
+            peticionesActivas.delete(controller);
+            return response.json();
+        })
         .then(data => {
+            // No mostrar notificaciones si la página está oculta
+            if (document.hidden) return;
+            
             if (data.success) {
                 // Mostrar notificación visual (opcional)
                 mostrarNotificacion('Click registrado correctamente');
@@ -41,8 +72,19 @@
             }
         })
         .catch(error => {
+            peticionesActivas.delete(controller);
+            
+            // No mostrar error si la petición fue cancelada por navegación
+            if (error.name === 'AbortError' || error.message === 'Failed to fetch' || 
+                document.visibilityState === 'hidden' || document.hidden) {
+                // La petición fue cancelada, no mostrar error
+                return;
+            }
             console.error('❌ Error de red:', error);
-            mostrarNotificacion('Error de conexión', 'error');
+            // Solo mostrar error si la página sigue visible
+            if (!document.hidden) {
+                mostrarNotificacion('Error de conexión', 'error');
+            }
         });
     }
     
