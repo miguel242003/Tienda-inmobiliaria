@@ -257,17 +257,26 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                         # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
                         nombre_archivo = f"{self.slug}-secundaria"
                         logger.info(f"🔄 Convirtiendo imagen secundaria a WebP: {nombre_archivo}")
+                        logger.info(f"   Archivo completo: {self.imagen_secundaria.name}")
+                        logger.info(f"   Intentando llamar a copiar_imagen_a_static...")
                         self._conversion_messages.append(f"🔄 Convirtiendo imagen secundaria a WebP...")
                         logger.info(f"   Mensajes después de agregar: {len(self._conversion_messages)}")
-                        resultado = copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
-                        if resultado:
-                            logger.info(f"✅ Imagen secundaria convertida y copiada exitosamente: {resultado}")
-                            self._conversion_messages.append(f"✅ Imagen secundaria convertida exitosamente: {resultado}")
-                        else:
-                            logger.error(f"❌ ERROR: No se pudo convertir/copiar imagen secundaria a static")
-                            logger.error(f"   Archivo: {self.imagen_secundaria.name}")
-                            logger.error(f"   Slug: {self.slug}")
-                            self._conversion_messages.append(f"❌ ERROR: No se pudo convertir imagen secundaria")
+                        try:
+                            resultado = copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
+                            logger.info(f"   Resultado de copiar_imagen_a_static: {resultado}")
+                            if resultado:
+                                logger.info(f"✅ Imagen secundaria convertida y copiada exitosamente: {resultado}")
+                                self._conversion_messages.append(f"✅ Imagen secundaria convertida exitosamente: {resultado}")
+                            else:
+                                logger.error(f"❌ ERROR: copiar_imagen_a_static retornó None")
+                                logger.error(f"   Archivo: {self.imagen_secundaria.name}")
+                                logger.error(f"   Slug: {self.slug}")
+                                self._conversion_messages.append(f"❌ ERROR: No se pudo convertir imagen secundaria (retornó None)")
+                        except Exception as e:
+                            logger.error(f"❌ EXCEPCIÓN al llamar copiar_imagen_a_static: {e}")
+                            import traceback
+                            logger.error(traceback.format_exc())
+                            self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
                         logger.info(f"   Mensajes finales: {len(self._conversion_messages)}")
                     else:
                         logger.info(f"   No se convierte imagen secundaria (no cambió y ya existía)")
