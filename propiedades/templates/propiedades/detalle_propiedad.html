@@ -533,7 +533,7 @@
                         <div class="row mb-3">
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label class="form-label" for="fecha_entrada_display">
+                                    <label class="form-label">
                                         Selecciona tus fechas <span class="required">*</span>
                                     </label>
                                     
@@ -550,7 +550,7 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="date-input-group">
-                                                    <label class="date-label" for="fecha_entrada_display">Check-in:</label>
+                                                    <label class="date-label">Check-in:</label>
                                                     <input type="text" class="date-display" id="fecha_entrada_display" readonly placeholder="Selecciona fecha">
                                                     <input type="hidden" id="fecha_entrada" name="fecha_entrada" required>
                                                     <small class="time-info">
@@ -560,7 +560,7 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="date-input-group">
-                                                    <label class="date-label" for="fecha_salida_display">Check-out:</label>
+                                                    <label class="date-label">Check-out:</label>
                                                     <input type="text" class="date-display" id="fecha_salida_display" readonly placeholder="Selecciona fecha">
                                                     <input type="hidden" id="fecha_salida" name="fecha_salida" required>
                                                     <small class="time-info">
@@ -753,9 +753,9 @@
                         <input type="tel" class="form-control" id="telefono_usuario" name="telefono_usuario">
                     </div>
                     <div class="col-md-6">
-                        <label for="calificacion" class="form-label">Calificación *</label>
+                        <label class="form-label" id="calificacion-label">Calificación *</label>
                         <div class="rating-input">
-                            <input type="hidden" id="calificacion" name="calificacion" value="5" required>
+                            <input type="hidden" id="calificacion" name="calificacion" value="5" required aria-labelledby="calificacion-label">
                             <div class="stars">
                                 <i class="fas fa-star" data-rating="1"></i>
                                 <i class="fas fa-star" data-rating="2"></i>
