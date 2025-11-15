@@ -266,14 +266,15 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
         return None
 
 
-def obtener_ruta_static_imagen(imagen_field, propiedad_slug=None, es_principal=True):
+def obtener_ruta_static_imagen(imagen_field, propiedad_slug=None, es_principal=True, orden_adicional=None):
     """
     Verifica si existe una versión estática de la imagen y retorna su ruta
     
     Args:
         imagen_field: Campo de imagen del modelo
         propiedad_slug: Slug de la propiedad (opcional, para búsqueda más precisa)
-        es_principal: True si es imagen principal, False si es secundaria
+        es_principal: True si es imagen principal, False si es secundaria, None si es adicional
+        orden_adicional: Orden de la foto adicional (solo si es_principal es None)
     
     Returns:
         str: Ruta relativa en static si existe, None si no existe
@@ -306,8 +307,16 @@ def obtener_ruta_static_imagen(imagen_field, propiedad_slug=None, es_principal=T
         
         # Primero intentar buscar por slug si está disponible (priorizar .webp)
         if propiedad_slug:
-            sufijo = "principal" if es_principal else "secundaria"
-            nombre_por_slug = f"{propiedad_slug}-{sufijo}"
+            # Determinar el sufijo según el tipo de imagen
+            if es_principal is None and orden_adicional is not None:
+                # Es una foto adicional
+                nombre_por_slug = f"{propiedad_slug}-adicional-{orden_adicional}"
+            elif es_principal:
+                sufijo = "principal"
+                nombre_por_slug = f"{propiedad_slug}-{sufijo}"
+            else:
+                sufijo = "secundaria"
+                nombre_por_slug = f"{propiedad_slug}-{sufijo}"
             
             # Buscar primero WebP (formato preferido)
             ruta_webp = static_dir / f"{nombre_por_slug}.webp"

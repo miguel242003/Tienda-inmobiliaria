@@ -514,15 +514,31 @@ def crear_propiedad(request):
                             
                             logger.info(f"Total de archivos adicionales guardados: {len(fotos_creadas)}/{len(archivos_adicionales)}")
                             
-                            # Optimizar todas las fotos adicionales a WebP después de guardarlas
+                            # Optimizar y copiar todas las fotos adicionales a WebP después de guardarlas
+                            from core.utils import copiar_imagen_a_static
                             for foto in fotos_creadas:
                                 if foto.tipo_medio == 'imagen' and foto.imagen:
                                     try:
                                         logger.debug(f"Optimizando foto adicional a WebP: {foto.descripcion}")
+                                        
+                                        # Optimizar en media
                                         foto.optimize_image_field('imagen', quality=85)
+                                        
+                                        # Copiar a static como WebP
+                                        # Generar nombre basado en el slug de la propiedad y el orden
+                                        nombre_archivo = f"{propiedad.slug}-adicional-{foto.orden}"
+                                        resultado = copiar_imagen_a_static(foto.imagen, nombre_archivo, quality=85)
+                                        
+                                        if resultado:
+                                            logger.info(f"✅ Foto adicional convertida y copiada a static: {resultado}")
+                                        else:
+                                            logger.warning(f"⚠️ Foto adicional optimizada pero no se pudo copiar a static")
+                                        
                                         logger.info(f"Foto adicional optimizada exitosamente: {foto.descripcion}")
                                     except Exception as e:
                                         logger.warning(f"Error optimizando foto adicional (no crítico): {e}")
+                                        import traceback
+                                        logger.warning(traceback.format_exc())
                                         # No fallar por errores de optimización
                                 elif foto.tipo_medio == 'video' and foto.video:
                                     try:

@@ -564,6 +564,51 @@ class FotoPropiedad(WebPImageFieldMixin, models.Model):
         elif self.tipo_medio == 'video' and self.video:
             return self.video.url
         return None
+    
+    def get_imagen_static_url(self):
+        """Retorna la URL estática de la imagen adicional si existe, sino la de media"""
+        from django.conf import settings
+        from django.templatetags.static import static
+        from core.utils import obtener_ruta_static_imagen
+        import os
+        from pathlib import Path
+        
+        if not self.imagen or self.tipo_medio != 'imagen':
+            return None
+        
+        # Buscar en static primero (pasar slug, es_principal=None, y orden)
+        ruta_static = obtener_ruta_static_imagen(
+            self.imagen, 
+            propiedad_slug=self.propiedad.slug, 
+            es_principal=None,
+            orden_adicional=self.orden
+        )
+        
+        # Verificar que el archivo realmente existe antes de retornar la URL estática
+        if ruta_static:
+            # Buscar primero en STATIC_ROOT (producción), luego en STATICFILES_DIRS (desarrollo)
+            static_dirs = []
+            
+            # Agregar STATIC_ROOT si está configurado
+            if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+                static_root_dir = Path(settings.STATIC_ROOT) / 'images' / 'propiedades'
+                if static_root_dir.exists():
+                    static_dirs.append(static_root_dir)
+            
+            # Agregar STATICFILES_DIRS
+            if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
+                static_dir_dev = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+                if static_dir_dev.exists():
+                    static_dirs.append(static_dir_dev)
+            
+            # Buscar en todos los directorios
+            for static_dir in static_dirs:
+                ruta_completa = static_dir / os.path.basename(ruta_static)
+                if ruta_completa.exists():
+                    return static(ruta_static)
+        
+        # Si no existe en static, usar la de media
+        return self.imagen.url
 
 class ClickPropiedad(models.Model):
     """Modelo para rastrear clics en botones 'Ver Detalle' de propiedades"""
