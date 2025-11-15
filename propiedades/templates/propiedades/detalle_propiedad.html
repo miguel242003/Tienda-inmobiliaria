@@ -885,6 +885,12 @@
     box-sizing: border-box;
 }
 
+/* Asegurar que las miniaturas se centren correctamente */
+.image-viewer-content .image-viewer-thumbnails {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .image-viewer-close {
     position: absolute;
     top: 20px;
@@ -974,10 +980,21 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
+    justify-content: center;
+    align-items: center;
     gap: 10px;
     max-width: 90%;
+    width: auto;
+    min-width: fit-content;
     overflow-x: auto;
     padding: 10px;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.image-viewer-thumbnails::-webkit-scrollbar {
+    display: none;
 }
 
 .image-viewer-thumbnails img {
@@ -1008,6 +1025,7 @@
 @media (max-width: 768px) {
     .image-viewer-content {
         justify-content: flex-start;
+        align-items: center;
         padding-top: 80px;
         padding-bottom: 120px;
         overflow-y: auto;
@@ -1080,11 +1098,12 @@
         align-items: center;
         gap: 8px;
         background: rgba(0, 0, 0, 0.5);
-        padding: 10px;
+        padding: 10px 15px;
         border-radius: 10px;
-        margin-top: 20px;
-        max-width: 95%;
-        width: auto;
+        margin: 20px 0 0;
+        max-width: calc(100% - 40px);
+        width: fit-content;
+        min-width: fit-content;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
@@ -1151,8 +1170,13 @@
         justify-content: center;
         align-items: center;
         gap: 6px;
-        max-width: 98%;
-        width: auto;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px 12px;
+        border-radius: 10px;
+        margin: 20px 0 0;
+        max-width: calc(100% - 30px);
+        width: fit-content;
+        min-width: fit-content;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
@@ -5976,10 +6000,19 @@ function createThumbnails() {
     const thumbnailsContainer = document.getElementById('imageThumbnails');
     thumbnailsContainer.innerHTML = '';
     
+    // Asegurar que el contenedor esté centrado
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        thumbnailsContainer.style.display = 'flex';
+        thumbnailsContainer.style.justifyContent = 'center';
+        thumbnailsContainer.style.alignItems = 'center';
+    }
+    
     imagesArray.forEach((media, index) => {
         const thumbContainer = document.createElement('div');
         thumbContainer.style.position = 'relative';
         thumbContainer.style.display = 'inline-block';
+        thumbContainer.style.flexShrink = '0'; // Evitar que se compriman
         
         if (media.tipo === 'video') {
             // Miniatura para video con ícono de play
