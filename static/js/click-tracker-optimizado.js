@@ -12,9 +12,11 @@
     
     // Variable para almacenar peticiones activas
     let peticionesActivas = new Set();
+    let paginaDescargandose = false;
     
     // Cancelar todas las peticiones cuando la página se descarga
     window.addEventListener('beforeunload', function() {
+        paginaDescargandose = true;
         peticionesActivas.forEach(controller => {
             try {
                 controller.abort();
@@ -25,10 +27,40 @@
         peticionesActivas.clear();
     });
     
+    // Detectar cuando la página se carga desde el cache (navegación hacia atrás)
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            // La página se cargó desde el cache, cancelar todas las peticiones pendientes
+            paginaDescargandose = false;
+            peticionesActivas.forEach(controller => {
+                try {
+                    controller.abort();
+                } catch (e) {
+                    // Ignorar errores al cancelar
+                }
+            });
+            peticionesActivas.clear();
+        }
+    });
+    
+    // Detectar cuando la página se oculta
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            // Cancelar todas las peticiones cuando la página se oculta
+            peticionesActivas.forEach(controller => {
+                try {
+                    controller.abort();
+                } catch (e) {
+                    // Ignorar errores al cancelar
+                }
+            });
+        }
+    });
+    
     // Función principal para registrar clics
     function registrarClick(propiedadId, paginaOrigen = 'home') {
-        // No registrar si la página está siendo descargada
-        if (document.visibilityState === 'hidden' || document.hidden) {
+        // No registrar si la página está siendo descargada o está oculta
+        if (paginaDescargandose || document.visibilityState === 'hidden' || document.hidden) {
             return;
         }
         
@@ -74,16 +106,25 @@
         .catch(error => {
             peticionesActivas.delete(controller);
             
-            // No mostrar error si la petición fue cancelada por navegación
-            if (error.name === 'AbortError' || error.message === 'Failed to fetch' || 
-                document.visibilityState === 'hidden' || document.hidden) {
-                // La petición fue cancelada, no mostrar error
+            // NUNCA mostrar mensaje de error de conexión
+            // Los errores de red al navegar son normales y no deben mostrarse al usuario
+            // Solo loguear en consola para debugging
+            if (error.name === 'AbortError' || 
+                error.message === 'Failed to fetch' || 
+                error.message.includes('aborted') ||
+                paginaDescargandose ||
+                document.visibilityState === 'hidden' || 
+                document.hidden ||
+                !document.body ||
+                document.readyState === 'uninitialized') {
+                // Error causado por navegación, ignorar silenciosamente
                 return;
             }
-            console.error('❌ Error de red:', error);
-            // Solo mostrar error si la página sigue visible
-            if (!document.hidden) {
-                mostrarNotificacion('Error de conexión', 'error');
+            
+            // Para otros errores, solo loguear en consola (modo desarrollo)
+            // NO mostrar notificación al usuario
+            if (console && console.error) {
+                console.error('❌ Error de red (silenciado):', error);
             }
         });
     }
@@ -114,6 +155,15 @@
     
     // Función para mostrar notificaciones
     function mostrarNotificacion(mensaje, tipo = 'success') {
+        // No mostrar notificaciones si la página está siendo descargada o está oculta
+        if (paginaDescargandose || 
+            document.visibilityState === 'hidden' || 
+            document.hidden ||
+            !document.body ||
+            document.readyState === 'uninitialized') {
+            return;
+        }
+        
         // Crear elemento de notificación
         const notificacion = document.createElement('div');
         notificacion.className = `alert alert-${tipo === 'error' ? 'danger' : 'success'} alert-dismissible fade show`;

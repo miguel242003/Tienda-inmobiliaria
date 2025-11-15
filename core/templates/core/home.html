@@ -19,7 +19,7 @@
                     <h1 class="carousel-title">Encuentra tu hogar ideal</h1>
                     <p class="carousel-subtitle">Descubre las mejores propiedades en las ubicaciones más deseadas</p>
                     <div class="carousel-buttons">
-                        <a href="{% url 'propiedades:lista' %}" class="btn btn-light btn-lg me-3">
+                        <a href="{% url 'propiedades:lista' %}" class="btn btn-light btn-lg">
                             <i class="fas fa-search"></i> Ver Propiedades
                         </a>
                         <a href="{% url 'propiedades:buscar' %}" class="btn btn-outline-light btn-lg">
@@ -40,7 +40,7 @@
                     <h1 class="carousel-title">Espacios que inspiran</h1>
                     <p class="carousel-subtitle">Cada propiedad cuenta una historia única de elegancia y confort</p>
                     <div class="carousel-buttons">
-                        <a href="{% url 'propiedades:lista' %}" class="btn btn-light btn-lg me-3">
+                        <a href="{% url 'propiedades:lista' %}" class="btn btn-light btn-lg">
                             <i class="fas fa-eye"></i> Explorar
                         </a>
                         <a href="{% url 'core:contact' %}" class="btn btn-outline-light btn-lg">
@@ -592,6 +592,7 @@
     align-items: center;
     flex-wrap: wrap;
     width: 100%;
+    margin: 0 auto;
 }
 
 .carousel-buttons .btn {
@@ -600,7 +601,14 @@
     font-weight: 600;
     border-radius: 8px;
     transition: all 0.3s ease;
-    min-width: 180px;
+    min-width: 200px;
+    width: 200px;
+    flex: 0 0 200px;
+    margin: 0;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .carousel-buttons .btn:hover {
@@ -919,12 +927,16 @@
     }
     
     .carousel-buttons .btn {
-        width: 100%;
-        max-width: 300px;
+        width: 250px;
+        min-width: 250px;
+        max-width: 250px;
         padding: 0.8rem 1.5rem;
         font-size: 0.95rem;
         margin: 0 auto;
-        display: block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 250px;
     }
     
     .prop-title-sec {
@@ -983,12 +995,16 @@
     }
     
     .carousel-buttons .btn {
-        width: 100%;
-        max-width: 280px;
+        width: 240px;
+        min-width: 240px;
+        max-width: 240px;
         padding: 0.75rem 1.25rem;
         font-size: 0.9rem;
         margin: 0 auto;
-        display: block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 240px;
     }
     
     .carousel-indicators {
@@ -1093,13 +1109,16 @@
     }
     
     .carousel-buttons .btn {
-        width: 100%;
-        max-width: 250px;
+        width: 220px;
+        min-width: 220px;
+        max-width: 220px;
         padding: 0.7rem 1rem;
         font-size: 0.85rem;
-        min-width: auto;
         margin: 0 auto;
-        display: block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 220px;
     }
     
     .carousel-indicators {
