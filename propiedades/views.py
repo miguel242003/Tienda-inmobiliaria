@@ -554,6 +554,8 @@ def crear_propiedad(request):
                     
                     # Obtener mensajes de conversión WebP si existen
                     conversion_messages = getattr(propiedad, '_conversion_messages', [])
+                    logger.info(f"📋 Mensajes de conversión capturados: {conversion_messages}")
+                    logger.info(f"📋 Cantidad de mensajes: {len(conversion_messages)}")
                     
                     # Verificar si es una petición AJAX
                     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -564,6 +566,7 @@ def crear_propiedad(request):
                             'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug]),
                             'conversion_messages': conversion_messages
                         }
+                        logger.info(f"📤 Enviando respuesta JSON con {len(conversion_messages)} mensajes de conversión")
                         return JsonResponse(response_data)
                     else:
                         messages.success(request, 'Propiedad creada exitosamente.')

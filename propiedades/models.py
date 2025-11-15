@@ -151,7 +151,11 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         logger = logging.getLogger(__name__)
         
         # Lista para almacenar mensajes de conversión (se agregará como atributo del modelo)
+        # Inicializar siempre para asegurar que existe
         if not hasattr(self, '_conversion_messages'):
+            self._conversion_messages = []
+        else:
+            # Limpiar mensajes anteriores si existen
             self._conversion_messages = []
         
         # Esperar y verificar que los archivos estén físicamente guardados
