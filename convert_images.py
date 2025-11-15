@@ -42,10 +42,23 @@ def convert_to_webp(input_path, output_path, quality=85):
         print(f"[ERROR] Error al convertir {input_path}: {e}")
         return False
 
-def optimize_webp(input_path, output_path, quality=80):
+def optimize_webp(input_path, output_path, quality=70, max_width=None):
     """Optimiza una imagen WebP existente"""
     try:
         img = Image.open(input_path)
+        original_width, original_height = img.size
+        
+        # Redimensionar si es muy grande (más de 1920px de ancho)
+        if max_width and original_width > max_width:
+            ratio = max_width / original_width
+            new_height = int(original_height * ratio)
+            # Compatibilidad con versiones antiguas de Pillow
+            try:
+                resample = Image.Resampling.LANCZOS
+            except AttributeError:
+                resample = Image.LANCZOS
+            img = img.resize((max_width, new_height), resample)
+            print(f"  Redimensionado: {original_width}x{original_height} -> {max_width}x{new_height}")
         
         # Si la imagen tiene transparencia, mantenerla
         if img.mode in ('RGBA', 'LA', 'P'):
@@ -91,38 +104,44 @@ def main():
         print(f"[AVISO] No se encontro: {logo_jpeg}")
         print()
     
-    # 2. Optimizar FondoLogin.webp
-    fondo_login = os.path.join(images_dir, 'FondoLogin.webp')
-    fondo_login_optimized = os.path.join(images_dir, 'FondoLogin_optimized.webp')
+    # 2. Optimizar imágenes grandes de fondo
+    images_to_optimize = [
+        ('FondoLogin.webp', 70, 1920),
+        ('Fondodecontacto.webp', 70, 1920),
+        ('fondo_consorcio.webp', 70, 1920),
+    ]
     
-    if os.path.exists(fondo_login):
-        print("2. Optimizando FondoLogin.webp...")
-        # Intentar con diferentes calidades para reducir el tamaño
-        optimize_webp(fondo_login, fondo_login_optimized, quality=75)
+    import shutil
+    for image_name, quality, max_width in images_to_optimize:
+        image_path = os.path.join(images_dir, image_name)
+        image_optimized = os.path.join(images_dir, image_name.replace('.webp', '_optimized.webp'))
         
-        # Si la optimización fue exitosa, reemplazar el original
-        if os.path.exists(fondo_login_optimized):
-            original_size = os.path.getsize(fondo_login) / (1024 * 1024)
-            optimized_size = os.path.getsize(fondo_login_optimized) / (1024 * 1024)
+        if os.path.exists(image_path):
+            print(f"Optimizando {image_name}...")
+            optimize_webp(image_path, image_optimized, quality=quality, max_width=max_width)
             
-            if optimized_size < original_size:
-                # Hacer backup del original
-                backup_path = os.path.join(images_dir, 'FondoLogin_backup.webp')
-                if not os.path.exists(backup_path):
-                    import shutil
-                    shutil.copy2(fondo_login, backup_path)
-                    print(f"  Backup creado: FondoLogin_backup.webp")
+            # Si la optimización fue exitosa, reemplazar el original
+            if os.path.exists(image_optimized):
+                original_size = os.path.getsize(image_path) / (1024 * 1024)
+                optimized_size = os.path.getsize(image_optimized) / (1024 * 1024)
                 
-                # Reemplazar el original
-                os.replace(fondo_login_optimized, fondo_login)
-                print(f"  [OK] Archivo original reemplazado con version optimizada")
-            else:
-                os.remove(fondo_login_optimized)
-                print(f"  [AVISO] La optimizacion no redujo el tamano, se mantiene el original")
-        print()
-    else:
-        print(f"[AVISO] No se encontro: {fondo_login}")
-        print()
+                if optimized_size < original_size:
+                    # Hacer backup del original si no existe
+                    backup_path = os.path.join(images_dir, image_name.replace('.webp', '_backup.webp'))
+                    if not os.path.exists(backup_path):
+                        shutil.copy2(image_path, backup_path)
+                        print(f"  Backup creado: {os.path.basename(backup_path)}")
+                    
+                    # Reemplazar el original
+                    os.replace(image_optimized, image_path)
+                    print(f"  [OK] Archivo original reemplazado con version optimizada")
+                else:
+                    os.remove(image_optimized)
+                    print(f"  [AVISO] La optimizacion no redujo el tamano, se mantiene el original")
+            print()
+        else:
+            print(f"[AVISO] No se encontro: {image_name}")
+            print()
     
     print("=" * 60)
     print("!Proceso completado!")
