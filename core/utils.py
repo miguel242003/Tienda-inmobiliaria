@@ -158,7 +158,9 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
                 return None
         
         if webp_size == 0:
-            logger.warning(f"No se pudo convertir la imagen a WebP: {imagen_field.name}")
+            logger.error(f"❌ ERROR: No se pudo convertir la imagen a WebP (tamaño 0): {imagen_field.name}")
+            logger.error(f"   Ruta media: {ruta_media}")
+            logger.error(f"   Archivo existe: {ruta_media and os.path.exists(ruta_media) if ruta_media else False}")
             return None
         
         # Determinar el nombre del archivo (siempre con extensión .webp)
@@ -201,12 +203,25 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
         # Ruta relativa desde static/images/propiedades/
         ruta_relativa = f"images/propiedades/{nombre_final}"
         
-        logger.info(f"Imagen convertida a WebP y copiada a static: {ruta_relativa} "
+        # Verificar que el archivo WebP se creó correctamente
+        if not os.path.exists(ruta_destino):
+            logger.error(f"❌ ERROR: El archivo WebP no se creó en: {ruta_destino}")
+            return None
+        
+        file_size = os.path.getsize(ruta_destino)
+        if file_size == 0:
+            logger.error(f"❌ ERROR: El archivo WebP está vacío: {ruta_destino}")
+            return None
+        
+        logger.info(f"✅ Imagen convertida a WebP y copiada a static: {ruta_relativa} "
                    f"({original_size} bytes -> {webp_size} bytes, {saved_percentage:.1f}% ahorro)")
+        logger.info(f"   Archivo WebP creado: {ruta_destino} ({file_size} bytes)")
         return ruta_relativa
         
     except Exception as e:
-        logger.error(f"Error al copiar imagen a static: {e}")
+        logger.error(f"❌ EXCEPCIÓN al copiar imagen a static: {e}")
+        logger.error(f"   Archivo: {imagen_field.name if imagen_field else 'None'}")
+        logger.error(f"   Nombre archivo: {nombre_archivo}")
         import traceback
         logger.error(traceback.format_exc())
         # Limpiar archivo temporal si se creó

@@ -788,8 +788,54 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json().then(data => {
                         console.log('Datos JSON:', data);
                         if (data.success) {
-                            alert('¡Propiedad creada exitosamente!');
-                            window.location.href = data.redirect_url || '/propiedades/';
+                            // Mostrar mensajes de conversión WebP si existen
+                            if (data.conversion_messages && data.conversion_messages.length > 0) {
+                                // Crear contenedor para mensajes de conversión
+                                const messagesContainer = document.createElement('div');
+                                messagesContainer.id = 'conversion-messages';
+                                messagesContainer.className = 'mb-4';
+                                
+                                // Agregar cada mensaje
+                                data.conversion_messages.forEach(function(msg) {
+                                    const messageDiv = document.createElement('div');
+                                    let alertClass = 'alert-info';
+                                    if (msg.includes('✅')) {
+                                        alertClass = 'alert-success';
+                                    } else if (msg.includes('❌')) {
+                                        alertClass = 'alert-danger';
+                                    } else if (msg.includes('🔄')) {
+                                        alertClass = 'alert-info';
+                                    }
+                                    
+                                    messageDiv.className = `alert ${alertClass} alert-dismissible fade show`;
+                                    messageDiv.innerHTML = `
+                                        ${msg}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    `;
+                                    messagesContainer.appendChild(messageDiv);
+                                });
+                                
+                                // Insertar antes del formulario
+                                const form = document.getElementById('crearPropiedadForm');
+                                if (form && form.parentElement) {
+                                    form.parentElement.insertBefore(messagesContainer, form);
+                                }
+                                
+                                // Scroll a los mensajes
+                                messagesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                
+                                // Mostrar alerta de éxito
+                                alert('¡Propiedad creada exitosamente!');
+                                
+                                // Redirigir después de 3 segundos para que el usuario vea los mensajes
+                                setTimeout(function() {
+                                    window.location.href = data.redirect_url || '/propiedades/';
+                                }, 3000);
+                            } else {
+                                // Si no hay mensajes de conversión, redirigir inmediatamente
+                                alert('¡Propiedad creada exitosamente!');
+                                window.location.href = data.redirect_url || '/propiedades/';
+                            }
                         } else {
                             alert('Error: ' + data.message);
                         }

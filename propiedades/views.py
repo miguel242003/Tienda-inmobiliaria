@@ -552,16 +552,29 @@ def crear_propiedad(request):
                     #     print(f"DEBUG - Error en optimización WebP (no crítico): {e}")
                     #     # No fallar la creación por errores de optimización
                     
+                    # Obtener mensajes de conversión WebP si existen
+                    conversion_messages = getattr(propiedad, '_conversion_messages', [])
+                    
                     # Verificar si es una petición AJAX
                     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        return JsonResponse({
+                        response_data = {
                             'success': True,
                             'message': 'Propiedad creada exitosamente.',
                             'propiedad_id': propiedad.id,
-                            'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug])
-                        })
+                            'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug]),
+                            'conversion_messages': conversion_messages
+                        }
+                        return JsonResponse(response_data)
                     else:
                         messages.success(request, 'Propiedad creada exitosamente.')
+                        # Agregar mensajes de conversión a los mensajes de Django
+                        for msg in conversion_messages:
+                            if '✅' in msg:
+                                messages.success(request, msg)
+                            elif '❌' in msg:
+                                messages.error(request, msg)
+                            elif '🔄' in msg:
+                                messages.info(request, msg)
                         return redirect('propiedades:detalle', slug=propiedad.slug)
                         
                 except Exception as e:

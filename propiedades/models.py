@@ -150,6 +150,10 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         from django.core.files.storage import default_storage
         logger = logging.getLogger(__name__)
         
+        # Lista para almacenar mensajes de conversión (se agregará como atributo del modelo)
+        if not hasattr(self, '_conversion_messages'):
+            self._conversion_messages = []
+        
         # Esperar y verificar que los archivos estén físicamente guardados
         # Esto es crítico porque el guardado puede ser asíncrono
         max_espera = 3  # Segundos máximo de espera
@@ -175,7 +179,7 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                 for intento in range(intentos):
                     if verificar_archivo_existe(self.imagen_principal.name):
                         archivo_existe = True
-                        logger.debug(f"Imagen principal encontrada después de {intento + 1} intentos")
+                        logger.info(f"✓ Imagen principal encontrada después de {intento + 1} intentos: {self.imagen_principal.name}")
                         break
                     time.sleep(tiempo_espera)
                 
@@ -184,17 +188,25 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                     if imagen_principal_cambio or not imagen_principal_existia:
                         # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
                         nombre_archivo = f"{self.slug}-principal"
-                        logger.info(f"Copiando imagen principal a static: {nombre_archivo}")
+                        logger.info(f"🔄 Convirtiendo imagen principal a WebP: {nombre_archivo}")
+                        if not hasattr(self, '_conversion_messages'):
+                            self._conversion_messages = []
+                        self._conversion_messages.append(f"🔄 Convirtiendo imagen principal a WebP...")
                         resultado = copiar_imagen_a_static(self.imagen_principal, nombre_archivo, quality=85)
                         if resultado:
-                            logger.info(f"Imagen principal copiada exitosamente: {resultado}")
+                            logger.info(f"✅ Imagen principal convertida y copiada exitosamente: {resultado}")
+                            self._conversion_messages.append(f"✅ Imagen principal convertida exitosamente: {resultado}")
                         else:
-                            logger.warning(f"No se pudo copiar imagen principal a static")
+                            logger.error(f"❌ ERROR: No se pudo convertir/copiar imagen principal a static")
+                            logger.error(f"   Archivo: {self.imagen_principal.name}")
+                            logger.error(f"   Slug: {self.slug}")
+                            self._conversion_messages.append(f"❌ ERROR: No se pudo convertir imagen principal")
                 else:
-                    logger.warning(f"Imagen principal no existe físicamente después de {intentos} intentos: {self.imagen_principal.name}")
-                    logger.warning(f"Ruta esperada: {Path(settings.MEDIA_ROOT) / self.imagen_principal.name}")
+                    logger.error(f"❌ ERROR: Imagen principal no existe físicamente después de {intentos} intentos")
+                    logger.error(f"   Archivo: {self.imagen_principal.name}")
+                    logger.error(f"   Ruta esperada: {Path(settings.MEDIA_ROOT) / self.imagen_principal.name}")
             except Exception as e:
-                logger.error(f"Error al copiar imagen principal a static: {e}")
+                logger.error(f"❌ EXCEPCIÓN al copiar imagen principal a static: {e}")
                 import traceback
                 logger.error(traceback.format_exc())
         
@@ -206,7 +218,7 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                 for intento in range(intentos):
                     if verificar_archivo_existe(self.imagen_secundaria.name):
                         archivo_existe = True
-                        logger.debug(f"Imagen secundaria encontrada después de {intento + 1} intentos")
+                        logger.info(f"✓ Imagen secundaria encontrada después de {intento + 1} intentos: {self.imagen_secundaria.name}")
                         break
                     time.sleep(tiempo_espera)
                 
@@ -215,17 +227,25 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                     if imagen_secundaria_cambio or not imagen_secundaria_existia:
                         # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
                         nombre_archivo = f"{self.slug}-secundaria"
-                        logger.info(f"Copiando imagen secundaria a static: {nombre_archivo}")
+                        logger.info(f"🔄 Convirtiendo imagen secundaria a WebP: {nombre_archivo}")
+                        if not hasattr(self, '_conversion_messages'):
+                            self._conversion_messages = []
+                        self._conversion_messages.append(f"🔄 Convirtiendo imagen secundaria a WebP...")
                         resultado = copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
                         if resultado:
-                            logger.info(f"Imagen secundaria copiada exitosamente: {resultado}")
+                            logger.info(f"✅ Imagen secundaria convertida y copiada exitosamente: {resultado}")
+                            self._conversion_messages.append(f"✅ Imagen secundaria convertida exitosamente: {resultado}")
                         else:
-                            logger.warning(f"No se pudo copiar imagen secundaria a static")
+                            logger.error(f"❌ ERROR: No se pudo convertir/copiar imagen secundaria a static")
+                            logger.error(f"   Archivo: {self.imagen_secundaria.name}")
+                            logger.error(f"   Slug: {self.slug}")
+                            self._conversion_messages.append(f"❌ ERROR: No se pudo convertir imagen secundaria")
                 else:
-                    logger.warning(f"Imagen secundaria no existe físicamente después de {intentos} intentos: {self.imagen_secundaria.name}")
-                    logger.warning(f"Ruta esperada: {Path(settings.MEDIA_ROOT) / self.imagen_secundaria.name}")
+                    logger.error(f"❌ ERROR: Imagen secundaria no existe físicamente después de {intentos} intentos")
+                    logger.error(f"   Archivo: {self.imagen_secundaria.name}")
+                    logger.error(f"   Ruta esperada: {Path(settings.MEDIA_ROOT) / self.imagen_secundaria.name}")
             except Exception as e:
-                logger.error(f"Error al copiar imagen secundaria a static: {e}")
+                logger.error(f"❌ EXCEPCIÓN al copiar imagen secundaria a static: {e}")
                 import traceback
                 logger.error(traceback.format_exc())
     
