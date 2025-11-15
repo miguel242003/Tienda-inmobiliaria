@@ -272,6 +272,7 @@ class ContactSubmissionForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
+                'id': 'id_nombre',
                 'placeholder': 'Tu nombre completo',
                 'required': True,
                 'minlength': '2',
@@ -281,6 +282,7 @@ class ContactSubmissionForm(forms.ModelForm):
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'form-control',
+                'id': 'id_email',
                 'placeholder': 'tu@email.com',
                 'required': True,
                 'maxlength': '254',
@@ -288,6 +290,7 @@ class ContactSubmissionForm(forms.ModelForm):
             }),
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
+                'id': 'id_telefono',
                 'placeholder': '+5491123456789',
                 'required': True,
                 'pattern': '^\\+?[0-9\\s\\-\\(\\)]{8,15}$',
@@ -297,11 +300,13 @@ class ContactSubmissionForm(forms.ModelForm):
             }),
             'asunto': forms.Select(attrs={
                 'class': 'form-select',
+                'id': 'id_asunto',
                 'required': True,
                 'title': 'Selecciona un asunto'
             }),
             'mensaje': forms.Textarea(attrs={
                 'class': 'form-control',
+                'id': 'id_mensaje',
                 'rows': 5,
                 'placeholder': 'Cuéntanos cómo podemos ayudarte...',
                 'required': True,
