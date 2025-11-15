@@ -25,7 +25,13 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
     Returns:
         str: Ruta relativa del archivo en static si se copió exitosamente, None si falló
     """
+    logger.info(f"🔍 copiar_imagen_a_static iniciado")
+    logger.info(f"   imagen_field: {imagen_field}")
+    logger.info(f"   imagen_field.name: {imagen_field.name if imagen_field else None}")
+    logger.info(f"   nombre_archivo: {nombre_archivo}")
+    
     if not imagen_field or not imagen_field.name:
+        logger.error(f"❌ imagen_field o imagen_field.name es None")
         return None
     
     try:
@@ -101,10 +107,16 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
                             logger.error(f"El archivo no existe en storage después de reintento: {imagen_field.name}")
                             return None
         except Exception as e:
-            logger.error(f"Error al obtener ruta del archivo: {e}")
+            logger.error(f"❌ EXCEPCIÓN al obtener ruta del archivo: {e}")
             import traceback
             logger.error(traceback.format_exc())
             return None
+        
+        if not ruta_media:
+            logger.error(f"❌ No se pudo obtener ruta_media para: {imagen_field.name}")
+            return None
+        
+        logger.info(f"✅ Ruta media obtenida: {ruta_media}")
         
         # Convertir la imagen a WebP
         # Si tenemos una ruta física (ya sea temporal o del filesystem), usarla directamente
@@ -113,9 +125,13 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
         webp_size = 0
         saved_percentage = 0
         
+        logger.info(f"🔄 Iniciando conversión a WebP...")
+        logger.info(f"   ruta_media existe: {ruta_media and os.path.exists(ruta_media) if ruta_media else False}")
+        
         try:
             # Si tenemos una ruta física, usarla directamente (más confiable)
             if ruta_media and os.path.exists(ruta_media):
+                logger.info(f"✅ Usando ruta física para conversión: {ruta_media}")
                 from django.core.files import File
                 with open(ruta_media, 'rb') as f:
                     temp_image_field = File(f, name=os.path.basename(imagen_field.name))
@@ -125,20 +141,24 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
                         max_dimension=2048,
                         preserve_original=True
                     )
-                    logger.debug(f"Imagen convertida usando ruta física: {ruta_media}")
+                    logger.info(f"✅ Imagen convertida usando ruta física: {ruta_media}")
             else:
                 # Si no tenemos ruta física, intentar usar el campo directamente
-                logger.debug("Intentando convertir usando imagen_field directamente")
+                logger.warning(f"⚠️ No hay ruta física, intentando convertir usando imagen_field directamente")
                 webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
                     imagen_field, 
                     quality=quality,
                     max_dimension=2048,  # Redimensionar si es muy grande
                     preserve_original=True
                 )
+                logger.info(f"✅ Imagen convertida usando imagen_field directamente")
         except Exception as e:
+            logger.error(f"❌ EXCEPCIÓN en conversión WebP: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             # Si falla, intentar con el campo directamente si no lo hemos intentado
             if ruta_media and os.path.exists(ruta_media):
-                logger.warning(f"Error al convertir con ruta física, intentando con imagen_field: {e}")
+                logger.warning(f"⚠️ Reintentando conversión con imagen_field directamente")
                 try:
                     webp_file, original_size, webp_size, saved_percentage = WebPOptimizer.convert_to_webp(
                         imagen_field, 
@@ -146,15 +166,14 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
                         max_dimension=2048,
                         preserve_original=True
                     )
+                    logger.info(f"✅ Conversión exitosa en segundo intento")
                 except Exception as e2:
-                    logger.error(f"Error al convertir imagen a WebP: {e2}")
+                    logger.error(f"❌ ERROR en segundo intento de conversión: {e2}")
                     import traceback
                     logger.error(traceback.format_exc())
                     return None
             else:
-                logger.error(f"Error al convertir imagen a WebP: {e}")
-                import traceback
-                logger.error(traceback.format_exc())
+                logger.error(f"❌ No se pudo convertir imagen a WebP: {e}")
                 return None
         
         if webp_size == 0:

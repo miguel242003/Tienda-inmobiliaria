@@ -553,8 +553,26 @@ def crear_propiedad(request):
                     #     # No fallar la creación por errores de optimización
                     
                     # Obtener mensajes de conversión WebP si existen
-                    conversion_messages = getattr(propiedad, '_conversion_messages', [])
-                    logger.info(f"📋 Mensajes de conversión capturados: {conversion_messages}")
+                    # Intentar obtener de diferentes formas
+                    conversion_messages = []
+                    if hasattr(propiedad, '_conversion_messages'):
+                        conversion_messages = propiedad._conversion_messages
+                        logger.info(f"📋 Mensajes obtenidos de atributo: {conversion_messages}")
+                    else:
+                        conversion_messages = getattr(propiedad, '_conversion_messages', [])
+                        logger.info(f"📋 Mensajes obtenidos con getattr: {conversion_messages}")
+                    
+                    # Si no hay mensajes, intentar recargar el objeto desde la BD
+                    if not conversion_messages:
+                        try:
+                            propiedad_refreshed = Propiedad.objects.get(pk=propiedad.pk)
+                            if hasattr(propiedad_refreshed, '_conversion_messages'):
+                                conversion_messages = propiedad_refreshed._conversion_messages
+                                logger.info(f"📋 Mensajes obtenidos después de refresh: {conversion_messages}")
+                        except:
+                            pass
+                    
+                    logger.info(f"📋 Mensajes de conversión finales: {conversion_messages}")
                     logger.info(f"📋 Cantidad de mensajes: {len(conversion_messages)}")
                     
                     # Verificar si es una petición AJAX
