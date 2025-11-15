@@ -5087,7 +5087,7 @@ const fotosData = {
         {% for medio in propiedad.fotos.all %}
         {
             tipo: '{{ medio.tipo_medio }}',
-            url: '{% if medio.tipo_medio == "imagen" %}{{ medio.imagen.url }}{% elif medio.tipo_medio == "video" %}{{ medio.video.url }}{% endif %}',
+            url: '{% if medio.tipo_medio == "imagen" %}{% if medio.get_imagen_static_url %}{{ medio.get_imagen_static_url }}{% else %}{{ medio.imagen.url }}{% endif %}{% elif medio.tipo_medio == "video" %}{{ medio.video.url }}{% endif %}',
             urlWebP: null, // Las imágenes ya son WebP
             descripcion: '{{ medio.descripcion|escapejs }}'
         }{% if not forloop.last %},{% endif %}
@@ -5234,7 +5234,7 @@ function verGaleríaCompleta() {
     if (fotosData.fotoPrincipal) {
         modalContent += `
             <div class="gallery-item gallery-item-large">
-                <img src="${fotosData.fotoPrincipal}" alt="Vista Aérea - ${fotosData.titulo}" loading="lazy" onclick="openImageViewerFromGallery(0)" style="cursor: pointer;">
+                <img src="${fotosData.fotoPrincipal}" alt="Vista Aérea - ${fotosData.titulo}" loading="eager" onclick="openImageViewerFromGallery(0)" style="cursor: pointer;">
             </div>
         `;
     }
@@ -5243,7 +5243,7 @@ function verGaleríaCompleta() {
     if (fotosData.fotoSecundaria) {
         modalContent += `
             <div class="gallery-item gallery-item-medium">
-                <img src="${fotosData.fotoSecundaria}" alt="Interior - ${fotosData.titulo}" loading="lazy" onclick="openImageViewerFromGallery(1)" style="cursor: pointer;">
+                <img src="${fotosData.fotoSecundaria}" alt="Interior - ${fotosData.titulo}" loading="eager" onclick="openImageViewerFromGallery(1)" style="cursor: pointer;">
             </div>
         `;
     }
@@ -5261,10 +5261,13 @@ function verGaleríaCompleta() {
                 itemClass = 'gallery-item-wide'; // Cada tercera foto más ancha
             }
             
+            // Usar eager para las primeras 3 imágenes adicionales, lazy para el resto
+            const loadingStrategy = index < 3 ? 'eager' : 'lazy';
+            
             if (medio.tipo === 'video') {
                 modalContent += `
                     <div class="gallery-item ${itemClass}">
-                        <video controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <video controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" preload="${index < 2 ? 'auto' : 'metadata'}">
                             <source src="${medio.url}" type="video/mp4">
                             Tu navegador no soporta videos.
                         </video>
@@ -5273,7 +5276,7 @@ function verGaleríaCompleta() {
             } else {
                 modalContent += `
                     <div class="gallery-item ${itemClass}">
-                        <img src="${medio.url}" alt="${medio.descripcion}" loading="lazy" onclick="openImageViewerFromGallery(${galleryIndex})" style="cursor: pointer;">
+                        <img src="${medio.url}" alt="${medio.descripcion}" loading="${loadingStrategy}" onclick="openImageViewerFromGallery(${galleryIndex})" style="cursor: pointer;">
                     </div>
                 `;
             }
