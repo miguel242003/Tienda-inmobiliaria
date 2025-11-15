@@ -58,7 +58,6 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
             # Método 2: Si path no funciona, intentar construir la ruta manualmente
             if not ruta_media or not os.path.exists(ruta_media):
                 try:
-                    from django.conf import settings
                     ruta_manual = Path(settings.MEDIA_ROOT) / imagen_field.name
                     if os.path.exists(ruta_manual):
                         ruta_media = str(ruta_manual)
@@ -95,7 +94,6 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
                     else:
                         # Último intento: verificar si existe físicamente en MEDIA_ROOT
                         try:
-                            from django.conf import settings
                             ruta_fisica = Path(settings.MEDIA_ROOT) / imagen_field.name
                             if os.path.exists(ruta_fisica):
                                 ruta_media = str(ruta_fisica)
