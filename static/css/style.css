@@ -3316,7 +3316,7 @@ label[for*="precio"] {
   /* Imagen derecha */
   .about-main-section::after {
     content: '' !important;
-    background-image: url('../images/imgsobrenostros2.jpg') !important;
+    background-image: url('../images/imgsobrenostros2.webp') !important;
     background-size: cover !important;
     background-position: center !important;
     width: 100% !important;
@@ -3373,7 +3373,7 @@ label[for*="precio"] {
   /* Imagen abajo */
   .about-main-section::after {
     content: '' !important;
-    background-image: url('../images/imgsobrenostros2.jpg') !important;
+    background-image: url('../images/imgsobrenostros2.webp') !important;
     background-size: cover !important;
     background-position: center !important;
     width: 100% !important;
