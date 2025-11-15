@@ -192,7 +192,7 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
             nombre_base = nombre_base.replace(' ', '-').lower()
             nombre_final = f"{nombre_base}.webp"
         
-        # Ruta de destino en static
+        # Ruta de destino en static (STATICFILES_DIRS)
         static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
         static_dir.mkdir(parents=True, exist_ok=True)
         
@@ -206,10 +206,24 @@ def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
             ruta_destino = static_dir / nombre_final
             contador += 1
         
-        # Guardar el archivo WebP en static
+        # Guardar el archivo WebP en static (STATICFILES_DIRS)
         with open(ruta_destino, 'wb') as f:
             webp_file.seek(0)  # Asegurar que estamos al inicio del archivo
             f.write(webp_file.read())
+        
+        # También copiar a STATIC_ROOT si está configurado (para producción)
+        if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+            try:
+                static_root_dir = Path(settings.STATIC_ROOT) / 'images' / 'propiedades'
+                static_root_dir.mkdir(parents=True, exist_ok=True)
+                ruta_destino_root = static_root_dir / nombre_final
+                
+                # Copiar el archivo a STATIC_ROOT
+                import shutil
+                shutil.copy2(ruta_destino, ruta_destino_root)
+                logger.info(f"✅ Archivo también copiado a STATIC_ROOT: {ruta_destino_root}")
+            except Exception as e:
+                logger.warning(f"⚠️ No se pudo copiar a STATIC_ROOT: {e}")
         
         # Limpiar archivo temporal si se creó
         if 'temp_file' in locals() and os.path.exists(ruta_media) and ruta_media != imagen_field.path:
@@ -268,7 +282,27 @@ def obtener_ruta_static_imagen(imagen_field, propiedad_slug=None, es_principal=T
         return None
     
     try:
-        static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+        # Buscar primero en STATIC_ROOT (producción), luego en STATICFILES_DIRS (desarrollo)
+        static_dirs = []
+        
+        # Agregar STATIC_ROOT si está configurado
+        if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+            static_root_dir = Path(settings.STATIC_ROOT) / 'images' / 'propiedades'
+            if static_root_dir.exists():
+                static_dirs.append(static_root_dir)
+        
+        # Agregar STATICFILES_DIRS
+        if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
+            static_dir_dev = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+            if static_dir_dev.exists():
+                static_dirs.append(static_dir_dev)
+        
+        # Si no hay directorios, retornar None
+        if not static_dirs:
+            return None
+        
+        # Usar el primer directorio disponible (priorizar STATIC_ROOT)
+        static_dir = static_dirs[0]
         
         # Primero intentar buscar por slug si está disponible (priorizar .webp)
         if propiedad_slug:

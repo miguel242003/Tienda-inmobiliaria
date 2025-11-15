@@ -374,10 +374,26 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         
         # Verificar que el archivo realmente existe antes de retornar la URL estática
         if ruta_static:
-            static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
-            ruta_completa = static_dir / os.path.basename(ruta_static)
-            if ruta_completa.exists():
-                return static(ruta_static)
+            # Buscar primero en STATIC_ROOT (producción), luego en STATICFILES_DIRS (desarrollo)
+            static_dirs = []
+            
+            # Agregar STATIC_ROOT si está configurado
+            if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+                static_root_dir = Path(settings.STATIC_ROOT) / 'images' / 'propiedades'
+                if static_root_dir.exists():
+                    static_dirs.append(static_root_dir)
+            
+            # Agregar STATICFILES_DIRS
+            if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
+                static_dir_dev = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+                if static_dir_dev.exists():
+                    static_dirs.append(static_dir_dev)
+            
+            # Buscar en todos los directorios
+            for static_dir in static_dirs:
+                ruta_completa = static_dir / os.path.basename(ruta_static)
+                if ruta_completa.exists():
+                    return static(ruta_static)
         
         # Si no existe en static, usar la de media
         return self.imagen_principal.url
@@ -402,10 +418,26 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         
         # Verificar que el archivo realmente existe antes de retornar la URL estática
         if ruta_static:
-            static_dir = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
-            ruta_completa = static_dir / os.path.basename(ruta_static)
-            if ruta_completa.exists():
-                return static(ruta_static)
+            # Buscar primero en STATIC_ROOT (producción), luego en STATICFILES_DIRS (desarrollo)
+            static_dirs = []
+            
+            # Agregar STATIC_ROOT si está configurado
+            if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+                static_root_dir = Path(settings.STATIC_ROOT) / 'images' / 'propiedades'
+                if static_root_dir.exists():
+                    static_dirs.append(static_root_dir)
+            
+            # Agregar STATICFILES_DIRS
+            if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
+                static_dir_dev = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+                if static_dir_dev.exists():
+                    static_dirs.append(static_dir_dev)
+            
+            # Buscar en todos los directorios
+            for static_dir in static_dirs:
+                ruta_completa = static_dir / os.path.basename(ruta_static)
+                if ruta_completa.exists():
+                    return static(ruta_static)
         
         # Si no existe en static, usar la de media
         return self.imagen_secundaria.url
