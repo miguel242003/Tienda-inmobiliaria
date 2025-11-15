@@ -797,17 +797,17 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (data.conversion_messages && data.conversion_messages.length > 0) {
                                 console.log('✅ Mostrando mensajes de conversión:', data.conversion_messages);
                                 
-                                // Crear contenedor para mensajes de conversión
+                                // Crear contenedor para mensajes de conversión (fixed en la parte superior)
                                 const messagesContainer = document.createElement('div');
                                 messagesContainer.id = 'conversion-messages';
-                                messagesContainer.className = 'mb-4 p-3';
-                                messagesContainer.style.cssText = 'background: #f8f9fa; border: 2px solid #007bff; border-radius: 8px; margin: 20px 0;';
+                                messagesContainer.className = 'mb-4 p-4';
+                                messagesContainer.style.cssText = 'position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 900px; width: 90%; background: #ffffff; border: 3px solid #007bff; border-radius: 12px; margin: 20px 0; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-height: 80vh; overflow-y: auto;';
                                 
                                 // Título
-                                const title = document.createElement('h5');
+                                const title = document.createElement('h4');
                                 title.className = 'mb-3';
-                                title.style.cssText = 'color: #007bff; font-weight: bold;';
-                                title.textContent = '📋 Estado de Conversión de Imágenes a WebP:';
+                                title.style.cssText = 'color: #007bff; font-weight: bold; font-size: 1.3rem; margin-bottom: 15px;';
+                                title.textContent = '📋 Estado de Conversión de Imágenes a WebP';
                                 messagesContainer.appendChild(title);
                                 
                                 // Agregar cada mensaje
@@ -827,46 +827,33 @@ document.addEventListener('DOMContentLoaded', function() {
                                         icon = '🔄';
                                     }
                                     
-                                    messageDiv.className = `alert ${alertClass} alert-dismissible fade show mb-2`;
-                                    messageDiv.style.cssText = 'font-size: 14px; padding: 10px 15px;';
+                                    messageDiv.className = `alert ${alertClass} alert-dismissible fade show mb-3`;
+                                    messageDiv.style.cssText = 'font-size: 15px; padding: 12px 18px; font-weight: 500;';
                                     messageDiv.innerHTML = `
-                                        <strong>${icon}</strong> ${msg}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        <strong style="font-size: 18px; margin-right: 8px;">${icon}</strong> 
+                                        <span>${msg}</span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                     `;
                                     messagesContainer.appendChild(messageDiv);
-                                    console.log('Mensaje agregado:', msg);
+                                    console.log('✅ Mensaje agregado:', msg);
                                 });
                                 
-                                // Insertar antes del formulario o en el contenedor principal
-                                const form = document.getElementById('crearPropiedadForm');
-                                const cardBody = form ? form.closest('.card-body') : null;
+                                // Insertar directamente en el body para que sea visible
+                                document.body.appendChild(messagesContainer);
+                                console.log('✅ Mensajes insertados en el body (position: fixed)');
                                 
-                                if (cardBody) {
-                                    // Insertar al inicio del card-body
-                                    cardBody.insertBefore(messagesContainer, cardBody.firstChild);
-                                    console.log('Mensajes insertados en card-body');
-                                } else if (form && form.parentElement) {
-                                    form.parentElement.insertBefore(messagesContainer, form);
-                                    console.log('Mensajes insertados antes del formulario');
-                                } else {
-                                    // Insertar al inicio del body como último recurso
-                                    document.body.insertBefore(messagesContainer, document.body.firstChild);
-                                    console.log('Mensajes insertados al inicio del body');
-                                }
+                                // Scroll a la parte superior para ver los mensajes
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
                                 
-                                // Scroll a los mensajes
-                                setTimeout(function() {
-                                    messagesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }, 100);
+                                // Mostrar alerta de éxito con información
+                                const mensajesTexto = data.conversion_messages.join('\n');
+                                alert('¡Propiedad creada exitosamente!\n\nMensajes de conversión:\n' + mensajesTexto + '\n\nLos mensajes también están visibles en la página.');
                                 
-                                // Mostrar alerta de éxito
-                                alert('¡Propiedad creada exitosamente!\n\nRevisa los mensajes de conversión de imágenes a WebP en la página.');
-                                
-                                // Redirigir después de 5 segundos para que el usuario vea los mensajes
+                                // Redirigir después de 8 segundos para que el usuario vea los mensajes
                                 setTimeout(function() {
                                     console.log('Redirigiendo a:', data.redirect_url);
                                     window.location.href = data.redirect_url || '/propiedades/';
-                                }, 5000);
+                                }, 8000);
                             } else {
                                 console.log('⚠️ No hay mensajes de conversión para mostrar');
                                 // Si no hay mensajes de conversión, redirigir inmediatamente
