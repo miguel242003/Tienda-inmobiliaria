@@ -1091,21 +1091,22 @@
     .image-viewer-thumbnails {
         position: sticky;
         bottom: 15px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        left: 0;
+        right: 0;
+        transform: none;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         gap: 8px;
         background: rgba(0, 0, 0, 0.5);
         padding: 10px 15px;
         border-radius: 10px;
-        margin: 20px 0 0;
+        margin: 20px auto 0;
         max-width: calc(100% - 40px);
-        width: fit-content;
-        min-width: fit-content;
+        width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
     }
     
     .image-viewer-thumbnails img {
@@ -1164,21 +1165,22 @@
     .image-viewer-thumbnails {
         position: sticky;
         bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        left: 0;
+        right: 0;
+        transform: none;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         gap: 6px;
         background: rgba(0, 0, 0, 0.5);
         padding: 10px 12px;
         border-radius: 10px;
-        margin: 20px 0 0;
+        margin: 20px auto 0;
         max-width: calc(100% - 30px);
-        width: fit-content;
-        min-width: fit-content;
+        width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
     }
     
     .image-viewer-thumbnails img {
@@ -6000,19 +6002,23 @@ function createThumbnails() {
     const thumbnailsContainer = document.getElementById('imageThumbnails');
     thumbnailsContainer.innerHTML = '';
     
-    // Asegurar que el contenedor esté centrado
+    // Asegurar que el contenedor esté centrado siempre
     const isMobile = window.innerWidth <= 768;
-    if (isMobile) {
-        thumbnailsContainer.style.display = 'flex';
-        thumbnailsContainer.style.justifyContent = 'center';
-        thumbnailsContainer.style.alignItems = 'center';
-    }
+    thumbnailsContainer.style.display = 'flex';
+    thumbnailsContainer.style.justifyContent = 'center';
+    thumbnailsContainer.style.alignItems = 'center';
+    thumbnailsContainer.style.flexWrap = 'nowrap';
+    thumbnailsContainer.style.width = '100%';
+    thumbnailsContainer.style.marginLeft = 'auto';
+    thumbnailsContainer.style.marginRight = 'auto';
+    thumbnailsContainer.style.textAlign = 'center';
     
     imagesArray.forEach((media, index) => {
         const thumbContainer = document.createElement('div');
         thumbContainer.style.position = 'relative';
-        thumbContainer.style.display = 'inline-block';
+        thumbContainer.style.display = 'flex';
         thumbContainer.style.flexShrink = '0'; // Evitar que se compriman
+        thumbContainer.style.margin = '0 4px'; // Espaciado entre miniaturas
         
         if (media.tipo === 'video') {
             // Miniatura para video con ícono de play
