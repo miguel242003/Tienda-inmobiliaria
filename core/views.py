@@ -85,7 +85,7 @@ def about(request):
     """Vista sobre nosotros"""
     return render(request, 'core/about.html')
 
-@ratelimit(key='ip', rate='1000/d', method='POST', block=False, group='formulario_contacto')
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formulario_contacto')
 def contact(request):
     """Vista de contacto"""
     if request.method == 'POST':
@@ -122,11 +122,8 @@ def contact(request):
             recaptcha_token, remote_ip=ip, action='contact'
         )
         if not is_human:
-            # Durante las pruebas, no bloqueamos el envío si reCAPTCHA falla
-            messages.warning(
-                request,
-                'No se pudo verificar tu solicitud con reCAPTCHA, pero tu mensaje será enviado mientras terminamos de ajustar la seguridad.',
-            )
+            # Durante las pruebas, si reCAPTCHA falla solo registramos en servidor y seguimos
+            print("reCAPTCHA v3 (contacto) no pudo verificar la solicitud:", recaptcha_data)
 
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
         if form.is_valid():
@@ -191,7 +188,7 @@ def consorcio(request):
     """Vista para la página de Consorcio"""
     return render(request, 'core/consorcio.html')
 
-@ratelimit(key='ip', rate='1000/d', method='POST', block=False, group='formulario_cv')
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formulario_cv')
 def cv(request):
     """Vista para envío de currículum"""
     if request.method == 'POST':
@@ -228,11 +225,8 @@ def cv(request):
             recaptcha_token, remote_ip=ip, action='cv'
         )
         if not is_human:
-            # Durante las pruebas, no bloqueamos el envío si reCAPTCHA falla
-            messages.warning(
-                request,
-                'No se pudo verificar tu solicitud con reCAPTCHA, pero tu CV será enviado mientras terminamos de ajustar la seguridad.',
-            )
+            # Durante las pruebas, si reCAPTCHA falla solo registramos en servidor y seguimos
+            print("reCAPTCHA v3 (CV) no pudo verificar la solicitud:", recaptcha_data)
 
         form = CVSubmissionForm(request.POST, request.FILES)
         if form.is_valid():

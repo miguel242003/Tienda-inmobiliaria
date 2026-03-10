@@ -75,7 +75,7 @@ def lista_propiedades(request):
     
     return render(request, 'propiedades/buscar_propiedades.html', context)
 
-@ratelimit(key='ip', rate='1000/d', method='POST', block=False, group='formulario_consulta_propiedad')
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formulario_consulta_propiedad')
 def detalle_propiedad(request, slug):
     """Vista para mostrar el detalle de una propiedad"""
     try:
@@ -161,11 +161,8 @@ def detalle_propiedad(request, slug):
             action='property_contact',
         )
         if not is_human:
-            # Durante las pruebas, no bloqueamos el envío si reCAPTCHA falla
-            messages.warning(
-                request,
-                'No se pudo verificar tu solicitud con reCAPTCHA, pero tu consulta será enviada mientras terminamos de ajustar la seguridad.',
-            )
+            # Durante las pruebas, si reCAPTCHA falla solo registramos en servidor y seguimos
+            print("reCAPTCHA v3 (consulta propiedad) no pudo verificar la solicitud:", recaptcha_data)
 
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=True)
         if form.is_valid():
