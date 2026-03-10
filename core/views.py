@@ -89,10 +89,20 @@ def about(request):
 def contact(request):
     """Vista de contacto"""
     if request.method == 'POST':
-        # Rate limiting por IP: máximo 3 formularios cada 10 minutos
+        # Rate limiting por IP: 1 formulario por día
         if getattr(request, 'limited', False):
-            return HttpResponse(
+            messages.error(
+                request,
                 'Has enviado demasiados formularios recientemente. Intenta nuevamente más tarde.',
+            )
+            form = ContactSubmissionForm()
+            return render(
+                request,
+                'core/contact.html',
+                {
+                    'form': form,
+                    'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+                },
                 status=429,
             )
 
