@@ -188,8 +188,19 @@ def cv(request):
     if request.method == 'POST':
         # Rate limiting por IP
         if getattr(request, 'limited', False):
-            return HttpResponse(
+            # Mostrar aviso en la propia vista de CV y devolver 429
+            messages.error(
+                request,
                 'Has enviado demasiados formularios recientemente. Intenta nuevamente más tarde.',
+            )
+            form = CVSubmissionForm()
+            return render(
+                request,
+                'core/cv.html',
+                {
+                    'form': form,
+                    'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+                },
                 status=429,
             )
 
