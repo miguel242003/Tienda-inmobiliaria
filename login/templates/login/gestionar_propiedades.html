@@ -1,16 +1,7 @@
 {% extends 'core/base.html' %}
 {% load static %}
-{% load webp_tags %}
 
 {% block title %}Gestionar Propiedades - Dashboard{% endblock %}
-
-{% block extra_css %}
-<style>
-.gestionar-prop-img-wrap { width: 60px; height: 60px; display: block; }
-.gestionar-prop-img-wrap picture,
-.gestionar-prop-img-wrap .img-thumbnail.gestionar-prop-img { width: 60px; height: 60px; object-fit: cover; display: block; }
-</style>
-{% endblock %}
 
 {% block content %}
 <!-- Header -->
@@ -88,9 +79,9 @@
                             <tr data-propiedad-id="{{ propiedad.id }}">
                                 <td>
                                     {% if propiedad.imagen_principal %}
-                                        <div class="gestionar-prop-img-wrap">
-                                            {% webp_picture propiedad.imagen_principal propiedad.titulo "img-thumbnail gestionar-prop-img" True %}
-                                        </div>
+                                        {# Usar la versión WebP optimizada si existe, sino la de media #}
+                                        <img src="{{ propiedad.get_foto_principal_static_url }}" alt="{{ propiedad.titulo }}" 
+                                             class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
                                     {% else %}
                                         <div class="bg-light d-flex align-items-center justify-content-center" 
                                              style="width: 60px; height: 60px;">
