@@ -39,3 +39,4 @@ print(f"   Fotos: {FotoPropiedad.objects.count()}")
 print(f"   Clics: {ClickPropiedad.objects.count()}")
 print(f"   Reseñas: {Resena.objects.count()}")
 
+
