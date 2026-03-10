@@ -85,7 +85,6 @@ def detalle_propiedad(request, slug):
         # Si no se encuentra por slug, buscar por título similar
         # Esto maneja casos donde el slug cambió pero la URL antigua sigue siendo accesible
         from django.utils.text import slugify
-        from django.shortcuts import redirect
         
         # Buscar propiedades disponibles que tengan un slug similar o que el título genere un slug similar
         propiedades_similares = Propiedad.objects.filter(estado='disponible')
