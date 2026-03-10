@@ -100,12 +100,45 @@ def detalle_propiedad(request, slug):
     
     # Procesar formulario de contacto si es POST
     if request.method == 'POST':
-        # Rate limiting por IP
+        # Rate limiting por IP: mostrar aviso en la misma página como los otros formularios
         if getattr(request, 'limited', False):
-            return HttpResponse(
+            from core.forms import ContactSubmissionForm
+            from .models import Resena
+            messages.error(
+                request,
                 'Has enviado demasiados formularios recientemente. Intenta nuevamente más tarde.',
-                status=429,
             )
+            propiedades_relacionadas = Propiedad.objects.filter(
+                tipo=propiedad.tipo,
+                operacion=propiedad.operacion,
+                estado='disponible'
+            ).exclude(id=propiedad.id)[:3]
+            resenas_aprobadas = Resena.objects.filter(
+                propiedad=propiedad,
+                estado='aprobada'
+            ).order_by('-fecha_creacion')
+            promedio_calificacion = round(
+                sum(r.calificacion for r in resenas_aprobadas) / resenas_aprobadas.count(), 1
+            ) if resenas_aprobadas.exists() else 0.0
+            total_resenas_aprobadas = resenas_aprobadas.count() if resenas_aprobadas.exists() else 0
+            initial_data = {
+                'asunto': 'alquiler',
+                'mensaje': f'Hola, me interesa alquilar la propiedad "{propiedad.titulo}". '
+                          f'¿Podrían contactarme para coordinar una visita y conocer más detalles sobre el alquiler? '
+                          f'Entrada: 13:00 PM, Salida: 10:00 AM. Gracias.'
+            }
+            contact_form = ContactSubmissionForm(initial=initial_data)
+            context = {
+                'propiedad': propiedad,
+                'propiedades_relacionadas': propiedades_relacionadas,
+                'titulo_pagina': propiedad.titulo,
+                'resenas_aprobadas': resenas_aprobadas,
+                'promedio_calificacion': promedio_calificacion,
+                'total_resenas_aprobadas': total_resenas_aprobadas,
+                'contact_form': contact_form,
+                'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+            }
+            return render(request, 'propiedades/detalle_propiedad.html', context, status=429)
 
         from core.forms import ContactSubmissionForm
         from core.models import ContactSubmission
