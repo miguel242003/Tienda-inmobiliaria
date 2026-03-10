@@ -387,10 +387,7 @@ class ContactSubmissionForm(forms.ModelForm):
         return nombre.strip()
     
     def clean_email(self):
-        """Validación personalizada para el email"""
-        from django.utils import timezone
-        from datetime import timedelta
-        
+        """Validación personalizada para el email (sin límite de 15 minutos, usamos solo el rate limit por IP)."""
         email = self.cleaned_data.get('email')
         
         if not email:
@@ -408,36 +405,6 @@ class ContactSubmissionForm(forms.ModelForm):
         
         # Normalizar email (convertir a minúsculas)
         email_normalizado = email.lower().strip()
-        
-        # Validar límite de tiempo entre envíos (15 minutos)
-        # Filtrar solo por el tipo de formulario correspondiente
-        tiempo_limite = timezone.now() - timedelta(minutes=15)
-        
-        if self.es_consulta_propiedad:
-            # Para consultas de propiedad, buscar solo envíos que contengan información de propiedad
-            ultimo_envio = ContactSubmission.objects.filter(
-                email=email_normalizado,
-                fecha_envio__gte=tiempo_limite,
-                mensaje__contains='--- Información de la Propiedad ---'
-            ).first()
-            tipo_formulario = 'consulta de propiedad'
-        else:
-            # Para contacto general, buscar solo envíos que NO contengan información de propiedad
-            ultimo_envio = ContactSubmission.objects.filter(
-                email=email_normalizado,
-                fecha_envio__gte=tiempo_limite
-            ).exclude(
-                mensaje__contains='--- Información de la Propiedad ---'
-            ).first()
-            tipo_formulario = 'formulario de contacto'
-        
-        if ultimo_envio:
-            tiempo_transcurrido = timezone.now() - ultimo_envio.fecha_envio
-            minutos_restantes = 15 - int(tiempo_transcurrido.total_seconds() / 60)
-            raise ValidationError(
-                f'Ya has enviado un {tipo_formulario} recientemente. '
-                f'Por favor espera {minutos_restantes} minuto(s) antes de enviar otro.'
-            )
         
         return email_normalizado
     
