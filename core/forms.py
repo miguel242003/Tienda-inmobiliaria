@@ -4,19 +4,30 @@ from .models import CVSubmission, ContactSubmission
 
 
 class CVSubmissionForm(forms.ModelForm):
+    # Honeypot anti-bots: debe permanecer vacío
+    honeypot = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'autocomplete': 'off',
+                'tabindex': '-1',
+                'aria-hidden': 'true',
+            }
+        ),
+    )
     """Formulario para envío de CV"""
     
     class Meta:
         model = CVSubmission
         fields = [
-            'nombre_completo', 
-            'email', 
-            'telefono', 
-            'posicion_interes', 
-            'anos_experiencia', 
-            'nivel_educativo', 
-            'cv_file', 
-            'carta_presentacion'
+            'nombre_completo',
+            'email',
+            'telefono',
+            'posicion_interes',
+            'anos_experiencia',
+            'nivel_educativo',
+            'cv_file',
+            'carta_presentacion',
         ]
         widgets = {
             'nombre_completo': forms.TextInput(attrs={
@@ -261,10 +272,32 @@ class CVSubmissionForm(forms.ModelForm):
             return carta.strip()
         
         return carta
+    
+    def clean_honeypot(self):
+        """
+        Campo honeypot: si viene con contenido, se considera bot/spam.
+        No lanzamos error visible, solo invalidamos silenciosamente.
+        """
+        value = self.cleaned_data.get('honeypot', '')
+        if value:
+            raise ValidationError('Invalid submission.')
+        return value
 
 
 class ContactSubmissionForm(forms.ModelForm):
     """Formulario para envío de mensaje de contacto"""
+    
+    # Honeypot anti-bots: debe permanecer vacío
+    honeypot = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'autocomplete': 'off',
+                'tabindex': '-1',
+                'aria-hidden': 'true',
+            }
+        ),
+    )
     
     class Meta:
         model = ContactSubmission
@@ -325,6 +358,8 @@ class ContactSubmissionForm(forms.ModelForm):
         self.fields['telefono'].required = True
         self.fields['asunto'].required = True
         self.fields['mensaje'].required = True
+        # El honeypot nunca debe ser requerido
+        self.fields['honeypot'].required = False
     
     def clean_nombre(self):
         """Validación personalizada para el nombre"""
@@ -445,6 +480,16 @@ class ContactSubmissionForm(forms.ModelForm):
             raise ValidationError('El asunto seleccionado no es válido.')
         
         return asunto
+    
+    def clean_honeypot(self):
+        """
+        Campo honeypot: si viene con contenido, se considera bot/spam.
+        No lanzamos error visible, solo invalidamos silenciosamente.
+        """
+        value = self.cleaned_data.get('honeypot', '')
+        if value:
+            raise ValidationError('Invalid submission.')
+        return value
     
     def clean_mensaje(self):
         """Validación personalizada para el mensaje"""

@@ -1,9 +1,11 @@
 """
-Utilidades para el manejo de archivos estáticos
+Utilidades varias del proyecto (imágenes, seguridad, etc.)
 """
 import os
 import shutil
+import json
 from pathlib import Path
+from urllib import request as urlrequest, parse as urlparse
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.templatetags.static import static
@@ -12,6 +14,83 @@ import logging
 
 # Usar el logger de 'core' que está configurado en settings
 logger = logging.getLogger('core')
+
+
+def get_client_ip(django_request):
+    """
+    Obtiene la IP del cliente de forma segura respetando proxies (X-Forwarded-For).
+    """
+    forwarded_for = django_request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded_for:
+        # Puede contener varias IPs, nos quedamos con la primera
+        ip = forwarded_for.split(',')[0].strip()
+    else:
+        ip = django_request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def verify_recaptcha_v3(token, remote_ip=None, action=None, min_score=None):
+    """
+    Verifica un token de reCAPTCHA v3 contra la API de Google.
+
+    Retorna (is_valid, payload_dict)
+    """
+    secret = getattr(settings, 'RECAPTCHA_V3_SECRET_KEY', '')
+    if not secret or not token:
+        logger.warning("reCAPTCHA v3: secreto o token ausente")
+        return False, {'error': 'missing-secret-or-token'}
+
+    data = {
+        'secret': secret,
+        'response': token,
+    }
+    if remote_ip:
+        data['remoteip'] = remote_ip
+
+    encoded = urlparse.urlencode(data).encode()
+    req = urlrequest.Request(
+        'https://www.google.com/recaptcha/api/siteverify',
+        data=encoded,
+        method='POST',
+    )
+
+    try:
+        with urlrequest.urlopen(req, timeout=5) as resp:
+            body = resp.read().decode()
+    except Exception as e:
+        logger.error(f"Error al contactar API de reCAPTCHA: {e}")
+        return False, {'error': 'recaptcha-request-failed', 'exception': str(e)}
+
+    try:
+        result = json.loads(body)
+    except json.JSONDecodeError:
+        logger.error(f"Respuesta inválida de reCAPTCHA: {body}")
+        return False, {'error': 'invalid-json', 'raw_body': body}
+
+    success = result.get('success', False)
+    score = float(result.get('score', 0.0) or 0.0)
+    result_action = result.get('action')
+    threshold = (
+        min_score
+        if min_score is not None
+        else getattr(settings, 'RECAPTCHA_V3_MIN_SCORE', 0.5)
+    )
+
+    if not success:
+        logger.warning(f"reCAPTCHA fallido: {result}")
+        return False, result
+
+    if action and result_action and result_action != action:
+        logger.warning(
+            f"reCAPTCHA acción no coincide. Esperado={action}, recibido={result_action}"
+        )
+        return False, result
+
+    if score < threshold:
+        logger.warning(f"reCAPTCHA con score bajo: {score} < {threshold}")
+        return False, result
+
+    return True, result
 
 
 def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):

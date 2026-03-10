@@ -45,6 +45,12 @@
 
                         <form method="post" enctype="multipart/form-data" id="cvForm">
                             {% csrf_token %}
+                            <!-- Honeypot invisible para bots -->
+                            <div style="display:none !important;">
+                                {{ form.honeypot }}
+                            </div>
+                            <!-- Token reCAPTCHA v3 -->
+                            <input type="hidden" name="g-recaptcha-response" id="id_recaptcha_token_cv">
                             <div class="row g-1">
                                 <div class="col-md-6">
                                     <label for="{{ form.nombre_completo.id_for_label }}" class="form-label">
@@ -220,6 +226,9 @@
 {% endblock %}
 
 {% block extra_js %}
+{% if recaptcha_site_key %}
+<script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+{% endif %}
 <style>
 /* ========================================
    CSS VARIABLES
@@ -1805,7 +1814,7 @@ function showFieldError(field, message) {
     field.parentNode.appendChild(errorDiv);
 }
 
-// Form submission enhancement
+// Form submission enhancement con reCAPTCHA v3
 function handleFormSubmission() {
     const form = document.getElementById('cvForm');
 
@@ -1819,6 +1828,12 @@ function handleFormSubmission() {
             return;
         }
 
+        // Si no hay clave de reCAPTCHA configurada, continuar normalmente
+        {% if not recaptcha_site_key %}
+        return;
+        {% else %}
+        e.preventDefault();
+
         const submitBtn = this.querySelector('.btn-cta');
         const originalText = submitBtn.innerHTML;
 
@@ -1826,11 +1841,26 @@ function handleFormSubmission() {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
         submitBtn.disabled = true;
 
-        // Re-enable button after 10 seconds in case of error
+        grecaptcha.ready(function() {
+            grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'cv'}).then(function(token) {
+                const tokenInput = document.getElementById('id_recaptcha_token_cv');
+                if (tokenInput) {
+                    tokenInput.value = token;
+                }
+                form.submit();
+            }).catch(function() {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                showFormError('No se pudo verificar reCAPTCHA. Por favor intenta nuevamente.');
+            });
+        });
+
+        // Re-enable button after 10 seconds in case of error inesperado
         setTimeout(() => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }, 10000);
+        {% endif %}
     });
 }
 

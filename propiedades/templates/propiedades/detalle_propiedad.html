@@ -482,6 +482,12 @@
                     
                     <form method="post" class="contact-form" id="propertyContactForm">
                         {% csrf_token %}
+                        <!-- Honeypot invisible para bots -->
+                        <div style="display:none !important;">
+                            {{ contact_form.honeypot }}
+                        </div>
+                        <!-- Token reCAPTCHA v3 -->
+                        <input type="hidden" name="g-recaptcha-response" id="id_recaptcha_token_property">
                         
                         <!-- Campos ocultos para identificar la propiedad -->
                         <input type="hidden" name="propiedad_id" value="{{ propiedad.id }}">
@@ -5751,7 +5757,7 @@ function setupPropertyContactValidation() {
         });
     });
     
-    // Validación antes del envío
+    // Validación antes del envío + reCAPTCHA v3
     form.addEventListener('submit', function(e) {
         const isValid = validatePropertyContactForm();
         
@@ -5760,19 +5766,41 @@ function setupPropertyContactValidation() {
             showPropertyContactFormError('Por favor corrige los errores antes de enviar el formulario.');
             return;
         }
-        
-        // Mostrar estado de carga
+
+        // Si no hay clave de reCAPTCHA configurada, continuar normalmente
+        {% if not recaptcha_site_key %}
+        return;
+        {% else %}
+        e.preventDefault();
+
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
-        
+        const formElement = this;
+
+        // Mostrar estado de carga
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
         submitBtn.disabled = true;
-        
-        // Re-enable button after 10 seconds in case of error
+
+        grecaptcha.ready(function() {
+            grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'property_contact'}).then(function(token) {
+                const tokenInput = document.getElementById('id_recaptcha_token_property');
+                if (tokenInput) {
+                    tokenInput.value = token;
+                }
+                formElement.submit();
+            }).catch(function() {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                showPropertyContactFormError('No se pudo verificar reCAPTCHA. Por favor intenta nuevamente.');
+            });
+        });
+
+        // Re-enable button after 10 seconds in case of error inesperado
         setTimeout(() => {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }, 10000);
+        {% endif %}
     });
 }
 

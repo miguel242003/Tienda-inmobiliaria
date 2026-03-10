@@ -222,6 +222,11 @@ PASSWORD_RESET_TIMEOUT = 3600  # Tiempo de expiración en segundos (1 hora)
 # Configuración de Rate Limiting para reverse proxy (Nginx)
 RATELIMIT_IP_META_KEY = 'HTTP_X_FORWARDED_FOR'
 
+# reCAPTCHA v3 (claves en .env, nunca en código)
+RECAPTCHA_V3_SITE_KEY = config('RECAPTCHA_V3_SITE_KEY', default='')
+RECAPTCHA_V3_SECRET_KEY = config('RECAPTCHA_V3_SECRET_KEY', default='')
+RECAPTCHA_V3_MIN_SCORE = config('RECAPTCHA_V3_MIN_SCORE', default=0.5, cast=float)
+
 # ============================================================================
 # 🔒 CONFIGURACIÓN DE SEGURIDAD - OWASP
 # ============================================================================
@@ -371,7 +376,8 @@ CONTENT_SECURITY_POLICY = {
             'https://unpkg.com',  # Leaflet y otros recursos
             'https://cdnjs.cloudflare.com',
             'https://translate.googleapis.com',  # Google Translate
-            'https://www.gstatic.com',  # Google Translate
+            'https://www.gstatic.com',  # Google Translate y reCAPTCHA
+            'https://www.google.com',  # reCAPTCHA v3
         ),
         'style-src': (
             "'self'",
@@ -405,6 +411,7 @@ CONTENT_SECURITY_POLICY = {
             'https://cdn.jsdelivr.net',  # Source maps de Bootstrap
             'https://translate.googleapis.com',  # Google Translate
             'https://unpkg.com',  # Source maps de Leaflet
+            'https://www.google.com',  # reCAPTCHA v3 verificación del lado del cliente
         ),
         'frame-ancestors': ("'none'",),  # Evitar iframe embedding
         'base-uri': ("'self'",),

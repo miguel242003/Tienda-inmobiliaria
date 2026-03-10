@@ -6,10 +6,12 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, Http404, JsonResponse
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
+from django_ratelimit.decorators import ratelimit
 import os
 from propiedades.models import Propiedad
 from .forms import CVSubmissionForm, ContactSubmissionForm
 from .models import CVSubmission, ContactSubmission
+from .utils import verify_recaptcha_v3, get_client_ip
 
 # Crea tus vistas aquí.
 
@@ -83,9 +85,40 @@ def about(request):
     """Vista sobre nosotros"""
     return render(request, 'core/about.html')
 
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formularios_contacto')
 def contact(request):
     """Vista de contacto"""
     if request.method == 'POST':
+        # Rate limiting por IP: máximo 3 formularios cada 10 minutos
+        if getattr(request, 'limited', False):
+            return HttpResponse(
+                'Has enviado demasiados formularios recientemente. Intenta nuevamente más tarde.',
+                status=429,
+            )
+
+        # Honeypot: si viene con contenido, descartamos silenciosamente
+        if request.POST.get('honeypot'):
+            # No guardamos nada ni enviamos correos, pero respondemos éxito
+            messages.success(
+                request,
+                '¡Mensaje enviado exitosamente! Hemos recibido tu consulta y te contactaremos pronto.',
+            )
+            return redirect('core:contact')
+
+        # Validar reCAPTCHA v3 antes de procesar el formulario
+        recaptcha_token = request.POST.get('g-recaptcha-response')
+        ip = get_client_ip(request)
+        is_human, recaptcha_data = verify_recaptcha_v3(
+            recaptcha_token, remote_ip=ip, action='contact'
+        )
+        if not is_human:
+            messages.error(
+                request,
+                'No se pudo verificar tu solicitud. Por favor inténtalo nuevamente.',
+            )
+            form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
+            return render(request, 'core/contact.html', {'form': form, 'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY})
+
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
         if form.is_valid():
             try:
@@ -136,15 +169,59 @@ def contact(request):
     else:
         form = ContactSubmissionForm()
     
-    return render(request, 'core/contact.html', {'form': form})
+    return render(
+        request,
+        'core/contact.html',
+        {
+            'form': form,
+            'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+        },
+    )
 
 def consorcio(request):
     """Vista para la página de Consorcio"""
     return render(request, 'core/consorcio.html')
 
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formularios_contacto')
 def cv(request):
     """Vista para envío de currículum"""
     if request.method == 'POST':
+        # Rate limiting por IP
+        if getattr(request, 'limited', False):
+            return HttpResponse(
+                'Has enviado demasiados formularios recientemente. Intenta nuevamente más tarde.',
+                status=429,
+            )
+
+        # Honeypot: si viene con contenido, descartamos silenciosamente
+        if request.POST.get('honeypot'):
+            messages.success(
+                request,
+                '¡CV enviado exitosamente! Hemos recibido tu currículum y te contactaremos pronto si tu perfil coincide con nuestras necesidades.',
+            )
+            return redirect('core:cv')
+
+        # Validar reCAPTCHA v3 antes de procesar el formulario
+        recaptcha_token = request.POST.get('g-recaptcha-response')
+        ip = get_client_ip(request)
+        is_human, recaptcha_data = verify_recaptcha_v3(
+            recaptcha_token, remote_ip=ip, action='cv'
+        )
+        if not is_human:
+            messages.error(
+                request,
+                'No se pudo verificar tu solicitud. Por favor inténtalo nuevamente.',
+            )
+            form = CVSubmissionForm(request.POST, request.FILES)
+            return render(
+                request,
+                'core/cv.html',
+                {
+                    'form': form,
+                    'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+                },
+            )
+
         form = CVSubmissionForm(request.POST, request.FILES)
         if form.is_valid():
             try:
@@ -180,7 +257,14 @@ def cv(request):
     else:
         form = CVSubmissionForm()
     
-    return render(request, 'core/cv.html', {'form': form})
+    return render(
+        request,
+        'core/cv.html',
+        {
+            'form': form,
+            'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+        },
+    )
 
 
 def send_cv_confirmation_email(cv_submission):

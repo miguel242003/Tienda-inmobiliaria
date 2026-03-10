@@ -100,6 +100,12 @@
                     
                     <form method="post" id="contactForm" class="mt-4">
                         {% csrf_token %}
+                        <!-- Honeypot invisible para bots -->
+                        <div style="display:none !important;">
+                            {{ form.honeypot }}
+                        </div>
+                        <!-- Token reCAPTCHA v3 -->
+                        <input type="hidden" name="g-recaptcha-response" id="id_recaptcha_token_contact">
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <label for="{{ form.nombre.id_for_label }}" class="form-label">
@@ -258,6 +264,9 @@
 {% endblock %}
 
 {% block extra_js %}
+{% if recaptcha_site_key %}
+<script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+{% endif %}
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -1370,7 +1379,7 @@ function setupRealTimeValidation() {
     });
 }
 
-// Manejo del envío del formulario
+// Manejo del envío del formulario con reCAPTCHA v3
 document.getElementById('contactForm').addEventListener('submit', function(e) {
     // Validar todos los campos antes de enviar
     const isValid = validateForm();
@@ -1380,19 +1389,41 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
         showFormError('Por favor corrige los errores antes de enviar el formulario.');
         return;
     }
-    
-    const submitBtn = this.querySelector('.btn-cta');
+
+    // Si no hay clave de reCAPTCHA configurada, continuar normalmente
+    {% if not recaptcha_site_key %}
+    return;
+    {% else %}
+    e.preventDefault();
+
+    const form = this;
+    const submitBtn = form.querySelector('.btn-cta');
     const originalText = submitBtn.innerHTML;
-    
+
     // Mostrar estado de carga
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
     submitBtn.disabled = true;
-    
-    // Re-enable button after 10 seconds in case of error
+
+    grecaptcha.ready(function() {
+        grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'contact'}).then(function(token) {
+            const tokenInput = document.getElementById('id_recaptcha_token_contact');
+            if (tokenInput) {
+                tokenInput.value = token;
+            }
+            form.submit();
+        }).catch(function() {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            showFormError('No se pudo verificar reCAPTCHA. Por favor intenta nuevamente.');
+        });
+    });
+
+    // Re-enable button after 10 seconds in case of error inesperado
     setTimeout(() => {
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     }, 10000);
+    {% endif %}
 });
 
 // Función para mostrar error general del formulario

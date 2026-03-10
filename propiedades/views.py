@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
@@ -13,6 +13,7 @@ from django.conf import settings
 from .models import Propiedad, ClickPropiedad, Amenidad
 from .forms import PropiedadForm
 from .validators import validar_imagen, validar_video, validar_imagen_o_video
+from core.utils import verify_recaptcha_v3, get_client_ip
 import json
 import logging
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -74,6 +75,7 @@ def lista_propiedades(request):
     
     return render(request, 'propiedades/buscar_propiedades.html', context)
 
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formularios_contacto')
 def detalle_propiedad(request, slug):
     """Vista para mostrar el detalle de una propiedad"""
     try:
@@ -98,10 +100,55 @@ def detalle_propiedad(request, slug):
     
     # Procesar formulario de contacto si es POST
     if request.method == 'POST':
+        # Rate limiting por IP
+        if getattr(request, 'limited', False):
+            return HttpResponse(
+                'Has enviado demasiados formularios recientemente. Intenta nuevamente más tarde.',
+                status=429,
+            )
+
         from core.forms import ContactSubmissionForm
         from core.models import ContactSubmission
         from core.views import send_contact_confirmation_email, send_contact_notification_email
-        
+
+        # Honeypot: si viene con contenido, descartamos silenciosamente
+        if request.POST.get('honeypot'):
+            messages.success(
+                request,
+                '¡Mensaje enviado exitosamente! Hemos recibido tu consulta y te contactaremos pronto.',
+            )
+            return redirect('propiedades:detalle', slug=propiedad.slug)
+
+        # Validar reCAPTCHA v3 antes de procesar el formulario
+        recaptcha_token = request.POST.get('g-recaptcha-response')
+        ip = get_client_ip(request)
+        is_human, recaptcha_data = verify_recaptcha_v3(
+            recaptcha_token,
+            remote_ip=ip,
+            action='property_contact',
+        )
+        if not is_human:
+            messages.error(
+                request,
+                'No se pudo verificar tu solicitud. Por favor inténtalo nuevamente.',
+            )
+            form = ContactSubmissionForm(request.POST, es_consulta_propiedad=True)
+            context = {
+                'propiedad': propiedad,
+                'propiedades_relacionadas': Propiedad.objects.filter(
+                    tipo=propiedad.tipo,
+                    operacion=propiedad.operacion,
+                    estado='disponible'
+                ).exclude(id=propiedad.id)[:3],
+                'titulo_pagina': propiedad.titulo,
+                'resenas_aprobadas': [],
+                'promedio_calificacion': 0.0,
+                'total_resenas_aprobadas': 0,
+                'contact_form': form,
+                'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+            }
+            return render(request, 'propiedades/detalle_propiedad.html', context)
+
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=True)
         if form.is_valid():
             try:
@@ -186,7 +233,8 @@ def detalle_propiedad(request, slug):
         'resenas_aprobadas': resenas_aprobadas,
         'promedio_calificacion': promedio_calificacion,
         'total_resenas_aprobadas': total_resenas_aprobadas,
-        'contact_form': form
+        'contact_form': form,
+        'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
     }
     return render(request, 'propiedades/detalle_propiedad.html', context)
 
