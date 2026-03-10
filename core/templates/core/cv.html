@@ -1689,7 +1689,7 @@ function validateField(field) {
             } else if (value.length > 200) {
                 isValid = false;
                 errorMessage = 'El nombre no puede exceder los 200 caracteres.';
-            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\'\.]+$/.test(value)) {
+            } else if (!/^[-a-zA-ZáéíóúÁÉÍÓÚñÑüÜ '.]+$/.test(value)) {
                 isValid = false;
                 errorMessage = 'El nombre solo puede contener letras, espacios, guiones, apostrofes y puntos.';
             }

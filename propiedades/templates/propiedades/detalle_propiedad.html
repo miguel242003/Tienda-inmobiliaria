@@ -4089,7 +4089,8 @@ input[type="date"]:focus {
     margin-bottom: 10px;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    animation: slideDown 0.3s ease-out;
+    /* Evitar animaciones bruscas que muevan el layout */
+    animation: none;
     border: none;
     font-weight: 500;
     padding: 16px 20px;
@@ -5130,12 +5131,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Auto-dismiss alerts sin mover el layout
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
             if (alert && alert.parentNode) {
                 alert.style.opacity = '0';
-                alert.style.transform = 'translateY(-20px)';
                 setTimeout(() => {
                     if (alert && alert.parentNode) {
                         alert.remove();
@@ -5144,17 +5145,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 5000);
     });
-    
-    // Scroll to form when message appears
-    if (alerts.length > 0) {
-        const formSection = document.querySelector('.contact-form-card');
-        if (formSection) {
-            formSection.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }
     
     // Contador de caracteres para el mensaje
     const mensajeTextarea = document.querySelector('textarea[name="mensaje"]');
@@ -5451,7 +5441,7 @@ function validatePropertyContactField(field) {
             } else if (value.length > 200) {
                 isValid = false;
                 errorMessage = 'El nombre no puede exceder los 200 caracteres.';
-            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\'\.]+$/.test(value)) {
+            } else if (!/^[-a-zA-ZáéíóúÁÉÍÓÚñÑüÜ '.]+$/.test(value)) {
                 isValid = false;
                 errorMessage = 'El nombre solo puede contener letras, espacios, guiones, apostrofes y puntos.';
             }
