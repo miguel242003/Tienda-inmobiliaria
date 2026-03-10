@@ -161,26 +161,11 @@ def detalle_propiedad(request, slug):
             action='property_contact',
         )
         if not is_human:
-            messages.error(
+            # Durante las pruebas, no bloqueamos el envío si reCAPTCHA falla
+            messages.warning(
                 request,
-                'No se pudo verificar tu solicitud. Por favor inténtalo nuevamente.',
+                'No se pudo verificar tu solicitud con reCAPTCHA, pero tu consulta será enviada mientras terminamos de ajustar la seguridad.',
             )
-            form = ContactSubmissionForm(request.POST, es_consulta_propiedad=True)
-            context = {
-                'propiedad': propiedad,
-                'propiedades_relacionadas': Propiedad.objects.filter(
-                    tipo=propiedad.tipo,
-                    operacion=propiedad.operacion,
-                    estado='disponible'
-                ).exclude(id=propiedad.id)[:3],
-                'titulo_pagina': propiedad.titulo,
-                'resenas_aprobadas': [],
-                'promedio_calificacion': 0.0,
-                'total_resenas_aprobadas': 0,
-                'contact_form': form,
-                'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
-            }
-            return render(request, 'propiedades/detalle_propiedad.html', context)
 
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=True)
         if form.is_valid():

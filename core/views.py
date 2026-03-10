@@ -122,12 +122,11 @@ def contact(request):
             recaptcha_token, remote_ip=ip, action='contact'
         )
         if not is_human:
-            messages.error(
+            # Durante las pruebas, no bloqueamos el envío si reCAPTCHA falla
+            messages.warning(
                 request,
-                'No se pudo verificar tu solicitud. Por favor inténtalo nuevamente.',
+                'No se pudo verificar tu solicitud con reCAPTCHA, pero tu mensaje será enviado mientras terminamos de ajustar la seguridad.',
             )
-            form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
-            return render(request, 'core/contact.html', {'form': form, 'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY})
 
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
         if form.is_valid():
@@ -229,18 +228,10 @@ def cv(request):
             recaptcha_token, remote_ip=ip, action='cv'
         )
         if not is_human:
-            messages.error(
+            # Durante las pruebas, no bloqueamos el envío si reCAPTCHA falla
+            messages.warning(
                 request,
-                'No se pudo verificar tu solicitud. Por favor inténtalo nuevamente.',
-            )
-            form = CVSubmissionForm(request.POST, request.FILES)
-            return render(
-                request,
-                'core/cv.html',
-                {
-                    'form': form,
-                    'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
-                },
+                'No se pudo verificar tu solicitud con reCAPTCHA, pero tu CV será enviado mientras terminamos de ajustar la seguridad.',
             )
 
         form = CVSubmissionForm(request.POST, request.FILES)
