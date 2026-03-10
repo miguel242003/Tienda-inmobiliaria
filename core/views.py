@@ -5,6 +5,8 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.http import HttpResponse, Http404, JsonResponse
 from django.utils.encoding import smart_str
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from django_ratelimit.decorators import ratelimit
 import os
@@ -127,6 +129,20 @@ def contact(request):
 
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
         if form.is_valid():
+            # Defensa: 1 envío por día por nombre O por mensaje (misma IP u otra). Si ya hubo ese nombre o ese mensaje en 24 h → no guardar ni enviar
+            nombre_n = form.cleaned_data['nombre'].strip().lower()
+            mensaje_n = ' '.join(form.cleaned_data['mensaje'].strip().split())
+            since = timezone.now() - timedelta(hours=24)
+            recientes = ContactSubmission.objects.filter(fecha_envio__gte=since)
+            mismo_nombre = recientes.filter(nombre__iexact=nombre_n).exists()
+            mismo_mensaje = any(' '.join((sub.mensaje or '').strip().split()) == mensaje_n for sub in recientes.only('mensaje'))
+            if mismo_nombre or mismo_mensaje:
+                messages.success(
+                    request,
+                    '¡Mensaje enviado exitosamente! Hemos recibido tu consulta y te contactaremos pronto.',
+                )
+                return redirect('core:contact')
+
             try:
                 # Guardar el mensaje de contacto
                 contact_submission = form.save()
