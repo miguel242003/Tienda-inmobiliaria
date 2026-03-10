@@ -75,7 +75,7 @@ def lista_propiedades(request):
     
     return render(request, 'propiedades/buscar_propiedades.html', context)
 
-@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formularios_contacto')
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formulario_consulta_propiedad')
 def detalle_propiedad(request, slug):
     """Vista para mostrar el detalle de una propiedad"""
     try:

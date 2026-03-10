@@ -85,7 +85,7 @@ def about(request):
     """Vista sobre nosotros"""
     return render(request, 'core/about.html')
 
-@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formularios_contacto')
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formulario_contacto')
 def contact(request):
     """Vista de contacto"""
     if request.method == 'POST':
@@ -192,7 +192,7 @@ def consorcio(request):
     """Vista para la página de Consorcio"""
     return render(request, 'core/consorcio.html')
 
-@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formularios_contacto')
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formulario_cv')
 def cv(request):
     """Vista para envío de currículum"""
     if request.method == 'POST':
