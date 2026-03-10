@@ -3570,7 +3570,7 @@ cat: /etc/nginx/nginx.conf}: No such file or directory
                                     <tr data-propiedad-id="{{ propiedad.id|safe|escapejs }}" class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             {% if propiedad.imagen_principal %}
-                                                <img src="{{ propiedad.imagen_principal.url|safe|escapejs }}" alt="{{ propiedad.titulo|safe|escapejs }}" 
+                                                <img src="{% if propiedad.get_foto_principal_static_url %}{{ propiedad.get_foto_principal_static_url|safe|escapejs }}{% else %}{{ propiedad.imagen_principal.url|safe|escapejs }}{% endif %}" alt="{{ propiedad.titulo|safe|escapejs }}" 
                                                      class="w-12 h-12 rounded-lg object-cover">
                                             {% else %}
                                                 <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
