@@ -36,7 +36,8 @@ class CVSubmissionForm(forms.ModelForm):
                 'required': True,
                 'minlength': '2',
                 'maxlength': '200',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s\\-\\\'\\.]+',
+                # Patrón sin escapes problemáticos (\s, \', \.) para navegadores modernos
+                'pattern': "[-a-zA-ZáéíóúÁÉÍÓÚñÑüÜ '.]+",
                 'title': 'Solo se permiten letras, espacios, guiones, apostrofes y puntos'
             }),
             'email': forms.EmailInput(attrs={
@@ -309,7 +310,7 @@ class ContactSubmissionForm(forms.ModelForm):
                 'required': True,
                 'minlength': '2',
                 'maxlength': '200',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s\\-\\\'\\.]+',
+                'pattern': "[-a-zA-ZáéíóúÁÉÍÓÚñÑüÜ '.]+",
                 'title': 'Solo se permiten letras, espacios, guiones, apostrofes y puntos'
             }),
             'email': forms.EmailInput(attrs={
