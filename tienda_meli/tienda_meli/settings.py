@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
+from decouple import Config, RepositoryEnv
 import pymysql
 
 # Instalar PyMySQL como reemplazo de MySQLdb
@@ -19,6 +19,13 @@ pymysql.install_as_MySQLdb()
 
 # Construye rutas dentro del proyecto como BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Raíz del repo (carpeta donde está manage.py): carga .env aunque Gunicorn use otro cwd
+PROJECT_ROOT = BASE_DIR.parent
+_env_file = PROJECT_ROOT / '.env'
+if _env_file.is_file():
+    config = Config(RepositoryEnv(str(_env_file)))
+else:
+    from decouple import config
 
 
 # Configuración de inicio rápido para desarrollo - no apta para producción
