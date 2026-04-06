@@ -93,6 +93,69 @@ def verify_recaptcha_v3(token, remote_ip=None, action=None, min_score=None):
     return True, result
 
 
+def verify_turnstile(token, remote_ip=None):
+    """
+    Verifica un token de Cloudflare Turnstile contra la API oficial.
+    Retorna (is_valid, payload_dict).
+    """
+    secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '') or ''
+    if not secret or not token:
+        logger.warning('Turnstile: secreto o token ausente')
+        return False, {'error': 'missing-secret-or-token'}
+
+    data = {
+        'secret': secret,
+        'response': token,
+    }
+    if remote_ip:
+        data['remoteip'] = remote_ip
+
+    encoded = urlparse.urlencode(data).encode()
+    req = urlrequest.Request(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        data=encoded,
+        method='POST',
+    )
+
+    try:
+        with urlrequest.urlopen(req, timeout=5) as resp:
+            body = resp.read().decode()
+    except Exception as e:
+        logger.error(f'Error al contactar API de Turnstile: {e}')
+        return False, {'error': 'turnstile-request-failed', 'exception': str(e)}
+
+    try:
+        result = json.loads(body)
+    except json.JSONDecodeError:
+        logger.error(f'Respuesta inválida de Turnstile: {body}')
+        return False, {'error': 'invalid-json', 'raw_body': body}
+
+    if result.get('success'):
+        return True, result
+
+    logger.warning(f'Turnstile rechazado: {result}')
+    return False, result
+
+
+def turnstile_must_pass(request):
+    """
+    Si TURNSTILE_SECRET_KEY está configurada, exige token válido en POST.
+    Retorna (True, None) si puede continuar, o (False, mensaje_usuario) si debe bloquearse.
+    """
+    secret = getattr(settings, 'TURNSTILE_SECRET_KEY', '') or ''
+    if not secret:
+        return True, None
+    token = request.POST.get('cf-turnstile-response')
+    ip = get_client_ip(request)
+    ok, _ = verify_turnstile(token, remote_ip=ip)
+    if ok:
+        return True, None
+    return False, (
+        'No se pudo verificar la protección anti-spam. '
+        'Completa la verificación e inténtalo de nuevo.'
+    )
+
+
 def copiar_imagen_a_static(imagen_field, nombre_archivo=None, quality=85):
     """
     Copia una imagen desde media a static/images/propiedades/ convirtiéndola a WebP

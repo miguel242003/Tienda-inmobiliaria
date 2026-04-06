@@ -227,6 +227,10 @@ RECAPTCHA_V3_SITE_KEY = config('RECAPTCHA_V3_SITE_KEY', default='')
 RECAPTCHA_V3_SECRET_KEY = config('RECAPTCHA_V3_SECRET_KEY', default='')
 RECAPTCHA_V3_MIN_SCORE = config('RECAPTCHA_V3_MIN_SCORE', default=0.5, cast=float)
 
+# Cloudflare Turnstile (formularios públicos: contacto, CV, consulta propiedad)
+TURNSTILE_SITE_KEY = config('TURNSTILE_SITE_KEY', default='')
+TURNSTILE_SECRET_KEY = config('TURNSTILE_SECRET_KEY', default='')
+
 # ============================================================================
 # 🔒 CONFIGURACIÓN DE SEGURIDAD - OWASP
 # ============================================================================
@@ -378,6 +382,7 @@ CONTENT_SECURITY_POLICY = {
             'https://translate.googleapis.com',  # Google Translate
             'https://www.gstatic.com',  # Google Translate y reCAPTCHA
             'https://www.google.com',  # reCAPTCHA v3
+            'https://challenges.cloudflare.com',  # Turnstile
         ),
         'style-src': (
             "'self'",
@@ -406,12 +411,17 @@ CONTENT_SECURITY_POLICY = {
             'https://cdnjs.cloudflare.com',
             'data:',
         ),
+        'frame-src': (
+            "'self'",
+            'https://challenges.cloudflare.com',  # Turnstile iframe
+        ),
         'connect-src': (
             "'self'",
             'https://cdn.jsdelivr.net',  # Source maps de Bootstrap
             'https://translate.googleapis.com',  # Google Translate
             'https://unpkg.com',  # Source maps de Leaflet
             'https://www.google.com',  # reCAPTCHA v3 verificación del lado del cliente
+            'https://challenges.cloudflare.com',  # Turnstile
         ),
         'frame-ancestors': ("'none'",),  # Evitar iframe embedding
         'base-uri': ("'self'",),

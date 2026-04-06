@@ -13,7 +13,7 @@ import os
 from propiedades.models import Propiedad
 from .forms import CVSubmissionForm, ContactSubmissionForm
 from .models import CVSubmission, ContactSubmission
-from .utils import verify_recaptcha_v3, get_client_ip
+from .utils import turnstile_must_pass
 
 # Crea tus vistas aquí.
 
@@ -103,7 +103,7 @@ def contact(request):
                 'core/contact.html',
                 {
                     'form': form,
-                    'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
                 },
                 status=429,
             )
@@ -117,15 +117,19 @@ def contact(request):
             )
             return redirect('core:contact')
 
-        # Validar reCAPTCHA v3 antes de procesar el formulario
-        recaptcha_token = request.POST.get('g-recaptcha-response')
-        ip = get_client_ip(request)
-        is_human, recaptcha_data = verify_recaptcha_v3(
-            recaptcha_token, remote_ip=ip, action='contact'
-        )
-        if not is_human:
-            # Durante las pruebas, si reCAPTCHA falla solo registramos en servidor y seguimos
-            print("reCAPTCHA v3 (contacto) no pudo verificar la solicitud:", recaptcha_data)
+        ok_turnstile, msg_turnstile = turnstile_must_pass(request)
+        if not ok_turnstile:
+            messages.error(request, msg_turnstile)
+            return render(
+                request,
+                'core/contact.html',
+                {
+                    'form': ContactSubmissionForm(
+                        request.POST, es_consulta_propiedad=False
+                    ),
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+                },
+            )
 
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
         if form.is_valid():
@@ -196,7 +200,7 @@ def contact(request):
         'core/contact.html',
         {
             'form': form,
-            'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+            'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
         },
     )
 
@@ -221,7 +225,7 @@ def cv(request):
                 'core/cv.html',
                 {
                     'form': form,
-                    'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
                 },
                 status=429,
             )
@@ -234,15 +238,17 @@ def cv(request):
             )
             return redirect('core:cv')
 
-        # Validar reCAPTCHA v3 antes de procesar el formulario
-        recaptcha_token = request.POST.get('g-recaptcha-response')
-        ip = get_client_ip(request)
-        is_human, recaptcha_data = verify_recaptcha_v3(
-            recaptcha_token, remote_ip=ip, action='cv'
-        )
-        if not is_human:
-            # Durante las pruebas, si reCAPTCHA falla solo registramos en servidor y seguimos
-            print("reCAPTCHA v3 (CV) no pudo verificar la solicitud:", recaptcha_data)
+        ok_turnstile, msg_turnstile = turnstile_must_pass(request)
+        if not ok_turnstile:
+            messages.error(request, msg_turnstile)
+            return render(
+                request,
+                'core/cv.html',
+                {
+                    'form': CVSubmissionForm(request.POST, request.FILES),
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+                },
+            )
 
         form = CVSubmissionForm(request.POST, request.FILES)
         if form.is_valid():
@@ -284,7 +290,7 @@ def cv(request):
         'core/cv.html',
         {
             'form': form,
-            'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+            'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
         },
     )
 

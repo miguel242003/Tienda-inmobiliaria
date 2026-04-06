@@ -13,7 +13,7 @@ from django.conf import settings
 from .models import Propiedad, ClickPropiedad, Amenidad
 from .forms import PropiedadForm
 from .validators import validar_imagen, validar_video, validar_imagen_o_video
-from core.utils import verify_recaptcha_v3, get_client_ip
+from core.utils import turnstile_must_pass
 import json
 import logging
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -135,7 +135,7 @@ def detalle_propiedad(request, slug):
                 'promedio_calificacion': promedio_calificacion,
                 'total_resenas_aprobadas': total_resenas_aprobadas,
                 'contact_form': contact_form,
-                'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+                'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
             }
             return render(request, 'propiedades/detalle_propiedad.html', context, status=429)
 
@@ -151,17 +151,49 @@ def detalle_propiedad(request, slug):
             )
             return redirect('propiedades:detalle', slug=propiedad.slug)
 
-        # Validar reCAPTCHA v3 antes de procesar el formulario
-        recaptcha_token = request.POST.get('g-recaptcha-response')
-        ip = get_client_ip(request)
-        is_human, recaptcha_data = verify_recaptcha_v3(
-            recaptcha_token,
-            remote_ip=ip,
-            action='property_contact',
-        )
-        if not is_human:
-            # Durante las pruebas, si reCAPTCHA falla solo registramos en servidor y seguimos
-            print("reCAPTCHA v3 (consulta propiedad) no pudo verificar la solicitud:", recaptcha_data)
+        ok_turnstile, msg_turnstile = turnstile_must_pass(request)
+        if not ok_turnstile:
+            from .models import Resena
+
+            messages.error(request, msg_turnstile)
+            contact_form = ContactSubmissionForm(
+                request.POST, es_consulta_propiedad=True
+            )
+            propiedades_relacionadas = Propiedad.objects.filter(
+                tipo=propiedad.tipo,
+                operacion=propiedad.operacion,
+                estado='disponible',
+            ).exclude(id=propiedad.id)[:3]
+            resenas_aprobadas = Resena.objects.filter(
+                propiedad=propiedad,
+                estado='aprobada',
+            ).order_by('-fecha_creacion')
+            promedio_calificacion = (
+                round(
+                    sum(r.calificacion for r in resenas_aprobadas)
+                    / resenas_aprobadas.count(),
+                    1,
+                )
+                if resenas_aprobadas.exists()
+                else 0.0
+            )
+            total_resenas_aprobadas = (
+                resenas_aprobadas.count() if resenas_aprobadas.exists() else 0
+            )
+            return render(
+                request,
+                'propiedades/detalle_propiedad.html',
+                {
+                    'propiedad': propiedad,
+                    'propiedades_relacionadas': propiedades_relacionadas,
+                    'titulo_pagina': propiedad.titulo,
+                    'resenas_aprobadas': resenas_aprobadas,
+                    'promedio_calificacion': promedio_calificacion,
+                    'total_resenas_aprobadas': total_resenas_aprobadas,
+                    'contact_form': contact_form,
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+                },
+            )
 
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=True)
         if form.is_valid():
@@ -248,7 +280,7 @@ def detalle_propiedad(request, slug):
         'promedio_calificacion': promedio_calificacion,
         'total_resenas_aprobadas': total_resenas_aprobadas,
         'contact_form': form,
-        'recaptcha_site_key': settings.RECAPTCHA_V3_SITE_KEY,
+        'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
     }
     return render(request, 'propiedades/detalle_propiedad.html', context)
 

@@ -49,8 +49,9 @@
                             <div style="display:none !important;">
                                 {{ form.honeypot }}
                             </div>
-                            <!-- Token reCAPTCHA v3 -->
-                            <input type="hidden" name="g-recaptcha-response" id="id_recaptcha_token_cv">
+                            {% if turnstile_site_key %}
+                            <div class="cf-turnstile my-2" data-sitekey="{{ turnstile_site_key }}" data-theme="light"></div>
+                            {% endif %}
                             <div class="row g-1">
                                 <div class="col-md-6">
                                     <label for="{{ form.nombre_completo.id_for_label }}" class="form-label">
@@ -162,8 +163,9 @@
                             </div>
 
                             <div class="mt-2">
-                                <button type="submit" 
+                                <button type="submit"
                                         class="btn-cta w-100"
+                                        id="cvSubmitBtn"
                                         aria-label="Enviar currículum">
                                     <i class="fas fa-paper-plane me-2"></i>
                                     Enviar CV
@@ -226,8 +228,8 @@
 {% endblock %}
 
 {% block extra_js %}
-{% if recaptcha_site_key %}
-<script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+{% if turnstile_site_key %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 {% endif %}
 <style>
 /* ========================================
@@ -1815,12 +1817,11 @@ function showFieldError(field, message) {
     field.parentNode.appendChild(errorDiv);
 }
 
-// Form submission enhancement con reCAPTCHA v3
+// Envío del formulario (Turnstile inyecta cf-turnstile-response)
 function handleFormSubmission() {
     const form = document.getElementById('cvForm');
 
     form.addEventListener('submit', function(e) {
-        // Validar todos los campos antes de enviar
         const isValid = validateAllFields();
 
         if (!isValid) {
@@ -1829,39 +1830,11 @@ function handleFormSubmission() {
             return;
         }
 
-        // Si no hay clave de reCAPTCHA configurada, continuar normalmente
-        {% if not recaptcha_site_key %}
-        return;
-        {% else %}
-        e.preventDefault();
-
-        const submitBtn = this.querySelector('.btn-cta');
-        const originalText = submitBtn.innerHTML;
-
-        // Show loading state
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
-        submitBtn.disabled = true;
-
-        grecaptcha.ready(function() {
-            grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'cv'}).then(function(token) {
-                const tokenInput = document.getElementById('id_recaptcha_token_cv');
-                if (tokenInput) {
-                    tokenInput.value = token;
-                }
-                form.submit();
-            }).catch(function() {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-                showFormError('No se pudo verificar reCAPTCHA. Por favor intenta nuevamente.');
-            });
-        });
-
-        // Re-enable button after 10 seconds in case of error inesperado
-        setTimeout(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }, 10000);
-        {% endif %}
+        const submitBtn = document.getElementById('cvSubmitBtn') || this.querySelector('.btn-cta');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+            submitBtn.disabled = true;
+        }
     });
 }
 
