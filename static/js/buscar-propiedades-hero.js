@@ -42,8 +42,8 @@ class BuscarPropiedadesHero {
         
         // Get images from data attributes or default
         this.images = [
-            '/static/images/filtropropiedad.jpg',
-            '/static/images/filtropropiedad2.jpg'
+            '/static/images/filtropropiedad.webp',
+            '/static/images/filtropropiedad2.webp'
         ];
     }
 

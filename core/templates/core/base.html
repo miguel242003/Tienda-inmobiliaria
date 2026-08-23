@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{% block title %}Tienda Inmobiliaria{% endblock %}</title>
     
     <!-- Favicon -->
@@ -28,7 +29,7 @@
             <!-- Logo/Marca -->
             <div class="nav-brand">
                 <a href="{% url 'core:home' %}">
-                    <img src="{% static 'images/logo/logo-gisa.jpeg' %}" alt="GISA NQN Gestión de Consorcios" class="nav-logo">
+                    <img src="{% static 'images/logo/logo-gisa.webp' %}" alt="GISA NQN Gestión de Consorcios" class="nav-logo">
                 </a>
             </div>
             
@@ -134,8 +135,15 @@
     <script src="{% static 'js/notificaciones.js' %}"></script>
     <!-- JavaScript Personalizado -->
     <script src="{% static 'js/main.js' %}"></script>
-    <!-- Sistema de Tracking de Clics -->
-    <script src="{% static 'js/tracking-clics.js' %}"></script>
+    <!-- Limpieza de Conflictos (TEMPORAL) - ELIMINADO -->
+    <!-- Limpieza de Conflictos - VERSIÓN SILENCIOSA -->
+    <script src="{% static 'js/eliminar-conflictos-silent.js' %}?v=1.0"></script>
+    
+    <!-- Optimizador de Consola - Reduce logs innecesarios -->
+    <script src="{% static 'js/console-optimizer.js' %}?v=1.0"></script>
+    
+    <!-- Sistema de Tracking de Clics - VERSIÓN OPTIMIZADA -->
+    <script src="{% static 'js/click-tracker-optimizado.js' %}?v=5.0"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

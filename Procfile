@@ -1,1 +1,1 @@
-web: gunicorn tienda_meli.wsgi --log-file -
+web: gunicorn tienda_meli.tienda_meli.wsgi --log-file -

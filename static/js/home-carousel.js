@@ -11,9 +11,10 @@ class HomeCarousel {
         this.indicators = [];
         this.currentIndex = 0;
         this.autoPlayInterval = null;
-        this.autoPlayDelay = 5000; // 5 seconds
+        this.autoPlayDelay = 6000; // 6 seconds
         this.isPlaying = true;
         this.isInitialized = false;
+        this.isTransitioning = false; // Prevenir cambios durante transición
         
         this.init();
     }
@@ -123,32 +124,54 @@ class HomeCarousel {
      * Go to specific slide
      */
     goToSlide(index) {
-        if (index < 0 || index >= this.items.length) return;
+        if (index < 0 || index >= this.items.length || this.isTransitioning) return;
         
+        this.isTransitioning = true;
         this.currentIndex = index;
         this.updateCarousel();
         this.updateIndicators();
         this.resetAutoPlay();
+        
+        // Permitir siguiente transición después de que termine la animación
+        setTimeout(() => {
+            this.isTransitioning = false;
+        }, 1000); // Tiempo de la transición CSS (0.8s) + margen
     }
 
     /**
      * Go to next slide
      */
     nextSlide() {
+        if (this.isTransitioning) return;
+        
+        this.isTransitioning = true;
         this.currentIndex = (this.currentIndex + 1) % this.items.length;
         this.updateCarousel();
         this.updateIndicators();
         this.resetAutoPlay();
+        
+        // Permitir siguiente transición después de que termine la animación
+        setTimeout(() => {
+            this.isTransitioning = false;
+        }, 1000); // Tiempo de la transición CSS (0.8s) + margen
     }
 
     /**
      * Go to previous slide
      */
     previousSlide() {
+        if (this.isTransitioning) return;
+        
+        this.isTransitioning = true;
         this.currentIndex = (this.currentIndex - 1 + this.items.length) % this.items.length;
         this.updateCarousel();
         this.updateIndicators();
         this.resetAutoPlay();
+        
+        // Permitir siguiente transición después de que termine la animación
+        setTimeout(() => {
+            this.isTransitioning = false;
+        }, 1000); // Tiempo de la transición CSS (0.8s) + margen
     }
 
     /**
@@ -176,7 +199,7 @@ class HomeCarousel {
         if (this.autoPlayInterval) return;
         
         this.autoPlayInterval = setInterval(() => {
-            if (this.isPlaying) {
+            if (this.isPlaying && !this.isTransitioning) {
                 this.nextSlide();
             }
         }, this.autoPlayDelay);
@@ -211,7 +234,10 @@ class HomeCarousel {
      */
     resetAutoPlay() {
         this.stopAutoPlay();
-        this.startAutoPlay();
+        // Esperar un momento antes de reiniciar para evitar cambios inmediatos
+        setTimeout(() => {
+            this.startAutoPlay();
+        }, 500);
     }
 
     /**

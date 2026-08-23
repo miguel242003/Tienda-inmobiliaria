@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
 from core.fields import WebPImageFieldMixin, WebPImageField
+from core.utils import copiar_imagen_a_static
 
 class Amenidad(models.Model):
     """Modelo para las amenidades de las propiedades"""
@@ -63,8 +64,8 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                                           help_text="Número total de ambientes (incluye living, comedor, cocina, etc.)")
     balcon = models.BooleanField(default=False, verbose_name="Tiene Balcón", 
                                 help_text="Indica si la propiedad cuenta con balcón")
-    imagen_principal = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Principal", auto_optimize=True)
-    imagen_secundaria = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Secundaria", auto_optimize=True)
+    imagen_principal = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Principal", auto_optimize=False)
+    imagen_secundaria = WebPImageField(upload_to='propiedades/', blank=True, null=True, verbose_name="Imagen Secundaria", auto_optimize=False)
     administrador = models.ForeignKey(
         'login.AdminCredentials',
         on_delete=models.SET_NULL,
@@ -105,11 +106,214 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         return self.titulo
     
     def save(self, *args, **kwargs):
-        """Generar slug automáticamente si no existe"""
-        if not self.slug:
-            from django.utils.text import slugify
-            self.slug = slugify(self.titulo)
+        """Generar slug automáticamente si no existe o actualizar si cambió el título"""
+        from django.utils.text import slugify
+        
+        # Guardar referencias a las imágenes antes de guardar
+        imagen_principal_existia = self.pk and self.imagen_principal
+        imagen_secundaria_existia = self.pk and self.imagen_secundaria
+        
+        # Obtener las rutas originales si es una edición
+        if self.pk:
+            try:
+                original = Propiedad.objects.get(pk=self.pk)
+                imagen_principal_original = original.imagen_principal.name if original.imagen_principal else None
+                imagen_secundaria_original = original.imagen_secundaria.name if original.imagen_secundaria else None
+            except Propiedad.DoesNotExist:
+                imagen_principal_original = None
+                imagen_secundaria_original = None
+        else:
+            imagen_principal_original = None
+            imagen_secundaria_original = None
+        
+        # Si no existe slug o si el título cambió, generar/actualizar slug
+        if not self.slug or (self.pk and self.titulo != self._get_original_titulo()):
+            base_slug = slugify(self.titulo)
+            self.slug = base_slug
+            
+            # Si el slug ya existe, agregar un número al final
+            counter = 1
+            while Propiedad.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                self.slug = f"{base_slug}-{counter}"
+                counter += 1
+        
+        # Inicializar lista de mensajes ANTES de guardar
+        if not hasattr(self, '_conversion_messages'):
+            self._conversion_messages = []
+        else:
+            # Limpiar mensajes anteriores si existen
+            self._conversion_messages = []
+        
+        # Guardar primero para que las imágenes se guarden en media
         super().save(*args, **kwargs)
+        
+        # Copiar imágenes a static después de guardar (convertidas a WebP)
+        # Solo copiar si la imagen cambió o es nueva
+        import logging
+        import time
+        import os
+        from django.conf import settings
+        from pathlib import Path
+        from django.core.files.storage import default_storage
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f"🔄 Iniciando proceso de conversión WebP para propiedad: {self.slug}")
+        logger.info(f"   Imagen principal existe: {bool(self.imagen_principal)}")
+        logger.info(f"   Imagen secundaria existe: {bool(self.imagen_secundaria)}")
+        logger.info(f"   Mensajes iniciales: {len(self._conversion_messages)}")
+        
+        # Esperar y verificar que los archivos estén físicamente guardados
+        # Esto es crítico porque el guardado puede ser asíncrono
+        max_espera = 3  # Segundos máximo de espera
+        tiempo_espera = 0.2  # Segundos entre verificaciones
+        intentos = int(max_espera / tiempo_espera)
+        
+        def verificar_archivo_existe(nombre_archivo):
+            """Verifica si el archivo existe físicamente"""
+            # Método 1: Verificar en filesystem directamente
+            ruta_fisica = Path(settings.MEDIA_ROOT) / nombre_archivo
+            if os.path.exists(ruta_fisica):
+                return True
+            # Método 2: Verificar en storage
+            if default_storage.exists(nombre_archivo):
+                return True
+            return False
+        
+        if self.imagen_principal:
+            logger.info(f"📸 Procesando imagen principal: {self.imagen_principal.name}")
+            try:
+                # Verificar que el archivo existe físicamente antes de copiar
+                archivo_existe = False
+                
+                for intento in range(intentos):
+                    if verificar_archivo_existe(self.imagen_principal.name):
+                        archivo_existe = True
+                        logger.info(f"✓ Imagen principal encontrada después de {intento + 1} intentos: {self.imagen_principal.name}")
+                        break
+                    time.sleep(tiempo_espera)
+                
+                if archivo_existe:
+                    imagen_principal_cambio = not imagen_principal_original or self.imagen_principal.name != imagen_principal_original
+                    logger.info(f"   Cambio detectado: {imagen_principal_cambio}, Existía antes: {imagen_principal_existia}")
+                    if imagen_principal_cambio or not imagen_principal_existia:
+                        # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
+                        nombre_archivo = f"{self.slug}-principal"
+                        logger.info(f"🔄 Convirtiendo imagen principal a WebP: {nombre_archivo}")
+                        logger.info(f"   Archivo completo: {self.imagen_principal.name}")
+                        logger.info(f"   Intentando llamar a copiar_imagen_a_static...")
+                        logger.info(f"   self.imagen_principal: {self.imagen_principal}")
+                        logger.info(f"   self.imagen_principal.name: {self.imagen_principal.name if self.imagen_principal else None}")
+                        logger.info(f"   nombre_archivo: {nombre_archivo}")
+                        self._conversion_messages.append(f"🔄 Convirtiendo imagen principal a WebP...")
+                        logger.info(f"   Mensajes después de agregar: {len(self._conversion_messages)}")
+                        try:
+                            logger.info(f"   Llamando a copiar_imagen_a_static ahora...")
+                            logger.info(f"   Parámetros: imagen_field={self.imagen_principal}, nombre={nombre_archivo}, quality=85")
+                            resultado = copiar_imagen_a_static(self.imagen_principal, nombre_archivo, quality=85)
+                            logger.info(f"   ✅ copiar_imagen_a_static retornó: {resultado}")
+                            logger.info(f"   Tipo de resultado: {type(resultado)}")
+                            if resultado is not None:
+                                logger.info(f"✅ Imagen principal convertida y copiada exitosamente: {resultado}")
+                                self._conversion_messages.append(f"✅ Imagen principal convertida exitosamente: {resultado}")
+                            else:
+                                logger.error(f"❌ ERROR: copiar_imagen_a_static retornó None")
+                                logger.error(f"   Archivo: {self.imagen_principal.name}")
+                                logger.error(f"   Slug: {self.slug}")
+                                self._conversion_messages.append(f"❌ ERROR: No se pudo convertir imagen principal (retornó None)")
+                        except Exception as e:
+                            logger.error(f"❌ EXCEPCIÓN al llamar copiar_imagen_a_static: {e}")
+                            import traceback
+                            logger.error(traceback.format_exc())
+                            self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
+                        logger.info(f"   Mensajes finales: {len(self._conversion_messages)}")
+                    else:
+                        logger.info(f"   No se convierte imagen principal (no cambió y ya existía)")
+                else:
+                    logger.error(f"❌ ERROR: Imagen principal no existe físicamente después de {intentos} intentos")
+                    logger.error(f"   Archivo: {self.imagen_principal.name}")
+                    logger.error(f"   Ruta esperada: {Path(settings.MEDIA_ROOT) / self.imagen_principal.name}")
+                    self._conversion_messages.append(f"❌ ERROR: Imagen principal no encontrada físicamente")
+            except Exception as e:
+                logger.error(f"❌ EXCEPCIÓN al copiar imagen principal a static: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
+                self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
+        else:
+            logger.info(f"⚠️ No hay imagen principal para convertir")
+        
+        logger.info(f"📊 Mensajes después de procesar imagen principal: {len(self._conversion_messages)}")
+        
+        if self.imagen_secundaria:
+            logger.info(f"📸 Procesando imagen secundaria: {self.imagen_secundaria.name}")
+            try:
+                # Verificar que el archivo existe físicamente antes de copiar
+                archivo_existe = False
+                
+                for intento in range(intentos):
+                    if verificar_archivo_existe(self.imagen_secundaria.name):
+                        archivo_existe = True
+                        logger.info(f"✓ Imagen secundaria encontrada después de {intento + 1} intentos: {self.imagen_secundaria.name}")
+                        break
+                    time.sleep(tiempo_espera)
+                
+                if archivo_existe:
+                    imagen_secundaria_cambio = not imagen_secundaria_original or self.imagen_secundaria.name != imagen_secundaria_original
+                    logger.info(f"   Cambio detectado: {imagen_secundaria_cambio}, Existía antes: {imagen_secundaria_existia}")
+                    if imagen_secundaria_cambio or not imagen_secundaria_existia:
+                        # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
+                        nombre_archivo = f"{self.slug}-secundaria"
+                        logger.info(f"🔄 Convirtiendo imagen secundaria a WebP: {nombre_archivo}")
+                        logger.info(f"   Archivo completo: {self.imagen_secundaria.name}")
+                        logger.info(f"   Intentando llamar a copiar_imagen_a_static...")
+                        self._conversion_messages.append(f"🔄 Convirtiendo imagen secundaria a WebP...")
+                        logger.info(f"   Mensajes después de agregar: {len(self._conversion_messages)}")
+                        try:
+                            logger.info(f"   Llamando a copiar_imagen_a_static ahora...")
+                            logger.info(f"   Parámetros: imagen_field={self.imagen_secundaria}, nombre={nombre_archivo}, quality=85")
+                            resultado = copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
+                            logger.info(f"   ✅ copiar_imagen_a_static retornó: {resultado}")
+                            logger.info(f"   Tipo de resultado: {type(resultado)}")
+                            if resultado is not None:
+                                logger.info(f"✅ Imagen secundaria convertida y copiada exitosamente: {resultado}")
+                                self._conversion_messages.append(f"✅ Imagen secundaria convertida exitosamente: {resultado}")
+                            else:
+                                logger.error(f"❌ ERROR: copiar_imagen_a_static retornó None")
+                                logger.error(f"   Archivo: {self.imagen_secundaria.name}")
+                                logger.error(f"   Slug: {self.slug}")
+                                self._conversion_messages.append(f"❌ ERROR: No se pudo convertir imagen secundaria (retornó None)")
+                        except Exception as e:
+                            logger.error(f"❌ EXCEPCIÓN al llamar copiar_imagen_a_static: {e}")
+                            import traceback
+                            logger.error(traceback.format_exc())
+                            self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
+                        logger.info(f"   Mensajes finales: {len(self._conversion_messages)}")
+                    else:
+                        logger.info(f"   No se convierte imagen secundaria (no cambió y ya existía)")
+                else:
+                    logger.error(f"❌ ERROR: Imagen secundaria no existe físicamente después de {intentos} intentos")
+                    logger.error(f"   Archivo: {self.imagen_secundaria.name}")
+                    logger.error(f"   Ruta esperada: {Path(settings.MEDIA_ROOT) / self.imagen_secundaria.name}")
+                    self._conversion_messages.append(f"❌ ERROR: Imagen secundaria no encontrada físicamente")
+            except Exception as e:
+                logger.error(f"❌ EXCEPCIÓN al copiar imagen secundaria a static: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
+                self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
+        else:
+            logger.info(f"⚠️ No hay imagen secundaria para convertir")
+        
+        logger.info(f"📊 Total mensajes de conversión: {len(self._conversion_messages)}")
+        logger.info(f"   Mensajes: {self._conversion_messages}")
+    
+    def _get_original_titulo(self):
+        """Obtener el título original de la base de datos"""
+        if self.pk:
+            try:
+                original = Propiedad.objects.get(pk=self.pk)
+                return original.titulo
+            except Propiedad.DoesNotExist:
+                return None
+        return None
     
     def get_precio_formateado(self):
         # 🔥 FORMATO ARGENTINO: 110.000 en lugar de 110,000.00
@@ -127,7 +331,12 @@ class Propiedad(WebPImageFieldMixin, models.Model):
     def get_foto_principal(self):
         """Retorna la foto principal o la primera foto disponible"""
         if self.imagen_principal:
-            return self.imagen_principal
+            # Agregar referencia a la propiedad para que el tag pueda obtener el slug
+            imagen = self.imagen_principal
+            if not hasattr(imagen, '_propiedad'):
+                imagen._propiedad = self
+                imagen._es_principal = True
+            return imagen
         elif self.fotos.exists():
             return self.fotos.first().imagen
         return None
@@ -135,10 +344,103 @@ class Propiedad(WebPImageFieldMixin, models.Model):
     def get_foto_secundaria(self):
         """Retorna la foto secundaria o la segunda foto disponible"""
         if self.imagen_secundaria:
-            return self.imagen_secundaria
+            # Agregar referencia a la propiedad para que el tag pueda obtener el slug
+            imagen = self.imagen_secundaria
+            if not hasattr(imagen, '_propiedad'):
+                imagen._propiedad = self
+                imagen._es_principal = False
+            return imagen
         elif self.fotos.count() >= 2:
             return self.fotos.all()[1].imagen
         return None
+    
+    def get_foto_principal_static_url(self):
+        """Retorna la URL estática de la imagen principal si existe, sino la de media"""
+        from django.conf import settings
+        from django.templatetags.static import static
+        from core.utils import obtener_ruta_static_imagen
+        import os
+        from pathlib import Path
+        
+        if not self.imagen_principal:
+            return None
+        
+        # Buscar en static primero (pasar slug y es_principal=True)
+        ruta_static = obtener_ruta_static_imagen(
+            self.imagen_principal, 
+            propiedad_slug=self.slug, 
+            es_principal=True
+        )
+        
+        # Verificar que el archivo realmente existe antes de retornar la URL estática
+        if ruta_static:
+            # Buscar primero en STATIC_ROOT (producción), luego en STATICFILES_DIRS (desarrollo)
+            static_dirs = []
+            
+            # Agregar STATIC_ROOT si está configurado
+            if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+                static_root_dir = Path(settings.STATIC_ROOT) / 'images' / 'propiedades'
+                if static_root_dir.exists():
+                    static_dirs.append(static_root_dir)
+            
+            # Agregar STATICFILES_DIRS
+            if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
+                static_dir_dev = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+                if static_dir_dev.exists():
+                    static_dirs.append(static_dir_dev)
+            
+            # Buscar en todos los directorios
+            for static_dir in static_dirs:
+                ruta_completa = static_dir / os.path.basename(ruta_static)
+                if ruta_completa.exists():
+                    return static(ruta_static)
+        
+        # Si no existe en static, usar la de media
+        return self.imagen_principal.url
+    
+    def get_foto_secundaria_static_url(self):
+        """Retorna la URL estática de la imagen secundaria si existe, sino la de media"""
+        from django.conf import settings
+        from django.templatetags.static import static
+        from core.utils import obtener_ruta_static_imagen
+        import os
+        from pathlib import Path
+        
+        if not self.imagen_secundaria:
+            return None
+        
+        # Buscar en static primero (pasar slug y es_principal=False)
+        ruta_static = obtener_ruta_static_imagen(
+            self.imagen_secundaria, 
+            propiedad_slug=self.slug, 
+            es_principal=False
+        )
+        
+        # Verificar que el archivo realmente existe antes de retornar la URL estática
+        if ruta_static:
+            # Buscar primero en STATIC_ROOT (producción), luego en STATICFILES_DIRS (desarrollo)
+            static_dirs = []
+            
+            # Agregar STATIC_ROOT si está configurado
+            if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+                static_root_dir = Path(settings.STATIC_ROOT) / 'images' / 'propiedades'
+                if static_root_dir.exists():
+                    static_dirs.append(static_root_dir)
+            
+            # Agregar STATICFILES_DIRS
+            if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
+                static_dir_dev = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+                if static_dir_dev.exists():
+                    static_dirs.append(static_dir_dev)
+            
+            # Buscar en todos los directorios
+            for static_dir in static_dirs:
+                ruta_completa = static_dir / os.path.basename(ruta_static)
+                if ruta_completa.exists():
+                    return static(ruta_static)
+        
+        # Si no existe en static, usar la de media
+        return self.imagen_secundaria.url
     
     
     def get_foto_por_posicion(self, posicion):
@@ -222,7 +524,7 @@ class FotoPropiedad(WebPImageFieldMixin, models.Model):
         verbose_name="Imagen",
         blank=True,
         null=True,
-        auto_optimize=True
+        auto_optimize=False
     )
     video = models.FileField(
         upload_to='propiedades/videos/',
@@ -262,6 +564,51 @@ class FotoPropiedad(WebPImageFieldMixin, models.Model):
         elif self.tipo_medio == 'video' and self.video:
             return self.video.url
         return None
+    
+    def get_imagen_static_url(self):
+        """Retorna la URL estática de la imagen adicional si existe, sino la de media"""
+        from django.conf import settings
+        from django.templatetags.static import static
+        from core.utils import obtener_ruta_static_imagen
+        import os
+        from pathlib import Path
+        
+        if not self.imagen or self.tipo_medio != 'imagen':
+            return None
+        
+        # Buscar en static primero (pasar slug, es_principal=None, y orden)
+        ruta_static = obtener_ruta_static_imagen(
+            self.imagen, 
+            propiedad_slug=self.propiedad.slug, 
+            es_principal=None,
+            orden_adicional=self.orden
+        )
+        
+        # Verificar que el archivo realmente existe antes de retornar la URL estática
+        if ruta_static:
+            # Buscar primero en STATIC_ROOT (producción), luego en STATICFILES_DIRS (desarrollo)
+            static_dirs = []
+            
+            # Agregar STATIC_ROOT si está configurado
+            if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+                static_root_dir = Path(settings.STATIC_ROOT) / 'images' / 'propiedades'
+                if static_root_dir.exists():
+                    static_dirs.append(static_root_dir)
+            
+            # Agregar STATICFILES_DIRS
+            if hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
+                static_dir_dev = Path(settings.STATICFILES_DIRS[0]) / 'images' / 'propiedades'
+                if static_dir_dev.exists():
+                    static_dirs.append(static_dir_dev)
+            
+            # Buscar en todos los directorios
+            for static_dir in static_dirs:
+                ruta_completa = static_dir / os.path.basename(ruta_static)
+                if ruta_completa.exists():
+                    return static(ruta_static)
+        
+        # Si no existe en static, usar la de media
+        return self.imagen.url
 
 class ClickPropiedad(models.Model):
     """Modelo para rastrear clics en botones 'Ver Detalle' de propiedades"""

@@ -19,35 +19,39 @@
 
 <!-- CV Section -->
 <section class="cv-section">
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Imagen a la izquierda -->
-            <div class="col-lg-4 col-md-12 p-0">
+    <div class="container-fluid cv-container">
+        <div class="row cv-row">
+            <!-- Imagen a la izquierda - Solo visible en desktop -->
+            <div class="col-12 col-lg-4 cv-image-col d-none d-lg-block">
                 <div class="cv-image-container">
                     <picture>
-                        <!-- WebP para navegadores modernos -->
                         <source srcset="{% static 'images/CV2.webp' %}" type="image/webp">
-                        <!-- Fallback JPG para navegadores antiguos -->
-                        <img src="{% static 'images/cv6.jpg' %}" 
-                             alt="Equipo de trabajo profesional" 
+                        <img src="{% static 'images/cv6.jpg' %}"
+                             alt="Equipo de trabajo profesional"
                              class="cv-image"
                              loading="eager">
                     </picture>
                 </div>
             </div>
-            
-            <!-- Formulario a la derecha -->
-            <div class="col-lg-8 col-md-12 d-flex align-items-center cv-form-section">
-                <div style="width: 100%;">
-                    <h1 style="font-family: 'Times New Roman', serif; color: #2c3e50; font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; display: block; visibility: visible;">Envíanos tu CV</h1>
-                    <h3 class="mb-2" style="color: #e67e22; font-style: italic; font-family: 'Times New Roman', serif; font-size: 1rem;">Únete a nuestro equipo</h3>
-                    <p class="mb-3" style="color: #34495e; line-height: 1.4; font-size: 0.9rem;">Forma parte de una empresa líder en el sector inmobiliario. Completa el formulario y te contactaremos pronto.</p>
-                    
+
+            <!-- Formulario - Ocupa todo el ancho en móviles/tablets, 8/12 en desktop -->
+            <div class="col-12 col-lg-8 cv-form-col">
+                <div class="cv-content">
+                    <h3 class="cv-title">Únete a nuestro equipo</h3>
+                    <p class="cv-description">Forma parte de una empresa líder en el sector inmobiliario. Completa el formulario y te contactaremos pronto.</p>
+
                     <!-- CV Form -->
-                    <div class="cv-form-card" style="background: #ffffff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-                        
+                    <div class="cv-form-card">
+
                         <form method="post" enctype="multipart/form-data" id="cvForm">
                             {% csrf_token %}
+                            <!-- Honeypot invisible para bots -->
+                            <div style="display:none !important;">
+                                {{ form.honeypot }}
+                            </div>
+                            {% if turnstile_site_key %}
+                            <div class="cf-turnstile my-2" data-sitekey="{{ turnstile_site_key }}" data-theme="light"></div>
+                            {% endif %}
                             <div class="row g-1">
                                 <div class="col-md-6">
                                     <label for="{{ form.nombre_completo.id_for_label }}" class="form-label">
@@ -76,7 +80,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
+
                             <div class="row g-1 mt-1">
                                 <div class="col-md-6">
                                     <label for="{{ form.telefono.id_for_label }}" class="form-label">
@@ -105,7 +109,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
+
                             <div class="row g-1 mt-1">
                                 <div class="col-md-6">
                                     <label for="{{ form.anos_experiencia.id_for_label }}" class="form-label">{{ form.anos_experiencia.label }}</label>
@@ -130,7 +134,7 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
+
                             <div class="mt-1">
                                 <label for="{{ form.cv_file.id_for_label }}" class="form-label">
                                     {{ form.cv_file.label }} <span class="required">*</span>
@@ -145,7 +149,7 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="mt-1">
                                 <label for="{{ form.carta_presentacion.id_for_label }}" class="form-label">{{ form.carta_presentacion.label }}</label>
                                 {{ form.carta_presentacion }}
@@ -157,10 +161,11 @@
                                     </div>
                                 {% endif %}
                             </div>
-                            
+
                             <div class="mt-2">
-                                <button type="submit" 
+                                <button type="submit"
                                         class="btn-cta w-100"
+                                        id="cvSubmitBtn"
                                         aria-label="Enviar currículum">
                                     <i class="fas fa-paper-plane me-2"></i>
                                     Enviar CV
@@ -223,6 +228,9 @@
 {% endblock %}
 
 {% block extra_js %}
+{% if turnstile_site_key %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
 <style>
 /* ========================================
    CSS VARIABLES
@@ -247,107 +255,367 @@
    ======================================== */
 .cv-section {
     background: linear-gradient(135deg, #e8e9ea 0%, #d1d3d4 100%);
-    padding: 2rem 0;
-    margin: 2rem auto;
+    padding: 0;
+    margin: 60px auto;
     position: relative;
     overflow: hidden;
     border-radius: 0;
+    max-width: 1400px;
+    width: 100%;
+    min-height: 750px;
+}
+
+.cv-container {
+    padding: 0;
+    height: 100%;
+}
+
+.cv-row {
+    height: 100%;
+    margin: 0;
+}
+
+.cv-image-col {
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Desktop - Imagen responsiva */
+@media (min-width: 992px) {
+    .cv-image-container {
+        height: 100%;
+        min-height: 750px;
+    }
+    
+    .cv-image {
+        height: 100%;
+        object-fit: cover;
+        object-position: left center;
+    }
+}
+
+.cv-form-col {
+    display: flex;
+    align-items: center;
+    padding: 40px;
+    height: 100%;
 }
 
 .cv-image-container {
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    height: 400px;
+    justify-content: flex-start;
+    background-color: #f8f9fa;
     overflow: hidden;
-    position: relative;
+}
+
+.cv-image {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: left center;
+    display: block;
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Tablet (768px - 991px) - Sin imagen */
+@media (max-width: 991.98px) {
+    .cv-section {
+        margin: 40px auto;
+        min-height: auto;
+        max-width: 100%;
+    }
+    
+    .cv-form-col {
+        padding: 30px 20px;
+        width: 100%;
+    }
+    
+    .cv-content {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+/* Mobile (576px - 767px) - Sin imagen */
+@media (max-width: 767.98px) {
+    .cv-section {
+        margin: 20px auto;
+        min-height: auto;
+        max-width: 100%;
+    }
+    
+    .cv-form-col {
+        padding: 20px 15px;
+        width: 100%;
+    }
+    
+    .cv-content {
+        max-width: 100%;
+        margin: 0;
+    }
+}
+
+/* Small Mobile (max 575px) - Sin imagen */
+@media (max-width: 575.98px) {
+    .cv-section {
+        margin: 10px auto;
+        min-height: auto;
+        max-width: 100%;
+    }
+    
+    .cv-form-col {
+        padding: 15px 10px;
+        width: 100%;
+    }
+    
+    .cv-content {
+        max-width: 100%;
+        margin: 0;
+    }
+}
+
+/* ========================================
+   CV CONTENT STYLES
+   ======================================== */
+.cv-content {
+    width: 100%;
+}
+
+.cv-title {
+    color: #e67e22;
+    font-style: italic;
+    font-family: 'Times New Roman', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.cv-description {
+    color: #34495e;
+    line-height: 1.4;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.cv-form-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   RESPONSIVE TYPOGRAPHY
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 991.98px) {
+    .cv-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+    
+    .cv-description {
+        font-size: 0.85rem;
+    }
+    
+    .cv-form-card {
+        padding: 1.25rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767.98px) {
+    .cv-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+    }
+    
+    .cv-description {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+    
+    .cv-form-card {
+        padding: 1rem;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 575.98px) {
+    .cv-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+    
+    .cv-description {
+        font-size: 0.75rem;
+    }
+    
+    .cv-form-card {
+        padding: 0.75rem;
+    }
+}
+
+/* ========================================
+   FORM RESPONSIVE STYLES
+   ======================================== */
+.cv-form-card .form-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.cv-form-card .form-control,
+.cv-form-card .form-select {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.cv-form-card .form-control:focus,
+.cv-form-card .form-select:focus {
+    border-color: #e67e22;
+    box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.25);
+}
+
+.cv-form-card .btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.15s ease-in-out;
+}
+
+.cv-form-card .btn-primary {
+    background-color: #e67e22;
+    border-color: #e67e22;
+}
+
+.cv-form-card .btn-primary:hover {
+    background-color: #d35400;
+    border-color: #d35400;
+}
+
+/* Responsive form adjustments */
+@media (max-width: 767.98px) {
+    .cv-form-card .row {
+        margin: 0;
+    }
+    
+    .cv-form-card .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    .cv-form-card .form-label {
+        font-size: 0.85rem;
+    }
+    
+    .cv-form-card .form-control,
+    .cv-form-card .form-select {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.75rem;
+    }
+    
+    .cv-form-card .btn {
+        font-size: 0.85rem;
+        padding: 0.6rem 1rem;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .cv-form-card .form-control,
+    .cv-form-card .form-select {
+        padding: 0.7rem 0.75rem;
+    }
+    
+    .cv-form-card .btn {
+        padding: 0.7rem 1rem;
+    }
+}
+
+.cv-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: left center;
+    display: block;
+}
+
+section[style*="background"] {
+    display: flex;
+    align-items: stretch;
+    height: 750px;
 }
 
 .cv-image-container picture {
     width: 100%;
     height: 100%;
-    display: block;
 }
 
-.cv-image {
+.cv-image-container img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     object-position: left center;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 
-.cv-form-section {
-    padding: 2rem;
-    min-height: 400px;
+/* Mejorar la compatibilidad con navegadores antiguos */
+.cv-image-container picture {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
-/* Responsive breakpoints */
+/* Fallback para navegadores que no soportan <picture> */
+.no-picture .cv-image-container {
+    background-image: url('{% static "images/cv6.jpg" %}');
+    background-size: contain;
+    background-position: left center;
+    background-repeat: no-repeat;
+}
+
+/* Responsive para imagen WebP en CV */
 @media (max-width: 1200px) {
-    .cv-section {
-        margin: 1.5rem auto;
-        padding: 1.5rem 0;
+    .cv-image-container picture {
+        width: 100%;
+        height: 100%;
+        display: block;
     }
-    
-    .cv-image-container {
-        height: 350px;
-    }
-    
-    .cv-form-section {
-        padding: 1.5rem;
-        min-height: 350px;
-    }
-}
 
-@media (max-width: 992px) {
-    .cv-section {
-        margin: 1rem auto;
-        padding: 1rem 0;
-    }
-    
-    .cv-image-container {
-        height: 300px;
-    }
-    
-    .cv-form-section {
-        padding: 1rem;
-        min-height: 300px;
+    .cv-image-container picture img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: left center;
     }
 }
 
 @media (max-width: 768px) {
-    .cv-section {
-        margin: 0.5rem auto;
-        padding: 0.5rem 0;
+    .cv-image-container picture {
+        width: 100%;
+        height: 100%;
+        display: block;
     }
-    
-    .cv-image-container {
-        height: 250px;
-    }
-    
-    .cv-image {
+
+    .cv-image-container picture img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         object-position: center;
-    }
-    
-    .cv-form-section {
-        padding: 1rem;
-        min-height: auto;
-    }
-}
-
-@media (max-width: 576px) {
-    .cv-section {
-        margin: 0;
-        padding: 0;
-    }
-    
-    .cv-image-container {
-        height: 200px;
-    }
-    
-    .cv-form-section {
-        padding: 0.75rem;
     }
 }
 .cv-application-section {
@@ -457,7 +725,8 @@
     margin-bottom: 10px;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    animation: slideDown 0.3s ease-out;
+    /* Evitar animaciones bruscas que muevan el layout */
+    animation: none;
     border: none;
     font-weight: 500;
     padding: 16px 20px;
@@ -712,7 +981,7 @@
    BENEFITS SECTION
    ======================================== */
 .benefits-section {
-    background: url('{% static "images/grupo-de-personas.jpg" %}');
+    background: url('{% static "images/grupo-de-personas.webp" %}');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -835,7 +1104,7 @@
         border-radius: 0 !important;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     .benefits-section {
         width: 100vw !important;
         margin-left: calc(-50vw + 50%) !important;
@@ -858,7 +1127,7 @@
         margin-left: -50vw !important;
         margin-right: -50vw !important;
     }
-    
+
     .benefits-container {
         max-width: 1200px !important;
         margin: 0 auto !important;
@@ -866,7 +1135,7 @@
         position: relative !important;
         z-index: 1 !important;
     }
-    
+
     /* Footer también debe ocupar todo el ancho */
     footer, .footer {
         width: 100vw !important;
@@ -893,7 +1162,7 @@
         border-radius: 0 !important;
         box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     /* Mensajes en tablet */
     .messages {
         margin: 16px auto 30px auto !important;
@@ -901,32 +1170,32 @@
         width: 85% !important;
         padding: 0 16px !important;
     }
-    
+
     .messages .alert {
         font-size: 14px !important;
         padding: 14px 18px !important;
         border-radius: 10px !important;
     }
-    
+
     /* Tipografía tablet */
     h1 {
         font-size: 28px !important;
         margin-bottom: 8px !important;
     }
-    
+
     h3 {
         font-size: 16px !important;
     }
-    
+
     p {
         font-size: 14px !important;
     }
-    
+
     /* Ocultar imagen en tablet */
     .col-lg-4 {
         display: none !important;
     }
-    
+
     /* Formulario ocupa todo el espacio */
     .col-lg-8 {
         flex: 0 0 100% !important;
@@ -934,29 +1203,29 @@
         width: 100% !important;
         padding: 30px !important;
     }
-    
+
     /* Formulario más compacto */
     .cv-form-card {
         padding: 20px !important;
         border-radius: 16px !important;
     }
-    
+
     /* Campos del formulario en tablet */
     .form-control, .form-select {
         padding: 12px 16px !important;
         font-size: 16px !important;
     }
-    
+
     .form-label {
         font-size: 14px !important;
         margin-bottom: 6px !important;
     }
-    
+
     .btn-cta {
         padding: 14px 24px !important;
         font-size: 16px !important;
     }
-    
+
     /* Benefits responsive */
     .benefits-grid {
         gap: 20px;
@@ -977,7 +1246,7 @@
         border-radius: 0 !important;
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
     }
-    
+
     /* Mensajes en mobile */
     .messages {
         margin: 12px auto 20px auto !important;
@@ -985,51 +1254,51 @@
         width: 90% !important;
         padding: 0 12px !important;
     }
-    
+
     .messages .alert {
         font-size: 13px !important;
         padding: 12px 16px !important;
         border-radius: 8px !important;
         margin-bottom: 8px !important;
     }
-    
+
     /* Tipografía mobile */
     h1 {
         font-size: 24px !important;
         margin-bottom: 6px !important;
         text-align: center !important;
     }
-    
+
     h3 {
         font-size: 14px !important;
         text-align: center !important;
     }
-    
+
     p {
         font-size: 13px !important;
         line-height: 1.5 !important;
         text-align: center !important;
         margin-bottom: 20px !important;
     }
-    
+
     /* Stack vertical - imagen arriba */
     .row {
         flex-direction: column !important;
         gap: 0 !important;
     }
-    
+
     .col-lg-4, .col-lg-8 {
         width: 100% !important;
         max-width: 100% !important;
         flex: none !important;
     }
-    
+
     .col-lg-4 {
         order: -1 !important; /* Imagen arriba */
         height: 200px !important;
         margin-bottom: 20px !important;
     }
-    
+
     /* Imagen responsiva */
     .col-lg-4 div {
         width: 100% !important;
@@ -1039,32 +1308,32 @@
         background-repeat: no-repeat !important;
         border-radius: 8px !important;
     }
-    
+
     /* Formulario responsivo */
     .col-lg-8 {
         padding: 16px !important;
     }
-    
+
     /* Formulario más compacto en mobile */
     .cv-form-card {
         padding: 16px !important;
         border-radius: 16px !important;
         margin: 0 !important;
     }
-    
+
     /* Campos del formulario en mobile */
     .row.g-1 {
         flex-direction: column !important;
         gap: 0 !important;
     }
-    
+
     .col-md-6 {
         width: 100% !important;
         max-width: 100% !important;
         flex: none !important;
         margin-bottom: 8px !important;
     }
-    
+
     /* Campos más grandes para touch */
     .form-control, .form-select {
         padding: 14px 16px !important;
@@ -1072,13 +1341,13 @@
         border-radius: 8px !important;
         margin-bottom: 4px !important;
     }
-    
+
     .form-label {
         font-size: 14px !important;
         margin-bottom: 6px !important;
         font-weight: 600 !important;
     }
-    
+
     .btn-cta {
         padding: 16px 24px !important;
         font-size: 16px !important;
@@ -1086,12 +1355,12 @@
         width: 100% !important;
         margin-top: 8px !important;
     }
-    
+
     .form-text {
         font-size: 12px !important;
         margin-top: 4px !important;
     }
-    
+
     /* Benefits responsive */
     .benefits-grid {
         grid-template-columns: 1fr;
@@ -1099,15 +1368,15 @@
         max-width: 100%;
         padding: 0 16px;
     }
-    
+
     .benefit-item {
         padding: 12px;
     }
-    
+
     .benefit-content h5 {
         font-size: 14px;
     }
-    
+
     .benefit-content p {
         font-size: 12px;
     }
@@ -1120,37 +1389,37 @@
         padding: 0 12px !important;
         border-radius: 0 !important;
     }
-    
+
     h1 {
         font-size: 22px !important;
     }
-    
+
     h3 {
         font-size: 13px !important;
     }
-    
+
     p {
         font-size: 12px !important;
     }
-    
+
     .col-lg-4 {
         height: 180px !important;
     }
-    
+
     .col-lg-8 {
         padding: 12px !important;
     }
-    
+
     .cv-form-card {
         padding: 12px !important;
         border-radius: 16px !important;
     }
-    
+
     .form-control, .form-select {
         padding: 12px 14px !important;
         font-size: 16px !important;
     }
-    
+
     .btn-cta {
         padding: 14px 20px !important;
         font-size: 15px !important;
@@ -1163,7 +1432,7 @@
         margin: 20px auto !important;
         padding: 0 16px !important;
     }
-    
+
     .col-lg-4 {
         height: 220px !important;
     }
@@ -1190,12 +1459,12 @@
     body {
         overflow-x: hidden !important;
     }
-    
+
     * {
         max-width: 100% !important;
         box-sizing: border-box !important;
     }
-    
+
     /* Benefits section en mobile también debe ocupar todo el ancho */
     .benefits-section {
         width: 100vw !important;
@@ -1222,7 +1491,7 @@
         min-height: 44px;
         font-size: 16px;
     }
-    
+
     .btn-cta {
         min-height: 48px;
         font-size: 16px;
@@ -1236,22 +1505,22 @@
         margin: 0 10px !important;
         border-radius: 16px !important;
     }
-    
+
     .form-control, .form-select {
         font-size: 16px !important; /* Previene zoom en iOS */
         padding: 12px 14px !important;
     }
-    
+
     .btn-cta {
         padding: 14px 20px !important;
         font-size: 16px !important;
     }
-    
+
     .form-label {
         font-size: 14px !important;
         margin-bottom: 6px !important;
     }
-    
+
     .form-text {
         font-size: 12px !important;
     }
@@ -1263,11 +1532,11 @@
         padding: 1.25rem !important;
         border-radius: 16px !important;
     }
-    
+
     .form-control, .form-select {
         padding: 10px 12px !important;
     }
-    
+
     .btn-cta {
         padding: 12px 18px !important;
     }
@@ -1279,7 +1548,7 @@
         height: 250px !important;
         margin-bottom: 20px !important;
     }
-    
+
     .col-lg-4 div {
         background-size: contain !important;
         background-position: center center !important;
@@ -1294,7 +1563,7 @@
         height: 200px !important;
         margin-bottom: 15px !important;
     }
-    
+
     .col-lg-4 div {
         border-radius: 8px !important;
     }
@@ -1306,7 +1575,7 @@
         height: 180px !important;
         margin-bottom: 12px !important;
     }
-    
+
     .col-lg-4 div {
         border-radius: 6px !important;
     }
@@ -1318,10 +1587,47 @@
         height: 160px !important;
         margin-bottom: 10px !important;
     }
-    
+
     .col-lg-4 div {
         border-radius: 4px !important;
     }
+}
+
+/* --- FIX: Imagen CV ocupando altura completa --- */
+.cv-image-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+.cv-image-container img {
+  height: 100% !important;
+  width: auto !important; /* Evita que se estire horizontalmente */
+  object-fit: contain !important;
+  object-position: left center !important;
+  display: block !important;
+}
+
+/* Forzar altura completa en el contenedor principal */
+section[style*="width: 1400px"] .row {
+  height: 100% !important;
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+section[style*="width: 1400px"] .col-lg-4,
+section[style*="width: 1400px"] .col-lg-8 {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+section[style*="width: 1400px"] .col-lg-4 {
+  justify-content: center !important;
+  background-color: #f8f9fa;
 }
 </style>
 
@@ -1334,18 +1640,18 @@
 function setupRealTimeValidation() {
     const form = document.getElementById('cvForm');
     const inputs = form.querySelectorAll('input, select, textarea');
-    
+
     inputs.forEach(input => {
         // Validación en tiempo real mientras el usuario escribe
         input.addEventListener('input', function() {
             validateField(this);
         });
-        
+
         // Validación al perder el foco
         input.addEventListener('blur', function() {
             validateField(this);
         });
-        
+
         // Validación especial para archivos
         if (input.type === 'file') {
             input.addEventListener('change', function() {
@@ -1359,21 +1665,21 @@ function setupRealTimeValidation() {
 function validateField(field) {
     const value = field.value.trim();
     const fieldName = field.name;
-    
+
     // Limpiar validaciones previas
     field.classList.remove('is-invalid', 'is-valid');
-    
+
     // Remover mensajes de error existentes
     const existingError = field.parentNode.querySelector('.field-error-message');
     if (existingError) {
         existingError.remove();
     }
-    
+
     // Validar solo si hay valor o si es requerido
     if (value || field.required) {
         let isValid = true;
         let errorMessage = '';
-        
+
         // Validación de nombre completo
         if (fieldName === 'nombre_completo') {
             if (!value) {
@@ -1385,12 +1691,12 @@ function validateField(field) {
             } else if (value.length > 200) {
                 isValid = false;
                 errorMessage = 'El nombre no puede exceder los 200 caracteres.';
-            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\'\.]+$/.test(value)) {
+            } else if (!/^[-a-zA-ZáéíóúÁÉÍÓÚñÑüÜ '.]+$/.test(value)) {
                 isValid = false;
                 errorMessage = 'El nombre solo puede contener letras, espacios, guiones, apostrofes y puntos.';
             }
         }
-        
+
         // Validación de email
         else if (fieldName === 'email') {
             if (!value) {
@@ -1404,7 +1710,7 @@ function validateField(field) {
                 errorMessage = 'Por favor ingresa un correo electrónico válido.';
             }
         }
-        
+
         // Validación de teléfono
         else if (fieldName === 'telefono' && value) {
             const cleanPhone = value.replace(/[^\d+]/g, '');
@@ -1419,7 +1725,7 @@ function validateField(field) {
                 errorMessage = 'El teléfono solo puede contener números y opcionalmente un + al inicio.';
             }
         }
-        
+
         // Validación de posición de interés
         else if (fieldName === 'posicion_interes') {
             if (!value) {
@@ -1427,7 +1733,7 @@ function validateField(field) {
                 errorMessage = 'Debes seleccionar una posición de interés.';
             }
         }
-        
+
         // Validación de carta de presentación
         else if (fieldName === 'carta_presentacion' && value) {
             if (value.length > 2000) {
@@ -1438,7 +1744,7 @@ function validateField(field) {
                 errorMessage = 'La carta de presentación no puede estar vacía.';
             }
         }
-        
+
         // Aplicar validación
         if (isValid) {
             field.classList.add('is-valid');
@@ -1452,39 +1758,39 @@ function validateField(field) {
 // Función para validar archivos
 function validateFileInput(fileInput) {
     const file = fileInput.files[0];
-    
+
     // Limpiar validaciones previas
     fileInput.classList.remove('is-invalid', 'is-valid');
-    
+
     // Remover mensajes de error existentes
     const existingError = fileInput.parentNode.querySelector('.field-error-message');
     if (existingError) {
         existingError.remove();
     }
-    
+
     if (file) {
         let isValid = true;
         let errorMessage = '';
-        
+
         // Validar tamaño del archivo (5MB)
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             isValid = false;
             errorMessage = 'El archivo no puede ser mayor a 5MB.';
         }
-        
+
         // Validar tipo de archivo
         const allowedTypes = [
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ];
-        
+
         if (!allowedTypes.includes(file.type)) {
             isValid = false;
             errorMessage = 'Solo se permiten archivos PDF, DOC o DOCX.';
         }
-        
+
         // Validar extensión del archivo
         const allowedExtensions = ['.pdf', '.doc', '.docx'];
         const fileExtension = '.' + file.name.toLowerCase().split('.').pop();
@@ -1492,7 +1798,7 @@ function validateFileInput(fileInput) {
             isValid = false;
             errorMessage = 'Solo se permiten archivos PDF, DOC o DOCX.';
         }
-        
+
         // Aplicar validación
         if (isValid) {
             fileInput.classList.add('is-valid');
@@ -1511,32 +1817,24 @@ function showFieldError(field, message) {
     field.parentNode.appendChild(errorDiv);
 }
 
-// Form submission enhancement
+// Envío del formulario (Turnstile inyecta cf-turnstile-response)
 function handleFormSubmission() {
     const form = document.getElementById('cvForm');
-    
+
     form.addEventListener('submit', function(e) {
-        // Validar todos los campos antes de enviar
         const isValid = validateAllFields();
-        
+
         if (!isValid) {
             e.preventDefault();
             showFormError('Por favor corrige los errores antes de enviar el formulario.');
             return;
         }
-        
-        const submitBtn = this.querySelector('.btn-cta');
-        const originalText = submitBtn.innerHTML;
-        
-        // Show loading state
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
-        submitBtn.disabled = true;
-        
-        // Re-enable button after 10 seconds in case of error
-        setTimeout(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }, 10000);
+
+        const submitBtn = document.getElementById('cvSubmitBtn') || this.querySelector('.btn-cta');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+            submitBtn.disabled = true;
+        }
     });
 }
 
@@ -1545,14 +1843,14 @@ function validateAllFields() {
     const form = document.getElementById('cvForm');
     const inputs = form.querySelectorAll('input, select, textarea');
     let isFormValid = true;
-    
+
     inputs.forEach(input => {
         validateField(input);
         if (input.classList.contains('is-invalid')) {
             isFormValid = false;
         }
     });
-    
+
     return isFormValid;
 }
 
@@ -1563,7 +1861,7 @@ function showFormError(message) {
     if (existingError) {
         existingError.remove();
     }
-    
+
     // Crear nuevo mensaje de error
     const errorDiv = document.createElement('div');
     errorDiv.className = 'form-error-message alert alert-danger alert-dismissible fade show';
@@ -1572,11 +1870,11 @@ function showFormError(message) {
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
-    
+
     // Insertar al inicio del formulario
     const form = document.getElementById('cvForm');
     form.insertBefore(errorDiv, form.firstChild);
-    
+
     // Scroll al error
     errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -1597,13 +1895,13 @@ function setupFilePreview() {
                         <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)
                     </small>
                 `;
-                
+
                 // Remove previous file info
                 const existingInfo = this.parentNode.querySelector('.file-info');
                 if (existingInfo) {
                     existingInfo.remove();
                 }
-                
+
                 this.parentNode.appendChild(fileInfo);
             }
         });
@@ -1615,18 +1913,18 @@ function setupCharacterCounter() {
     const cartaInput = document.getElementById('id_carta_presentacion');
     if (cartaInput) {
         const maxLength = 2000;
-        
+
         // Crear contador
         const counter = document.createElement('div');
         counter.className = 'character-counter';
         counter.textContent = `0 / ${maxLength} caracteres`;
         cartaInput.parentNode.appendChild(counter);
-        
+
         // Actualizar contador
         function updateCounter() {
             const length = cartaInput.value.length;
             counter.textContent = `${length} / ${maxLength} caracteres`;
-            
+
             // Cambiar color según la longitud
             counter.classList.remove('warning', 'danger');
             if (length > maxLength * 0.9) {
@@ -1636,13 +1934,13 @@ function setupCharacterCounter() {
                 counter.classList.add('danger');
             }
         }
-        
+
         // Event listeners
         cartaInput.addEventListener('input', updateCounter);
         cartaInput.addEventListener('paste', function() {
             setTimeout(updateCounter, 10);
         });
-        
+
         // Validación en tiempo real
         cartaInput.addEventListener('input', function() {
             if (this.value.length > maxLength) {
@@ -1659,14 +1957,13 @@ document.addEventListener('DOMContentLoaded', function() {
     handleFormSubmission();
     setupFilePreview();
     setupCharacterCounter();
-    
-    // Auto-dismiss alerts after 5 seconds
+
+    // Auto-dismiss alerts after 5 segundos sin mover el layout
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
             if (alert && alert.parentNode) {
                 alert.style.opacity = '0';
-                alert.style.transform = 'translateY(-20px)';
                 setTimeout(() => {
                     if (alert && alert.parentNode) {
                         alert.remove();
@@ -1675,17 +1972,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 5000);
     });
-    
-    // Scroll to form when message appears
-    if (alerts.length > 0) {
-        const formSection = document.querySelector('section[style*="width: 1400px"]');
-        if (formSection) {
-            formSection.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }
+
+    // Ya no hacemos scroll automático para evitar saltos visuales del formulario
 });
 
 // Detectar soporte de WebP y aplicar clases correspondientes

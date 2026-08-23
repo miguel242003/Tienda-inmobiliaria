@@ -24,10 +24,18 @@ Sitio web inmobiliario de lujo desarrollado con Django, que presenta un catálog
 - Información detallada de cada propiedad
 
 ### 🔐 **Panel Administrativo**
-- Login seguro para administradores
+- Login seguro para administradores con autenticación de dos factores (TOTP + códigos de respaldo)
 - CRUD completo de propiedades
 - Gestión de imágenes y contenido
 - Dashboard de estadísticas
+
+### 🛡️ **Seguridad Backend**
+- Hash de contraseñas con Argon2
+- Rate limiting en formularios públicos y login
+- Content Security Policy (django-csp)
+- Validación real del tipo de archivo en uploads (python-magic), no solo por extensión
+- Verificación server-side de Cloudflare Turnstile / reCAPTCHA v3 en formularios públicos
+- Variables sensibles (SECRET_KEY, credenciales de BD y email) fuera del código, vía `.env`
 
 ### 🎨 **Componentes Visuales**
 - Hero carousel con imágenes de alta calidad
@@ -79,8 +87,8 @@ Tienda_inmobiliaria/
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone https://github.com/TU_USUARIO/tienda-inmobiliaria.git
-cd tienda-inmobiliaria
+git clone https://github.com/miguel242003/Tienda-inmobiliaria.git
+cd Tienda-inmobiliaria
 ```
 
 ### 2. Crear Entorno Virtual
@@ -131,6 +139,14 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+
+## 🧪 Tests
+
+```bash
+python manage.py test
+```
+
+Cubren autogeneración de slugs, formato de precio, aprobación de reseñas, hash de contraseñas de administrador, control de acceso al dashboard y páginas públicas principales.
 
 ## 🌐 Acceso al Sitio
 
@@ -215,9 +231,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 ## 👨‍💻 Autor
 
 **Miguel Astorga**
-- GitHub: [@TU_USUARIO](https://github.com/TU_USUARIO)
-- LinkedIn: [Tu LinkedIn]
-- Email: tu.email@ejemplo.com
+- GitHub: [@miguel242003](https://github.com/miguel242003)
 
 ## 🙏 Agradecimientos
 
@@ -226,13 +240,6 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 - Font Awesome
 - Google Fonts
 - Comunidad de desarrolladores Python
-
-## 📞 Soporte
-
-Si tienes alguna pregunta o necesitas ayuda:
-- 📧 Email: soporte@tuinmobiliaria.com
-- 🐛 Issues: [GitHub Issues](https://github.com/TU_USUARIO/tienda-inmobiliaria/issues)
-- 📖 Documentación: [Wiki del Proyecto](https://github.com/TU_USUARIO/tienda-inmobiliaria/wiki)
 
 ---
 

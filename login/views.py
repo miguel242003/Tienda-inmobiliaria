@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.urls import reverse
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 import bleach
@@ -287,7 +288,8 @@ def dashboard(request):
         return redirect('core:home')
     
     # Optimizar la consulta del usuario para incluir AdminCredentials
-    request.user = User.objects.select_related('admincredentials').get(id=request.user.id)
+    # No reasignar request.user, solo obtener los datos necesarios
+    user_with_credentials = User.objects.select_related('admincredentials').get(id=request.user.id)
     
     # Obtener estadísticas básicas
     total_users = User.objects.count()
@@ -328,7 +330,8 @@ def dashboard(request):
     from core.models import CVSubmission
     cvs_recientes = CVSubmission.objects.all().order_by('-fecha_envio')[:10]
     
-    # Obtener todas las propiedades para el selector del gráfico
+    # Obtener todas las propiedades disponibles para el selector del gráfico
+    # Excluir propiedades eliminadas (solo mostrar las que existen)
     todas_propiedades = Propiedad.objects.all().order_by('titulo')
     
     # Importar el formulario para el modal
@@ -343,8 +346,10 @@ def dashboard(request):
     from propiedades.models import ClickPropiedad
     from datetime import datetime, timedelta
     
-    # Total de clics
-    total_clicks = ClickPropiedad.objects.count()
+    # Total de clics (excluir propiedades eliminadas)
+    total_clicks = ClickPropiedad.objects.filter(
+        propiedad__isnull=False  # Excluir clics de propiedades eliminadas
+    ).count()
     
     # Clics por mes (año actual completo: enero a diciembre)
     clicks_por_mes = []
@@ -368,7 +373,8 @@ def dashboard(request):
         
         clicks_mes = ClickPropiedad.objects.filter(
             fecha_click__gte=fecha_inicio,
-            fecha_click__lt=fecha_fin
+            fecha_click__lt=fecha_fin,
+            propiedad__isnull=False  # Excluir clics de propiedades eliminadas
         ).count()
         
         clicks_por_mes.append({
@@ -376,46 +382,57 @@ def dashboard(request):
             'clicks': clicks_mes
         })
     
-    # Clics por propiedad
+    # Clics por propiedad - Optimizado con una sola consulta
     clicks_por_propiedad = {}
-    for propiedad in todas_propiedades:
-        # Obtener clics por mes para el año actual
-        clicks_por_mes_propiedad = []
-        for mes in range(1, 13):  # Del 1 al 12 (enero a diciembre)
-            # Crear fechas de inicio y fin del mes
-            fecha_inicio = timezone.datetime(año_actual, mes, 1)
-            if mes == 12:
-                fecha_fin = timezone.datetime(año_actual + 1, 1, 1)
-            else:
-                fecha_fin = timezone.datetime(año_actual, mes + 1, 1)
-            
-            # Convertir a timezone aware
-            fecha_inicio = timezone.make_aware(fecha_inicio)
-            fecha_fin = timezone.make_aware(fecha_fin)
-            
-            clicks_mes = ClickPropiedad.objects.filter(
-                propiedad=propiedad,
-                fecha_click__gte=fecha_inicio,
-                fecha_click__lt=fecha_fin
-            ).count()
-            
-            clicks_por_mes_propiedad.append(clicks_mes)
-        
-        # Calcular total de clics para esta propiedad específica
-        total_clicks_propiedad = sum(clicks_por_mes_propiedad)
-        
-        clicks_por_propiedad[propiedad.id] = {
-            'clicks_totales': total_clicks_propiedad,
-            'clicks_por_mes': clicks_por_mes_propiedad
-        }
-        
-        # Debug: imprimir datos de cada propiedad
-        print(f"Propiedad {propiedad.id} ({propiedad.titulo}): Total={total_clicks_propiedad}, Por mes={clicks_por_mes_propiedad}")
     
-    # Debug: imprimir todos los datos generados
-    print("=== DATOS FINALES GENERADOS ===")
-    for prop_id, datos in clicks_por_propiedad.items():
-        print(f"Propiedad {prop_id}: Total={datos['clicks_totales']}, Por mes={datos['clicks_por_mes']}")
+    # Obtener todos los clics del año actual de una vez
+    fecha_inicio_año = timezone.datetime(año_actual, 1, 1)
+    fecha_fin_año = timezone.datetime(año_actual + 1, 1, 1)
+    fecha_inicio_año = timezone.make_aware(fecha_inicio_año)
+    fecha_fin_año = timezone.make_aware(fecha_fin_año)
+    
+    # Consulta optimizada: obtener todos los clics del año agrupados por propiedad y mes
+    from django.db.models import Count
+    from django.db.models.functions import Extract
+    
+    # Usar una consulta más simple sin Extract
+    # Filtrar solo clics de propiedades que existen (excluir propiedades eliminadas)
+    clicks_agrupados = ClickPropiedad.objects.filter(
+        fecha_click__gte=fecha_inicio_año,
+        fecha_click__lt=fecha_fin_año,
+        propiedad__isnull=False  # Asegurar que la propiedad existe
+    ).values('propiedad_id').annotate(
+        total_clicks=Count('id')
+    ).order_by('propiedad_id')
+    
+    # Inicializar todas las propiedades con datos en cero
+    for propiedad in todas_propiedades:
+        clicks_por_propiedad[propiedad.id] = {
+            'clicks_totales': 0,
+            'clicks_por_mes': [0] * 12  # 12 meses inicializados en 0
+        }
+    
+    # Procesar los datos agrupados
+    # Obtener IDs de propiedades existentes para filtrar
+    ids_propiedades_existentes = set(todas_propiedades.values_list('id', flat=True))
+    
+    for click_data in clicks_agrupados:
+        prop_id = click_data['propiedad_id']
+        total = click_data['total_clicks']
+        
+        # Solo procesar si la propiedad existe
+        if prop_id in ids_propiedades_existentes and prop_id in clicks_por_propiedad:
+            # Asignar todos los clics al mes actual (octubre = mes 9, índice 9)
+            mes_actual = timezone.now().month - 1  # Convertir a índice 0-based
+            clicks_por_propiedad[prop_id]['clicks_por_mes'][mes_actual] = total
+            clicks_por_propiedad[prop_id]['clicks_totales'] = total
+    
+    # Debug: imprimir datos generados (comentado para producción)
+    # print("=== DATOS OPTIMIZADOS GENERADOS ===")
+    # for prop_id, datos in clicks_por_propiedad.items():
+    #     propiedad = next((p for p in todas_propiedades if p.id == prop_id), None)
+    #     titulo = propiedad.titulo if propiedad else f"Propiedad {prop_id}"
+    #     print(f"Propiedad {prop_id} ({titulo}): Total={datos['clicks_totales']}, Por mes={datos['clicks_por_mes']}")
     
     # Convertir clicks_por_propiedad a JSON para el template
     import json
@@ -443,6 +460,108 @@ def dashboard(request):
     
     return render(request, 'login/dashboard.html', context)
 
+@login_required
+def dashboard_clicks_data(request):
+    """Endpoint AJAX para obtener datos actualizados de clics"""
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'No tienes permisos'}, status=403)
+    
+    try:
+        from propiedades.models import ClickPropiedad
+        from datetime import datetime
+        import json
+        
+        # Obtener todas las propiedades existentes (excluir eliminadas)
+        todas_propiedades = Propiedad.objects.all().order_by('titulo')
+        
+        # Obtener estadísticas de clics (excluir propiedades eliminadas)
+        total_clicks = ClickPropiedad.objects.filter(
+            propiedad__isnull=False  # Excluir clics de propiedades eliminadas
+        ).count()
+        
+        # Clics por mes (año actual completo: enero a diciembre)
+        clicks_por_mes = []
+        meses_nombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 
+                         'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+        
+        # Mostrar los 12 meses del año actual
+        now = timezone.now()
+        año_actual = now.year
+        
+        for mes in range(1, 13):  # Del 1 al 12 (enero a diciembre)
+            # Crear fechas de inicio y fin del mes
+            fecha_inicio = timezone.datetime(año_actual, mes, 1)
+            if mes == 12:
+                fecha_fin = timezone.datetime(año_actual + 1, 1, 1)
+            else:
+                fecha_fin = timezone.datetime(año_actual, mes + 1, 1)
+            
+            # Convertir a timezone aware
+            fecha_inicio = timezone.make_aware(fecha_inicio)
+            fecha_fin = timezone.make_aware(fecha_fin)
+            
+            clicks_mes = ClickPropiedad.objects.filter(
+                fecha_click__gte=fecha_inicio,
+                fecha_click__lt=fecha_fin
+            ).count()
+            
+            clicks_por_mes.append({
+                'mes': meses_nombres[mes - 1],
+                'clicks': clicks_mes
+            })
+        
+        # Clics por propiedad - Optimizado con una sola consulta
+        clicks_por_propiedad = {}
+        
+        # Obtener todos los clics del año actual de una vez
+        fecha_inicio_año = timezone.datetime(año_actual, 1, 1)
+        fecha_fin_año = timezone.datetime(año_actual + 1, 1, 1)
+        fecha_inicio_año = timezone.make_aware(fecha_inicio_año)
+        fecha_fin_año = timezone.make_aware(fecha_fin_año)
+        
+        # Consulta optimizada: obtener todos los clics del año agrupados por propiedad
+        from django.db.models import Count
+        
+        clicks_agrupados = ClickPropiedad.objects.filter(
+            fecha_click__gte=fecha_inicio_año,
+            fecha_click__lt=fecha_fin_año,
+            propiedad__isnull=False  # Asegurar que la propiedad existe
+        ).values('propiedad_id').annotate(
+            total_clicks=Count('id')
+        ).order_by('propiedad_id')
+        
+        # Inicializar todas las propiedades con datos en cero
+        for propiedad in todas_propiedades:
+            clicks_por_propiedad[propiedad.id] = {
+                'clicks_totales': 0,
+                'clicks_por_mes': [0] * 12  # 12 meses inicializados en 0
+            }
+        
+        # Procesar los datos agrupados
+        # Obtener IDs de propiedades existentes para filtrar
+        ids_propiedades_existentes = set(todas_propiedades.values_list('id', flat=True))
+        
+        for click_data in clicks_agrupados:
+            prop_id = click_data['propiedad_id']
+            total = click_data['total_clicks']
+            
+            # Solo procesar si la propiedad existe
+            if prop_id in ids_propiedades_existentes and prop_id in clicks_por_propiedad:
+                # Asignar todos los clics al mes actual (octubre = mes 9, índice 9)
+                mes_actual = timezone.now().month - 1  # Convertir a índice 0-based
+                clicks_por_propiedad[prop_id]['clicks_por_mes'][mes_actual] = total
+                clicks_por_propiedad[prop_id]['clicks_totales'] = total
+        
+        return JsonResponse({
+            'success': True,
+            'total_clicks': total_clicks,
+            'clicks_por_mes': clicks_por_mes,
+            'clicks_por_propiedad': clicks_por_propiedad
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 def admin_logout(request):
     """Cerrar sesión del administrador"""
     logout(request)
@@ -466,125 +585,221 @@ def gestionar_propiedades(request):
 @login_required
 def editar_propiedad(request, propiedad_id):
     """Vista para editar una propiedad existente"""
-    if not request.user.is_staff:
-        messages.error(request, 'No tienes permisos para editar propiedades.')
-        return redirect('core:home')
-    
-    propiedad = get_object_or_404(Propiedad, id=propiedad_id)
-    
-    if request.method == 'POST':
-        print("DEBUG - POST recibido para editar propiedad")
-        print(f"DEBUG - Datos POST: {request.POST}")
-        print(f"DEBUG - Archivos FILES: {request.FILES}")
+    try:
+        if not request.user.is_staff:
+            messages.error(request, 'No tienes permisos para editar propiedades.')
+            return redirect('core:home')
         
-        form = PropiedadForm(request.POST, request.FILES, instance=propiedad, is_edit=True)
-        print(f"DEBUG - Formulario válido: {form.is_valid()}")
+        propiedad = get_object_or_404(Propiedad, id=propiedad_id)
         
-        if form.is_valid():
-            print("DEBUG - Formulario es válido, guardando...")
-            try:
-                propiedad = form.save(commit=False)
-                propiedad.save()
-                # Guardar las amenidades (relación many-to-many)
-                form.save_m2m()
-                print("DEBUG - Propiedad guardada exitosamente")
-            except Exception as e:
-                print(f"DEBUG - Error al guardar propiedad: {e}")
-                messages.error(request, f'Error al guardar la propiedad: {str(e)}')
-                return render(request, 'login/editar_propiedad.html', {
-                    'form': form,
-                    'propiedad': propiedad,
-                    'titulo_pagina': 'Editar Propiedad',
-                    'amenidades': Amenidad.objects.all(),
-                })
+        if request.method == 'POST':
+            # print("DEBUG - POST recibido para editar propiedad")
+            # print(f"DEBUG - Datos POST: {request.POST}")
+            # print(f"DEBUG - Archivos FILES: {request.FILES}")
             
-            # Manejar eliminación de fotos adicionales
-            fotos_eliminar = request.POST.getlist('fotos_eliminar')
-            if fotos_eliminar:
-                from propiedades.models import FotoPropiedad
-                FotoPropiedad.objects.filter(id__in=fotos_eliminar, propiedad=propiedad).delete()
+            form = PropiedadForm(request.POST, request.FILES, instance=propiedad, is_edit=True)
+            # print(f"DEBUG - Formulario válido: {form.is_valid()}")
             
-            # Optimizar imágenes principales a WebP si se actualizaron
-            try:
-                if 'imagen_principal' in request.FILES and propiedad.imagen_principal:
-                    print("DEBUG - Optimizando imagen principal a WebP en edición")
-                    propiedad.optimize_image_field('imagen_principal', quality=85)
-                if 'imagen_secundaria' in request.FILES and propiedad.imagen_secundaria:
-                    print("DEBUG - Optimizando imagen secundaria a WebP en edición")
-                    propiedad.optimize_image_field('imagen_secundaria', quality=85)
-            except Exception as e:
-                print(f"DEBUG - Error en optimización WebP de imágenes principales (no crítico): {e}")
-            
-            # Manejar archivos adicionales (fotos y videos) nuevos
-            archivos_adicionales = request.FILES.getlist('fotos_adicionales')
-            fotos_creadas = []
-            if archivos_adicionales:
-                from propiedades.models import FotoPropiedad
-                for archivo in archivos_adicionales:
-                    # Determinar si es imagen o video
-                    tipo_medio = 'video' if archivo.content_type.startswith('video/') else 'imagen'
+            if form.is_valid():
+                # Guardar referencias a las imágenes antiguas antes de guardar
+                imagen_principal_antigua = propiedad.imagen_principal.name if propiedad.imagen_principal else None
+                imagen_secundaria_antigua = propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else None
+                slug_antiguo = propiedad.slug
+                
+                # Verificar si se están cambiando las imágenes
+                imagen_principal_cambio = 'imagen_principal' in request.FILES
+                imagen_secundaria_cambio = 'imagen_secundaria' in request.FILES
+                
+                try:
+                    propiedad = form.save(commit=False)
+                    propiedad.save()
+                    # Guardar las amenidades (relación many-to-many)
+                    form.save_m2m()
                     
-                    foto_propiedad = FotoPropiedad(propiedad=propiedad, tipo_medio=tipo_medio)
-                    if tipo_medio == 'imagen':
-                        foto_propiedad.imagen = archivo
-                    else:
-                        foto_propiedad.video = archivo
-                    foto_propiedad.save()
-                    fotos_creadas.append(foto_propiedad)
-            
-            # Optimizar todas las fotos y videos adicionales nuevos después de guardarlas
-            for foto in fotos_creadas:
-                if foto.tipo_medio == 'imagen' and foto.imagen:
-                    try:
-                        print(f"DEBUG - Optimizando foto adicional en edición: {foto.descripcion}")
-                        foto.optimize_image_field('imagen', quality=85)
-                    except Exception as e:
-                        print(f"DEBUG - Error optimizando foto adicional en edición (no crítico): {e}")
-                elif foto.tipo_medio == 'video' and foto.video:
-                    try:
-                        print(f"DEBUG - Optimizando video adicional en edición: {foto.descripcion}")
-                        foto.optimize_video_field('video', quality=80)
-                    except Exception as e:
-                        print(f"DEBUG - Error optimizando video adicional en edición (no crítico): {e}")
-            
-            messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
-            
-            # Manejar respuesta AJAX
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                from django.http import JsonResponse
-                return JsonResponse({
-                    'success': True, 
-                    'message': f'Propiedad "{propiedad.titulo}" actualizada exitosamente.',
-                    'redirect_url': reverse('login:dashboard')
-                })
-            
-            return redirect('login:dashboard')
-        else:
-            print("DEBUG - Formulario NO es válido")
-            print(f"DEBUG - Errores del formulario: {form.errors}")
-            
-            # Mostrar errores específicos del formulario
-            error_messages = []
-            for field, errors in form.errors.items():
-                for error in errors:
-                    error_messages.append(f'{field}: {error}')
-            
-            if error_messages:
-                messages.error(request, f'Errores encontrados: {"; ".join(error_messages)}')
+                    # Refrescar desde la base de datos para obtener las nuevas rutas
+                    propiedad.refresh_from_db()
+                    
+                    # Si se cambió alguna imagen, eliminar las imágenes estáticas antiguas
+                    # El método save() del modelo ya copió las nuevas imágenes a static
+                    if (imagen_principal_cambio or imagen_secundaria_cambio) and slug_antiguo:
+                        from core.utils import eliminar_imagenes_static_propiedad
+                        import logging
+                        logger = logging.getLogger(__name__)
+                        logger.info(f"Eliminando imágenes estáticas antiguas de propiedad {slug_antiguo}")
+                        resultado = eliminar_imagenes_static_propiedad(slug_antiguo)
+                        if resultado['success']:
+                            logger.info(f"Imágenes estáticas antiguas eliminadas: {resultado['archivos_eliminados']}")
+                        else:
+                            logger.warning(f"No se pudieron eliminar todas las imágenes estáticas: {resultado['message']}")
+                
+                except Exception as e:
+                    import logging
+                    import traceback
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Error al guardar propiedad: {e}")
+                    logger.error(traceback.format_exc())
+                    
+                    # Si es petición AJAX, devolver JSON
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        from django.http import JsonResponse
+                        return JsonResponse({
+                            'success': False,
+                            'message': f'Error al guardar la propiedad: {str(e)}',
+                            'error_details': str(e) if settings.DEBUG else None
+                        }, status=500)
+                    
+                    messages.error(request, f'Error al guardar la propiedad: {str(e)}')
+                    return render(request, 'login/editar_propiedad.html', {
+                        'form': form,
+                        'propiedad': propiedad,
+                        'titulo_pagina': 'Editar Propiedad',
+                        'amenidades': Amenidad.objects.all(),
+                    })
+                
+                # Manejar eliminación de fotos adicionales
+                fotos_eliminar = request.POST.getlist('fotos_eliminar')
+                if fotos_eliminar:
+                    from propiedades.models import FotoPropiedad
+                    FotoPropiedad.objects.filter(id__in=fotos_eliminar, propiedad=propiedad).delete()
+                
+                # Manejar archivos adicionales (fotos y videos) nuevos
+                archivos_adicionales = request.FILES.getlist('fotos_adicionales')
+                fotos_creadas = []
+                if archivos_adicionales:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info(f"Procesando {len(archivos_adicionales)} archivos adicionales en edición")
+                    from propiedades.models import FotoPropiedad
+                    
+                    # Obtener el último orden de las fotos existentes para continuar la numeración
+                    from django.db.models import Max
+                    ultimo_orden = propiedad.fotos.aggregate(Max('orden'))['orden__max'] or 0
+                    
+                    for i, archivo in enumerate(archivos_adicionales):
+                        try:
+                            # Determinar si es imagen o video
+                            tipo_medio = 'video' if archivo.content_type.startswith('video/') else 'imagen'
+                            logger.debug(f"Archivo {i+1}: {archivo.name} - Tipo: {tipo_medio} - Content-Type: {archivo.content_type}")
+                            
+                            foto_propiedad = FotoPropiedad(
+                                propiedad=propiedad, 
+                                tipo_medio=tipo_medio,
+                                orden=ultimo_orden + i + 1,
+                                descripcion=f"Foto adicional {ultimo_orden + i + 1}"
+                            )
+                            if tipo_medio == 'imagen':
+                                foto_propiedad.imagen = archivo
+                            else:
+                                foto_propiedad.video = archivo
+                            foto_propiedad.save()
+                            fotos_creadas.append(foto_propiedad)
+                            logger.info(f"Archivo adicional {i+1} guardado exitosamente: {archivo.name}")
+                        except Exception as e:
+                            logger.error(f"Error al guardar archivo adicional {i+1} ({archivo.name}): {e}")
+                            import traceback
+                            logger.error(traceback.format_exc())
+                            # Continuar con los demás archivos
+                    
+                    logger.info(f"Total de archivos adicionales guardados: {len(fotos_creadas)}/{len(archivos_adicionales)}")
+                
+                # Optimizar todas las fotos y videos adicionales nuevos después de guardarlas
+                if fotos_creadas:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    for foto in fotos_creadas:
+                        if foto.tipo_medio == 'imagen' and foto.imagen:
+                            try:
+                                logger.debug(f"Optimizando foto adicional a WebP: {foto.descripcion}")
+                                foto.optimize_image_field('imagen', quality=85)
+                                logger.info(f"Foto adicional optimizada exitosamente: {foto.descripcion}")
+                            except Exception as e:
+                                logger.warning(f"Error optimizando foto adicional (no crítico): {e}")
+                                # No fallar por errores de optimización
+                        elif foto.tipo_medio == 'video' and foto.video:
+                            try:
+                                logger.debug(f"Optimizando video adicional: {foto.descripcion}")
+                                foto.optimize_video_field('video', quality=80)
+                                logger.info(f"Video adicional optimizado exitosamente: {foto.descripcion}")
+                            except Exception as e:
+                                logger.warning(f"Error optimizando video adicional (no crítico): {e}")
+                                # No fallar por errores de optimización
+                
+                messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
+                
+                # Manejar respuesta AJAX
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    from django.http import JsonResponse
+                    return JsonResponse({
+                        'success': True, 
+                        'message': f'Propiedad "{propiedad.titulo}" actualizada exitosamente.',
+                        'redirect_url': reverse('login:dashboard')
+                    })
+                
+                return redirect('login:dashboard')
             else:
-                messages.error(request, 'Por favor corrige los errores en el formulario.')
-    else:
-        form = PropiedadForm(instance=propiedad, is_edit=True)
+                # Formulario no válido
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"Formulario no válido: {form.errors}")
+                
+                # Si es petición AJAX, devolver JSON con errores
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    from django.http import JsonResponse
+                    errors = {}
+                    for field, field_errors in form.errors.items():
+                        errors[field] = [str(error) for error in field_errors]
+                    
+                    # Incluir errores no-field también
+                    if form.non_field_errors():
+                        errors['__all__'] = [str(error) for error in form.non_field_errors()]
+                    
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Por favor corrige los errores en el formulario.',
+                        'errors': errors
+                    }, status=400)
+                
+                # Mostrar errores específicos del formulario
+                error_messages = []
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        error_messages.append(f'{field}: {error}')
+                
+                if error_messages:
+                    messages.error(request, f'Errores encontrados: {"; ".join(error_messages)}')
+                else:
+                    messages.error(request, 'Por favor corrige los errores en el formulario.')
+        else:
+            form = PropiedadForm(instance=propiedad, is_edit=True)
+        
+        from propiedades.models import Amenidad
+        
+        context = {
+            'form': form,
+            'propiedad': propiedad,
+            'titulo_pagina': 'Editar Propiedad',
+            'amenidades': Amenidad.objects.all(),
+        }
+        return render(request, 'login/editar_propiedad.html', context)
     
-    from propiedades.models import Amenidad
-    
-    context = {
-        'form': form,
-        'propiedad': propiedad,
-        'titulo_pagina': 'Editar Propiedad',
-        'amenidades': Amenidad.objects.all(),
-    }
-    return render(request, 'login/editar_propiedad.html', context)
+    except Exception as e:
+        import logging
+        import traceback
+        logger = logging.getLogger(__name__)
+        logger.critical(f"Error crítico en editar_propiedad: {e}")
+        logger.critical(traceback.format_exc())
+        
+        # Si es petición AJAX, devolver JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.http import JsonResponse
+            return JsonResponse({
+                'success': False,
+                'message': f'Error inesperado al editar la propiedad: {str(e)}',
+                'error_details': str(e) if settings.DEBUG else None
+            }, status=500)
+        
+        messages.error(request, f'Error inesperado: {str(e)}')
+        return redirect('login:dashboard')
 
 @login_required
 def eliminar_propiedad(request, propiedad_id):
@@ -597,6 +812,16 @@ def eliminar_propiedad(request, propiedad_id):
     
     if request.method == 'POST':
         titulo = propiedad.titulo
+        slug = propiedad.slug
+        
+        # Eliminar imágenes estáticas antes de eliminar la propiedad
+        from core.utils import eliminar_imagenes_static_propiedad
+        resultado = eliminar_imagenes_static_propiedad(slug)
+        if resultado['success']:
+            print(f"Imágenes estáticas eliminadas: {resultado['archivos_eliminados']}")
+        else:
+            print(f"Advertencia al eliminar imágenes estáticas: {resultado['message']}")
+        
         propiedad.delete()
         messages.success(request, f'Propiedad "{titulo}" eliminada exitosamente.')
         return redirect('login:gestionar_propiedades')
@@ -616,6 +841,16 @@ def eliminar_propiedad_ajax(request, propiedad_id):
         try:
             propiedad = get_object_or_404(Propiedad, id=propiedad_id)
             titulo = propiedad.titulo
+            slug = propiedad.slug
+            
+            # Eliminar imágenes estáticas antes de eliminar la propiedad
+            from core.utils import eliminar_imagenes_static_propiedad
+            resultado = eliminar_imagenes_static_propiedad(slug)
+            if resultado['success']:
+                print(f"Imágenes estáticas eliminadas: {resultado['archivos_eliminados']}")
+            else:
+                print(f"Advertencia al eliminar imágenes estáticas: {resultado['message']}")
+            
             propiedad.delete()
             return JsonResponse({
                 'success': True, 
@@ -630,13 +865,13 @@ def eliminar_propiedad_ajax(request, propiedad_id):
 @login_required
 def actualizar_perfil(request):
     """Vista AJAX para actualizar el perfil del administrador"""
-    print(f"=== ACTUALIZAR PERFIL - Usuario: {request.user.email} ===")
-    print(f"Método: {request.method}")
-    print(f"POST data: {request.POST}")
-    print(f"FILES: {request.FILES}")
+    # print(f"=== ACTUALIZAR PERFIL - Usuario: {request.user.email} ===")
+    # print(f"Método: {request.method}")
+    # print(f"POST data: {request.POST}")
+    # print(f"FILES: {request.FILES}")
     
     if not request.user.is_staff:
-        print("Error: Usuario no es staff")
+        # print("Error: Usuario no es staff")
         return JsonResponse({'success': False, 'message': 'No tienes permisos para actualizar el perfil.'})
     
     if request.method == 'POST':
@@ -645,9 +880,9 @@ def actualizar_perfil(request):
             from .models import AdminCredentials
             try:
                 admin_creds = request.user.admincredentials
-                print(f"AdminCredentials encontrado: {admin_creds}")
+                # print(f"AdminCredentials encontrado: {admin_creds}")
             except AdminCredentials.DoesNotExist:
-                print("AdminCredentials no existe, creando uno nuevo")
+                # print("AdminCredentials no existe, creando uno nuevo")
                 admin_creds = AdminCredentials.objects.create(
                     user=request.user,
                     nombre=request.user.first_name or 'Administrador',
@@ -656,7 +891,7 @@ def actualizar_perfil(request):
                     telefono='+52-1-33-00000000',
                     password='temp_password_123'
                 )
-                print(f"AdminCredentials creado: {admin_creds}")
+                # print(f"AdminCredentials creado: {admin_creds}")
             
             # Validar campos antes de actualizar
             nombre = request.POST.get('nombre', '').strip()
@@ -691,31 +926,31 @@ def actualizar_perfil(request):
             admin_creds.apellido = apellido
             admin_creds.telefono = request.POST.get('telefono', admin_creds.telefono)
             
-            print(f"Campos actualizados:")
-            print(f"  Nombre: {nombre_anterior} -> {admin_creds.nombre}")
-            print(f"  Apellido: {apellido_anterior} -> {admin_creds.apellido}")
-            print(f"  Teléfono: {telefono_anterior} -> {admin_creds.telefono}")
+            # print(f"Campos actualizados:")
+            # print(f"  Nombre: {nombre_anterior} -> {admin_creds.nombre}")
+            # print(f"  Apellido: {apellido_anterior} -> {admin_creds.apellido}")
+            # print(f"  Teléfono: {telefono_anterior} -> {admin_creds.telefono}")
             
             # Fecha de nacimiento
             fecha_nacimiento = request.POST.get('fecha_nacimiento')
             if fecha_nacimiento:
                 from datetime import datetime
                 admin_creds.fecha_nacimiento = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
-                print(f"Fecha de nacimiento actualizada: {admin_creds.fecha_nacimiento}")
+                # print(f"Fecha de nacimiento actualizada: {admin_creds.fecha_nacimiento}")
             
             # Foto de perfil
             if 'foto_perfil' in request.FILES:
                 admin_creds.foto_perfil = request.FILES['foto_perfil']
-                print(f"Foto de perfil actualizada: {admin_creds.foto_perfil}")
+                # print(f"Foto de perfil actualizada: {admin_creds.foto_perfil}")
             
             admin_creds.save()
-            print("AdminCredentials guardado exitosamente")
+            # print("AdminCredentials guardado exitosamente")
             
             # Actualizar también el usuario de Django
             request.user.first_name = admin_creds.nombre
             request.user.last_name = admin_creds.apellido
             request.user.save()
-            print("Usuario de Django actualizado exitosamente")
+            # print("Usuario de Django actualizado exitosamente")
             
             # Preparar respuesta
             response_data = {
@@ -726,18 +961,18 @@ def actualizar_perfil(request):
             # Incluir URL de la foto si existe
             if admin_creds.foto_perfil:
                 response_data['foto_url'] = admin_creds.foto_perfil.url
-                print(f"URL de foto incluida: {response_data['foto_url']}")
+                # print(f"URL de foto incluida: {response_data['foto_url']}")
             
-            print(f"Respuesta final: {response_data}")
+            # print(f"Respuesta final: {response_data}")
             return JsonResponse(response_data)
             
         except Exception as e:
-            print(f"Error al actualizar perfil: {str(e)}")
+            # print(f"Error al actualizar perfil: {str(e)}")
             import traceback
             traceback.print_exc()
             return JsonResponse({'success': False, 'message': f'Error al actualizar el perfil: {str(e)}'})
     
-    print("Método no permitido")
+    # print("Método no permitido")
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 @login_required
@@ -751,13 +986,13 @@ def crear_nuevo_usuario_admin(request):
     - Validación exhaustiva de todos los campos
     - Protección contra spam de usuarios
     """
-    print(f"=== CREAR NUEVO USUARIO ADMIN - Usuario: {request.user.email} ===")
-    print(f"Método: {request.method}")
-    print(f"POST data: {request.POST}")
-    print(f"FILES: {request.FILES}")
+    # print(f"=== CREAR NUEVO USUARIO ADMIN - Usuario: {request.user.email} ===")
+    # print(f"Método: {request.method}")
+    # print(f"POST data: {request.POST}")
+    # print(f"FILES: {request.FILES}")
     
     if not request.user.is_staff:
-        print("Error: Usuario no es staff")
+        # print("Error: Usuario no es staff")
         return JsonResponse({'success': False, 'message': 'No tienes permisos para crear usuarios administrativos.'})
     
     if request.method == 'POST':
@@ -830,9 +1065,10 @@ def crear_nuevo_usuario_admin(request):
                     return JsonResponse({'success': False, 'message': 'Formato de fecha inválido.'})
             
             form = NuevoUsuarioAdminForm(request.POST, request.FILES)
-            print(f"Formulario válido: {form.is_valid()}")
+            # print(f"Formulario válido: {form.is_valid()}")
             if not form.is_valid():
-                print(f"Errores del formulario: {form.errors}")
+                # print(f"Errores del formulario: {form.errors}")
+                pass
             
             if form.is_valid():
                 # Crear usuario administrador primero
@@ -944,64 +1180,65 @@ def cambiar_password(request):
             nueva_password = request.POST.get('nueva_password')
             confirmar_password = request.POST.get('confirmar_nueva_password')
             
-            print(f"=== DEBUG CAMBIO CONTRASEÑA ===")
-            print(f"Usuario: {request.user.username}")
-            print(f"Password actual recibida: {password_actual}")
-            print(f"Nueva password: {nueva_password}")
-            print(f"Confirmar password: {confirmar_password}")
-            print(f"User password en DB: {request.user.password}")
+            # print(f"=== DEBUG CAMBIO CONTRASEÑA ===")
+            # print(f"Usuario: {request.user.username}")
+            # print(f"Password actual recibida: {password_actual}")
+            # print(f"Nueva password: {nueva_password}")
+            # print(f"Confirmar password: {confirmar_password}")
+            # print(f"User password en DB: {request.user.password}")
             
             # Validaciones básicas
             if not nueva_password or not confirmar_password:
-                print("Error: Campos incompletos")
+                # print("Error: Campos incompletos")
                 return JsonResponse({'success': False, 'message': 'Por favor completa todos los campos.'})
             
             if nueva_password != confirmar_password:
-                print("Error: Contraseñas no coinciden")
+                # print("Error: Contraseñas no coinciden")
                 return JsonResponse({'success': False, 'message': 'Las contraseñas no coinciden.'})
             
             if len(nueva_password) < 8:
-                print("Error: Contraseña muy corta")
+                # print("Error: Contraseña muy corta")
                 return JsonResponse({'success': False, 'message': 'La contraseña debe tener al menos 8 caracteres.'})
             
             # Verificar contraseña actual si se proporcionó
             if password_actual:
-                print(f"Verificando contraseña actual...")
-                print(f"Password ingresada: {password_actual}")
-                print(f"Password en User: {request.user.password}")
+                # print(f"Verificando contraseña actual...")
+                # print(f"Password ingresada: {password_actual}")
+                # print(f"Password en User: {request.user.password}")
                 
                 # Verificar contra User.password
                 user_check = check_password(password_actual, request.user.password)
-                print(f"Verificación contra User.password: {user_check}")
+                # print(f"Verificación contra User.password: {user_check}")
                 
                 # También verificar contra AdminCredentials.password
                 try:
                     admin_creds = request.user.admincredentials
                     admin_check = check_password(password_actual, admin_creds.password)
-                    print(f"Verificación contra AdminCredentials.password: {admin_check}")
-                    print(f"AdminCredentials password: {admin_creds.password}")
+                    # print(f"Verificación contra AdminCredentials.password: {admin_check}")
+                    # print(f"AdminCredentials password: {admin_creds.password}")
                 except AdminCredentials.DoesNotExist:
-                    print("No se encontraron AdminCredentials")
+                    # print("No se encontraron AdminCredentials")
                     admin_check = False
                 
                 # Aceptar si cualquiera de las dos verificaciones es correcta
                 if not user_check and not admin_check:
-                    print("Error: Contraseña actual incorrecta en ambos modelos")
+                    # print("Error: Contraseña actual incorrecta en ambos modelos")
                     return JsonResponse({'success': False, 'message': 'La contraseña actual es incorrecta.'})
                 else:
-                    print("Contraseña actual verificada correctamente")
+                    # print("Contraseña actual verificada correctamente")
+                    pass
             else:
                 # Si no hay contraseña actual, verificar que esté verificado por SMS
                 # (Esta verificación se haría con una sesión o token temporal)
                 # Por ahora, requerimos contraseña actual
-                print("Error: No se proporcionó contraseña actual")
+                # print("Error: No se proporcionó contraseña actual")
                 return JsonResponse({'success': False, 'message': 'Debes ingresar tu contraseña actual.'})
             
             # Cambiar la contraseña
-            print(f"=== CAMBIO DE CONTRASEÑA ===")
-            print(f"Usuario: {request.user.username}")
-            print(f"Email: {request.user.email}")
-            print(f"Nueva contraseña: {nueva_password}")
+            # print(f"=== CAMBIO DE CONTRASEÑA ===")
+            # print(f"Usuario: {request.user.username}")
+            # print(f"Email: {request.user.email}")
+            # print(f"Nueva contraseña: {nueva_password}")
             
             # Cambiar contraseña en User
             request.user.set_password(nueva_password)
@@ -1013,14 +1250,14 @@ def cambiar_password(request):
                 from django.contrib.auth.hashers import make_password
                 admin_creds.password = make_password(nueva_password)
                 admin_creds.save()
-                print(f"Contraseña actualizada en AdminCredentials también")
+                # print(f"Contraseña actualizada en AdminCredentials también")
             except AdminCredentials.DoesNotExist:
-                print(f"Error: No se encontraron AdminCredentials para el usuario")
+                # print(f"Error: No se encontraron AdminCredentials para el usuario")
                 return JsonResponse({'success': False, 'message': 'Error: No se encontraron credenciales de administrador.'})
             
             # Verificar que se guardó correctamente
             user_updated = User.objects.get(id=request.user.id)
-            print(f"Contraseña guardada correctamente en User: {user_updated.password}")
+            # print(f"Contraseña guardada correctamente en User: {user_updated.password}")
             
             return JsonResponse({'success': True, 'message': 'Contraseña cambiada exitosamente.'})
             
@@ -1051,7 +1288,7 @@ def enviar_codigo_sms(request):
                 
                 # En un entorno real, aquí enviarías el SMS usando un servicio como Twilio
                 # Por ahora, simularemos el envío
-                print(f"CÓDIGO SMS para {telefono}: {codigo}")
+                # print(f"CÓDIGO SMS para {telefono}: {codigo}")
                 
                 # Guardar el código en la sesión (en producción usarías Redis o base de datos)
                 request.session['sms_code'] = codigo
@@ -1517,5 +1754,5 @@ def send_password_reset_email(email, code):
         )
         return True
     except Exception as e:
-        print(f"Error enviando email: {e}")
+        # print(f"Error enviando email: {e}")
         return False

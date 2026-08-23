@@ -5,11 +5,15 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.http import HttpResponse, Http404, JsonResponse
 from django.utils.encoding import smart_str
+from django.utils import timezone
+from datetime import timedelta
 from django.contrib.auth.decorators import login_required
+from django_ratelimit.decorators import ratelimit
 import os
 from propiedades.models import Propiedad
 from .forms import CVSubmissionForm, ContactSubmissionForm
 from .models import CVSubmission, ContactSubmission
+from .utils import turnstile_must_pass
 
 # Crea tus vistas aquí.
 
@@ -83,11 +87,66 @@ def about(request):
     """Vista sobre nosotros"""
     return render(request, 'core/about.html')
 
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formulario_contacto')
 def contact(request):
     """Vista de contacto"""
     if request.method == 'POST':
+        # Rate limiting por IP: 1 formulario por día
+        if getattr(request, 'limited', False):
+            messages.error(
+                request,
+                'Has enviado demasiados formularios recientemente. Intenta nuevamente más tarde.',
+            )
+            form = ContactSubmissionForm()
+            return render(
+                request,
+                'core/contact.html',
+                {
+                    'form': form,
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+                },
+                status=429,
+            )
+
+        # Honeypot: si viene con contenido, descartamos silenciosamente
+        if request.POST.get('honeypot'):
+            # No guardamos nada ni enviamos correos, pero respondemos éxito
+            messages.success(
+                request,
+                '¡Mensaje enviado exitosamente! Hemos recibido tu consulta y te contactaremos pronto.',
+            )
+            return redirect('core:contact')
+
+        ok_turnstile, msg_turnstile = turnstile_must_pass(request)
+        if not ok_turnstile:
+            messages.error(request, msg_turnstile)
+            return render(
+                request,
+                'core/contact.html',
+                {
+                    'form': ContactSubmissionForm(
+                        request.POST, es_consulta_propiedad=False
+                    ),
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
         form = ContactSubmissionForm(request.POST, es_consulta_propiedad=False)
         if form.is_valid():
+            # Defensa: 1 envío por día por nombre O por mensaje (misma IP u otra). Si ya hubo ese nombre o ese mensaje en 24 h → no guardar ni enviar
+            nombre_n = form.cleaned_data['nombre'].strip().lower()
+            mensaje_n = ' '.join(form.cleaned_data['mensaje'].strip().split())
+            since = timezone.now() - timedelta(hours=24)
+            recientes = ContactSubmission.objects.filter(fecha_envio__gte=since)
+            mismo_nombre = recientes.filter(nombre__iexact=nombre_n).exists()
+            mismo_mensaje = any(' '.join((sub.mensaje or '').strip().split()) == mensaje_n for sub in recientes.only('mensaje'))
+            if mismo_nombre or mismo_mensaje:
+                messages.success(
+                    request,
+                    '¡Mensaje enviado exitosamente! Hemos recibido tu consulta y te contactaremos pronto.',
+                )
+                return redirect('core:contact')
+
             try:
                 # Guardar el mensaje de contacto
                 contact_submission = form.save()
@@ -136,15 +195,61 @@ def contact(request):
     else:
         form = ContactSubmissionForm()
     
-    return render(request, 'core/contact.html', {'form': form})
+    return render(
+        request,
+        'core/contact.html',
+        {
+            'form': form,
+            'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+        },
+    )
 
 def consorcio(request):
     """Vista para la página de Consorcio"""
     return render(request, 'core/consorcio.html')
 
+@ratelimit(key='ip', rate='1/d', method='POST', block=False, group='formulario_cv')
 def cv(request):
     """Vista para envío de currículum"""
     if request.method == 'POST':
+        # Rate limiting por IP
+        if getattr(request, 'limited', False):
+            # Mostrar aviso en la propia vista de CV y devolver 429
+            messages.error(
+                request,
+                'Has enviado demasiados formularios recientemente. Intenta nuevamente más tarde.',
+            )
+            form = CVSubmissionForm()
+            return render(
+                request,
+                'core/cv.html',
+                {
+                    'form': form,
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+                },
+                status=429,
+            )
+
+        # Honeypot: si viene con contenido, descartamos silenciosamente
+        if request.POST.get('honeypot'):
+            messages.success(
+                request,
+                '¡CV enviado exitosamente! Hemos recibido tu currículum y te contactaremos pronto si tu perfil coincide con nuestras necesidades.',
+            )
+            return redirect('core:cv')
+
+        ok_turnstile, msg_turnstile = turnstile_must_pass(request)
+        if not ok_turnstile:
+            messages.error(request, msg_turnstile)
+            return render(
+                request,
+                'core/cv.html',
+                {
+                    'form': CVSubmissionForm(request.POST, request.FILES),
+                    'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+                },
+            )
+
         form = CVSubmissionForm(request.POST, request.FILES)
         if form.is_valid():
             try:
@@ -157,6 +262,9 @@ def cv(request):
                 
                 # Enviar email de confirmación al candidato
                 send_cv_confirmation_email(cv_submission)
+                
+                # Enviar email de notificación al administrador
+                send_cv_notification_email(cv_submission)
                 
                 messages.success(
                     request, 
@@ -177,7 +285,14 @@ def cv(request):
     else:
         form = CVSubmissionForm()
     
-    return render(request, 'core/cv.html', {'form': form})
+    return render(
+        request,
+        'core/cv.html',
+        {
+            'form': form,
+            'turnstile_site_key': settings.TURNSTILE_SITE_KEY,
+        },
+    )
 
 
 def send_cv_confirmation_email(cv_submission):

@@ -390,9 +390,11 @@
                                 </div>
                                 
                                 <div class="write-review">
-                                    <button class="btn btn-primary" onclick="abrirModalResena()">
-                                        <i class="fas fa-pen me-2"></i>Escribir una reseña
-                                    </button>
+                                    <div class="review-btn-card mb-4">
+                                        <button class="btn btn-primary btn-lg w-100 review-btn" onclick="abrirModalResena()">
+                                            <i class="fas fa-pen me-2"></i>Escribir una reseña
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -480,7 +482,14 @@
                     
                     <form method="post" class="contact-form" id="propertyContactForm">
                         {% csrf_token %}
-                        
+                        <!-- Honeypot invisible para bots -->
+                        <div style="display:none !important;">
+                            {{ contact_form.honeypot }}
+                        </div>
+                        {% if turnstile_site_key %}
+                        <div class="cf-turnstile mb-3" data-sitekey="{{ turnstile_site_key }}" data-theme="light"></div>
+                        {% endif %}
+
                         <!-- Campos ocultos para identificar la propiedad -->
                         <input type="hidden" name="propiedad_id" value="{{ propiedad.id }}">
                         <input type="hidden" name="propiedad_titulo" value="{{ propiedad.titulo }}">
@@ -636,8 +645,8 @@
                                 </div>
                             {% endif %}
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100">
+
+                        <button type="submit" class="btn btn-primary w-100" id="propertyContactSubmitBtn">
                             <i class="fas fa-paper-plane me-2"></i>Enviar consulta
                         </button>
                     </form>
@@ -751,9 +760,9 @@
                         <input type="tel" class="form-control" id="telefono_usuario" name="telefono_usuario">
                     </div>
                     <div class="col-md-6">
-                        <label for="calificacion" class="form-label">Calificación *</label>
+                        <label class="form-label" id="calificacion-label">Calificación *</label>
                         <div class="rating-input">
-                            <input type="hidden" id="calificacion" name="calificacion" value="5" required>
+                            <input type="hidden" id="calificacion" name="calificacion" value="5" required aria-labelledby="calificacion-label">
                             <div class="stars">
                                 <i class="fas fa-star" data-rating="1"></i>
                                 <i class="fas fa-star" data-rating="2"></i>
@@ -877,6 +886,16 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Asegurar que las miniaturas se centren correctamente */
+.image-viewer-content .image-viewer-thumbnails {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .image-viewer-close {
@@ -968,10 +987,21 @@
     left: 50%;
     transform: translateX(-50%);
     display: flex;
+    justify-content: center;
+    align-items: center;
     gap: 10px;
     max-width: 90%;
+    width: auto;
+    min-width: fit-content;
     overflow-x: auto;
     padding: 10px;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.image-viewer-thumbnails::-webkit-scrollbar {
+    display: none;
 }
 
 .image-viewer-thumbnails img {
@@ -1000,13 +1030,23 @@
 
 /* Visor de imágenes optimizado para táctiles */
 @media (max-width: 768px) {
+    .image-viewer-content {
+        justify-content: flex-start;
+        align-items: center;
+        padding-top: 80px;
+        padding-bottom: 120px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
     .image-viewer-close {
+        position: fixed;
         top: 15px;
         right: 20px;
         font-size: 32px;
         width: 50px;
         height: 50px;
-        z-index: 1001;
+        z-index: 10001;
         background: rgba(0, 0, 0, 0.7);
         border-radius: 8px;
         color: white;
@@ -1015,7 +1055,7 @@
     .image-viewer-nav {
         padding: 15px 10px;
         font-size: 20px;
-        z-index: 1001;
+        z-index: 10001;
         background: rgba(0, 0, 0, 0.7);
         border-radius: 8px;
         color: white;
@@ -1031,18 +1071,49 @@
         right: 15px;
     }
     
+    .image-viewer-image-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 20px 0;
+        flex-shrink: 0;
+    }
+    
+    #viewerImage {
+        max-width: 100%;
+        max-height: 60vh;
+        object-fit: contain;
+    }
+    
     .image-viewer-counter {
-        bottom: 80px;
+        position: sticky;
+        bottom: 100px;
         font-size: 16px;
         padding: 12px 24px;
         background: rgba(0, 0, 0, 0.8);
         border-radius: 25px;
         color: white;
+        margin: 10px 0;
     }
     
     .image-viewer-thumbnails {
+        position: sticky;
         bottom: 15px;
+        left: 0;
+        right: 0;
+        transform: none;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         gap: 8px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px 15px;
+        border-radius: 10px;
+        margin: 20px auto 0;
+        max-width: calc(100% - 40px);
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
     }
     
     .image-viewer-thumbnails img {
@@ -1099,8 +1170,24 @@
     }
     
     .image-viewer-thumbnails {
+        position: sticky;
         bottom: 10px;
+        left: 0;
+        right: 0;
+        transform: none;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
         gap: 6px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px 12px;
+        border-radius: 10px;
+        margin: 20px auto 0;
+        max-width: calc(100% - 30px);
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        box-sizing: border-box;
     }
     
     .image-viewer-thumbnails img {
@@ -1172,10 +1259,13 @@
     position: relative;
     margin: auto;
     padding: 30px;
+    padding-bottom: 200px; /* Espacio adicional al final para que la última imagen se vea completa */
     width: 95%;
     max-width: 1200px;
     max-height: 95vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
 }
 
 .gallery-close {
@@ -1250,6 +1340,8 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     min-height: 400px;
+    padding-bottom: 150px; /* Espacio al final para que la última imagen se vea completa */
+    margin-bottom: 50px; /* Margen adicional al final */
 }
 
 /* Tipos de items de galería - Grid dinámico */
@@ -1341,13 +1433,17 @@
 @media (max-width: 768px) {
     .gallery-modal-content {
         padding: 20px;
+        padding-bottom: 250px; /* Más espacio al final en móvil para que la última imagen se vea completa */
         width: 98%;
         max-height: 98vh;
+        box-sizing: border-box;
     }
     
     .gallery-grid-special {
         grid-template-columns: 1fr;
         gap: 15px;
+        padding-bottom: 200px; /* Espacio adicional al final en móvil */
+        margin-bottom: 50px; /* Margen adicional */
     }
     
     .gallery-item-large,
@@ -1388,8 +1484,15 @@
 @media (max-width: 480px) {
     .gallery-modal-content {
         padding: 15px;
+        padding-bottom: 250px; /* Espacio al final en móviles pequeños */
         width: 100%;
         max-height: 100vh;
+        box-sizing: border-box;
+    }
+    
+    .gallery-grid-special {
+        padding-bottom: 200px; /* Espacio adicional al final en móviles pequeños */
+        margin-bottom: 50px; /* Margen adicional */
     }
     
     .gallery-header h3 {
@@ -2602,7 +2705,7 @@
         padding: 12px 16px;
         font-size: 0.9rem;
         min-height: 44px;
-        border-radius: 50%;
+        border-radius: 8px;
     }
     
     .write-review .btn i {
@@ -2819,6 +2922,34 @@
      color: white;
      transform: translateY(-2px);
      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+ }
+ 
+ /* Estilos para el botón de reseña (mismo diseño que WhatsApp pero con color primario) */
+ .review-btn-card {
+     background: white;
+     border-radius: 12px;
+     padding: 20px;
+     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+     border: none;
+ }
+ 
+ .review-btn {
+     background: #007bff;
+     border: none;
+     color: white;
+     font-weight: 600;
+     padding: 15px 20px;
+     border-radius: 8px;
+     font-size: 1rem;
+     transition: all 0.3s ease;
+     box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+ }
+ 
+ .review-btn:hover {
+     background: #0056b3;
+     color: white;
+     transform: translateY(-2px);
+     box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
  }
  
  /* Estilos para el formulario de contacto */
@@ -3959,7 +4090,8 @@ input[type="date"]:focus {
     margin-bottom: 10px;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-    animation: slideDown 0.3s ease-out;
+    /* Evitar animaciones bruscas que muevan el layout */
+    animation: none;
     border: none;
     font-weight: 500;
     padding: 16px 20px;
@@ -4909,6 +5041,9 @@ input[type="date"]:focus {
 {% endblock %}
 
 {% block extra_js %}
+{% if turnstile_site_key %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
 <script>
 // Función para cambiar entre pestañas - Definida globalmente
 function showTab(tabName) {
@@ -4954,16 +5089,16 @@ const fotosData = {
     ambientes: {{ propiedad.ambientes }},
     balcon: {{ propiedad.balcon|yesno:"true,false" }},
     metros: {{ propiedad.metros_cuadrados }},
-    fotoPrincipal: {% if propiedad.get_foto_principal %}'{{ propiedad.get_foto_principal.url }}'{% else %}null{% endif %},
-    fotoSecundaria: {% if propiedad.get_foto_secundaria %}'{{ propiedad.get_foto_secundaria.url }}'{% else %}null{% endif %},
-    // Las imágenes ya son WebP (no necesitamos URLs separadas)
+    fotoPrincipal: {% if propiedad.imagen_principal %}'{{ propiedad.get_foto_principal_static_url|default:propiedad.imagen_principal.url }}'{% else %}null{% endif %},
+    fotoSecundaria: {% if propiedad.imagen_secundaria %}'{{ propiedad.get_foto_secundaria_static_url|default:propiedad.imagen_secundaria.url }}'{% else %}null{% endif %},
+    // Las imágenes ya son WebP desde static (no necesitamos URLs separadas)
     fotoPrincipalWebP: null,
     fotoSecundariaWebP: null,
     fotosAdicionales: [
         {% for medio in propiedad.fotos.all %}
         {
             tipo: '{{ medio.tipo_medio }}',
-            url: '{% if medio.tipo_medio == "imagen" %}{{ medio.imagen.url }}{% elif medio.tipo_medio == "video" %}{{ medio.video.url }}{% endif %}',
+            url: '{% if medio.tipo_medio == "imagen" %}{% if medio.get_imagen_static_url %}{{ medio.get_imagen_static_url }}{% else %}{{ medio.imagen.url }}{% endif %}{% elif medio.tipo_medio == "video" %}{{ medio.video.url }}{% endif %}',
             urlWebP: null, // Las imágenes ya son WebP
             descripcion: '{{ medio.descripcion|escapejs }}'
         }{% if not forloop.last %},{% endif %}
@@ -5000,12 +5135,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Auto-dismiss alerts sin mover el layout
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
             if (alert && alert.parentNode) {
                 alert.style.opacity = '0';
-                alert.style.transform = 'translateY(-20px)';
                 setTimeout(() => {
                     if (alert && alert.parentNode) {
                         alert.remove();
@@ -5014,17 +5149,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 5000);
     });
-    
-    // Scroll to form when message appears
-    if (alerts.length > 0) {
-        const formSection = document.querySelector('.contact-form-card');
-        if (formSection) {
-            formSection.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }
     
     // Contador de caracteres para el mensaje
     const mensajeTextarea = document.querySelector('textarea[name="mensaje"]');
@@ -5110,7 +5234,7 @@ function verGaleríaCompleta() {
     if (fotosData.fotoPrincipal) {
         modalContent += `
             <div class="gallery-item gallery-item-large">
-                <img src="${fotosData.fotoPrincipal}" alt="Vista Aérea - ${fotosData.titulo}" loading="lazy" onclick="openImageViewerFromGallery(0)" style="cursor: pointer;">
+                <img src="${fotosData.fotoPrincipal}" alt="Vista Aérea - ${fotosData.titulo}" loading="eager" onclick="openImageViewerFromGallery(0)" style="cursor: pointer;">
             </div>
         `;
     }
@@ -5119,7 +5243,7 @@ function verGaleríaCompleta() {
     if (fotosData.fotoSecundaria) {
         modalContent += `
             <div class="gallery-item gallery-item-medium">
-                <img src="${fotosData.fotoSecundaria}" alt="Interior - ${fotosData.titulo}" loading="lazy" onclick="openImageViewerFromGallery(1)" style="cursor: pointer;">
+                <img src="${fotosData.fotoSecundaria}" alt="Interior - ${fotosData.titulo}" loading="eager" onclick="openImageViewerFromGallery(1)" style="cursor: pointer;">
             </div>
         `;
     }
@@ -5137,10 +5261,13 @@ function verGaleríaCompleta() {
                 itemClass = 'gallery-item-wide'; // Cada tercera foto más ancha
             }
             
+            // Usar eager para las primeras 3 imágenes adicionales, lazy para el resto
+            const loadingStrategy = index < 3 ? 'eager' : 'lazy';
+            
             if (medio.tipo === 'video') {
                 modalContent += `
                     <div class="gallery-item ${itemClass}">
-                        <video controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <video controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" preload="${index < 2 ? 'auto' : 'metadata'}">
                             <source src="${medio.url}" type="video/mp4">
                             Tu navegador no soporta videos.
                         </video>
@@ -5149,7 +5276,7 @@ function verGaleríaCompleta() {
             } else {
                 modalContent += `
                     <div class="gallery-item ${itemClass}">
-                        <img src="${medio.url}" alt="${medio.descripcion}" loading="lazy" onclick="openImageViewerFromGallery(${galleryIndex})" style="cursor: pointer;">
+                        <img src="${medio.url}" alt="${medio.descripcion}" loading="${loadingStrategy}" onclick="openImageViewerFromGallery(${galleryIndex})" style="cursor: pointer;">
                     </div>
                 `;
             }
@@ -5229,25 +5356,58 @@ window.onclick = function(event) {
 // Soporte para gestos táctiles en móviles
 let touchStartY = 0;
 let touchEndY = 0;
+let touchStartX = 0;
+let touchStartElement = null;
 
 function handleTouchStart(event) {
     touchStartY = event.touches[0].clientY;
+    touchStartX = event.touches[0].clientX;
+    touchStartElement = event.target;
 }
 
 function handleTouchMove(event) {
     touchEndY = event.touches[0].clientY;
 }
 
-function handleTouchEnd() {
+function handleTouchEnd(event) {
     const modal = document.getElementById('galleryModal');
+    const imageViewer = document.getElementById('imageViewer');
+    
+    // No hacer nada si el visor de imágenes está abierto (permitir scroll normal)
+    if (imageViewer && imageViewer.style.display === 'block') {
+        return;
+    }
+    
+    // No hacer nada si no hay modal de galería
     if (!modal) return;
     
-    const swipeDistance = touchStartY - touchEndY;
-    const minSwipeDistance = 100;
+    // Verificar que el touch no sea dentro de un elemento scrolleable
+    let element = touchStartElement;
+    while (element && element !== document.body) {
+        // Si el elemento o su padre tiene overflow scroll/auto, no cerrar
+        const style = window.getComputedStyle(element);
+        if (style.overflow === 'scroll' || style.overflow === 'auto' || 
+            style.overflowY === 'scroll' || style.overflowY === 'auto') {
+            return;
+        }
+        element = element.parentElement;
+    }
     
-    // Swipe hacia arriba para cerrar
+    // Obtener la posición final del touch
+    const finalTouchX = event.changedTouches?.[0]?.clientX || touchStartX;
+    const finalTouchY = event.changedTouches?.[0]?.clientY || touchEndY;
+    
+    const swipeDistance = touchStartY - finalTouchY;
+    const swipeX = Math.abs(touchStartX - finalTouchX);
+    const swipeY = Math.abs(swipeDistance);
+    const minSwipeDistance = 150; // Aumentar distancia mínima para evitar cierres accidentales
+    
+    // Swipe hacia arriba para cerrar (solo si es un swipe claro, no scroll)
     if (swipeDistance > minSwipeDistance) {
-        closeGallery();
+        // Solo cerrar si el swipe es principalmente vertical (ratio > 2:1)
+        if (swipeY > swipeX * 2) {
+            closeGallery();
+        }
     }
 }
 
@@ -5285,7 +5445,7 @@ function validatePropertyContactField(field) {
             } else if (value.length > 200) {
                 isValid = false;
                 errorMessage = 'El nombre no puede exceder los 200 caracteres.';
-            } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\-\'\.]+$/.test(value)) {
+            } else if (!/^[-a-zA-ZáéíóúÁÉÍÓÚñÑüÜ '.]+$/.test(value)) {
                 isValid = false;
                 errorMessage = 'El nombre solo puede contener letras, espacios, guiones, apostrofes y puntos.';
             }
@@ -5591,28 +5751,21 @@ function setupPropertyContactValidation() {
         });
     });
     
-    // Validación antes del envío
+    // Validación antes del envío (Turnstile inyecta cf-turnstile-response)
     form.addEventListener('submit', function(e) {
         const isValid = validatePropertyContactForm();
-        
+
         if (!isValid) {
             e.preventDefault();
             showPropertyContactFormError('Por favor corrige los errores antes de enviar el formulario.');
             return;
         }
-        
-        // Mostrar estado de carga
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
-        submitBtn.disabled = true;
-        
-        // Re-enable button after 10 seconds in case of error
-        setTimeout(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }, 10000);
+
+        const submitBtn = document.getElementById('propertyContactSubmitBtn');
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+            submitBtn.disabled = true;
+        }
     });
 }
 
@@ -5739,11 +5892,26 @@ function openImageViewer(index) {
     // Crear miniaturas
     createThumbnails();
     
-    // Prevenir scroll del body
-    document.body.style.overflow = 'hidden';
+    // Prevenir scroll del body en móvil
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.width = '100%';
+    } else {
+        document.body.style.overflow = 'hidden';
+    }
     
     // Agregar event listeners para teclado
     document.addEventListener('keydown', handleKeyPress);
+    
+    // Permitir scroll dentro del visor de imágenes en móvil
+    const viewerContent = document.querySelector('.image-viewer-content');
+    if (viewerContent && isMobile) {
+        viewerContent.style.overflowY = 'auto';
+        viewerContent.style.maxHeight = '100vh';
+        viewerContent.style.webkitOverflowScrolling = 'touch';
+    }
 }
 
 // Función para abrir el visor de imágenes desde la galería
@@ -5770,7 +5938,14 @@ function closeImageViewer() {
     }
     
     // Restaurar scroll del body
-    document.body.style.overflow = '';
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+    } else {
+        document.body.style.overflow = '';
+    }
     
     // Remover event listeners
     document.removeEventListener('keydown', handleKeyPress);
@@ -5831,10 +6006,23 @@ function createThumbnails() {
     const thumbnailsContainer = document.getElementById('imageThumbnails');
     thumbnailsContainer.innerHTML = '';
     
+    // Asegurar que el contenedor esté centrado siempre
+    const isMobile = window.innerWidth <= 768;
+    thumbnailsContainer.style.display = 'flex';
+    thumbnailsContainer.style.justifyContent = 'center';
+    thumbnailsContainer.style.alignItems = 'center';
+    thumbnailsContainer.style.flexWrap = 'nowrap';
+    thumbnailsContainer.style.width = '100%';
+    thumbnailsContainer.style.marginLeft = 'auto';
+    thumbnailsContainer.style.marginRight = 'auto';
+    thumbnailsContainer.style.textAlign = 'center';
+    
     imagesArray.forEach((media, index) => {
         const thumbContainer = document.createElement('div');
         thumbContainer.style.position = 'relative';
-        thumbContainer.style.display = 'inline-block';
+        thumbContainer.style.display = 'flex';
+        thumbContainer.style.flexShrink = '0'; // Evitar que se compriman
+        thumbContainer.style.margin = '0 4px'; // Espaciado entre miniaturas
         
         if (media.tipo === 'video') {
             // Miniatura para video con ícono de play
@@ -6607,8 +6795,7 @@ function showSaveConfirmation() {
 }
 </script>
 
-<!-- Script de tracking de clics -->
-<script src="{% static 'js/tracking-clics.js' %}"></script>
+<!-- Script de tracking de clics ya incluido en base.html -->
 
 <!-- Leaflet CSS y JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 

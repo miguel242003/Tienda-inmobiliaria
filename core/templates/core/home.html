@@ -11,18 +11,17 @@
         <!-- Elementos del Carrusel -->
         <div class="carousel-item active">
             <picture class="carousel-image">
-                <source srcset="{% static 'images/carousel/interior-1.webp' %}" type="image/webp">
-                <img src="{% static 'images/carousel/interior-1.jpg' %}" alt="Interior moderno elegante" class="carousel-image">
+                <img src="{% static 'images/carousel/diseno-interior-moderno_11zon.jpg' %}" alt="Interior moderno elegante" class="carousel-image">
             </picture>
             <div class="carousel-overlay">
                 <div class="carousel-content">
                     <h1 class="carousel-title">Encuentra tu hogar ideal</h1>
                     <p class="carousel-subtitle">Descubre las mejores propiedades en las ubicaciones más deseadas</p>
                     <div class="carousel-buttons">
-                        <a href="{% url 'propiedades:lista' %}" class="btn btn-light btn-lg me-3">
+                        <a href="{% url 'propiedades:lista' %}" class="btn btn-light btn-lg">
                             <i class="fas fa-search"></i> Ver Propiedades
                         </a>
-                        <a href="{% url 'propiedades:lista' %}" class="btn btn-outline-light btn-lg">
+                        <a href="{% url 'propiedades:buscar' %}" class="btn btn-outline-light btn-lg">
                             <i class="fas fa-filter"></i> Buscar
                         </a>
                     </div>
@@ -40,7 +39,7 @@
                     <h1 class="carousel-title">Espacios que inspiran</h1>
                     <p class="carousel-subtitle">Cada propiedad cuenta una historia única de elegancia y confort</p>
                     <div class="carousel-buttons">
-                        <a href="{% url 'propiedades:lista' %}" class="btn btn-light btn-lg me-3">
+                        <a href="{% url 'propiedades:lista' %}" class="btn btn-light btn-lg">
                             <i class="fas fa-eye"></i> Explorar
                         </a>
                         <a href="{% url 'core:contact' %}" class="btn btn-outline-light btn-lg">
@@ -562,6 +561,12 @@
     color: white;
     max-width: 800px;
     padding: 0 2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
 }
 
 .carousel-title {
@@ -583,7 +588,10 @@
     display: flex;
     gap: 1rem;
     justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
+    width: 100%;
+    margin: 0 auto;
 }
 
 .carousel-buttons .btn {
@@ -593,11 +601,22 @@
     border-radius: 8px;
     transition: all 0.3s ease;
     min-width: 180px;
+    width: auto;
+    flex: 0 0 auto;
+    margin: 0;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .carousel-buttons .btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.carousel-buttons .btn i {
+    margin-right: 0.5rem;
 }
 
 .carousel-indicators {
@@ -885,17 +904,42 @@
         margin-bottom: 2rem;
     }
     
+    .carousel-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .carousel-title {
+        text-align: center;
+    }
+    
+    .carousel-subtitle {
+        text-align: center;
+    }
+    
     .carousel-buttons {
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 0.8rem;
+        width: 100%;
+        margin: 0 auto;
     }
     
     .carousel-buttons .btn {
-        width: 100%;
-        max-width: 300px;
+        min-width: 180px;
+        width: auto;
+        max-width: none;
         padding: 0.8rem 1.5rem;
         font-size: 0.95rem;
+        margin: 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
     }
     
     .prop-title-sec {
@@ -925,29 +969,45 @@
     
     .carousel-content {
         padding: 0 1.5rem;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
     
     .carousel-title {
         font-size: 2.4rem;
         margin-bottom: 1rem;
+        text-align: center;
     }
     
     .carousel-subtitle {
         font-size: 1rem;
         margin-bottom: 1.8rem;
+        text-align: center;
     }
     
     .carousel-buttons {
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 0.7rem;
+        width: 100%;
+        margin: 0 auto;
     }
     
     .carousel-buttons .btn {
-        width: 100%;
-        max-width: 280px;
+        min-width: 160px;
+        width: auto;
+        max-width: none;
         padding: 0.75rem 1.25rem;
         font-size: 0.9rem;
+        margin: 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
     }
     
     .carousel-indicators {
@@ -1021,32 +1081,47 @@
     
     .carousel-content {
         padding: 0 1rem;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
     
     .carousel-title {
         font-size: 2rem;
         margin-bottom: 0.8rem;
         line-height: 1.1;
+        text-align: center;
     }
     
     .carousel-subtitle {
         font-size: 0.9rem;
         margin-bottom: 1.5rem;
         line-height: 1.3;
+        text-align: center;
     }
     
     .carousel-buttons {
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 0.6rem;
+        width: 100%;
+        margin: 0 auto;
     }
     
     .carousel-buttons .btn {
-        width: 100%;
-        max-width: 250px;
+        min-width: 150px;
+        width: auto;
+        max-width: none;
         padding: 0.7rem 1rem;
         font-size: 0.85rem;
-        min-width: auto;
+        margin: 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
     }
     
     .carousel-indicators {
@@ -2374,7 +2449,7 @@ window.addEventListener('orientationchange', function() {
                                 <div class="service-icon">
                                     <i class="fas fa-map-marker-alt"></i>
                                 </div>
-                                <h3 class="service-title">OFICINAS EN 8 UBICACIONES</h3>
+                                <h3 class="service-title">OFICINAS EN 9 UBICACIONES</h3>
                                 <div class="service-separator"></div>
                                 <p class="service-text">Estamos presentes en las mejores zonas de la bahía para brindarte atención personalizada cerca de ti.</p>
                             </div>
@@ -2384,8 +2459,7 @@ window.addEventListener('orientationchange', function() {
     </div>
 </section>
 
-<!-- Script de tracking de clics -->
-<script src="{% static 'js/tracking-clics.js' %}"></script>
+<!-- Script de tracking de clics ya incluido en base.html -->
 
 <script>
 // Detectar soporte de WebP y aplicar clases correspondientes
@@ -2435,4 +2509,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- JavaScript del Carrusel Hero -->
+<script src="{% static 'js/home-carousel.js' %}?v=2.0"></script>
 {% endblock %}

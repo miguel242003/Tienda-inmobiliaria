@@ -29,23 +29,24 @@ class WebPImageField(models.ImageField):
             # Guardar el archivo original primero
             super().save_form_data(instance, data)
             
-            # Optimizar a WebP si está habilitado
-            if self.auto_optimize and data:
-                try:
-                    result = WebPOptimizer.optimize_image_field(
-                        instance, 
-                        self.name, 
-                        quality=self.webp_quality,
-                        replace_original=True  # Reemplazar original con WebP
-                    )
-                    
-                    if result['status'] == 'success':
-                        logger.info(f"Imagen optimizada y original reemplazada: {result['webp_path']}")
-                    else:
-                        logger.warning(f"No se pudo optimizar imagen: {result['message']}")
-                        
-                except Exception as e:
-                    logger.error(f"Error en optimización automática: {e}")
+            # DESHABILITADO: Optimización automática WebP para evitar errores
+            # La optimización se ejecutará manualmente después de guardar la instancia
+            # if self.auto_optimize and data:
+            #     try:
+            #         result = WebPOptimizer.optimize_image_field(
+            #             instance, 
+            #             self.name, 
+            #             quality=self.webp_quality,
+            #             replace_original=True  # Reemplazar original con WebP
+            #         )
+            #         
+            #         if result['status'] == 'success':
+            #             logger.info(f"Imagen optimizada y original reemplazada: {result['webp_path']}")
+            #         else:
+            #             logger.warning(f"No se pudo optimizar imagen: {result['message']}")
+            #             
+            #     except Exception as e:
+            #         logger.error(f"Error en optimización automática: {e}")
     
     def get_webp_url(self, instance):
         """Retorna la URL de la versión WebP si existe"""

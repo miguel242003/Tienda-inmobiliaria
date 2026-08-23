@@ -4,19 +4,30 @@ from .models import CVSubmission, ContactSubmission
 
 
 class CVSubmissionForm(forms.ModelForm):
+    # Honeypot anti-bots: debe permanecer vacío
+    honeypot = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'autocomplete': 'off',
+                'tabindex': '-1',
+                'aria-hidden': 'true',
+            }
+        ),
+    )
     """Formulario para envío de CV"""
     
     class Meta:
         model = CVSubmission
         fields = [
-            'nombre_completo', 
-            'email', 
-            'telefono', 
-            'posicion_interes', 
-            'anos_experiencia', 
-            'nivel_educativo', 
-            'cv_file', 
-            'carta_presentacion'
+            'nombre_completo',
+            'email',
+            'telefono',
+            'posicion_interes',
+            'anos_experiencia',
+            'nivel_educativo',
+            'cv_file',
+            'carta_presentacion',
         ]
         widgets = {
             'nombre_completo': forms.TextInput(attrs={
@@ -25,7 +36,7 @@ class CVSubmissionForm(forms.ModelForm):
                 'required': True,
                 'minlength': '2',
                 'maxlength': '200',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s\\-\\\'\\.]+',
+                # Validación de caracteres se hace en JavaScript y en clean_nombre_completo
                 'title': 'Solo se permiten letras, espacios, guiones, apostrofes y puntos'
             }),
             'email': forms.EmailInput(attrs={
@@ -261,10 +272,32 @@ class CVSubmissionForm(forms.ModelForm):
             return carta.strip()
         
         return carta
+    
+    def clean_honeypot(self):
+        """
+        Campo honeypot: si viene con contenido, se considera bot/spam.
+        No lanzamos error visible, solo invalidamos silenciosamente.
+        """
+        value = self.cleaned_data.get('honeypot', '')
+        if value:
+            raise ValidationError('Invalid submission.')
+        return value
 
 
 class ContactSubmissionForm(forms.ModelForm):
     """Formulario para envío de mensaje de contacto"""
+    
+    # Honeypot anti-bots: debe permanecer vacío
+    honeypot = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'autocomplete': 'off',
+                'tabindex': '-1',
+                'aria-hidden': 'true',
+            }
+        ),
+    )
     
     class Meta:
         model = ContactSubmission
@@ -276,7 +309,6 @@ class ContactSubmissionForm(forms.ModelForm):
                 'required': True,
                 'minlength': '2',
                 'maxlength': '200',
-                'pattern': '[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\\s\\-\\\'\\.]+',
                 'title': 'Solo se permiten letras, espacios, guiones, apostrofes y puntos'
             }),
             'email': forms.EmailInput(attrs={
@@ -325,6 +357,8 @@ class ContactSubmissionForm(forms.ModelForm):
         self.fields['telefono'].required = True
         self.fields['asunto'].required = True
         self.fields['mensaje'].required = True
+        # El honeypot nunca debe ser requerido
+        self.fields['honeypot'].required = False
     
     def clean_nombre(self):
         """Validación personalizada para el nombre"""
@@ -353,10 +387,7 @@ class ContactSubmissionForm(forms.ModelForm):
         return nombre.strip()
     
     def clean_email(self):
-        """Validación personalizada para el email"""
-        from django.utils import timezone
-        from datetime import timedelta
-        
+        """Validación personalizada para el email (sin límite de 15 minutos, usamos solo el rate limit por IP)."""
         email = self.cleaned_data.get('email')
         
         if not email:
@@ -374,36 +405,6 @@ class ContactSubmissionForm(forms.ModelForm):
         
         # Normalizar email (convertir a minúsculas)
         email_normalizado = email.lower().strip()
-        
-        # Validar límite de tiempo entre envíos (15 minutos)
-        # Filtrar solo por el tipo de formulario correspondiente
-        tiempo_limite = timezone.now() - timedelta(minutes=15)
-        
-        if self.es_consulta_propiedad:
-            # Para consultas de propiedad, buscar solo envíos que contengan información de propiedad
-            ultimo_envio = ContactSubmission.objects.filter(
-                email=email_normalizado,
-                fecha_envio__gte=tiempo_limite,
-                mensaje__contains='--- Información de la Propiedad ---'
-            ).first()
-            tipo_formulario = 'consulta de propiedad'
-        else:
-            # Para contacto general, buscar solo envíos que NO contengan información de propiedad
-            ultimo_envio = ContactSubmission.objects.filter(
-                email=email_normalizado,
-                fecha_envio__gte=tiempo_limite
-            ).exclude(
-                mensaje__contains='--- Información de la Propiedad ---'
-            ).first()
-            tipo_formulario = 'formulario de contacto'
-        
-        if ultimo_envio:
-            tiempo_transcurrido = timezone.now() - ultimo_envio.fecha_envio
-            minutos_restantes = 15 - int(tiempo_transcurrido.total_seconds() / 60)
-            raise ValidationError(
-                f'Ya has enviado un {tipo_formulario} recientemente. '
-                f'Por favor espera {minutos_restantes} minuto(s) antes de enviar otro.'
-            )
         
         return email_normalizado
     
@@ -445,6 +446,16 @@ class ContactSubmissionForm(forms.ModelForm):
             raise ValidationError('El asunto seleccionado no es válido.')
         
         return asunto
+    
+    def clean_honeypot(self):
+        """
+        Campo honeypot: si viene con contenido, se considera bot/spam.
+        No lanzamos error visible, solo invalidamos silenciosamente.
+        """
+        value = self.cleaned_data.get('honeypot', '')
+        if value:
+            raise ValidationError('Invalid submission.')
+        return value
     
     def clean_mensaje(self):
         """Validación personalizada para el mensaje"""

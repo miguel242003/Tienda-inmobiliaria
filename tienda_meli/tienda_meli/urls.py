@@ -26,12 +26,12 @@ urlpatterns = [
     path('login/', include('login.urls')),
 ]
 
-# ⚡ Debug Toolbar (solo en desarrollo)
-if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ] + urlpatterns
+# ⚡ Debug Toolbar (solo en desarrollo) - DESHABILITADO
+# if settings.DEBUG:
+#     import debug_toolbar
+#     urlpatterns = [
+#         path('__debug__/', include(debug_toolbar.urls)),
+#     ] + urlpatterns
 
 # Configuración para archivos estáticos y media en desarrollo
 if settings.DEBUG:

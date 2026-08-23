@@ -773,16 +773,111 @@ document.addEventListener('DOMContentLoaded', function() {
         // Enviar el formulario con las fotos
         fetch(form.action, {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         }).then(response => {
+            console.log('Respuesta del servidor:', response.status);
+            console.log('Content-Type:', response.headers.get('content-type'));
+            
             if (response.ok) {
-                window.location.href = response.url;
+                // Verificar si es JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json().then(data => {
+                        console.log('Datos JSON completos:', data);
+                        console.log('Mensajes de conversión:', data.conversion_messages);
+                        if (data.success) {
+                            // Mostrar mensajes de conversión WebP si existen
+                            console.log('Verificando mensajes de conversión...');
+                            console.log('data.conversion_messages existe?', data.conversion_messages !== undefined);
+                            console.log('data.conversion_messages length:', data.conversion_messages ? data.conversion_messages.length : 0);
+                            
+                            if (data.conversion_messages && data.conversion_messages.length > 0) {
+                                console.log('✅ Mostrando mensajes de conversión:', data.conversion_messages);
+                                
+                                // Crear contenedor para mensajes de conversión (fixed en la parte superior)
+                                const messagesContainer = document.createElement('div');
+                                messagesContainer.id = 'conversion-messages';
+                                messagesContainer.className = 'mb-4 p-4';
+                                messagesContainer.style.cssText = 'position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 900px; width: 90%; background: #ffffff; border: 3px solid #007bff; border-radius: 12px; margin: 20px 0; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-height: 80vh; overflow-y: auto;';
+                                
+                                // Título
+                                const title = document.createElement('h4');
+                                title.className = 'mb-3';
+                                title.style.cssText = 'color: #007bff; font-weight: bold; font-size: 1.3rem; margin-bottom: 15px;';
+                                title.textContent = '📋 Estado de Conversión de Imágenes a WebP';
+                                messagesContainer.appendChild(title);
+                                
+                                // Agregar cada mensaje
+                                data.conversion_messages.forEach(function(msg) {
+                                    const messageDiv = document.createElement('div');
+                                    let alertClass = 'alert-info';
+                                    let icon = 'ℹ️';
+                                    
+                                    if (msg.includes('✅')) {
+                                        alertClass = 'alert-success';
+                                        icon = '✅';
+                                    } else if (msg.includes('❌')) {
+                                        alertClass = 'alert-danger';
+                                        icon = '❌';
+                                    } else if (msg.includes('🔄')) {
+                                        alertClass = 'alert-info';
+                                        icon = '🔄';
+                                    }
+                                    
+                                    messageDiv.className = `alert ${alertClass} alert-dismissible fade show mb-3`;
+                                    messageDiv.style.cssText = 'font-size: 15px; padding: 12px 18px; font-weight: 500;';
+                                    messageDiv.innerHTML = `
+                                        <strong style="font-size: 18px; margin-right: 8px;">${icon}</strong> 
+                                        <span>${msg}</span>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    `;
+                                    messagesContainer.appendChild(messageDiv);
+                                    console.log('✅ Mensaje agregado:', msg);
+                                });
+                                
+                                // Insertar directamente en el body para que sea visible
+                                document.body.appendChild(messagesContainer);
+                                console.log('✅ Mensajes insertados en el body (position: fixed)');
+                                
+                                // Scroll a la parte superior para ver los mensajes
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                
+                                // Mostrar alerta de éxito con información
+                                const mensajesTexto = data.conversion_messages.join('\n');
+                                alert('¡Propiedad creada exitosamente!\n\nMensajes de conversión:\n' + mensajesTexto + '\n\nLos mensajes también están visibles en la página.');
+                                
+                                // Redirigir después de 8 segundos para que el usuario vea los mensajes
+                                setTimeout(function() {
+                                    console.log('Redirigiendo a:', data.redirect_url);
+                                    window.location.href = data.redirect_url || '/propiedades/';
+                                }, 8000);
+                            } else {
+                                console.log('⚠️ No hay mensajes de conversión para mostrar');
+                                // Si no hay mensajes de conversión, redirigir inmediatamente
+                                alert('¡Propiedad creada exitosamente!');
+                                window.location.href = data.redirect_url || '/propiedades/';
+                            }
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    });
+                } else {
+                    // Si no es JSON, redirigir
+                    window.location.href = response.url;
+                }
             } else {
-                alert('Error al crear la propiedad. Por favor intenta de nuevo.');
+                // Error del servidor
+                return response.text().then(text => {
+                    console.error('Error del servidor:', text);
+                    alert('Error del servidor (HTTP ' + response.status + '): ' + text);
+                });
             }
         }).catch(error => {
-            console.error('Error:', error);
-            alert('Error al crear la propiedad. Por favor intenta de nuevo.');
+            console.error('Error de red:', error);
+            alert('Error de conexión: ' + error.message);
         });
         
         e.preventDefault();

@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
+from decouple import Config, RepositoryEnv
 import pymysql
 
 # Instalar PyMySQL como reemplazo de MySQLdb
@@ -19,6 +19,13 @@ pymysql.install_as_MySQLdb()
 
 # Construye rutas dentro del proyecto como BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Raíz del repo (carpeta donde está manage.py): carga .env aunque Gunicorn use otro cwd
+PROJECT_ROOT = BASE_DIR.parent
+_env_file = PROJECT_ROOT / '.env'
+if _env_file.is_file():
+    config = Config(RepositoryEnv(str(_env_file)))
+else:
+    from decouple import config
 
 
 # Configuración de inicio rápido para desarrollo - no apta para producción
@@ -26,14 +33,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ADVERTENCIA DE SEGURIDAD: mantén la clave secreta usada en producción en secreto!
 # 🔒 SEGURIDAD: SECRET_KEY debe estar en .env sin default inseguro
-SECRET_KEY = config('SECRET_KEY', default='django-insecure--ya4&kz0qjq@q%(nd8^&e8$&-m7kjjpug7wsvwotd@u!5^twk-')
+SECRET_KEY = config('SECRET_KEY')
 
 # ADVERTENCIA DE SEGURIDAD: ¡no ejecutes con debug activado en producción!
 # 🔒 SEGURIDAD: DEBUG=False por defecto (más seguro)
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # 🔒 SEGURIDAD: ALLOWED_HOSTS debe ser específico en producción
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver,testserver.localhost').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver').split(',')
+
+# Asegurar que siempre tengamos los hosts básicos
+base_hosts = ['localhost', '127.0.0.1', 'testserver']
+for host in base_hosts:
+    if host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(host)
+
+# Para desarrollo, agregar más hosts permitidos
+if DEBUG:
+    ALLOWED_HOSTS.extend(['*', '0.0.0.0'])
+else:
+    # En producción, asegurar que los hosts estén configurados correctamente
+    if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
+        ALLOWED_HOSTS = ['gisa-nqn.com', 'www.gisa-nqn.com']
+
+# Configuración de seguridad (ya manejada más abajo en el archivo)
 
 # Configuración de dominios confiables para CSRF
 CSRF_TRUSTED_ORIGINS = [
@@ -57,7 +80,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'csp',  # Content Security Policy
     'compressor',  # Minificación de CSS/JS
-    'debug_toolbar',  # Debug toolbar (solo desarrollo)
+    # 'debug_toolbar',  # Debug toolbar (solo desarrollo) - DESHABILITADO
     'core',
     'propiedades',
     'login',
@@ -72,7 +95,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',  # Debug toolbar
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',  # Debug toolbar - DESHABILITADO
+    # 'core.middleware.DebugMiddleware',  # Deshabilitado temporalmente
 ]
 
 ROOT_URLCONF = 'tienda_meli.tienda_meli.urls'
@@ -99,17 +123,16 @@ WSGI_APPLICATION = 'tienda_meli.tienda_meli.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Configuración de base de datos con variables de entorno
-# Usar MySQL en producción, SQLite en desarrollo
-DB_ENGINE = config('DB_ENGINE', default='django.db.backends.sqlite3')
+DB_ENGINE = 'django.db.backends.mysql'
 
 if DB_ENGINE == 'django.db.backends.mysql':
-    # Configuración para PRODUCCIÓN con MySQL
+    # Configuración para PRODUCCIÓN con MySQL usando variables de entorno
     DATABASES = {
         'default': {
             'ENGINE': DB_ENGINE,
             'NAME': config('DB_NAME', default='tienda_inmobiliaria_prod'),
             'USER': config('DB_USER', default='tienda_user'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
+            'PASSWORD': config('DB_PASSWORD'),
             'HOST': config('DB_HOST', default='localhost'),
             'PORT': config('DB_PORT', default='3306'),
             'OPTIONS': {
@@ -205,6 +228,15 @@ PASSWORD_RESET_TIMEOUT = 3600  # Tiempo de expiración en segundos (1 hora)
 # Configuración de Rate Limiting para reverse proxy (Nginx)
 RATELIMIT_IP_META_KEY = 'HTTP_X_FORWARDED_FOR'
 
+# reCAPTCHA v3 (claves en .env, nunca en código)
+RECAPTCHA_V3_SITE_KEY = config('RECAPTCHA_V3_SITE_KEY', default='')
+RECAPTCHA_V3_SECRET_KEY = config('RECAPTCHA_V3_SECRET_KEY', default='')
+RECAPTCHA_V3_MIN_SCORE = config('RECAPTCHA_V3_MIN_SCORE', default=0.5, cast=float)
+
+# Cloudflare Turnstile (formularios públicos: contacto, CV, consulta propiedad)
+TURNSTILE_SITE_KEY = config('TURNSTILE_SITE_KEY', default='')
+TURNSTILE_SECRET_KEY = config('TURNSTILE_SECRET_KEY', default='')
+
 # ============================================================================
 # 🔒 CONFIGURACIÓN DE SEGURIDAD - OWASP
 # ============================================================================
@@ -223,9 +255,14 @@ SESSION_COOKIE_NAME = 'sessionid'
 
 # Configuración de Cookies CSRF
 CSRF_COOKIE_SECURE = not DEBUG  # Solo HTTPS en producción
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Permitir acceso por JavaScript
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_AGE = 31449600  # 1 año
+
+# Configuración CSRF menos estricta para desarrollo
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
 
 # Headers de Seguridad para Producción
 if not DEBUG:
@@ -249,6 +286,9 @@ if not DEBUG:
 else:
     # Desarrollo: Sin redirección HTTPS
     SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
     X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Algoritmos de Hash de Contraseñas (orden de preferencia)
@@ -273,6 +313,11 @@ LOGGING = {
             'format': '[{levelname}] {asctime} {module} {process:d} {thread:d} {message}',
             'style': '{',
         },
+        'detailed': {
+            'format': '[{levelname}] {asctime} {name} {funcName}:{lineno} - {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
     },
     'handlers': {
         'file': {
@@ -291,6 +336,14 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'verbose',
         },
+        'debug_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOGS_DIR / 'debug_imagenes.log',
+            'maxBytes': 1024 * 1024 * 10,  # 10MB
+            'backupCount': 10,  # Mantener más backups para debugging
+            'formatter': 'detailed',
+        },
     },
     'loggers': {
         'django.security': {
@@ -302,6 +355,16 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'WARNING',
             'propagate': True,
+        },
+        'propiedades': {
+            'handlers': ['debug_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'core': {
+            'handlers': ['debug_file'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     },
 }
@@ -323,7 +386,9 @@ CONTENT_SECURITY_POLICY = {
             'https://unpkg.com',  # Leaflet y otros recursos
             'https://cdnjs.cloudflare.com',
             'https://translate.googleapis.com',  # Google Translate
-            'https://www.gstatic.com',  # Google Translate
+            'https://www.gstatic.com',  # Google Translate y reCAPTCHA
+            'https://www.google.com',  # reCAPTCHA v3
+            'https://challenges.cloudflare.com',  # Turnstile
         ),
         'style-src': (
             "'self'",
@@ -352,11 +417,17 @@ CONTENT_SECURITY_POLICY = {
             'https://cdnjs.cloudflare.com',
             'data:',
         ),
+        'frame-src': (
+            "'self'",
+            'https://challenges.cloudflare.com',  # Turnstile iframe
+        ),
         'connect-src': (
             "'self'",
             'https://cdn.jsdelivr.net',  # Source maps de Bootstrap
             'https://translate.googleapis.com',  # Google Translate
             'https://unpkg.com',  # Source maps de Leaflet
+            'https://www.google.com',  # reCAPTCHA v3 verificación del lado del cliente
+            'https://challenges.cloudflare.com',  # Turnstile
         ),
         'frame-ancestors': ("'none'",),  # Evitar iframe embedding
         'base-uri': ("'self'",),

@@ -16,7 +16,7 @@ body {
 <!-- Search Header con Carrusel -->
 <section class="position-relative text-white" style="height: 700px; overflow: hidden;">
     <!-- Carrusel de imágenes de fondo -->
-    <div id="backgroundCarousel" class="position-absolute top-0 start-0 w-100 h-100" style="background-size: cover; background-position: center; background-repeat: no-repeat; background-image: url('{% static 'images/filtropropiedad.jpg' %}'); transition: background-image 1s ease-in-out;"></div>
+    <div id="backgroundCarousel" class="position-absolute top-0 start-0 w-100 h-100" style="background-size: cover; background-position: center; background-repeat: no-repeat; background-image: url('{% static 'images/filtropropiedad.webp' %}'); transition: background-image 1s ease-in-out;"></div>
     
     <!-- Overlay con negro sutil -->
     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%); z-index: 1;"></div>
@@ -366,6 +366,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<!-- Script de tracking de clics -->
-<script src="{% static 'js/tracking-clics.js' %}"></script>
+<!-- Script de tracking de clics ya incluido en base.html -->
 {% endblock %}

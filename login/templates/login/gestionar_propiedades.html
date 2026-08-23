@@ -79,7 +79,8 @@
                             <tr data-propiedad-id="{{ propiedad.id }}">
                                 <td>
                                     {% if propiedad.imagen_principal %}
-                                        <img src="{{ propiedad.imagen_principal.url }}" alt="{{ propiedad.titulo }}" 
+                                        {# Usar la versión WebP optimizada si existe, sino la de media #}
+                                        <img src="{{ propiedad.get_foto_principal_static_url }}" alt="{{ propiedad.titulo }}" 
                                              class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
                                     {% else %}
                                         <div class="bg-light d-flex align-items-center justify-content-center" 

@@ -3254,9 +3254,16 @@
                             <!-- Título del Gráfico -->
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="text-sm font-medium text-gray-600">Clics Mensuales</h3>
+                                <div class="flex items-center space-x-3">
+                                    <button id="btn-actualizar-grafico" 
+                                            class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                                            title="Actualizar datos del gráfico">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    </button>
                                 <div class="text-right">
                                         <div class="text-2xl font-bold text-blue-600 counter-animation" id="total-clicks">{{ total_clicks|default:"0"|safe }}</div>
                                     <div class="text-xs text-gray-500">Total este año</div>
+                                    </div>
                     </div>
                 </div>
                 
@@ -3527,7 +3534,7 @@
                                     <tr data-propiedad-id="{{ propiedad.id|safe|escapejs }}" class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             {% if propiedad.imagen_principal %}
-                                                <img src="{{ propiedad.imagen_principal.url|safe|escapejs }}" alt="{{ propiedad.titulo|safe|escapejs }}" 
+                                                <img src="{% if propiedad.get_foto_principal_static_url %}{{ propiedad.get_foto_principal_static_url }}{% else %}{{ propiedad.imagen_principal.url }}{% endif %}" alt="{{ propiedad.titulo|safe|escapejs }}" 
                                                      class="w-12 h-12 rounded-lg object-cover">
                                             {% else %}
                                                 <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -5249,7 +5256,6 @@
                     if (aceptadasElementMobile) aceptadasElementMobile.textContent = data.estadisticas.aceptadas || 0;
                     if (rechazadasElementMobile) rechazadasElementMobile.textContent = data.estadisticas.rechazadas || 0;
                     
-                    console.log('Estadísticas de reseñas cargadas:', data.estadisticas);
                 }
             } catch (error) {
                 console.error('Error al cargar estadísticas de reseñas:', error);
@@ -5285,24 +5291,19 @@
         const Utils = {
             // Obtener color según escala de calor (basado en rangos absolutos)
             getHeatColor(value, maxValue = null) {
-                console.log(`Evaluando color para valor: ${value}, máximo: ${maxValue}`);
                 
                 // Si no hay valor, usar verde (escala de calor)
                 if (value === 0) {
-                    console.log(`Valor ${value} -> Verde (bajo - escala de calor)`);
                     return DashboardConfig.colors.bajo; // Verde para 0 clics
                 }
                 
                 // Usar rangos absolutos: 0-60 → 61-150 → 151+
                 if (value <= 60) {
-                    console.log(`Valor ${value} -> Verde (bajo - rango absoluto)`);
                     return DashboardConfig.colors.bajo; // Verde para 0-60 clics
                 }
                 if (value <= 150) {
-                    console.log(`Valor ${value} -> Amarillo (medio - rango absoluto)`);
                     return DashboardConfig.colors.medio; // Amarillo para 61-150 clics
                 }
-                console.log(`Valor ${value} -> Rojo (alto - rango absoluto)`);
                 return DashboardConfig.colors.alto; // Rojo para 151+ clics
             },
 
@@ -5368,7 +5369,7 @@
         // ========================================
         const ChartManager = {
             init() {
-                console.log('=== INICIALIZANDO CHART MANAGER ===');
+                console.log('Dashboard JavaScript cargado');
                 
                 this.propiedadSelect = document.getElementById('propiedad-select');
                 this.totalClicksElement = document.getElementById('total-clicks');
@@ -5382,115 +5383,122 @@
                     }
                 };
                 
-                console.log('Datos iniciales:', this.datosPropiedades);
             
                 // Agregar datos de propiedades individuales usando JSON seguro
                 try {
-                    const datosPropiedadesRaw = {{ clicks_por_propiedad|safe|safe }};
-                    console.log('=== DATOS RAW DE PROPIEDADES ===');
-                    console.log('Datos raw completos:', datosPropiedadesRaw);
-                    console.log('Tipo de datos:', typeof datosPropiedadesRaw);
-                    console.log('Claves disponibles:', Object.keys(datosPropiedadesRaw));
+                    const datosPropiedadesRaw = {{ clicks_por_propiedad|safe }};
                     
                     {% for propiedad in todas_propiedades %}
-                    const datosPropiedad_{{ propiedad.id|safe }} = datosPropiedadesRaw && datosPropiedadesRaw['{{ propiedad.id|safe|escapejs }}'] ? datosPropiedadesRaw['{{ propiedad.id|safe|escapejs }}'] : null;
-                    console.log(`Datos raw para propiedad {{ propiedad.id|safe }} ({{ propiedad.titulo|escapejs|safe }}):`, datosPropiedad_{{ propiedad.id|safe }});
-                    if (datosPropiedad_{{ propiedad.id|safe }}) {
-                        console.log(`  - Total: ${datosPropiedad_{{ propiedad.id|safe }}.clicks_totales}`);
-                        console.log(`  - Por mes: ${JSON.stringify(datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes)}`);
+                    // Usar string para la clave para que coincida con el value del select
+                    const propiedadId_{{ propiedad.id|safe }} = '{{ propiedad.id|safe|escapejs }}';
+                    const datosPropiedad_{{ propiedad.id|safe }} = datosPropiedadesRaw && datosPropiedadesRaw[propiedadId_{{ propiedad.id|safe }}] ? datosPropiedadesRaw[propiedadId_{{ propiedad.id|safe }}] : null;
+                    
+                    // Validar y procesar datos de la propiedad
+                    let totalPropiedad_{{ propiedad.id|safe }} = 0;
+                    let datosPorMes_{{ propiedad.id|safe }} = [0,0,0,0,0,0,0,0,0,0,0,0];
+                    
+                    if (datosPropiedad_{{ propiedad.id|safe }} && typeof datosPropiedad_{{ propiedad.id|safe }} === 'object') {
+                        // Validar clicks_totales
+                        if (typeof datosPropiedad_{{ propiedad.id|safe }}.clicks_totales === 'number') {
+                            totalPropiedad_{{ propiedad.id|safe }} = datosPropiedad_{{ propiedad.id|safe }}.clicks_totales;
+                        }
+                        
+                        // Validar clicks_por_mes
+                        if (Array.isArray(datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes)) {
+                            datosPorMes_{{ propiedad.id|safe }} = datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes.slice(0, 12); // Asegurar máximo 12 meses
+                            // Rellenar con ceros si hay menos de 12 meses
+                            while (datosPorMes_{{ propiedad.id|safe }}.length < 12) {
+                                datosPorMes_{{ propiedad.id|safe }}.push(0);
+                            }
+                        }
+                        
+                    } else {
                     }
                     
-                    this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'] = {
-                        total: datosPropiedad_{{ propiedad.id|safe }} ? datosPropiedad_{{ propiedad.id|safe }}.clicks_totales : 0,
-                        datos: datosPropiedad_{{ propiedad.id|safe }} ? datosPropiedad_{{ propiedad.id|safe }}.clicks_por_mes : [0,0,0,0,0,0,0,0,0,0,0,0]
+                    // Usar string como clave para que coincida con el value del select
+                    this.datosPropiedades[propiedadId_{{ propiedad.id|safe }}] = {
+                        total: totalPropiedad_{{ propiedad.id|safe }},
+                        datos: datosPorMes_{{ propiedad.id|safe }}
                     };
-                    console.log(`Datos finales para propiedad {{ propiedad.id|safe }} ({{ propiedad.titulo|escapejs|safe }}):`, this.datosPropiedades['{{ propiedad.id|safe|escapejs }}']);
-                    console.log(`  - Total final: ${this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'].total}`);
-                    console.log(`  - Datos finales: ${JSON.stringify(this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'].datos)}`);
             {% endfor %}
                 } catch (error) {
                     console.error('Error al cargar datos de propiedades:', error);
                     // Fallback: datos por defecto
                     {% for propiedad in todas_propiedades %}
-                    this.datosPropiedades['{{ propiedad.id|safe|escapejs }}'] = {
+                    const propiedadIdFallback_{{ propiedad.id|safe }} = '{{ propiedad.id|safe|escapejs }}';
+                    this.datosPropiedades[propiedadIdFallback_{{ propiedad.id|safe }}] = {
                         total: 0,
                         datos: [0,0,0,0,0,0,0,0,0,0,0,0]
                     };
                     {% endfor %}
                 }
                 
-                // Log final de todos los datos cargados
-                console.log('=== DATOS FINALES CARGADOS ===');
-                console.log('Todos los datos de propiedades:', this.datosPropiedades);
-                
-                // Verificar específicamente los datos de "casa arleth"
-                console.log('=== VERIFICACIÓN ESPECÍFICA CASA ARLETH ===');
-                Object.keys(this.datosPropiedades).forEach(key => {
-                    if (key !== 'todas') {
-                        console.log(`Propiedad ${key}:`, this.datosPropiedades[key]);
-                        console.log(`  - Total: ${this.datosPropiedades[key].total}`);
-                        console.log(`  - Datos: ${JSON.stringify(this.datosPropiedades[key].datos)}`);
-                        console.log(`  - Datos por mes detallado:`, this.datosPropiedades[key].datos.map((valor, index) => `Mes ${index + 1}: ${valor}`));
-                    }
-                });
-                
-                // Verificar que los datos son diferentes entre propiedades
-                console.log('=== COMPARACIÓN DE DATOS ===');
-                const claves = Object.keys(this.datosPropiedades);
-                for (let i = 0; i < claves.length; i++) {
-                    for (let j = i + 1; j < claves.length; j++) {
-                        const clave1 = claves[i];
-                        const clave2 = claves[j];
-                        const datos1 = this.datosPropiedades[clave1];
-                        const datos2 = this.datosPropiedades[clave2];
-                        
-                        const sonIguales = JSON.stringify(datos1.datos) === JSON.stringify(datos2.datos);
-                        console.log(`${clave1} vs ${clave2}: ${sonIguales ? 'IGUALES' : 'DIFERENTES'}`);
-                        if (sonIguales) {
-                            console.log(`  - Ambos tienen: ${JSON.stringify(datos1.datos)}`);
-                        }
-                    }
-                }
             
                 this.bindEvents();
                 
-                // Ejecutar inmediatamente y con delay para asegurar que funcione
-                console.log('Ejecutando updateChart inicial...');
+                // Ejecutar inicialización
                 this.updateChart('todas');
+                
+                // Verificar estado después de la inicialización
                 setTimeout(() => {
-                    console.log('Ejecutando updateChart con delay...');
                     this.updateChart('todas');
+                    this.verificarEstadoGrafico();
                 }, 100);
             },
 
             bindEvents() {
                 this.propiedadSelect.addEventListener('change', (e) => {
-                    console.log('=== CAMBIO DE PROPIEDAD ===');
-                    console.log('Nueva propiedad seleccionada:', e.target.value);
-                    console.log('Datos disponibles para esta propiedad:', this.datosPropiedades[e.target.value]);
                     this.updateChart(e.target.value);
                 });
+                
+                // Botón de actualizar gráfico
+                const btnActualizar = document.getElementById('btn-actualizar-grafico');
+                if (btnActualizar) {
+                    btnActualizar.addEventListener('click', () => {
+                        
+                        // Efecto visual
+                        btnActualizar.style.transform = 'rotate(360deg)';
+                        btnActualizar.style.color = '#3B82F6';
+                        
+                        // Recargar la página para obtener datos actualizados
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 300);
+                    });
+                }
             },
 
             updateChart(propiedad) {
                 try {
-                    console.log('=== INICIANDO ACTUALIZACIÓN DE GRÁFICO ===');
-                    console.log('Propiedad solicitada:', propiedad);
-                    console.log('Datos disponibles:', Object.keys(this.datosPropiedades));
                     
-                    const datos = this.datosPropiedades[propiedad];
-                    if (!datos || !datos.datos || !Array.isArray(datos.datos)) {
-                        console.log('No hay datos válidos para la propiedad:', propiedad);
-                        console.log('Datos encontrados:', datos);
+                    // Validar que la propiedad existe en los datos
+                    if (!this.datosPropiedades.hasOwnProperty(propiedad)) {
+                        console.error(`❌ La propiedad '${propiedad}' no existe en los datos disponibles`);
+                        console.log('Propiedades disponibles:', Object.keys(this.datosPropiedades));
                         return;
                     }
                     
-                    console.log('=== ACTUALIZANDO GRÁFICO ===');
-                    console.log('Propiedad seleccionada:', propiedad);
-                    console.log('Datos encontrados:', datos);
-                    console.log('Total de clics:', datos.total);
-                    console.log('Datos por mes:', datos.datos);
-                    console.log('Datos por mes (detallado):', datos.datos.map((valor, index) => `Mes ${index + 1}: ${valor}`));
+                    const datos = this.datosPropiedades[propiedad];
+                    if (!datos) {
+                        console.error(`❌ No hay datos para la propiedad: ${propiedad}`);
+                        return;
+                    }
+                    
+                    // Validar estructura de datos
+                    if (!datos.datos || !Array.isArray(datos.datos)) {
+                        console.error(`❌ Los datos de la propiedad ${propiedad} no tienen la estructura correcta:`, datos);
+                        return;
+                    }
+                    
+                    // Validar que tenemos exactamente 12 meses de datos
+                    if (datos.datos.length !== 12) {
+                        console.warn(`⚠️ La propiedad ${propiedad} tiene ${datos.datos.length} meses de datos, esperados 12`);
+                        // Rellenar con ceros si faltan meses
+                        while (datos.datos.length < 12) {
+                            datos.datos.push(0);
+                        }
+                    }
+                    
                     
                     // Verificar si los datos son diferentes a "todas"
                     if (propiedad !== 'todas') {
@@ -5504,16 +5512,11 @@
                 
                 // Actualizar total
                 this.totalClicksElement.textContent = datos.total.toLocaleString();
-                console.log('Total actualizado en el DOM:', datos.total.toLocaleString());
                 
                 // Actualizar barras - usar selector más específico
                 const barras = document.querySelectorAll('#grafico-barras .bar-chart');
                 const numeros = document.querySelectorAll('#grafico-barras .absolute.inset-0.flex.items-center.justify-center.text-xs.font-semibold.text-white');
                 
-                console.log('=== ACTUALIZANDO BARRAS ===');
-                console.log('Barras encontradas:', barras.length);
-                console.log('Números encontrados:', numeros.length);
-                console.log('Datos a mostrar:', datos.datos);
                 
                 // Verificar si el contenedor del gráfico existe
                 const graficoContainer = document.getElementById('grafico-barras');
@@ -5521,10 +5524,8 @@
                     console.error('❌ No se encontró el contenedor del gráfico #grafico-barras');
                     return;
                 }
-                console.log('✅ Contenedor del gráfico encontrado');
                 
                 const maxValor = Math.max(...datos.datos);
-                console.log('Valor máximo para calcular porcentajes:', maxValor);
                 
                 barras.forEach((barra, index) => {
                     if (index < datos.datos.length) {
@@ -5545,7 +5546,6 @@
                             porcentaje = escalado + 10; // Base del 10% + escalado proporcional
                         }
                         
-                        console.log(`Procesando barra ${index}: valor=${valor}, porcentaje=${porcentaje}%`);
                         
                         // Aplicar color basado en la escala de calor (dinámico)
                         const color = Utils.getHeatColor(valor, maxValor);
@@ -5581,7 +5581,6 @@
                             contenedorBarra.style.setProperty('transition', 'all 0.3s ease', 'important');
                         }
                         
-                        console.log(`Barra ${index} actualizada: valor=${valor}, color=${color}, altura=${porcentaje}%`);
                         
                         // Actualizar el atributo data-value
                         barra.setAttribute('data-value', valor);
@@ -5595,26 +5594,11 @@
                             } else {
                                 numeros[index].style.color = 'white';
                             }
-                            console.log(`Número ${index} actualizado a: ${valor}`);
                         }
                     }
                 });
                 
-                // Verificar que las barras se actualizaron correctamente
-                console.log('=== VERIFICACIÓN FINAL DE BARRAS ===');
-                barras.forEach((barra, index) => {
-                    console.log(`Barra ${index} final:`, {
-                        height: barra.style.height,
-                        backgroundColor: barra.style.backgroundColor,
-                        dataValue: barra.getAttribute('data-value'),
-                        textContent: numeros[index] ? numeros[index].textContent : 'N/A'
-                    });
-                });
                 
-                // Verificar que las barras se actualizaron correctamente
-                console.log('=== VERIFICACIÓN POST-ACTUALIZACIÓN ===');
-                const barrasVerificacion = document.querySelectorAll('#grafico-barras .bar-chart');
-                console.log('Barras después de actualización:', barrasVerificacion.length);
                 
                 // Actualizar máximo en la leyenda
                 const maxIndex = datos.datos.indexOf(maxValor);
@@ -5623,8 +5607,103 @@
                 this.leyendaMaximo.textContent = `Máximo: ${maxValor} clics (${meses[maxIndex]})`;
                 
                 } catch (error) {
-                    console.error('Error al actualizar el gráfico:', error);
+                    console.error('❌ Error al actualizar el gráfico:', error);
+                    console.error('Stack trace:', error.stack);
+                    
+                    // Intentar recuperación con datos por defecto
+                    console.log('🔄 Intentando recuperación con datos por defecto...');
+                    try {
+                        this.datosPropiedades[propiedad] = {
+                            total: 0,
+                            datos: [0,0,0,0,0,0,0,0,0,0,0,0]
+                        };
+                        this.updateChart(propiedad);
+                    } catch (recoveryError) {
+                        console.error('❌ Error en recuperación:', recoveryError);
+                    }
                 }
+            },
+            
+            // Función de utilidad para verificar el estado del gráfico
+            verificarEstadoGrafico() {
+                // Verificación silenciosa del estado del gráfico
+            },
+
+            // Nueva función para actualizar datos desde el servidor
+            async actualizarDatosDesdeServidor() {
+                try {
+                    
+                    const response = await fetch('{% url "login:dashboard_clicks_data" %}', {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        console.log('✅ Datos actualizados desde el servidor:', data);
+                        
+                        // Actualizar datos de "todas"
+                        this.datosPropiedades['todas'] = {
+                            total: data.total_clicks,
+                            datos: data.clicks_por_mes.map(mes => mes.clicks)
+                        };
+                        
+                        // Actualizar datos de propiedades individuales
+                        for (const [propId, propData] of Object.entries(data.clicks_por_propiedad)) {
+                            this.datosPropiedades[propId] = {
+                                total: propData.clicks_totales,
+                                datos: propData.clicks_por_mes
+                            };
+                        }
+                        
+                        // Actualizar el gráfico con la propiedad actualmente seleccionada
+                        const propiedadActual = this.propiedadSelect.value;
+                        this.updateChart(propiedadActual);
+                        
+                        console.log('✅ Gráfico actualizado con datos del servidor');
+                    } else {
+                        console.error('❌ Error en respuesta del servidor:', data.error);
+                    }
+                } catch (error) {
+                    console.error('❌ Error al actualizar datos desde el servidor:', error);
+                }
+            },
+
+            // Función para iniciar actualización automática
+            iniciarActualizacionAutomatica() {
+                console.log('🔄 Iniciando actualización automática del gráfico de clics...');
+                
+                // Verificar si estamos en la sección del dashboard
+                let isDashboardVisible = false;
+                
+                // Función para verificar si el dashboard está visible
+                const checkDashboardVisibility = () => {
+                    const dashboardSection = document.getElementById('dashboard-content');
+                    if (dashboardSection) {
+                        isDashboardVisible = !dashboardSection.classList.contains('hidden') && 
+                                           dashboardSection.style.display !== 'none';
+                    }
+                    return isDashboardVisible;
+                };
+                
+                // Actualizar cada 30 segundos solo si el dashboard está visible
+                setInterval(() => {
+                    if (checkDashboardVisibility()) {
+                        console.log('🔄 Dashboard visible - actualizando datos...');
+                        // Recargar la página para obtener datos actualizados
+                        window.location.reload();
+                    }
+                }, 30000); // 30 segundos
+                
+                console.log('✅ Actualización automática configurada cada 30 segundos (solo cuando dashboard visible)');
             }
         };
 
@@ -5800,7 +5879,6 @@
             },
 
             async handleFormSubmit() {
-                console.log('=== INICIANDO ACTUALIZACIÓN DE PERFIL ===');
                 
                 // Validar campos antes de enviar
                 if (!this.validateForm()) {
@@ -5881,7 +5959,6 @@
             },
 
             validateForm() {
-                console.log('=== VALIDANDO FORMULARIO ===');
                 let isValid = true;
                 
                 // Limpiar errores anteriores
@@ -6612,7 +6689,6 @@
             },
 
             validateCreateUserForm() {
-                console.log('=== VALIDANDO FORMULARIO DE CREAR USUARIO ===');
                 let isValid = true;
                 
                 // Limpiar errores anteriores
@@ -7471,7 +7547,6 @@
             // ========================================
             
             validatePropertyForm() {
-                console.log('=== VALIDANDO FORMULARIO DE PROPIEDAD ===');
                 let isValid = true;
                 
                 // Limpiar errores previos
@@ -7751,7 +7826,6 @@
             },
 
             initPropertyRealTimeValidation() {
-                console.log('Inicializando validación en tiempo real para formulario de propiedad');
                 
                 // Campos de texto y número
                 const textFields = [
@@ -7878,12 +7952,6 @@
                 const currentDateShortElement = document.getElementById('currentDateShort');
                 const currentDateMinimalElement = document.getElementById('currentDateMinimal');
                 
-                console.log('Actualizando fecha...', { 
-                    currentDateFullElement, 
-                    currentDateMediumElement, 
-                    currentDateShortElement, 
-                    currentDateMinimalElement 
-                });
                 
                 // Función para formatear fecha directamente
                 const formatDate = (date, options) => {
@@ -7899,7 +7967,6 @@
                 if (currentDateFullElement) {
                     const formattedDate = formatDate(currentDate, optionsFull);
                     currentDateFullElement.textContent = formattedDate;
-                    console.log('Fecha completa actualizada:', formattedDate);
                 } else {
                     console.log('Elemento currentDateFull no encontrado');
                 }
@@ -7908,7 +7975,6 @@
                 if (currentDateMediumElement) {
                     const formattedDate = formatDate(currentDate, optionsMedium);
                     currentDateMediumElement.textContent = formattedDate;
-                    console.log('Fecha media actualizada:', formattedDate);
                 } else {
                     console.log('Elemento currentDateMedium no encontrado');
                 }
@@ -7917,7 +7983,6 @@
                 if (currentDateShortElement) {
                     const formattedDate = formatDate(currentDate, optionsShort);
                     currentDateShortElement.textContent = formattedDate;
-                    console.log('Fecha corta actualizada:', formattedDate);
                 } else {
                     console.log('Elemento currentDateShort no encontrado');
                 }
@@ -7926,7 +7991,6 @@
                 if (currentDateMinimalElement) {
                     const formattedDate = formatDate(currentDate, optionsMinimal);
                     currentDateMinimalElement.textContent = formattedDate;
-                    console.log('Fecha mínima actualizada:', formattedDate);
                 } else {
                     console.log('Elemento currentDateMinimal no encontrado');
                 }
@@ -8429,6 +8493,9 @@
                 AnimationManager.init();
                 ActivitiesManager.init();
                 PropertyModalManager.init();
+                
+                // Iniciar actualización automática del gráfico de clics - DESHABILITADO
+                // ChartManager.iniciarActualizacionAutomatica();
                 
                 // Actualizar contador de usuarios cada 30 segundos
                 setInterval(() => {
@@ -10579,7 +10646,6 @@
                     const element = document.getElementById(id);
                     if (element) {
                         element.textContent = currentDate.toLocaleDateString('es-ES', opts);
-                        console.log(`Fecha actualizada en ${id}:`, element.textContent);
                     } else {
                         console.log(`Elemento ${id} no encontrado`);
                     }

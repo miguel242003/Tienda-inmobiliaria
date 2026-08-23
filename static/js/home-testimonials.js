@@ -46,15 +46,6 @@ class HomeTestimonials {
         this.prevBtn = document.getElementById('prevBtn');
         this.nextBtn = document.getElementById('nextBtn');
         this.totalTestimonials = this.items.length;
-        
-        // Validar que los elementos existan
-        if (!this.track) {
-            throw new Error('Testimonials track element not found');
-        }
-        
-        if (this.items.length === 0) {
-            throw new Error('No testimonial items found');
-        }
     }
 
     /**
@@ -254,14 +245,7 @@ class HomeTestimonials {
 // Export for use in other modules
 window.HomeTestimonials = HomeTestimonials;
 
-// Auto-initialize when DOM is ready (only if testimonials elements exist)
+// Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    const testimonialsTrack = document.getElementById('testimonialsTrack');
-    
-    if (testimonialsTrack) {
-        window.homeTestimonials = new HomeTestimonials();
-        console.log('Home Testimonials auto-initialized');
-    } else {
-        console.log('Testimonials elements not found, skipping initialization');
-    }
+    window.homeTestimonials = new HomeTestimonials();
 });
