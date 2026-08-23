@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -8,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django_ratelimit.decorators import ratelimit
 from django.conf import settings
 from .models import Propiedad, ClickPropiedad, Amenidad
@@ -82,19 +84,17 @@ def detalle_propiedad(request, slug):
         # Solo mostrar propiedades disponibles (excluir eliminadas)
         propiedad = Propiedad.objects.get(slug=slug, estado='disponible')
     except Propiedad.DoesNotExist:
-        # Si no se encuentra por slug, buscar por título similar
-        # Esto maneja casos donde el slug cambió pero la URL antigua sigue siendo accesible
+        # Si no se encuentra por slug, puede que el título haya cambiado y un enlace
+        # antiguo apunte a un slug desactualizado. Solo redirigimos si el slug pedido
+        # coincide EXACTAMENTE con slugify(titulo) de alguna propiedad: una coincidencia
+        # parcial (ej. mismo prefijo) podría redirigir a una propiedad equivocada.
         from django.utils.text import slugify
-        
-        # Buscar propiedades disponibles que tengan un slug similar o que el título genere un slug similar
-        propiedades_similares = Propiedad.objects.filter(estado='disponible')
-        for prop in propiedades_similares:
-            if slugify(prop.titulo) == slug or prop.slug.startswith(slug.split('-')[0]):
-                # Redirigir a la URL correcta
+
+        for prop in Propiedad.objects.filter(estado='disponible').only('slug', 'titulo'):
+            if slugify(prop.titulo) == slug:
                 return redirect('propiedades:detalle', slug=prop.slug)
-        
+
         # Si no se encuentra ninguna coincidencia, mostrar 404
-        from django.shortcuts import get_object_or_404
         propiedad = get_object_or_404(Propiedad, slug=slug, estado='disponible')
     
     # Procesar formulario de contacto si es POST
@@ -224,9 +224,10 @@ def detalle_propiedad(request, slug):
                 return redirect('propiedades:detalle', slug=propiedad.slug)
                 
             except Exception as e:
+                logger.error(f"Error al procesar formulario de contacto de propiedad: {e}", exc_info=True)
                 messages.error(
-                    request, 
-                    f'Error al enviar el mensaje: {str(e)}. Por favor intenta nuevamente o contacta directamente con nosotros.'
+                    request,
+                    'No pudimos enviar tu mensaje. Por favor intenta nuevamente o contacta directamente con nosotros.'
                 )
         else:
             # Mostrar errores del formulario
@@ -336,445 +337,250 @@ def buscar_propiedades(request):
     
     return render(request, 'propiedades/buscar_propiedades.html', context)
 
-@csrf_exempt
+@login_required
+@require_POST
 def upload_fotos_adicionales(request):
-    """Vista para subir fotos adicionales via AJAX"""
-    if request.method == 'POST':
-        try:
-            propiedad_id = request.POST.get('propiedad_id')
-            fotos = request.FILES.getlist('fotos')
-            
-            if not propiedad_id or not fotos:
-                return JsonResponse({'success': False, 'error': 'Datos incompletos'})
-            
-            # Solo permitir agregar fotos a propiedades disponibles (excluir eliminadas)
-            propiedad = get_object_or_404(Propiedad, id=propiedad_id, estado='disponible')
-            
-            # Guardar cada foto
-            fotos_guardadas = []
-            for i, foto in enumerate(fotos):
-                from .models import FotoPropiedad
-                foto_obj = FotoPropiedad.objects.create(
-                    propiedad=propiedad,
-                    imagen=foto,
-                    orden=i + 1,
-                    descripcion=f"Foto adicional {i + 1}"
-                )
-                fotos_guardadas.append({
-                    'id': foto_obj.id,
-                    'url': foto_obj.imagen.url,
-                    'nombre': foto_obj.imagen.name
-                })
-            
-            return JsonResponse({
-                'success': True,
-                'fotos': fotos_guardadas,
-                'mensaje': f'{len(fotos)} fotos subidas exitosamente'
-            })
-            
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    
-    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+    """Vista para subir fotos adicionales via AJAX (solo administradores)"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'No tienes permisos para realizar esta acción.'}, status=403)
 
-from django.contrib.auth.decorators import login_required
+    try:
+        propiedad_id = request.POST.get('propiedad_id')
+        fotos = request.FILES.getlist('fotos')
+
+        if not propiedad_id or not fotos:
+            return JsonResponse({'success': False, 'error': 'Datos incompletos'})
+
+        # Solo permitir agregar fotos a propiedades disponibles (excluir eliminadas)
+        propiedad = get_object_or_404(Propiedad, id=propiedad_id, estado='disponible')
+
+        # Validar cada archivo (tipo MIME real, tamaño y extensión) antes de guardar nada
+        for foto in fotos:
+            try:
+                validar_imagen(foto)
+            except ValidationError as ve:
+                return JsonResponse({'success': False, 'error': str(ve)}, status=400)
+
+        # Guardar cada foto
+        fotos_guardadas = []
+        for i, foto in enumerate(fotos):
+            from .models import FotoPropiedad
+            foto_obj = FotoPropiedad.objects.create(
+                propiedad=propiedad,
+                imagen=foto,
+                orden=i + 1,
+                descripcion=f"Foto adicional {i + 1}"
+            )
+            fotos_guardadas.append({
+                'id': foto_obj.id,
+                'url': foto_obj.imagen.url,
+                'nombre': foto_obj.imagen.name
+            })
+
+        return JsonResponse({
+            'success': True,
+            'fotos': fotos_guardadas,
+            'mensaje': f'{len(fotos)} fotos subidas exitosamente'
+        })
+
+    except Exception as e:
+        logger.error(f"Error en upload_fotos_adicionales: {e}")
+        return JsonResponse({'success': False, 'error': 'No se pudieron subir las fotos.'})
+
+def _asignar_administrador(request, propiedad):
+    """Asigna a la propiedad el AdminCredentials del usuario autenticado,
+    creándolo si todavía no existe (ej. un superusuario creado con
+    `createsuperuser` que nunca pasó por el flujo de configuración de admin).
+    Es best-effort: si falla, se registra el error pero no se interrumpe la
+    creación de la propiedad. Se usa una transacción anidada (savepoint) para
+    que un fallo acá no deje la conexión en un estado roto para las queries
+    posteriores (guardar la propiedad, etc.)."""
+    if not (hasattr(request, 'user') and request.user.is_authenticated):
+        return
+
+    try:
+        with transaction.atomic():
+            from login.models import AdminCredentials
+
+            admin_creds = getattr(request.user, 'admincredentials', None)
+            if not admin_creds:
+                admin_creds = AdminCredentials.objects.filter(email=request.user.email).first()
+            if not admin_creds:
+                admin_creds = AdminCredentials.objects.create(
+                    user=request.user,
+                    email=request.user.email,
+                    nombre=request.user.get_full_name() or request.user.username,
+                    telefono='',
+                    activo=True
+                )
+
+            propiedad.administrador = admin_creds
+    except Exception as e:
+        logger.warning(f"No se pudo asignar administrador a la propiedad: {e}")
+
+
+def guardar_archivos_adicionales(propiedad, archivos, orden_inicial=0):
+    """Valida y guarda una lista de archivos (imagen o video) como FotoPropiedad
+    de `propiedad`, optimizándolos a WebP/comprimidos cuando corresponde.
+    Usada tanto al crear como al editar una propiedad.
+    Devuelve la lista de instancias FotoPropiedad creadas."""
+    from .models import FotoPropiedad
+    from core.utils import copiar_imagen_a_static
+
+    fotos_creadas = []
+    for i, archivo in enumerate(archivos):
+        try:
+            archivo, tipo_medio = validar_imagen_o_video(archivo)
+        except ValidationError as ve:
+            logger.warning(f"Archivo adicional rechazado ({archivo.name}): {ve}")
+            continue
+
+        orden = orden_inicial + i + 1
+        foto = FotoPropiedad(
+            propiedad=propiedad,
+            tipo_medio=tipo_medio,
+            orden=orden,
+            descripcion=f"Foto adicional {orden}",
+        )
+        if tipo_medio == 'imagen':
+            foto.imagen = archivo
+        else:
+            foto.video = archivo
+
+        try:
+            foto.save()
+        except Exception as e:
+            logger.error(f"Error al guardar archivo adicional ({archivo.name}): {e}", exc_info=True)
+            continue
+
+        fotos_creadas.append(foto)
+
+        # Optimización (WebP para imágenes, compresión para video); no crítica.
+        try:
+            if tipo_medio == 'imagen':
+                foto.optimize_image_field('imagen', quality=85)
+                nombre_archivo = f"{propiedad.slug}-adicional-{foto.orden}"
+                copiar_imagen_a_static(foto.imagen, nombre_archivo, quality=85)
+            else:
+                foto.optimize_video_field('video', quality=80)
+        except Exception as e:
+            logger.warning(f"Error optimizando archivo adicional ({archivo.name}, no crítico): {e}")
+
+    return fotos_creadas
+
+
+def _contexto_form_propiedad(form):
+    return {
+        'form': form,
+        'titulo_pagina': 'Crear Nueva Propiedad',
+        'amenidades': Amenidad.objects.all(),
+    }
+
 
 @login_required
 @ratelimit(key='user', rate='20/h', method='POST', block=False)
 def crear_propiedad(request):
-    """
-    Vista para crear una nueva propiedad.
-    """
+    """Vista para crear una nueva propiedad."""
     try:
-        logger.debug("=== INICIO CREAR PROPIEDAD ===")
-        logger.debug(f"Usuario: {request.user}")
-        logger.debug(f"Método: {request.method}")
-        logger.debug(f"Es AJAX: {request.headers.get('X-Requested-With') == 'XMLHttpRequest'}")
-        logger.debug(f"DEBUG: {settings.DEBUG}")
-        logger.debug(f"Database: {settings.DATABASES['default']['ENGINE']}")
-        
-        # Verificar rate limit
-        was_limited = getattr(request, 'limited', False)
-        if was_limited:
+        if getattr(request, 'limited', False):
             messages.error(request, 'Has excedido el límite de creación de propiedades. Intenta más tarde.')
             return redirect('login:dashboard')
 
-        if request.method == 'POST':
-            logger.debug("=== PROCESANDO POST ===")
-            logger.debug(f"Datos POST: {request.POST}")
-            logger.debug(f"Archivos FILES: {list(request.FILES.keys())}")
-            for key in request.FILES:
-                file = request.FILES[key]
-                logger.debug(f"  - {key}: {file.name} ({file.size} bytes, {file.content_type})")
-            
-            # Validar datos básicos antes de crear el formulario
-            if not request.POST.get('titulo'):
-                error_msg = "El título es requerido"
-                logger.error(f"ERROR: {error_msg}")
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.method != 'POST':
+            return render(request, 'propiedades/crear_propiedad.html', _contexto_form_propiedad(PropiedadForm()))
+
+        es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+        if not request.POST.get('titulo'):
+            error_msg = "El título es requerido"
+            if es_ajax:
+                return JsonResponse({'success': False, 'message': error_msg})
+            messages.error(request, error_msg)
+            return redirect('login:dashboard')
+
+        form = PropiedadForm(request.POST, request.FILES)
+
+        if not form.is_valid():
+            logger.warning(f"Errores del formulario al crear propiedad: {form.errors}")
+            if es_ajax:
+                errors = {field: [str(err) for err in field_errors] for field, field_errors in form.errors.items()}
+                if form.non_field_errors():
+                    errors['__all__'] = [str(err) for err in form.non_field_errors()]
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Por favor corrige los errores en el formulario.',
+                    'errors': errors
+                })
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+            return render(request, 'propiedades/crear_propiedad.html', _contexto_form_propiedad(form))
+
+        try:
+            propiedad = form.save(commit=False)
+            _asignar_administrador(request, propiedad)
+
+            try:
+                propiedad.save()
+                propiedad.refresh_from_db()
+            except Exception as db_error:
+                logger.error(f"Error al guardar propiedad: {db_error}", exc_info=True)
+                if 'Duplicate entry' in str(db_error):
+                    error_msg = "Ya existe una propiedad con estos datos. Por favor, verifica la información."
+                elif 'Connection' in str(db_error):
+                    error_msg = "Error de conexión con la base de datos. Intenta nuevamente."
+                elif 'Permission' in str(db_error):
+                    error_msg = "Error de permisos. Contacta al administrador."
+                else:
+                    error_msg = "Error al guardar la propiedad. Intenta nuevamente."
+
+                if es_ajax:
                     return JsonResponse({'success': False, 'message': error_msg})
-                else:
-                    messages.error(request, error_msg)
-                    return redirect('login:dashboard')
-            
-            form = PropiedadForm(request.POST, request.FILES)
-            
-            if form.is_valid():
-                logger.info("=== FORMULARIO VÁLIDO ===")
-                logger.info(f"Archivos recibidos: {list(request.FILES.keys())}")
-                try:
-                    propiedad = form.save(commit=False)
-                    
-                    # Verificar que las imágenes se asignaron correctamente
-                    if 'imagen_principal' in request.FILES:
-                        logger.info(f"Imagen principal recibida: {request.FILES['imagen_principal'].name}")
-                    if 'imagen_secundaria' in request.FILES:
-                        logger.info(f"Imagen secundaria recibida: {request.FILES['imagen_secundaria'].name}")
-                    
-                    logger.debug(f"Antes de guardar - Imagen principal: {propiedad.imagen_principal}")
-                    logger.debug(f"Antes de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
-                    
-                    # Asignar administrador de forma más robusta
-                    if hasattr(request, 'user') and request.user.is_authenticated:
-                        try:
-                            from login.models import AdminCredentials
-                        except ImportError as import_error:
-                            logger.error(f"ERROR: No se pudo importar AdminCredentials: {import_error}")
-                            # Continuar sin asignar administrador
-                            AdminCredentials = None
-                        
-                        if AdminCredentials:
-                            try:
-                                # Intentar obtener AdminCredentials de diferentes formas
-                                admin_creds = None
-                                
-                                # Método 1: Relación directa
-                                if hasattr(request.user, 'admincredentials'):
-                                    admin_creds = request.user.admincredentials
-                                    logger.debug(f"AdminCredentials encontrado por relación directa: {admin_creds}")
-                                
-                                # Método 2: Buscar por email
-                                if not admin_creds:
-                                    try:
-                                        admin_creds = AdminCredentials.objects.get(email=request.user.email)
-                                        logger.debug(f"AdminCredentials encontrado por email: {admin_creds}")
-                                    except AdminCredentials.DoesNotExist:
-                                        logger.debug("No se encontró AdminCredentials por email")
-                                
-                                # Método 3: Crear uno nuevo si no existe
-                                if not admin_creds:
-                                    logger.info("Creando nuevo AdminCredentials...")
-                                    admin_creds = AdminCredentials.objects.create(
-                                        email=request.user.email,
-                                        nombre=request.user.get_full_name() or request.user.username,
-                                        telefono='',
-                                        activo=True
-                                    )
-                                    logger.info(f"AdminCredentials creado: {admin_creds}")
-                                
-                                if admin_creds:
-                                    propiedad.administrador = admin_creds
-                                    logger.debug(f"Administrador asignado: {admin_creds}")
-                                else:
-                                    logger.warning("ADVERTENCIA: No se pudo asignar administrador")
-                                    
-                            except Exception as e:
-                                logger.warning(f"ADVERTENCIA: Error al manejar AdminCredentials: {e}")
-                                # No fallar la creación por problemas de administrador
-                    
-                    # Guardar la propiedad con manejo de errores específicos
-                    try:
-                        # IMPORTANTE: Refrescar la propiedad después de guardar para asegurar que las imágenes estén disponibles
-                        propiedad.save()
-                        logger.info(f"Propiedad guardada con ID: {propiedad.id}")
-                        
-                        # Refrescar desde la base de datos para asegurar que los campos de imagen estén actualizados
-                        propiedad.refresh_from_db()
-                        
-                        logger.debug(f"Después de guardar - Imagen principal: {propiedad.imagen_principal}")
-                        logger.debug(f"Después de guardar - Imagen principal name: {propiedad.imagen_principal.name if propiedad.imagen_principal else 'None'}")
-                        logger.debug(f"Después de guardar - Imagen secundaria: {propiedad.imagen_secundaria}")
-                        logger.debug(f"Después de guardar - Imagen secundaria name: {propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else 'None'}")
-                        
-                        # Verificar que los archivos existen físicamente
-                        import time
-                        from django.core.files.storage import default_storage
-                        
-                        # Esperar un momento para que los archivos se guarden completamente
-                        time.sleep(0.3)
-                        
-                        if propiedad.imagen_principal:
-                            existe = default_storage.exists(propiedad.imagen_principal.name)
-                            logger.debug(f"Imagen principal existe en storage: {existe}")
-                            if existe:
-                                try:
-                                    path = propiedad.imagen_principal.path
-                                    logger.debug(f"Imagen principal path: {path}")
-                                    import os
-                                    logger.debug(f"Imagen principal existe en filesystem: {os.path.exists(path)}")
-                                except Exception as e:
-                                    logger.warning(f"Error al obtener path de imagen principal: {e}")
-                            else:
-                                logger.warning(f"ADVERTENCIA: Imagen principal no existe en storage inmediatamente después de guardar")
-                                # Intentar nuevamente después de un momento
-                                time.sleep(0.5)
-                                existe_retry = default_storage.exists(propiedad.imagen_principal.name)
-                                logger.debug(f"Imagen principal existe en storage (retry): {existe_retry}")
-                        
-                        if propiedad.imagen_secundaria:
-                            existe = default_storage.exists(propiedad.imagen_secundaria.name)
-                            logger.debug(f"Imagen secundaria existe en storage: {existe}")
-                            if existe:
-                                try:
-                                    path = propiedad.imagen_secundaria.path
-                                    logger.debug(f"Imagen secundaria path: {path}")
-                                    import os
-                                    logger.debug(f"Imagen secundaria existe en filesystem: {os.path.exists(path)}")
-                                except Exception as e:
-                                    logger.warning(f"Error al obtener path de imagen secundaria: {e}")
-                            else:
-                                logger.warning(f"ADVERTENCIA: Imagen secundaria no existe en storage inmediatamente después de guardar")
-                                # Intentar nuevamente después de un momento
-                                time.sleep(0.5)
-                                existe_retry = default_storage.exists(propiedad.imagen_secundaria.name)
-                                logger.debug(f"Imagen secundaria existe en storage (retry): {existe_retry}")
-                    except Exception as db_error:
-                        logger.error(f"ERROR al guardar propiedad: {db_error}")
-                        logger.error(f"Tipo de error: {type(db_error).__name__}")
-                        
-                        # Manejar errores específicos de base de datos
-                        if 'Duplicate entry' in str(db_error):
-                            error_msg = "Ya existe una propiedad con estos datos. Por favor, verifica la información."
-                        elif 'Connection' in str(db_error):
-                            error_msg = "Error de conexión con la base de datos. Intenta nuevamente."
-                        elif 'Permission' in str(db_error):
-                            error_msg = "Error de permisos. Contacta al administrador."
-                        else:
-                            error_msg = f"Error al guardar la propiedad: {str(db_error)}"
-                        
-                        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                            return JsonResponse({'success': False, 'message': error_msg})
-                        else:
-                            messages.error(request, error_msg)
-                            return render(request, 'propiedades/crear_propiedad.html', {
-                                'form': form,
-                                'titulo_pagina': 'Crear Nueva Propiedad',
-                                'amenidades': Amenidad.objects.all()
-                            })
-                    
-                    # Guardar relaciones many-to-many
-                    try:
-                        form.save_m2m()
-                        logger.debug("Relaciones many-to-many guardadas")
-                    except Exception as m2m_error:
-                        logger.warning(f"WARNING: Error guardando relaciones M2M: {m2m_error}")
-                        # No fallar por errores de M2M, pero registrar
-                    
-                    # Guardar fotos y videos adicionales
-                    try:
-                        archivos_adicionales = request.FILES.getlist('fotos_adicionales')
-                        if archivos_adicionales:
-                            logger.info(f"Procesando {len(archivos_adicionales)} archivos adicionales")
-                            from .models import FotoPropiedad
-                            fotos_creadas = []
-                            
-                            for i, archivo in enumerate(archivos_adicionales):
-                                try:
-                                    # Determinar si es imagen o video
-                                    tipo_medio = 'video' if archivo.content_type.startswith('video/') else 'imagen'
-                                    logger.debug(f"Archivo {i+1}: {archivo.name} - Tipo: {tipo_medio} - Content-Type: {archivo.content_type}")
-                                    
-                                    foto_propiedad = FotoPropiedad(
-                                        propiedad=propiedad, 
-                                        tipo_medio=tipo_medio,
-                                        orden=i + 1,
-                                        descripcion=f"Foto adicional {i + 1}"
-                                    )
-                                    
-                                    if tipo_medio == 'imagen':
-                                        foto_propiedad.imagen = archivo
-                                    else:
-                                        foto_propiedad.video = archivo
-                                    
-                                    foto_propiedad.save()
-                                    fotos_creadas.append(foto_propiedad)
-                                    logger.info(f"Archivo adicional {i+1} guardado exitosamente: {archivo.name}")
-                                    
-                                except Exception as e:
-                                    logger.error(f"Error al guardar archivo adicional {i+1} ({archivo.name}): {e}")
-                                    import traceback
-                                    logger.error(traceback.format_exc())
-                                    # Continuar con los demás archivos
-                            
-                            logger.info(f"Total de archivos adicionales guardados: {len(fotos_creadas)}/{len(archivos_adicionales)}")
-                            
-                            # Optimizar y copiar todas las fotos adicionales a WebP después de guardarlas
-                            from core.utils import copiar_imagen_a_static
-                            for foto in fotos_creadas:
-                                if foto.tipo_medio == 'imagen' and foto.imagen:
-                                    try:
-                                        logger.debug(f"Optimizando foto adicional a WebP: {foto.descripcion}")
-                                        
-                                        # Optimizar en media
-                                        foto.optimize_image_field('imagen', quality=85)
-                                        
-                                        # Copiar a static como WebP
-                                        # Generar nombre basado en el slug de la propiedad y el orden
-                                        nombre_archivo = f"{propiedad.slug}-adicional-{foto.orden}"
-                                        resultado = copiar_imagen_a_static(foto.imagen, nombre_archivo, quality=85)
-                                        
-                                        if resultado:
-                                            logger.info(f"✅ Foto adicional convertida y copiada a static: {resultado}")
-                                        else:
-                                            logger.warning(f"⚠️ Foto adicional optimizada pero no se pudo copiar a static")
-                                        
-                                        logger.info(f"Foto adicional optimizada exitosamente: {foto.descripcion}")
-                                    except Exception as e:
-                                        logger.warning(f"Error optimizando foto adicional (no crítico): {e}")
-                                        import traceback
-                                        logger.warning(traceback.format_exc())
-                                        # No fallar por errores de optimización
-                                elif foto.tipo_medio == 'video' and foto.video:
-                                    try:
-                                        logger.debug(f"Optimizando video adicional: {foto.descripcion}")
-                                        foto.optimize_video_field('video', quality=80)
-                                        logger.info(f"Video adicional optimizado exitosamente: {foto.descripcion}")
-                                    except Exception as e:
-                                        logger.warning(f"Error optimizando video adicional (no crítico): {e}")
-                                        # No fallar por errores de optimización
-                        else:
-                            logger.debug("No se recibieron archivos adicionales")
-                    except Exception as e:
-                        logger.error(f"Error al procesar archivos adicionales: {e}")
-                        import traceback
-                        logger.error(traceback.format_exc())
-                        # No fallar la creación por errores en archivos adicionales
-                    
-                    # Deshabilitar optimización WebP temporalmente para evitar errores
-                    # try:
-                    #     if propiedad.imagen_principal:
-                    #         print("DEBUG - Optimizando imagen principal a WebP")
-                    #         propiedad.optimize_image_field('imagen_principal', quality=85)
-                    #     if propiedad.imagen_secundaria:
-                    #         print("DEBUG - Optimizando imagen secundaria a WebP")
-                    #         propiedad.optimize_image_field('imagen_secundaria', quality=85)
-                    # except Exception as e:
-                    #     print(f"DEBUG - Error en optimización WebP (no crítico): {e}")
-                    #     # No fallar la creación por errores de optimización
-                    
-                    # Obtener mensajes de conversión WebP si existen
-                    # Intentar obtener de diferentes formas
-                    conversion_messages = []
-                    if hasattr(propiedad, '_conversion_messages'):
-                        conversion_messages = propiedad._conversion_messages
-                        logger.info(f"📋 Mensajes obtenidos de atributo: {conversion_messages}")
-                    else:
-                        conversion_messages = getattr(propiedad, '_conversion_messages', [])
-                        logger.info(f"📋 Mensajes obtenidos con getattr: {conversion_messages}")
-                    
-                    # Si no hay mensajes, intentar recargar el objeto desde la BD
-                    if not conversion_messages:
-                        try:
-                            propiedad_refreshed = Propiedad.objects.get(pk=propiedad.pk)
-                            if hasattr(propiedad_refreshed, '_conversion_messages'):
-                                conversion_messages = propiedad_refreshed._conversion_messages
-                                logger.info(f"📋 Mensajes obtenidos después de refresh: {conversion_messages}")
-                        except:
-                            pass
-                    
-                    logger.info(f"📋 Mensajes de conversión finales: {conversion_messages}")
-                    logger.info(f"📋 Cantidad de mensajes: {len(conversion_messages)}")
-                    
-                    # Verificar si es una petición AJAX
-                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        response_data = {
-                            'success': True,
-                            'message': 'Propiedad creada exitosamente.',
-                            'propiedad_id': propiedad.id,
-                            'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug]),
-                            'conversion_messages': conversion_messages
-                        }
-                        logger.info(f"📤 Enviando respuesta JSON con {len(conversion_messages)} mensajes de conversión")
-                        return JsonResponse(response_data)
-                    else:
-                        messages.success(request, 'Propiedad creada exitosamente.')
-                        # Agregar mensajes de conversión a los mensajes de Django
-                        for msg in conversion_messages:
-                            if '✅' in msg:
-                                messages.success(request, msg)
-                            elif '❌' in msg:
-                                messages.error(request, msg)
-                            elif '🔄' in msg:
-                                messages.info(request, msg)
-                        return redirect('propiedades:detalle', slug=propiedad.slug)
-                        
-                except Exception as e:
-                    error_message = f'Error al crear la propiedad: {str(e)}'
-                    logger.error(f"ERROR: {error_message}")
-                    logger.error(f"Tipo de error: {type(e).__name__}")
-                    import traceback
-                    logger.error(f"Traceback completo: {traceback.format_exc()}")
-                    
-                    # Mensaje de error más amigable para el usuario
-                    user_friendly_message = "Hubo un problema al crear la propiedad. Por favor, verifica los datos e intenta nuevamente."
-                    
-                    messages.error(request, user_friendly_message)
-                    
-                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        return JsonResponse({
-                            'success': False,
-                            'message': user_friendly_message,
-                            'error_details': str(e) if DEBUG else None
-                        })
-                    else:
-                        return render(request, 'propiedades/crear_propiedad.html', {
-                            'form': form,
-                            'titulo_pagina': 'Crear Nueva Propiedad',
-                            'amenidades': Amenidad.objects.all()
-                        })
-            else:
-                logger.warning(f"Errores del formulario: {form.errors}")
-                logger.warning(f"Errores no-field: {form.non_field_errors()}")
-                
-                # Mostrar errores específicos en consola para debugging
-                for field, errors in form.errors.items():
-                    logger.warning(f"Campo '{field}': {errors}")
-                
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    errors = {}
-                    for field, field_errors in form.errors.items():
-                        errors[field] = [str(error) for error in field_errors]
-                    
-                    # Incluir errores no-field también
-                    if form.non_field_errors():
-                        errors['__all__'] = [str(error) for error in form.non_field_errors()]
-                    
-                    return JsonResponse({
-                        'success': False,
-                        'message': 'Por favor corrige los errores en el formulario.',
-                        'errors': errors
-                    })
-                else:
-                    messages.error(request, 'Por favor corrige los errores en el formulario.')
-        else:
-            form = PropiedadForm()
-        
-        context = {
-            'form': form,
-            'titulo_pagina': 'Crear Nueva Propiedad',
-            'amenidades': Amenidad.objects.all()
-        }
-        return render(request, 'propiedades/crear_propiedad.html', context)
-        
+                messages.error(request, error_msg)
+                return render(request, 'propiedades/crear_propiedad.html', _contexto_form_propiedad(form))
+
+            try:
+                form.save_m2m()
+            except Exception as m2m_error:
+                logger.warning(f"Error guardando relaciones M2M: {m2m_error}")
+
+            try:
+                guardar_archivos_adicionales(propiedad, request.FILES.getlist('fotos_adicionales'))
+            except Exception as e:
+                logger.error(f"Error al procesar archivos adicionales: {e}", exc_info=True)
+
+            # La conversión de imágenes a WebP corre en background (Celery) y
+            # ya no bloquea el request, así que no hay mensajes de conversión
+            # que mostrar todavía en esta respuesta. Se mantiene la clave por
+            # compatibilidad con el JS de la plantilla (crear_propiedad.html),
+            # que ya maneja bien el caso de lista vacía.
+            if es_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Propiedad creada exitosamente.',
+                    'propiedad_id': propiedad.id,
+                    'redirect_url': reverse('propiedades:detalle', args=[propiedad.slug]),
+                    'conversion_messages': []
+                })
+
+            messages.success(request, 'Propiedad creada exitosamente.')
+            return redirect('propiedades:detalle', slug=propiedad.slug)
+
+        except Exception as e:
+            logger.error(f"Error al crear la propiedad: {e}", exc_info=True)
+            user_friendly_message = "Hubo un problema al crear la propiedad. Por favor, verifica los datos e intenta nuevamente."
+            messages.error(request, user_friendly_message)
+
+            if es_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': user_friendly_message,
+                    'error_details': str(e) if settings.DEBUG else None
+                })
+            return render(request, 'propiedades/crear_propiedad.html', _contexto_form_propiedad(form))
+
     except Exception as e:
-        logger.critical(f"ERROR CRÍTICO en crear_propiedad: {e}")
-        logger.critical(f"Tipo de error: {type(e).__name__}")
-        import traceback
-        logger.critical(f"Traceback completo: {traceback.format_exc()}")
-        
-        # Manejar errores específicos de producción
+        logger.critical(f"Error crítico en crear_propiedad: {e}", exc_info=True)
         error_type = type(e).__name__
-        
+
         if 'DatabaseError' in error_type or 'OperationalError' in error_type:
             user_friendly_message = "Error de conexión con la base de datos. Por favor, intenta nuevamente en unos minutos."
         elif 'PermissionDenied' in error_type:
@@ -785,27 +591,17 @@ def crear_propiedad(request):
             user_friendly_message = "Error de configuración del sistema. Contacta al administrador."
         else:
             user_friendly_message = "Ha ocurrido un error inesperado. Por favor, intenta nuevamente o contacta al administrador."
-        
-        # Log del error para debugging
-        logger.error(f"ERROR DETALLADO: {str(e)}")
-        logger.error(f"USER AGENT: {request.META.get('HTTP_USER_AGENT', 'Unknown')}")
-        logger.error(f"REMOTE ADDR: {request.META.get('REMOTE_ADDR', 'Unknown')}")
-        
+
+        messages.error(request, user_friendly_message)
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
                 'message': user_friendly_message,
                 'error_details': str(e) if settings.DEBUG else None
             })
-        else:
-            messages.error(request, user_friendly_message)
-            form = PropiedadForm()
-            context = {
-                'form': form,
-                'titulo_pagina': 'Crear Nueva Propiedad',
-                'amenidades': Amenidad.objects.all()
-            }
-            return render(request, 'propiedades/crear_propiedad.html', context)
+
+        return render(request, 'propiedades/crear_propiedad.html', _contexto_form_propiedad(PropiedadForm()))
 
 @csrf_exempt
 @require_POST
@@ -843,7 +639,8 @@ def registrar_click(request):
     except json.JSONDecodeError:
         return JsonResponse({'success': False, 'error': 'JSON inválido'})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        logger.error(f"Error en registrar_click: {e}")
+        return JsonResponse({'success': False, 'error': 'No se pudo registrar el click.'})
 
 def crear_resena(request, slug):
     """Vista para crear una nueva reseña de una propiedad"""

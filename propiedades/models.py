@@ -4,7 +4,6 @@ from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth.models import User
 from core.fields import WebPImageFieldMixin, WebPImageField
-from core.utils import copiar_imagen_a_static
 
 class Amenidad(models.Model):
     """Modelo para las amenidades de las propiedades"""
@@ -109,9 +108,12 @@ class Propiedad(WebPImageFieldMixin, models.Model):
         """Generar slug automáticamente si no existe o actualizar si cambió el título"""
         from django.utils.text import slugify
         
-        # Guardar referencias a las imágenes antes de guardar
-        imagen_principal_existia = self.pk and self.imagen_principal
-        imagen_secundaria_existia = self.pk and self.imagen_secundaria
+        # Guardar referencias a las imágenes antes de guardar. Estos flags se
+        # pasan como argumento a una tarea de Celery (ver más abajo), así que
+        # tienen que ser booleanos reales y no el objeto ImageFieldFile: con
+        # un broker real los argumentos se serializan a JSON.
+        imagen_principal_existia = bool(self.pk and self.imagen_principal)
+        imagen_secundaria_existia = bool(self.pk and self.imagen_secundaria)
         
         # Obtener las rutas originales si es una edición
         if self.pk:
@@ -137,173 +139,32 @@ class Propiedad(WebPImageFieldMixin, models.Model):
                 self.slug = f"{base_slug}-{counter}"
                 counter += 1
         
-        # Inicializar lista de mensajes ANTES de guardar
-        if not hasattr(self, '_conversion_messages'):
-            self._conversion_messages = []
-        else:
-            # Limpiar mensajes anteriores si existen
-            self._conversion_messages = []
-        
         # Guardar primero para que las imágenes se guarden en media
         super().save(*args, **kwargs)
-        
-        # Copiar imágenes a static después de guardar (convertidas a WebP)
-        # Solo copiar si la imagen cambió o es nueva
-        import logging
-        import time
-        import os
-        from django.conf import settings
-        from pathlib import Path
-        from django.core.files.storage import default_storage
-        logger = logging.getLogger(__name__)
-        
-        logger.info(f"🔄 Iniciando proceso de conversión WebP para propiedad: {self.slug}")
-        logger.info(f"   Imagen principal existe: {bool(self.imagen_principal)}")
-        logger.info(f"   Imagen secundaria existe: {bool(self.imagen_secundaria)}")
-        logger.info(f"   Mensajes iniciales: {len(self._conversion_messages)}")
-        
-        # Esperar y verificar que los archivos estén físicamente guardados
-        # Esto es crítico porque el guardado puede ser asíncrono
-        max_espera = 3  # Segundos máximo de espera
-        tiempo_espera = 0.2  # Segundos entre verificaciones
-        intentos = int(max_espera / tiempo_espera)
-        
-        def verificar_archivo_existe(nombre_archivo):
-            """Verifica si el archivo existe físicamente"""
-            # Método 1: Verificar en filesystem directamente
-            ruta_fisica = Path(settings.MEDIA_ROOT) / nombre_archivo
-            if os.path.exists(ruta_fisica):
-                return True
-            # Método 2: Verificar en storage
-            if default_storage.exists(nombre_archivo):
-                return True
-            return False
-        
-        if self.imagen_principal:
-            logger.info(f"📸 Procesando imagen principal: {self.imagen_principal.name}")
-            try:
-                # Verificar que el archivo existe físicamente antes de copiar
-                archivo_existe = False
-                
-                for intento in range(intentos):
-                    if verificar_archivo_existe(self.imagen_principal.name):
-                        archivo_existe = True
-                        logger.info(f"✓ Imagen principal encontrada después de {intento + 1} intentos: {self.imagen_principal.name}")
-                        break
-                    time.sleep(tiempo_espera)
-                
-                if archivo_existe:
-                    imagen_principal_cambio = not imagen_principal_original or self.imagen_principal.name != imagen_principal_original
-                    logger.info(f"   Cambio detectado: {imagen_principal_cambio}, Existía antes: {imagen_principal_existia}")
-                    if imagen_principal_cambio or not imagen_principal_existia:
-                        # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
-                        nombre_archivo = f"{self.slug}-principal"
-                        logger.info(f"🔄 Convirtiendo imagen principal a WebP: {nombre_archivo}")
-                        logger.info(f"   Archivo completo: {self.imagen_principal.name}")
-                        logger.info(f"   Intentando llamar a copiar_imagen_a_static...")
-                        logger.info(f"   self.imagen_principal: {self.imagen_principal}")
-                        logger.info(f"   self.imagen_principal.name: {self.imagen_principal.name if self.imagen_principal else None}")
-                        logger.info(f"   nombre_archivo: {nombre_archivo}")
-                        self._conversion_messages.append(f"🔄 Convirtiendo imagen principal a WebP...")
-                        logger.info(f"   Mensajes después de agregar: {len(self._conversion_messages)}")
-                        try:
-                            logger.info(f"   Llamando a copiar_imagen_a_static ahora...")
-                            logger.info(f"   Parámetros: imagen_field={self.imagen_principal}, nombre={nombre_archivo}, quality=85")
-                            resultado = copiar_imagen_a_static(self.imagen_principal, nombre_archivo, quality=85)
-                            logger.info(f"   ✅ copiar_imagen_a_static retornó: {resultado}")
-                            logger.info(f"   Tipo de resultado: {type(resultado)}")
-                            if resultado is not None:
-                                logger.info(f"✅ Imagen principal convertida y copiada exitosamente: {resultado}")
-                                self._conversion_messages.append(f"✅ Imagen principal convertida exitosamente: {resultado}")
-                            else:
-                                logger.error(f"❌ ERROR: copiar_imagen_a_static retornó None")
-                                logger.error(f"   Archivo: {self.imagen_principal.name}")
-                                logger.error(f"   Slug: {self.slug}")
-                                self._conversion_messages.append(f"❌ ERROR: No se pudo convertir imagen principal (retornó None)")
-                        except Exception as e:
-                            logger.error(f"❌ EXCEPCIÓN al llamar copiar_imagen_a_static: {e}")
-                            import traceback
-                            logger.error(traceback.format_exc())
-                            self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
-                        logger.info(f"   Mensajes finales: {len(self._conversion_messages)}")
-                    else:
-                        logger.info(f"   No se convierte imagen principal (no cambió y ya existía)")
-                else:
-                    logger.error(f"❌ ERROR: Imagen principal no existe físicamente después de {intentos} intentos")
-                    logger.error(f"   Archivo: {self.imagen_principal.name}")
-                    logger.error(f"   Ruta esperada: {Path(settings.MEDIA_ROOT) / self.imagen_principal.name}")
-                    self._conversion_messages.append(f"❌ ERROR: Imagen principal no encontrada físicamente")
-            except Exception as e:
-                logger.error(f"❌ EXCEPCIÓN al copiar imagen principal a static: {e}")
-                import traceback
-                logger.error(traceback.format_exc())
-                self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
-        else:
-            logger.info(f"⚠️ No hay imagen principal para convertir")
-        
-        logger.info(f"📊 Mensajes después de procesar imagen principal: {len(self._conversion_messages)}")
-        
-        if self.imagen_secundaria:
-            logger.info(f"📸 Procesando imagen secundaria: {self.imagen_secundaria.name}")
-            try:
-                # Verificar que el archivo existe físicamente antes de copiar
-                archivo_existe = False
-                
-                for intento in range(intentos):
-                    if verificar_archivo_existe(self.imagen_secundaria.name):
-                        archivo_existe = True
-                        logger.info(f"✓ Imagen secundaria encontrada después de {intento + 1} intentos: {self.imagen_secundaria.name}")
-                        break
-                    time.sleep(tiempo_espera)
-                
-                if archivo_existe:
-                    imagen_secundaria_cambio = not imagen_secundaria_original or self.imagen_secundaria.name != imagen_secundaria_original
-                    logger.info(f"   Cambio detectado: {imagen_secundaria_cambio}, Existía antes: {imagen_secundaria_existia}")
-                    if imagen_secundaria_cambio or not imagen_secundaria_existia:
-                        # Generar nombre basado en el slug de la propiedad (sin extensión, se agregará .webp)
-                        nombre_archivo = f"{self.slug}-secundaria"
-                        logger.info(f"🔄 Convirtiendo imagen secundaria a WebP: {nombre_archivo}")
-                        logger.info(f"   Archivo completo: {self.imagen_secundaria.name}")
-                        logger.info(f"   Intentando llamar a copiar_imagen_a_static...")
-                        self._conversion_messages.append(f"🔄 Convirtiendo imagen secundaria a WebP...")
-                        logger.info(f"   Mensajes después de agregar: {len(self._conversion_messages)}")
-                        try:
-                            logger.info(f"   Llamando a copiar_imagen_a_static ahora...")
-                            logger.info(f"   Parámetros: imagen_field={self.imagen_secundaria}, nombre={nombre_archivo}, quality=85")
-                            resultado = copiar_imagen_a_static(self.imagen_secundaria, nombre_archivo, quality=85)
-                            logger.info(f"   ✅ copiar_imagen_a_static retornó: {resultado}")
-                            logger.info(f"   Tipo de resultado: {type(resultado)}")
-                            if resultado is not None:
-                                logger.info(f"✅ Imagen secundaria convertida y copiada exitosamente: {resultado}")
-                                self._conversion_messages.append(f"✅ Imagen secundaria convertida exitosamente: {resultado}")
-                            else:
-                                logger.error(f"❌ ERROR: copiar_imagen_a_static retornó None")
-                                logger.error(f"   Archivo: {self.imagen_secundaria.name}")
-                                logger.error(f"   Slug: {self.slug}")
-                                self._conversion_messages.append(f"❌ ERROR: No se pudo convertir imagen secundaria (retornó None)")
-                        except Exception as e:
-                            logger.error(f"❌ EXCEPCIÓN al llamar copiar_imagen_a_static: {e}")
-                            import traceback
-                            logger.error(traceback.format_exc())
-                            self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
-                        logger.info(f"   Mensajes finales: {len(self._conversion_messages)}")
-                    else:
-                        logger.info(f"   No se convierte imagen secundaria (no cambió y ya existía)")
-                else:
-                    logger.error(f"❌ ERROR: Imagen secundaria no existe físicamente después de {intentos} intentos")
-                    logger.error(f"   Archivo: {self.imagen_secundaria.name}")
-                    logger.error(f"   Ruta esperada: {Path(settings.MEDIA_ROOT) / self.imagen_secundaria.name}")
-                    self._conversion_messages.append(f"❌ ERROR: Imagen secundaria no encontrada físicamente")
-            except Exception as e:
-                logger.error(f"❌ EXCEPCIÓN al copiar imagen secundaria a static: {e}")
-                import traceback
-                logger.error(traceback.format_exc())
-                self._conversion_messages.append(f"❌ EXCEPCIÓN: {str(e)}")
-        else:
-            logger.info(f"⚠️ No hay imagen secundaria para convertir")
-        
-        logger.info(f"📊 Total mensajes de conversión: {len(self._conversion_messages)}")
-        logger.info(f"   Mensajes: {self._conversion_messages}")
+
+        # La conversión a WebP y la copia a static son I/O pesado (leer,
+        # recodificar y volver a escribir cada imagen). Se despachan como
+        # tarea de Celery para no bloquear el request que crea/edita la
+        # propiedad; en desarrollo y tests corre síncrono (ver
+        # CELERY_TASK_ALWAYS_EAGER en settings.py) así que el comportamiento
+        # observable ahí no cambia.
+        try:
+            from .tasks import convertir_imagenes_propiedad_a_webp
+            convertir_imagenes_propiedad_a_webp.delay(
+                self.pk,
+                imagen_principal_original,
+                imagen_secundaria_original,
+                imagen_principal_existia,
+                imagen_secundaria_existia,
+            )
+        except Exception as e:
+            # Si el broker no está disponible, no debe romper el guardado de
+            # la propiedad; las imágenes quedan en media sin optimizar hasta
+            # el próximo save().
+            import logging
+            logging.getLogger(__name__).error(
+                f"No se pudo despachar la conversión de imágenes a WebP para la propiedad {self.pk}: {e}"
+            )
     
     def _get_original_titulo(self):
         """Obtener el título original de la base de datos"""

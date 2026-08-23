@@ -47,6 +47,7 @@ Sitio web inmobiliario de lujo desarrollado con Django, que presenta un catálog
 
 - **Backend**: Django 5.2.1
 - **Base de Datos**: MySQL
+- **Tareas en background**: Celery + Redis (conversión de imágenes a WebP, no bloquea el request)
 - **Frontend**: HTML5, CSS3, JavaScript
 - **Framework CSS**: Bootstrap 5.3.0
 - **Iconos**: Font Awesome 6.4.0
@@ -194,25 +195,32 @@ Cubren autogeneración de slugs, formato de precio, aprobación de reseñas, has
 ## 🚀 Despliegue
 
 ### Heroku
+El `Procfile` ya define los dos procesos necesarios:
+```
+web: gunicorn tienda_meli.tienda_meli.wsgi --log-file -
+worker: celery -A tienda_meli.tienda_meli worker -l info
+```
+El proceso `worker` es imprescindible: sin él, las imágenes se guardan pero
+nunca se convierten a WebP (la tarea queda encolada sin nadie que la
+procese). Con `heroku ps:scale web=1 worker=1` se activan ambos.
+
 ```bash
-# Crear Procfile
-echo "web: gunicorn tienda_meli.wsgi" > Procfile
-
-# Instalar gunicorn
-pip install gunicorn
-
 # Configurar variables de entorno en Heroku
 heroku config:set SECRET_KEY=tu_clave_secreta
 heroku config:set DEBUG=False
+heroku config:set REDIS_URL=... CELERY_BROKER_URL=...
 ```
 
 ### VPS/Dedicado
 ```bash
 # Instalar dependencias del sistema
 sudo apt update
-sudo apt install python3-pip python3-venv nginx mysql-server
+sudo apt install python3-pip python3-venv nginx mysql-server redis-server
 
-# Configurar Gunicorn + Nginx
+# Gunicorn + Nginx sirven el proceso web; además hace falta un proceso
+# celery worker corriendo (systemd/supervisor), o la conversión de
+# imágenes a WebP nunca se ejecuta:
+#   celery -A tienda_meli.tienda_meli worker -l info
 # (Ver documentación completa en docs/)
 ```
 

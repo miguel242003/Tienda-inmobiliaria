@@ -13,18 +13,15 @@ class AdminCredentialsAdmin(admin.ModelAdmin):
             'fields': ('nombre', 'apellido', 'email', 'telefono', 'foto_perfil')
         }),
         ('Información de Acceso', {
-            'fields': ('password', 'activo')
+            # La contraseña vive en auth.User (AdminCredentials ya no guarda su
+            # propio hash); se gestiona desde el panel de Usuarios de Django.
+            'fields': ('user', 'activo')
         }),
         ('Información del Sistema', {
             'fields': ('fecha_creacion',),
             'classes': ('collapse',)
         }),
     )
-    
-    def get_readonly_fields(self, request, obj=None):
-        if obj:  # Si es una edición
-            return list(self.readonly_fields) + ['password']
-        return self.readonly_fields
 
 
 @admin.register(PasswordResetCode)

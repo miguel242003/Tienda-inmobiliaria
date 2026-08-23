@@ -499,6 +499,27 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 # SESSION_CACHE_ALIAS = 'default'  # No se usa con backend db
 
 # ──────────────────────────────────────────────────────────────────────────
+# ⚙️ CELERY (tareas en background: conversión de imágenes a WebP, etc.)
+# ──────────────────────────────────────────────────────────────────────────
+# En producción hace falta un worker corriendo aparte del proceso web:
+#   celery -A tienda_meli.tienda_meli worker -l info
+import sys
+_TESTING = 'test' in sys.argv
+
+CELERY_BROKER_URL = config(
+    'CELERY_BROKER_URL',
+    default=config('REDIS_URL', default='redis://127.0.0.1:6379/2')
+)
+CELERY_RESULT_BACKEND = None
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+# Sin broker/worker real (desarrollo local y tests): ejecutar las tareas
+# de forma síncrona en el mismo proceso que las despacha.
+CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=(DEBUG or _TESTING), cast=bool)
+CELERY_TASK_EAGER_PROPAGATES = True
+
+# ──────────────────────────────────────────────────────────────────────────
 # 🗜️ COMPRESIÓN DE ARCHIVOS ESTÁTICOS (django-compressor)
 # ──────────────────────────────────────────────────────────────────────────
 

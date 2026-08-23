@@ -1,5 +1,6 @@
 from django import forms
 from .models import Propiedad, Amenidad, Resena
+from .validators import validar_imagen
 
 class PropiedadForm(forms.ModelForm):
     """Formulario para crear y editar propiedades"""
@@ -265,41 +266,21 @@ class PropiedadForm(forms.ModelForm):
         return ambientes
     
     def clean_imagen_principal(self):
-        """Validar la imagen principal"""
+        """Validar la imagen principal (tipo MIME real, tamaño y extensión)"""
         imagen = self.cleaned_data.get('imagen_principal')
         if imagen and hasattr(imagen, 'name') and imagen.name and not imagen.name.startswith('propiedades/'):
-            # Solo validar si es un archivo nuevo (no existente)
-            # Debug: Log información del archivo
-            print(f"DEBUG FORM - Archivo imagen_principal:")
-            print(f"  - Nombre: {imagen.name}")
-            print(f"  - Tamaño: {imagen.size} bytes")
-            print(f"  - Content-Type: {imagen.content_type}")
-            
-            # Validar tipo de archivo
-            allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-            if imagen.content_type not in allowed_types:
-                print(f"DEBUG FORM - Tipo no permitido: {imagen.content_type}")
-                raise forms.ValidationError('Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP).')
-            
-            # Validar tamaño (20MB máximo)
-            if imagen.size > 20 * 1024 * 1024:
-                print(f"DEBUG FORM - Tamaño excedido: {imagen.size} bytes")
-                raise forms.ValidationError('La imagen debe ser menor a 20MB.')
+            # Solo validar si es un archivo nuevo (no existente).
+            # validar_imagen levanta django.core.exceptions.ValidationError,
+            # que es la misma clase que forms.ValidationError.
+            validar_imagen(imagen)
         return imagen
-    
+
     def clean_imagen_secundaria(self):
-        """Validar la imagen secundaria"""
+        """Validar la imagen secundaria (tipo MIME real, tamaño y extensión)"""
         imagen = self.cleaned_data.get('imagen_secundaria')
         if imagen and hasattr(imagen, 'name') and imagen.name and not imagen.name.startswith('propiedades/'):
             # Solo validar si es un archivo nuevo (no existente)
-            # Validar tipo de archivo
-            allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
-            if imagen.content_type not in allowed_types:
-                raise forms.ValidationError('Solo se permiten archivos de imagen (JPEG, PNG, GIF, WebP).')
-            
-            # Validar tamaño (20MB máximo)
-            if imagen.size > 20 * 1024 * 1024:
-                raise forms.ValidationError('La imagen debe ser menor a 20MB.')
+            validar_imagen(imagen)
         return imagen
     
     def clean_latitud(self):
@@ -370,18 +351,16 @@ class PropiedadForm(forms.ModelForm):
         cleaned_data = super().clean()
         latitud = cleaned_data.get('latitud')
         longitud = cleaned_data.get('longitud')
-        
-        # Validar que las coordenadas estén dentro de Chile (aproximadamente)
-        # Solo validar si ambas coordenadas están presentes
+
+        # Aviso (no bloqueante) si las coordenadas caen fuera del rango esperado
+        # para Argentina/Chile; no impide guardar la propiedad.
         if latitud is not None and longitud is not None:
-            # Hacer la validación más flexible para permitir coordenadas de Argentina también
-            if latitud < -60 or latitud > -15:
-                # Solo mostrar advertencia, no error
-                print(f"ADVERTENCIA: Latitud {latitud} puede estar fuera del rango esperado")
-            if longitud < -80 or longitud > -60:
-                # Solo mostrar advertencia, no error  
-                print(f"ADVERTENCIA: Longitud {longitud} puede estar fuera del rango esperado")
-        
+            if (latitud < -60 or latitud > -15) or (longitud < -80 or longitud > -60):
+                import logging
+                logging.getLogger(__name__).warning(
+                    f"Coordenadas fuera del rango esperado: lat={latitud}, lon={longitud}"
+                )
+
         return cleaned_data
 
 

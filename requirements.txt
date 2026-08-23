@@ -8,6 +8,9 @@ gunicorn==21.2.0
 redis==6.4.0
 django-redis==6.0.0
 
+# Tareas en background (conversion de imagenes a WebP, etc.)
+celery==5.4.0
+
 # Seguridad
 django-ratelimit==4.1.0
 django-csp==4.0

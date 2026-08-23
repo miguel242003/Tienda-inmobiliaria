@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 from django.contrib.auth.models import User
 from core.fields import WebPImageFieldMixin
@@ -6,6 +8,8 @@ import qrcode
 import qrcode.image.svg
 from io import BytesIO
 import base64
+
+logger = logging.getLogger(__name__)
 
 # Crea tus modelos aquí.
 
@@ -24,7 +28,6 @@ class AdminCredentials(WebPImageFieldMixin, models.Model):
         verbose_name="Foto de Perfil",
         help_text="Foto de perfil del administrador (opcional)"
     )
-    password = models.CharField(max_length=128, verbose_name="Contraseña (encriptada)")
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creación")
     activo = models.BooleanField(default=True, verbose_name="Credenciales Activas")
     
@@ -56,20 +59,19 @@ class AdminCredentials(WebPImageFieldMixin, models.Model):
                 if self.foto_perfil.storage.exists(self.foto_perfil.name):
                     return self.foto_perfil.url
                 else:
-                    print(f"Archivo no encontrado: {self.foto_perfil.name}")
+                    logger.warning(f"Archivo de foto de perfil no encontrado: {self.foto_perfil.name}")
                     return None
             except Exception as e:
-                print(f"Error al obtener URL de foto: {e}")
+                logger.error(f"Error al obtener URL de foto de perfil: {e}")
                 return None
         return None
     
-    def save(self, *args, **kwargs):
-        # Encriptar la contraseña antes de guardar
-        if not self.pk:  # Solo si es nueva
-            from django.contrib.auth.hashers import make_password
-            self.password = make_password(self.password)
-        super().save(*args, **kwargs)
-    
+    def check_password(self, raw_password):
+        """Verifica la contraseña contra el User vinculado (única fuente de
+        verdad de autenticación; AdminCredentials ya no guarda su propio hash)."""
+        return self.user.check_password(raw_password)
+
+
     def generate_totp_secret(self):
         """Genera una nueva clave secreta TOTP"""
         self.totp_secret = pyotp.random_base32()

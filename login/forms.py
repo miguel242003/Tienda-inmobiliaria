@@ -3,15 +3,26 @@ from .models import AdminCredentials
 
 class AdminCredentialsForm(forms.ModelForm):
     """Formulario para configurar credenciales del administrador"""
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Mínimo 8 caracteres'
+        }),
+        label="Contraseña",
+        help_text="Elige una contraseña segura (mínimo 8 caracteres)"
+    )
     confirmar_password = forms.CharField(
         widget=forms.PasswordInput(),
         label="Confirmar Contraseña",
         help_text="Escribe la misma contraseña para confirmar"
     )
-    
+
     class Meta:
         model = AdminCredentials
-        fields = ['nombre', 'apellido', 'email', 'telefono', 'fecha_nacimiento', 'foto_perfil', 'password', 'confirmar_password']
+        # 'password' NO es un campo del modelo (AdminCredentials ya no guarda
+        # su propio hash; la contraseña vive únicamente en auth.User). Se pasa
+        # a User.objects.create_user() en la vista, no se guarda en este form.
+        fields = ['nombre', 'apellido', 'email', 'telefono', 'fecha_nacimiento', 'foto_perfil']
         exclude = ['user']  # Excluir el campo user ya que se asignará después
         widgets = {
             'nombre': forms.TextInput(attrs={
@@ -39,10 +50,6 @@ class AdminCredentialsForm(forms.ModelForm):
                 'accept': 'image/*',
                 'id': 'foto_perfil_input'
             }),
-            'password': forms.PasswordInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Mínimo 8 caracteres'
-            }),
         }
         help_texts = {
             'nombre': 'Tu nombre completo para mostrar en las propiedades',
@@ -50,41 +57,43 @@ class AdminCredentialsForm(forms.ModelForm):
             'email': 'Este será el correo para acceder al panel administrativo',
             'telefono': 'Tu número de teléfono para que los clientes te contacten',
             'foto_perfil': 'Tu foto de perfil para mostrar en las propiedades (opcional)',
-            'password': 'Elige una contraseña segura (mínimo 8 caracteres)',
         }
-    
+
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         confirmar_password = cleaned_data.get('confirmar_password')
-        
+
         if password and confirmar_password:
             if password != confirmar_password:
                 raise forms.ValidationError("Las contraseñas no coinciden")
-            
+
             if len(password) < 8:
                 raise forms.ValidationError("La contraseña debe tener al menos 8 caracteres")
-        
+
         return cleaned_data
-    
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        # La contraseña se encripta automáticamente en el modelo
-        if commit:
-            instance.save()
-        return instance
+
 
 class NuevoUsuarioAdminForm(forms.ModelForm):
     """Formulario para crear un nuevo usuario administrativo"""
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Mínimo 8 caracteres'
+        }),
+        label="Contraseña",
+        help_text="Contraseña segura (mínimo 8 caracteres)"
+    )
     confirmar_password = forms.CharField(
         widget=forms.PasswordInput(),
         label="Confirmar Contraseña",
         help_text="Escribe la misma contraseña para confirmar"
     )
-    
+
     class Meta:
         model = AdminCredentials
-        fields = ['nombre', 'apellido', 'email', 'telefono', 'fecha_nacimiento', 'foto_perfil', 'password', 'confirmar_password']
+        # 'password' NO es un campo del modelo, ver nota en AdminCredentialsForm.
+        fields = ['nombre', 'apellido', 'email', 'telefono', 'fecha_nacimiento', 'foto_perfil']
         exclude = ['user']  # Excluir el campo user ya que se asignará después
         widgets = {
             'nombre': forms.TextInput(attrs={
@@ -112,10 +121,6 @@ class NuevoUsuarioAdminForm(forms.ModelForm):
                 'accept': 'image/*',
                 'id': 'foto_perfil_nuevo_input'
             }),
-            'password': forms.PasswordInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Mínimo 8 caracteres'
-            }),
         }
         help_texts = {
             'nombre': 'Nombre del nuevo administrador',
@@ -124,32 +129,24 @@ class NuevoUsuarioAdminForm(forms.ModelForm):
             'telefono': 'Número de teléfono de contacto',
             'fecha_nacimiento': 'Fecha de nacimiento (opcional)',
             'foto_perfil': 'Foto de perfil (opcional)',
-            'password': 'Contraseña segura (mínimo 8 caracteres)',
         }
-    
+
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         confirmar_password = cleaned_data.get('confirmar_password')
         email = cleaned_data.get('email')
-        
+
         if password and confirmar_password:
             if password != confirmar_password:
                 raise forms.ValidationError("Las contraseñas no coinciden")
-            
+
             if len(password) < 8:
                 raise forms.ValidationError("La contraseña debe tener al menos 8 caracteres")
-        
+
         # Verificar que el email no esté en uso
         if email:
             if AdminCredentials.objects.filter(email=email, activo=True).exists():
                 raise forms.ValidationError("Ya existe un usuario administrativo con este correo electrónico")
-        
+
         return cleaned_data
-    
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        # La contraseña se encripta automáticamente en el modelo
-        if commit:
-            instance.save()
-        return instance

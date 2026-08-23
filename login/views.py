@@ -3,7 +3,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth.hashers import check_password, make_password
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -15,7 +14,7 @@ from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 import bleach
 import re
-import time
+import logging
 from propiedades.models import Propiedad
 from propiedades.forms import PropiedadForm
 from propiedades.validators import validar_imagen
@@ -23,6 +22,8 @@ from .models import AdminCredentials, PasswordResetCode
 from .forms import AdminCredentialsForm, NuevoUsuarioAdminForm
 from .forms_2fa import TwoFactorVerifyForm, BackupCodeForm
 from .forms_password_reset import PasswordResetRequestForm, PasswordResetVerifyForm
+
+logger = logging.getLogger(__name__)
 
 def configurar_admin(request):
     """Vista para configurar credenciales del administrador (solo primera vez)"""
@@ -62,7 +63,8 @@ def configurar_admin(request):
                     credenciales.delete()
                 if user and user.pk:
                     user.delete()
-                messages.error(request, f'Error al crear usuario: {str(e)}')
+                logger.error(f"Error al configurar el administrador inicial: {e}", exc_info=True)
+                messages.error(request, 'No se pudo crear el usuario administrador. Intenta nuevamente.')
     else:
         form = AdminCredentialsForm()
     
@@ -119,8 +121,8 @@ def admin_login(request):
             # Buscar credenciales
             credenciales = AdminCredentials.objects.get(email=email, activo=True)
             
-            # Verificar contraseña
-            if check_password(password, credenciales.password):
+            # Verificar contraseña (contra el User vinculado, única fuente de verdad)
+            if credenciales.check_password(password):
                 # Si 2FA está habilitado, verificar código
                 if credenciales.two_factor_enabled:
                     if totp_code:
@@ -152,40 +154,26 @@ def admin_login(request):
         except AdminCredentials.DoesNotExist:
             messages.error(request, 'Correo o contraseña incorrectos.')
         except Exception as e:
-            messages.error(request, f'Error en el sistema: {str(e)}')
+            logger.error(f"Error inesperado en admin_login: {e}", exc_info=True)
+            messages.error(request, 'Ocurrió un error inesperado. Intenta nuevamente.')
     
     return render(request, 'login/admin_login.html')
 
 def complete_login(request, credenciales):
-    """Completa el proceso de login después de verificar credenciales y 2FA"""
+    """Completa el proceso de login después de verificar credenciales y 2FA.
+
+    credenciales.user siempre existe: AdminCredentials.user es un
+    OneToOneField obligatorio, así que no hace falta buscar ni crear un User
+    acá (a diferencia de versiones anteriores de esta función)."""
     try:
-        # Buscar o crear usuario
-        try:
-            user = User.objects.get(username=credenciales.email)
-        except User.DoesNotExist:
-            # Crear usuario si no existe
-            user = User.objects.create_user(
-                username=credenciales.email,
-                email=credenciales.email,
-                password=credenciales.password,
-                first_name=credenciales.nombre or 'Administrador',
-                last_name=credenciales.apellido or '',
-                is_staff=True,
-                is_superuser=True
-            )
-            
-            # Vincular el AdminCredentials con el User
-            credenciales.user = user
-            credenciales.save()
-        
-        # Autenticar al usuario
-        login(request, user)
+        login(request, credenciales.user)
         nombre_completo = credenciales.get_nombre_completo()
         messages.success(request, f'¡Bienvenido, {nombre_completo}!')
         return redirect('login:dashboard')
-        
+
     except Exception as e:
-        messages.error(request, f'Error al completar el login: {str(e)}')
+        logger.error(f"Error al completar el login: {e}", exc_info=True)
+        messages.error(request, 'No se pudo completar el inicio de sesión. Intenta nuevamente.')
         return redirect('login:admin_login')
 
 @login_required
@@ -427,13 +415,6 @@ def dashboard(request):
             clicks_por_propiedad[prop_id]['clicks_por_mes'][mes_actual] = total
             clicks_por_propiedad[prop_id]['clicks_totales'] = total
     
-    # Debug: imprimir datos generados (comentado para producción)
-    # print("=== DATOS OPTIMIZADOS GENERADOS ===")
-    # for prop_id, datos in clicks_por_propiedad.items():
-    #     propiedad = next((p for p in todas_propiedades if p.id == prop_id), None)
-    #     titulo = propiedad.titulo if propiedad else f"Propiedad {prop_id}"
-    #     print(f"Propiedad {prop_id} ({titulo}): Total={datos['clicks_totales']}, Por mes={datos['clicks_por_mes']}")
-    
     # Convertir clicks_por_propiedad a JSON para el template
     import json
     clicks_por_propiedad_json = json.dumps(clicks_por_propiedad)
@@ -560,7 +541,11 @@ def dashboard_clicks_data(request):
         })
         
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        logger.error(f"Error en dashboard_clicks_data: {e}", exc_info=True)
+        return JsonResponse({
+            'error': 'No se pudieron obtener los datos de clics.',
+            'error_details': str(e) if settings.DEBUG else None,
+        }, status=500)
 
 def admin_logout(request):
     """Cerrar sesión del administrador"""
@@ -582,6 +567,25 @@ def gestionar_propiedades(request):
     }
     return render(request, 'login/gestionar_propiedades.html', context)
 
+def _contexto_editar_propiedad(form, propiedad):
+    from propiedades.models import Amenidad
+    return {
+        'form': form,
+        'propiedad': propiedad,
+        'titulo_pagina': 'Editar Propiedad',
+        'amenidades': Amenidad.objects.all(),
+    }
+
+
+def _limpiar_imagenes_estaticas_antiguas(slug_antiguo):
+    from core.utils import eliminar_imagenes_static_propiedad
+    resultado = eliminar_imagenes_static_propiedad(slug_antiguo)
+    if resultado['success']:
+        logger.info(f"Imágenes estáticas antiguas eliminadas: {resultado['archivos_eliminados']}")
+    else:
+        logger.warning(f"No se pudieron eliminar todas las imágenes estáticas: {resultado['message']}")
+
+
 @login_required
 def editar_propiedad(request, propiedad_id):
     """Vista para editar una propiedad existente"""
@@ -589,216 +593,98 @@ def editar_propiedad(request, propiedad_id):
         if not request.user.is_staff:
             messages.error(request, 'No tienes permisos para editar propiedades.')
             return redirect('core:home')
-        
+
         propiedad = get_object_or_404(Propiedad, id=propiedad_id)
-        
-        if request.method == 'POST':
-            # print("DEBUG - POST recibido para editar propiedad")
-            # print(f"DEBUG - Datos POST: {request.POST}")
-            # print(f"DEBUG - Archivos FILES: {request.FILES}")
-            
-            form = PropiedadForm(request.POST, request.FILES, instance=propiedad, is_edit=True)
-            # print(f"DEBUG - Formulario válido: {form.is_valid()}")
-            
-            if form.is_valid():
-                # Guardar referencias a las imágenes antiguas antes de guardar
-                imagen_principal_antigua = propiedad.imagen_principal.name if propiedad.imagen_principal else None
-                imagen_secundaria_antigua = propiedad.imagen_secundaria.name if propiedad.imagen_secundaria else None
-                slug_antiguo = propiedad.slug
-                
-                # Verificar si se están cambiando las imágenes
-                imagen_principal_cambio = 'imagen_principal' in request.FILES
-                imagen_secundaria_cambio = 'imagen_secundaria' in request.FILES
-                
-                try:
-                    propiedad = form.save(commit=False)
-                    propiedad.save()
-                    # Guardar las amenidades (relación many-to-many)
-                    form.save_m2m()
-                    
-                    # Refrescar desde la base de datos para obtener las nuevas rutas
-                    propiedad.refresh_from_db()
-                    
-                    # Si se cambió alguna imagen, eliminar las imágenes estáticas antiguas
-                    # El método save() del modelo ya copió las nuevas imágenes a static
-                    if (imagen_principal_cambio or imagen_secundaria_cambio) and slug_antiguo:
-                        from core.utils import eliminar_imagenes_static_propiedad
-                        import logging
-                        logger = logging.getLogger(__name__)
-                        logger.info(f"Eliminando imágenes estáticas antiguas de propiedad {slug_antiguo}")
-                        resultado = eliminar_imagenes_static_propiedad(slug_antiguo)
-                        if resultado['success']:
-                            logger.info(f"Imágenes estáticas antiguas eliminadas: {resultado['archivos_eliminados']}")
-                        else:
-                            logger.warning(f"No se pudieron eliminar todas las imágenes estáticas: {resultado['message']}")
-                
-                except Exception as e:
-                    import logging
-                    import traceback
-                    logger = logging.getLogger(__name__)
-                    logger.error(f"Error al guardar propiedad: {e}")
-                    logger.error(traceback.format_exc())
-                    
-                    # Si es petición AJAX, devolver JSON
-                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                        from django.http import JsonResponse
-                        return JsonResponse({
-                            'success': False,
-                            'message': f'Error al guardar la propiedad: {str(e)}',
-                            'error_details': str(e) if settings.DEBUG else None
-                        }, status=500)
-                    
-                    messages.error(request, f'Error al guardar la propiedad: {str(e)}')
-                    return render(request, 'login/editar_propiedad.html', {
-                        'form': form,
-                        'propiedad': propiedad,
-                        'titulo_pagina': 'Editar Propiedad',
-                        'amenidades': Amenidad.objects.all(),
-                    })
-                
-                # Manejar eliminación de fotos adicionales
-                fotos_eliminar = request.POST.getlist('fotos_eliminar')
-                if fotos_eliminar:
-                    from propiedades.models import FotoPropiedad
-                    FotoPropiedad.objects.filter(id__in=fotos_eliminar, propiedad=propiedad).delete()
-                
-                # Manejar archivos adicionales (fotos y videos) nuevos
-                archivos_adicionales = request.FILES.getlist('fotos_adicionales')
-                fotos_creadas = []
-                if archivos_adicionales:
-                    import logging
-                    logger = logging.getLogger(__name__)
-                    logger.info(f"Procesando {len(archivos_adicionales)} archivos adicionales en edición")
-                    from propiedades.models import FotoPropiedad
-                    
-                    # Obtener el último orden de las fotos existentes para continuar la numeración
-                    from django.db.models import Max
-                    ultimo_orden = propiedad.fotos.aggregate(Max('orden'))['orden__max'] or 0
-                    
-                    for i, archivo in enumerate(archivos_adicionales):
-                        try:
-                            # Determinar si es imagen o video
-                            tipo_medio = 'video' if archivo.content_type.startswith('video/') else 'imagen'
-                            logger.debug(f"Archivo {i+1}: {archivo.name} - Tipo: {tipo_medio} - Content-Type: {archivo.content_type}")
-                            
-                            foto_propiedad = FotoPropiedad(
-                                propiedad=propiedad, 
-                                tipo_medio=tipo_medio,
-                                orden=ultimo_orden + i + 1,
-                                descripcion=f"Foto adicional {ultimo_orden + i + 1}"
-                            )
-                            if tipo_medio == 'imagen':
-                                foto_propiedad.imagen = archivo
-                            else:
-                                foto_propiedad.video = archivo
-                            foto_propiedad.save()
-                            fotos_creadas.append(foto_propiedad)
-                            logger.info(f"Archivo adicional {i+1} guardado exitosamente: {archivo.name}")
-                        except Exception as e:
-                            logger.error(f"Error al guardar archivo adicional {i+1} ({archivo.name}): {e}")
-                            import traceback
-                            logger.error(traceback.format_exc())
-                            # Continuar con los demás archivos
-                    
-                    logger.info(f"Total de archivos adicionales guardados: {len(fotos_creadas)}/{len(archivos_adicionales)}")
-                
-                # Optimizar todas las fotos y videos adicionales nuevos después de guardarlas
-                if fotos_creadas:
-                    import logging
-                    logger = logging.getLogger(__name__)
-                    for foto in fotos_creadas:
-                        if foto.tipo_medio == 'imagen' and foto.imagen:
-                            try:
-                                logger.debug(f"Optimizando foto adicional a WebP: {foto.descripcion}")
-                                foto.optimize_image_field('imagen', quality=85)
-                                logger.info(f"Foto adicional optimizada exitosamente: {foto.descripcion}")
-                            except Exception as e:
-                                logger.warning(f"Error optimizando foto adicional (no crítico): {e}")
-                                # No fallar por errores de optimización
-                        elif foto.tipo_medio == 'video' and foto.video:
-                            try:
-                                logger.debug(f"Optimizando video adicional: {foto.descripcion}")
-                                foto.optimize_video_field('video', quality=80)
-                                logger.info(f"Video adicional optimizado exitosamente: {foto.descripcion}")
-                            except Exception as e:
-                                logger.warning(f"Error optimizando video adicional (no crítico): {e}")
-                                # No fallar por errores de optimización
-                
-                messages.success(request, f'Propiedad "{propiedad.titulo}" actualizada exitosamente.')
-                
-                # Manejar respuesta AJAX
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    from django.http import JsonResponse
-                    return JsonResponse({
-                        'success': True, 
-                        'message': f'Propiedad "{propiedad.titulo}" actualizada exitosamente.',
-                        'redirect_url': reverse('login:dashboard')
-                    })
-                
-                return redirect('login:dashboard')
-            else:
-                # Formulario no válido
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.warning(f"Formulario no válido: {form.errors}")
-                
-                # Si es petición AJAX, devolver JSON con errores
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    from django.http import JsonResponse
-                    errors = {}
-                    for field, field_errors in form.errors.items():
-                        errors[field] = [str(error) for error in field_errors]
-                    
-                    # Incluir errores no-field también
-                    if form.non_field_errors():
-                        errors['__all__'] = [str(error) for error in form.non_field_errors()]
-                    
-                    return JsonResponse({
-                        'success': False,
-                        'message': 'Por favor corrige los errores en el formulario.',
-                        'errors': errors
-                    }, status=400)
-                
-                # Mostrar errores específicos del formulario
-                error_messages = []
-                for field, errors in form.errors.items():
-                    for error in errors:
-                        error_messages.append(f'{field}: {error}')
-                
-                if error_messages:
-                    messages.error(request, f'Errores encontrados: {"; ".join(error_messages)}')
-                else:
-                    messages.error(request, 'Por favor corrige los errores en el formulario.')
-        else:
+
+        if request.method != 'POST':
             form = PropiedadForm(instance=propiedad, is_edit=True)
-        
-        from propiedades.models import Amenidad
-        
-        context = {
-            'form': form,
-            'propiedad': propiedad,
-            'titulo_pagina': 'Editar Propiedad',
-            'amenidades': Amenidad.objects.all(),
-        }
-        return render(request, 'login/editar_propiedad.html', context)
-    
+            return render(request, 'login/editar_propiedad.html', _contexto_editar_propiedad(form, propiedad))
+
+        es_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        form = PropiedadForm(request.POST, request.FILES, instance=propiedad, is_edit=True)
+
+        if not form.is_valid():
+            logger.warning(f"Formulario de edición no válido: {form.errors}")
+            if es_ajax:
+                errors = {field: [str(err) for err in field_errors] for field, field_errors in form.errors.items()}
+                if form.non_field_errors():
+                    errors['__all__'] = [str(err) for err in form.non_field_errors()]
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Por favor corrige los errores en el formulario.',
+                    'errors': errors
+                }, status=400)
+
+            error_messages = [f'{field}: {error}' for field, errs in form.errors.items() for error in errs]
+            messages.error(
+                request,
+                f'Errores encontrados: {"; ".join(error_messages)}' if error_messages
+                else 'Por favor corrige los errores en el formulario.'
+            )
+            return render(request, 'login/editar_propiedad.html', _contexto_editar_propiedad(form, propiedad))
+
+        # Referencia para saber si hay que limpiar imágenes estáticas viejas después de guardar
+        slug_antiguo = propiedad.slug
+        imagenes_cambiaron = 'imagen_principal' in request.FILES or 'imagen_secundaria' in request.FILES
+
+        try:
+            propiedad = form.save(commit=False)
+            propiedad.save()
+            form.save_m2m()
+            propiedad.refresh_from_db()
+
+            # El método save() del modelo ya copió las nuevas imágenes a static;
+            # si cambiaron, hay que limpiar las versiones estáticas anteriores.
+            if imagenes_cambiaron and slug_antiguo:
+                _limpiar_imagenes_estaticas_antiguas(slug_antiguo)
+
+        except Exception as e:
+            logger.error(f"Error al guardar propiedad editada: {e}", exc_info=True)
+            if es_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Error al guardar la propiedad.',
+                    'error_details': str(e) if settings.DEBUG else None
+                }, status=500)
+            messages.error(request, 'Error al guardar la propiedad. Intenta nuevamente.')
+            return render(request, 'login/editar_propiedad.html', _contexto_editar_propiedad(form, propiedad))
+
+        # Eliminar fotos adicionales marcadas para borrar
+        fotos_eliminar = request.POST.getlist('fotos_eliminar')
+        if fotos_eliminar:
+            from propiedades.models import FotoPropiedad
+            FotoPropiedad.objects.filter(id__in=fotos_eliminar, propiedad=propiedad).delete()
+
+        # Agregar fotos/videos nuevos, continuando la numeración existente
+        from django.db.models import Max
+        from propiedades.views import guardar_archivos_adicionales
+        ultimo_orden = propiedad.fotos.aggregate(Max('orden'))['orden__max'] or 0
+        guardar_archivos_adicionales(
+            propiedad, request.FILES.getlist('fotos_adicionales'), orden_inicial=ultimo_orden
+        )
+
+        mensaje = f'Propiedad "{propiedad.titulo}" actualizada exitosamente.'
+        messages.success(request, mensaje)
+
+        if es_ajax:
+            return JsonResponse({
+                'success': True,
+                'message': mensaje,
+                'redirect_url': reverse('login:dashboard')
+            })
+        return redirect('login:dashboard')
+
     except Exception as e:
-        import logging
-        import traceback
-        logger = logging.getLogger(__name__)
-        logger.critical(f"Error crítico en editar_propiedad: {e}")
-        logger.critical(traceback.format_exc())
-        
-        # Si es petición AJAX, devolver JSON
+        logger.critical(f"Error crítico en editar_propiedad: {e}", exc_info=True)
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            from django.http import JsonResponse
             return JsonResponse({
                 'success': False,
-                'message': f'Error inesperado al editar la propiedad: {str(e)}',
+                'message': 'Error inesperado al editar la propiedad.',
                 'error_details': str(e) if settings.DEBUG else None
             }, status=500)
-        
-        messages.error(request, f'Error inesperado: {str(e)}')
+
+        messages.error(request, 'Ocurrió un error inesperado. Intenta nuevamente.')
         return redirect('login:dashboard')
 
 @login_required
@@ -818,9 +704,9 @@ def eliminar_propiedad(request, propiedad_id):
         from core.utils import eliminar_imagenes_static_propiedad
         resultado = eliminar_imagenes_static_propiedad(slug)
         if resultado['success']:
-            print(f"Imágenes estáticas eliminadas: {resultado['archivos_eliminados']}")
+            logger.info(f"Imágenes estáticas eliminadas: {resultado['archivos_eliminados']}")
         else:
-            print(f"Advertencia al eliminar imágenes estáticas: {resultado['message']}")
+            logger.warning(f"No se pudieron eliminar todas las imágenes estáticas: {resultado['message']}")
         
         propiedad.delete()
         messages.success(request, f'Propiedad "{titulo}" eliminada exitosamente.')
@@ -847,56 +733,47 @@ def eliminar_propiedad_ajax(request, propiedad_id):
             from core.utils import eliminar_imagenes_static_propiedad
             resultado = eliminar_imagenes_static_propiedad(slug)
             if resultado['success']:
-                print(f"Imágenes estáticas eliminadas: {resultado['archivos_eliminados']}")
+                logger.info(f"Imágenes estáticas eliminadas: {resultado['archivos_eliminados']}")
             else:
-                print(f"Advertencia al eliminar imágenes estáticas: {resultado['message']}")
-            
+                logger.warning(f"No se pudieron eliminar todas las imágenes estáticas: {resultado['message']}")
+
             propiedad.delete()
             return JsonResponse({
-                'success': True, 
+                'success': True,
                 'message': f'Propiedad "{titulo}" eliminada exitosamente.',
                 'propiedad_id': propiedad_id
             })
         except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error al eliminar: {str(e)}'})
+            logger.error(f"Error al eliminar propiedad {propiedad_id}: {e}", exc_info=True)
+            return JsonResponse({'success': False, 'message': 'No se pudo eliminar la propiedad.'})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 @login_required
 def actualizar_perfil(request):
     """Vista AJAX para actualizar el perfil del administrador"""
-    # print(f"=== ACTUALIZAR PERFIL - Usuario: {request.user.email} ===")
-    # print(f"Método: {request.method}")
-    # print(f"POST data: {request.POST}")
-    # print(f"FILES: {request.FILES}")
-    
     if not request.user.is_staff:
-        # print("Error: Usuario no es staff")
         return JsonResponse({'success': False, 'message': 'No tienes permisos para actualizar el perfil.'})
-    
+
     if request.method == 'POST':
         try:
             # Buscar o crear AdminCredentials usando la nueva relación
             from .models import AdminCredentials
             try:
                 admin_creds = request.user.admincredentials
-                # print(f"AdminCredentials encontrado: {admin_creds}")
             except AdminCredentials.DoesNotExist:
-                # print("AdminCredentials no existe, creando uno nuevo")
                 admin_creds = AdminCredentials.objects.create(
                     user=request.user,
                     nombre=request.user.first_name or 'Administrador',
                     apellido=request.user.last_name or 'del Sistema',
                     email=request.user.email,
                     telefono='+52-1-33-00000000',
-                    password='temp_password_123'
                 )
-                # print(f"AdminCredentials creado: {admin_creds}")
-            
+
             # Validar campos antes de actualizar
             nombre = request.POST.get('nombre', '').strip()
             apellido = request.POST.get('apellido', '').strip()
-            
+
             # Validaciones para nombre
             if not nombre:
                 return JsonResponse({'success': False, 'message': 'El nombre es obligatorio.'})
@@ -906,7 +783,7 @@ def actualizar_perfil(request):
                 return JsonResponse({'success': False, 'message': 'El nombre no puede tener más de 50 caracteres.'})
             elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', nombre):
                 return JsonResponse({'success': False, 'message': 'El nombre solo puede contener letras y espacios.'})
-            
+
             # Validaciones para apellido
             if not apellido:
                 return JsonResponse({'success': False, 'message': 'El apellido es obligatorio.'})
@@ -916,63 +793,45 @@ def actualizar_perfil(request):
                 return JsonResponse({'success': False, 'message': 'El apellido no puede tener más de 50 caracteres.'})
             elif not re.match(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$', apellido):
                 return JsonResponse({'success': False, 'message': 'El apellido solo puede contener letras y espacios.'})
-            
+
             # Actualizar campos
-            nombre_anterior = admin_creds.nombre
-            apellido_anterior = admin_creds.apellido
-            telefono_anterior = admin_creds.telefono
-            
             admin_creds.nombre = nombre
             admin_creds.apellido = apellido
             admin_creds.telefono = request.POST.get('telefono', admin_creds.telefono)
-            
-            # print(f"Campos actualizados:")
-            # print(f"  Nombre: {nombre_anterior} -> {admin_creds.nombre}")
-            # print(f"  Apellido: {apellido_anterior} -> {admin_creds.apellido}")
-            # print(f"  Teléfono: {telefono_anterior} -> {admin_creds.telefono}")
-            
+
             # Fecha de nacimiento
             fecha_nacimiento = request.POST.get('fecha_nacimiento')
             if fecha_nacimiento:
                 from datetime import datetime
                 admin_creds.fecha_nacimiento = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
-                # print(f"Fecha de nacimiento actualizada: {admin_creds.fecha_nacimiento}")
-            
+
             # Foto de perfil
             if 'foto_perfil' in request.FILES:
                 admin_creds.foto_perfil = request.FILES['foto_perfil']
-                # print(f"Foto de perfil actualizada: {admin_creds.foto_perfil}")
-            
+
             admin_creds.save()
-            # print("AdminCredentials guardado exitosamente")
-            
+
             # Actualizar también el usuario de Django
             request.user.first_name = admin_creds.nombre
             request.user.last_name = admin_creds.apellido
             request.user.save()
-            # print("Usuario de Django actualizado exitosamente")
-            
+
             # Preparar respuesta
             response_data = {
                 'success': True,
                 'message': 'Perfil actualizado exitosamente.'
             }
-            
+
             # Incluir URL de la foto si existe
             if admin_creds.foto_perfil:
                 response_data['foto_url'] = admin_creds.foto_perfil.url
-                # print(f"URL de foto incluida: {response_data['foto_url']}")
-            
-            # print(f"Respuesta final: {response_data}")
+
             return JsonResponse(response_data)
-            
+
         except Exception as e:
-            # print(f"Error al actualizar perfil: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            return JsonResponse({'success': False, 'message': f'Error al actualizar el perfil: {str(e)}'})
-    
-    # print("Método no permitido")
+            logger.error(f"Error al actualizar perfil: {e}", exc_info=True)
+            return JsonResponse({'success': False, 'message': 'No se pudo actualizar el perfil.'})
+
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 @login_required
@@ -986,13 +845,7 @@ def crear_nuevo_usuario_admin(request):
     - Validación exhaustiva de todos los campos
     - Protección contra spam de usuarios
     """
-    # print(f"=== CREAR NUEVO USUARIO ADMIN - Usuario: {request.user.email} ===")
-    # print(f"Método: {request.method}")
-    # print(f"POST data: {request.POST}")
-    # print(f"FILES: {request.FILES}")
-    
     if not request.user.is_staff:
-        # print("Error: Usuario no es staff")
         return JsonResponse({'success': False, 'message': 'No tienes permisos para crear usuarios administrativos.'})
     
     if request.method == 'POST':
@@ -1065,11 +918,7 @@ def crear_nuevo_usuario_admin(request):
                     return JsonResponse({'success': False, 'message': 'Formato de fecha inválido.'})
             
             form = NuevoUsuarioAdminForm(request.POST, request.FILES)
-            # print(f"Formulario válido: {form.is_valid()}")
-            if not form.is_valid():
-                # print(f"Errores del formulario: {form.errors}")
-                pass
-            
+
             if form.is_valid():
                 # Crear usuario administrador primero
                 try:
@@ -1080,7 +929,9 @@ def crear_nuevo_usuario_admin(request):
                         first_name=form.cleaned_data['nombre'] or 'Administrador',
                         last_name=form.cleaned_data['apellido'] or '',
                         is_staff=True,
-                        is_superuser=True
+                        # No superuser: un admin creado desde el dashboard no debe tener
+                        # acceso total al panel /admin/ y al ORM de Django por defecto.
+                        is_superuser=False
                     )
                     
                     # Ahora crear AdminCredentials con la relación ya establecida
@@ -1102,22 +953,26 @@ def crear_nuevo_usuario_admin(request):
                     })
                     
                 except Exception as e:
-                    credenciales.delete()
-                    return JsonResponse({'success': False, 'message': f'Error al crear usuario: {str(e)}'})
+                    # 'credenciales' puede no existir todavía si el fallo ocurrió al crear el User
+                    if 'credenciales' in locals() and credenciales and credenciales.pk:
+                        credenciales.delete()
+                    logger.error(f"Error al crear usuario administrativo: {e}", exc_info=True)
+                    return JsonResponse({'success': False, 'message': 'No se pudo crear el usuario administrativo.'})
             else:
                 # Recopilar errores del formulario
                 errors = {}
                 for field, field_errors in form.errors.items():
                     errors[field] = [str(error) for error in field_errors]
-                
+
                 return JsonResponse({
-                    'success': False, 
+                    'success': False,
                     'message': 'Por favor corrige los errores en el formulario.',
                     'errors': errors
                 })
-                
+
         except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error al procesar la solicitud: {str(e)}'})
+            logger.error(f"Error al procesar creación de usuario administrativo: {e}", exc_info=True)
+            return JsonResponse({'success': False, 'message': 'No se pudo procesar la solicitud.'})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
@@ -1166,7 +1021,8 @@ def contar_usuarios_admin(request):
         })
         
     except Exception as e:
-        return JsonResponse({'success': False, 'message': f'Error: {str(e)}'})
+        logger.error(f"Error en contar_usuarios_admin: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'message': 'No se pudieron obtener los datos.'})
 
 @login_required
 def cambiar_password(request):
@@ -1179,90 +1035,35 @@ def cambiar_password(request):
             password_actual = request.POST.get('password_actual')
             nueva_password = request.POST.get('nueva_password')
             confirmar_password = request.POST.get('confirmar_nueva_password')
-            
-            # print(f"=== DEBUG CAMBIO CONTRASEÑA ===")
-            # print(f"Usuario: {request.user.username}")
-            # print(f"Password actual recibida: {password_actual}")
-            # print(f"Nueva password: {nueva_password}")
-            # print(f"Confirmar password: {confirmar_password}")
-            # print(f"User password en DB: {request.user.password}")
-            
+
             # Validaciones básicas
             if not nueva_password or not confirmar_password:
-                # print("Error: Campos incompletos")
                 return JsonResponse({'success': False, 'message': 'Por favor completa todos los campos.'})
-            
+
             if nueva_password != confirmar_password:
-                # print("Error: Contraseñas no coinciden")
                 return JsonResponse({'success': False, 'message': 'Las contraseñas no coinciden.'})
-            
+
             if len(nueva_password) < 8:
-                # print("Error: Contraseña muy corta")
                 return JsonResponse({'success': False, 'message': 'La contraseña debe tener al menos 8 caracteres.'})
-            
-            # Verificar contraseña actual si se proporcionó
-            if password_actual:
-                # print(f"Verificando contraseña actual...")
-                # print(f"Password ingresada: {password_actual}")
-                # print(f"Password en User: {request.user.password}")
-                
-                # Verificar contra User.password
-                user_check = check_password(password_actual, request.user.password)
-                # print(f"Verificación contra User.password: {user_check}")
-                
-                # También verificar contra AdminCredentials.password
-                try:
-                    admin_creds = request.user.admincredentials
-                    admin_check = check_password(password_actual, admin_creds.password)
-                    # print(f"Verificación contra AdminCredentials.password: {admin_check}")
-                    # print(f"AdminCredentials password: {admin_creds.password}")
-                except AdminCredentials.DoesNotExist:
-                    # print("No se encontraron AdminCredentials")
-                    admin_check = False
-                
-                # Aceptar si cualquiera de las dos verificaciones es correcta
-                if not user_check and not admin_check:
-                    # print("Error: Contraseña actual incorrecta en ambos modelos")
-                    return JsonResponse({'success': False, 'message': 'La contraseña actual es incorrecta.'})
-                else:
-                    # print("Contraseña actual verificada correctamente")
-                    pass
-            else:
-                # Si no hay contraseña actual, verificar que esté verificado por SMS
-                # (Esta verificación se haría con una sesión o token temporal)
-                # Por ahora, requerimos contraseña actual
-                # print("Error: No se proporcionó contraseña actual")
+
+            # Verificar contraseña actual (User es la única fuente de verdad para el login)
+            if not password_actual:
                 return JsonResponse({'success': False, 'message': 'Debes ingresar tu contraseña actual.'})
-            
-            # Cambiar la contraseña
-            # print(f"=== CAMBIO DE CONTRASEÑA ===")
-            # print(f"Usuario: {request.user.username}")
-            # print(f"Email: {request.user.email}")
-            # print(f"Nueva contraseña: {nueva_password}")
-            
-            # Cambiar contraseña en User
+
+            if not request.user.check_password(password_actual):
+                return JsonResponse({'success': False, 'message': 'La contraseña actual es incorrecta.'})
+
+            # Cambiar contraseña en User (única fuente de verdad) y mantener la sesión activa
+            from django.contrib.auth import update_session_auth_hash
             request.user.set_password(nueva_password)
             request.user.save()
-            
-            # También cambiar contraseña en AdminCredentials
-            try:
-                admin_creds = request.user.admincredentials
-                from django.contrib.auth.hashers import make_password
-                admin_creds.password = make_password(nueva_password)
-                admin_creds.save()
-                # print(f"Contraseña actualizada en AdminCredentials también")
-            except AdminCredentials.DoesNotExist:
-                # print(f"Error: No se encontraron AdminCredentials para el usuario")
-                return JsonResponse({'success': False, 'message': 'Error: No se encontraron credenciales de administrador.'})
-            
-            # Verificar que se guardó correctamente
-            user_updated = User.objects.get(id=request.user.id)
-            # print(f"Contraseña guardada correctamente en User: {user_updated.password}")
-            
+            update_session_auth_hash(request, request.user)
+
             return JsonResponse({'success': True, 'message': 'Contraseña cambiada exitosamente.'})
             
         except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error al cambiar la contraseña: {str(e)}'})
+            logger.error(f"Error al cambiar la contraseña: {e}", exc_info=True)
+            return JsonResponse({'success': False, 'message': 'No se pudo cambiar la contraseña.'})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
@@ -1272,91 +1073,33 @@ def enviar_codigo_sms(request):
     if not request.user.is_staff:
         return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
     
-    if request.method == 'POST':
-        try:
-            # Obtener el número de teléfono del usuario
-            try:
-                admin_creds = request.user.admincredentials
-                telefono = admin_creds.telefono
-                
-                if not telefono:
-                    return JsonResponse({'success': False, 'message': 'No tienes un número de teléfono registrado.'})
-                
-                # Generar código de 6 dígitos
-                import random
-                codigo = str(random.randint(100000, 999999))
-                
-                # En un entorno real, aquí enviarías el SMS usando un servicio como Twilio
-                # Por ahora, simularemos el envío
-                # print(f"CÓDIGO SMS para {telefono}: {codigo}")
-                
-                # Guardar el código en la sesión (en producción usarías Redis o base de datos)
-                request.session['sms_code'] = codigo
-                request.session['sms_timestamp'] = time.time()
-                
-                return JsonResponse({
-                    'success': True, 
-                    'message': f'Código enviado al número {telefono}',
-                    'codigo_demo': codigo  # Solo para desarrollo
-                })
-                
-            except AdminCredentials.DoesNotExist:
-                return JsonResponse({'success': False, 'message': 'No se encontraron credenciales de administrador.'})
-                
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error al enviar SMS: {str(e)}'})
-    
-    return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+    # Verificación de contraseña por SMS: todavía no hay un proveedor de SMS
+    # (ej. Twilio) integrado. Antes esta vista generaba un código y respondía
+    # "success" sin enviar nada realmente, lo cual era engañoso para quien
+    # usa el botón en el dashboard. Hasta que se integre un proveedor real,
+    # se responde con un error claro; el frontend ya maneja ese caso
+    # (mostrarMensajePassword con el mensaje de error) sin cambios.
+    return JsonResponse({
+        'success': False,
+        'message': 'La verificación por SMS todavía no está disponible. Usa tu contraseña actual para cambiarla.',
+    })
 
 @login_required
 def verificar_codigo_sms(request):
-    """Vista para verificar el código SMS"""
+    """Vista para verificar el código SMS.
+
+    Ver enviar_codigo_sms: sin proveedor de SMS integrado, nunca se genera
+    un código real, así que esta vista siempre responde que no hay nada
+    pendiente. Se mantiene el endpoint (el dashboard ya lo llama) en vez de
+    romper esa pantalla, pero de forma honesta.
+    """
     if not request.user.is_staff:
         return JsonResponse({'success': False, 'message': 'No tienes permisos.'})
-    
-    if request.method == 'POST':
-        try:
-            import json
-            import time
-            
-            data = json.loads(request.body)
-            codigo_ingresado = data.get('codigo')
-            
-            if not codigo_ingresado:
-                return JsonResponse({'success': False, 'message': 'Por favor ingresa el código.'})
-            
-            # Verificar que el código esté en la sesión
-            codigo_guardado = request.session.get('sms_code')
-            timestamp_guardado = request.session.get('sms_timestamp')
-            
-            if not codigo_guardado or not timestamp_guardado:
-                return JsonResponse({'success': False, 'message': 'No hay código SMS pendiente.'})
-            
-            # Verificar que no haya expirado (5 minutos)
-            if time.time() - timestamp_guardado > 300:
-                # Limpiar sesión
-                request.session.pop('sms_code', None)
-                request.session.pop('sms_timestamp', None)
-                return JsonResponse({'success': False, 'message': 'El código SMS ha expirado.'})
-            
-            # Verificar el código
-            if codigo_ingresado == codigo_guardado:
-                # Marcar como verificado en la sesión
-                request.session['sms_verified'] = True
-                request.session['sms_verified_timestamp'] = time.time()
-                
-                # Limpiar el código usado
-                request.session.pop('sms_code', None)
-                request.session.pop('sms_timestamp', None)
-                
-                return JsonResponse({'success': True, 'message': 'Código verificado exitosamente.'})
-            else:
-                return JsonResponse({'success': False, 'message': 'Código incorrecto.'})
-                
-        except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error al verificar código: {str(e)}'})
-    
-    return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+
+    return JsonResponse({
+        'success': False,
+        'message': 'La verificación por SMS todavía no está disponible.',
+    })
 
 @login_required
 def listar_usuarios_admin(request):
@@ -1388,7 +1131,8 @@ def listar_usuarios_admin(request):
         })
         
     except Exception as e:
-        return JsonResponse({'success': False, 'message': f'Error al listar usuarios: {str(e)}'})
+        logger.error(f"Error al listar usuarios administrativos: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'message': 'No se pudieron listar los usuarios.'})
 
 @login_required
 def eliminar_usuario_admin(request, usuario_id):
@@ -1420,7 +1164,8 @@ def eliminar_usuario_admin(request, usuario_id):
             })
             
         except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error al eliminar usuario: {str(e)}'})
+            logger.error(f"Error al eliminar usuario administrativo: {e}", exc_info=True)
+            return JsonResponse({'success': False, 'message': 'No se pudo eliminar el usuario.'})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
@@ -1532,7 +1277,8 @@ def gestionar_resenas(request):
         })
         
     except Exception as e:
-        return JsonResponse({'success': False, 'message': f'Error al cargar reseñas: {str(e)}'})
+        logger.error(f"Error al cargar reseñas: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'message': 'No se pudieron cargar las reseñas.'})
 
 @login_required
 def eliminar_resena(request):
@@ -1567,7 +1313,8 @@ def eliminar_resena(request):
         })
         
     except Exception as e:
-        return JsonResponse({'success': False, 'message': f'Error al eliminar reseña: {str(e)}'})
+        logger.error(f"Error al eliminar reseña: {e}", exc_info=True)
+        return JsonResponse({'success': False, 'message': 'No se pudo eliminar la reseña.'})
 
 @login_required
 def aprobar_resena(request, resena_id):
@@ -1590,7 +1337,8 @@ def aprobar_resena(request, resena_id):
         except Resena.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Reseña no encontrada.'})
         except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error al aprobar reseña: {str(e)}'})
+            logger.error(f"Error al aprobar reseña: {e}", exc_info=True)
+            return JsonResponse({'success': False, 'message': 'No se pudo aprobar la reseña.'})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
@@ -1615,7 +1363,8 @@ def rechazar_resena(request, resena_id):
         except Resena.DoesNotExist:
             return JsonResponse({'success': False, 'message': 'Reseña no encontrada.'})
         except Exception as e:
-            return JsonResponse({'success': False, 'message': f'Error al rechazar reseña: {str(e)}'})
+            logger.error(f"Error al rechazar reseña: {e}", exc_info=True)
+            return JsonResponse({'success': False, 'message': 'No se pudo rechazar la reseña.'})
     
     return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
@@ -1645,7 +1394,8 @@ def password_reset_request(request):
                 return redirect('login:password_reset_verify', email=email)
                 
             except Exception as e:
-                messages.error(request, f'Error al enviar el email: {str(e)}')
+                logger.error(f"Error al enviar email de recuperación de contraseña: {e}", exc_info=True)
+                messages.error(request, 'No se pudo enviar el código de verificación. Intenta nuevamente.')
     else:
         form = PasswordResetRequestForm()
     
@@ -1676,31 +1426,24 @@ def password_reset_verify(request, email):
             # Verificar el código
             if reset_code.code == code:
                 try:
-                    # Obtener las credenciales del administrador
+                    # Obtener las credenciales del administrador (credenciales.user
+                    # siempre existe: es un OneToOneField obligatorio)
                     credenciales = AdminCredentials.objects.get(email=email, activo=True)
-                    
-                    # Actualizar la contraseña
-                    credenciales.password = make_password(new_password)
-                    credenciales.save()
-                    
+
+                    credenciales.user.set_password(new_password)
+                    credenciales.user.save()
+
                     # Marcar el código como usado
                     reset_code.mark_as_used()
-                    
-                    # Actualizar la contraseña del usuario Django si existe
-                    try:
-                        user = User.objects.get(username=email)
-                        user.set_password(new_password)
-                        user.save()
-                    except User.DoesNotExist:
-                        pass
-                    
+
                     messages.success(request, 'Contraseña actualizada exitosamente. Ahora puedes iniciar sesión.')
                     return redirect('login:admin_login')
                     
                 except AdminCredentials.DoesNotExist:
                     messages.error(request, 'No se encontraron credenciales para este email.')
                 except Exception as e:
-                    messages.error(request, f'Error al actualizar la contraseña: {str(e)}')
+                    logger.error(f"Error al actualizar la contraseña tras recuperación: {e}", exc_info=True)
+                    messages.error(request, 'No se pudo actualizar la contraseña. Intenta nuevamente.')
             else:
                 messages.error(request, 'Código de verificación incorrecto.')
     else:
@@ -1754,5 +1497,5 @@ def send_password_reset_email(email, code):
         )
         return True
     except Exception as e:
-        # print(f"Error enviando email: {e}")
+        logger.error(f"Error enviando email de recuperación de contraseña: {e}", exc_info=True)
         return False

@@ -9,11 +9,14 @@ from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from django_ratelimit.decorators import ratelimit
+import logging
 import os
 from propiedades.models import Propiedad
 from .forms import CVSubmissionForm, ContactSubmissionForm
 from .models import CVSubmission, ContactSubmission
 from .utils import turnstile_must_pass
+
+logger = logging.getLogger(__name__)
 
 # Crea tus vistas aquí.
 
@@ -49,13 +52,6 @@ def home(request):
             estado='aprobada'
         ).select_related('propiedad').order_by('-fecha_creacion')[:6]
         
-        # Debug: imprimir información sobre las propiedades de alquiler encontradas
-        print(f"DEBUG: Propiedades en alquiler encontradas: {propiedades_alquiler.count()}")
-        print(f"DEBUG: Propiedades de alquiler: {propiedades_alquiler_count}")
-        print(f"DEBUG: Propiedades de alquiler temporal: {propiedades_alquiler_temporal_count}")
-        for p in propiedades_alquiler:
-            print(f"DEBUG: - {p.titulo} (Operación: {p.operacion}, Estado: {p.estado})")
-        
         # Estadísticas básicas (solo para alquiler)
         # Comentado para futura actualización
         # total_propiedades = Propiedad.objects.count()
@@ -79,8 +75,8 @@ def home(request):
             'resenas_aprobadas': [],
             'error_message': 'Error al cargar las propiedades'
         }
-        print(f"Error en vista home: {e}")
-    
+        logger.error(f"Error en vista home: {e}", exc_info=True)
+
     return render(request, 'core/home.html', context)
 
 def about(request):
@@ -183,9 +179,10 @@ def contact(request):
                 return redirect('core:contact')
                 
             except Exception as e:
+                logger.error(f"Error al procesar formulario de contacto: {e}", exc_info=True)
                 messages.error(
-                    request, 
-                    f'Error al enviar el mensaje: {str(e)}. Por favor intenta nuevamente o contacta directamente con nosotros.'
+                    request,
+                    'No pudimos enviar tu mensaje. Por favor intenta nuevamente o contacta directamente con nosotros.'
                 )
         else:
             # Mostrar errores del formulario
@@ -273,9 +270,10 @@ def cv(request):
                 return redirect('core:cv')
                 
             except Exception as e:
+                logger.error(f"Error al procesar envío de CV: {e}", exc_info=True)
                 messages.error(
-                    request, 
-                    f'Error al enviar el CV: {str(e)}. Por favor intenta nuevamente o contacta directamente con nosotros.'
+                    request,
+                    'No pudimos enviar tu CV. Por favor intenta nuevamente o contacta directamente con nosotros.'
                 )
         else:
             # Mostrar errores del formulario
@@ -338,7 +336,7 @@ def send_cv_confirmation_email(cv_submission):
         )
         return True
     except Exception as e:
-        print(f"Error enviando email de confirmación: {e}")
+        logger.error(f"Error enviando email de confirmación de CV: {e}", exc_info=True)
         return False
 
 
@@ -393,7 +391,7 @@ def send_cv_notification_email(cv_submission):
         )
         return True
     except Exception as e:
-        print(f"Error enviando email de notificación: {e}")
+        logger.error(f"Error enviando email de notificación de CV: {e}", exc_info=True)
         return False
 
 
@@ -429,7 +427,7 @@ def download_cv(request, cv_id):
             return response
             
     except Exception as e:
-        print(f"Error descargando CV: {e}")
+        logger.error(f"Error descargando CV: {e}", exc_info=True)
         raise Http404("Error al descargar el archivo CV")
 
 
@@ -448,20 +446,21 @@ def delete_cv(request, cv_id):
                 if os.path.exists(cv_submission.cv_file.path):
                     os.remove(cv_submission.cv_file.path)
             except Exception as e:
-                print(f"Error eliminando archivo físico: {e}")
-        
+                logger.warning(f"Error eliminando archivo físico de CV: {e}")
+
         # Eliminar el registro de la base de datos
         cv_submission.delete()
-        
+
         return JsonResponse({
-            'success': True, 
+            'success': True,
             'message': f'CV de {cv_submission.nombre_completo} eliminado exitosamente.'
         })
-        
+
     except Exception as e:
+        logger.error(f"Error al eliminar CV {cv_id}: {e}", exc_info=True)
         return JsonResponse({
-            'success': False, 
-            'message': f'Error al eliminar el CV: {str(e)}'
+            'success': False,
+            'message': 'No se pudo eliminar el CV.'
         }, status=500)
 
 
@@ -516,7 +515,7 @@ def send_contact_confirmation_email(contact_submission):
         )
         return True
     except Exception as e:
-        print(f"Error enviando email de confirmación de contacto: {e}")
+        logger.error(f"Error enviando email de confirmación de contacto: {e}", exc_info=True)
         return False
 
 
@@ -566,7 +565,7 @@ def send_contact_notification_email(contact_submission):
         )
         return True
     except Exception as e:
-        print(f"Error enviando email de notificación de contacto: {e}")
+        logger.error(f"Error enviando email de notificación de contacto: {e}", exc_info=True)
         return False
 
 
